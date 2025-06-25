@@ -1,0 +1,1 @@
+# template-nextjs-shadcn-drizzle-inversify

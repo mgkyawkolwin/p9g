@@ -1,0 +1,57 @@
+@END_POINT=http://localhost:3000/api/
+@API_KEY=da2-bx6zi2cpzfffbazpy64mbnu7mi
+
+
+# Login
+curl --request POST \
+  --url {{END_POINT}}auth/signin \
+  --header 'Content-Type: application/json'
+  --data '{"userName" : "test", "password": "test"}'
+###
+
+# Default - Get All Users With default paging
+curl --request GET \
+  --url {{END_POINT}}users \
+  --header 'Content-Type: application/json'
+###
+
+# Paging - Get All Users With Paging
+curl --request GET \
+  --url {{END_POINT}}users?pageIndex=2&pageSize=2 \
+  --header 'Content-Type: application/json'
+###
+
+# Filter
+curl --request GET \
+  --url {{END_POINT}}users?email=d@d.com \
+  --header 'Content-Type: application/json'
+###
+
+# Order
+curl --request GET \
+  --url {{END_POINT}}users/?orderBy=id&orderDirection=desc \
+  --header 'Content-Type: application/json'
+###
+
+curl --request GET \
+  --url {{END_POINT}}users/1 \
+  --header 'Content-Type: application/json'
+###
+
+curl --request POST \
+  --url {{END_POINT}}users \
+  --header 'Content-Type: application/json'
+  --data '{"name" : "User A", "email" : "a@a.com", "password": "askdjfeksf"}'
+###
+
+curl --request PUT \
+  --url {{END_POINT}}users/2 \
+  --header 'Content-Type: application/json' \
+  --data '{"email": "edited@a.com"}'
+### 
+
+
+curl --request DELETE \
+  --url {{END_POINT}}users/1 \
+  --header 'Content-Type: application/json'
+###
