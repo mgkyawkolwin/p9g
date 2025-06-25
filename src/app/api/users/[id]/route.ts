@@ -13,7 +13,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         consoleLogger.logInfo("GET /api/users/[id]");
         consoleLogger.logDebug(JSON.stringify(await params));
         const { id } = await params;
-        const service = container.get<IUserService>(TYPES.IUserServce);
+        const service = container.get<IUserService>(TYPES.IUserService);
         const result = await service.userFindById(parseInt(id));
         if (!result) {
             return NextResponse.json({ message: "Not found." }, { status: 404 });
@@ -30,7 +30,7 @@ export async function PUT(request: Request, { params }: { params: { id: number }
     try{
         const body = await request.json();
         const { id } = await params;
-        const service = container.get<IUserService>(TYPES.IUserServce);
+        const service = container.get<IUserService>(TYPES.IUserService);
         // find existing user
         const user = await service.userFindById(id);
         if (!user) {
@@ -53,7 +53,7 @@ export async function PUT(request: Request, { params }: { params: { id: number }
 export async function DELETE(request: Request, { params }: { params: { id: number } }) {
     try{
         const {id} = await params;
-        const service = container.get<IUserService>(TYPES.IUserServce);
+        const service = container.get<IUserService>(TYPES.IUserService);
         const result = await service.userDelete(id);
         if (!result) {
             return NextResponse.json({ message: "Fail delete." }, { status: 404 });

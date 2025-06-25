@@ -34,6 +34,20 @@ export default class UserRepository extends Repository<User, typeof user> implem
         return user as User;
     }
 
+    async findByUserName(userName: string): Promise<User> {
+        const [user] = await this.dbClient.db
+            .select()
+            .from(this.table)
+            .where(
+            and(
+                eq(this.table.userName, userName)
+            )
+            )
+            .limit(1);
+
+        return user as User;
+    }
+
     async findByUserNameAndPassword(userName: string, password: string): Promise<User> {
         const [user] = await this.dbClient.db
             .select()

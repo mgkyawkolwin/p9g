@@ -28,10 +28,11 @@ export type SearchParam = {
 }
 
 export const TYPES = {
+  IAuthService : Symbol.for('IAuthService'),
   IDatabase : Symbol.for('IDatabase'),
   IDbType : Symbol.for('IDbType'),
   IRepository : Symbol.for('IRepository'),
   IRepositoryFactory : Symbol.for('IRepositoryFactory'),
   IUserRepository : Symbol.for('IUserRepository'),
-  IUserServce : Symbol.for('IUserService'),
+  IUserService : Symbol.for('IUserService'),
 }

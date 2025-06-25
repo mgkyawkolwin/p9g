@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     consoleLogger.logDebug(JSON.stringify(pager));
 
     //call service to retrieve data
-    const userService = container.get<IUserService>(TYPES.IUserServce);
+    const userService = container.get<IUserService>(TYPES.IUserService);
     const result = await userService.userFindMany(searchFields, pager);
     consoleLogger.logDebug(JSON.stringify(result));
 
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     consoleLogger.logInfo("GET /api/users/[id]");
     consoleLogger.logDebug(JSON.stringify(request));
     const body = await request.json();
-    const userService = container.get<IUserService>(TYPES.IUserServce);
+    const userService = container.get<IUserService>(TYPES.IUserService);
     const selected = await userService.userCreate(body);
     return NextResponse.json({ message: "Inserted"}, { status: 201 });
   }catch(error){

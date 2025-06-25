@@ -10,6 +10,8 @@ export default interface IUserService {
 
     userFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[User[],PagerParams]>;
 
+    userFindByUserName(userName:string) : Promise<User | null>;
+
     userFindByUserNameAndPassword(userName:string, password:string) : Promise<User | null>;
 
     userFindByEmailAndPassword(email:string, password:string) : Promise<User | null>;

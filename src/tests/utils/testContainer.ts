@@ -24,7 +24,7 @@ const mockDb = {
     container.bind<IDatabase<MySqlDbType>>(TYPES.IDatabase).to(MySqlDatabase).inSingletonScope();
 
 
-    container.bind<IUserService>(TYPES.IUserServce).to(UserService);
+    container.bind<IUserService>(TYPES.IUserService).to(UserService);
     
     container.bind<UserRepository>(TYPES.IUserRepository).to(UserRepository);
     

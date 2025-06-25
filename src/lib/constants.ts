@@ -12,6 +12,6 @@ export const HttpStatusCode = {
 }
 
 export const AppUrl = {
-    signin : 'auth/signin',
-    main : 'users'
+    signin : '/auth/signin',
+    main : '/console/users'
 }

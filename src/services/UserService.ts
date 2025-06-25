@@ -1,6 +1,5 @@
 import { injectable, inject } from 'inversify';
 
-//local imports, sorted
 import consoleLogger from '@/lib/core/logger/ConsoleLogger';
 import type IUserRepository from '@/data/repo/IUserRepository';
 import type IUserService from "./contracts/IUserService";
@@ -47,6 +46,13 @@ export default class UserService implements IUserService{
     async userFindByEmailAndPassword(email:string, password:string): Promise<User | null> {
       consoleLogger.logInfo('UserService > userFindByEmailAndPassword');
       const result = await this.userRepository.findByEmailAndPassword(email,password);
+      return result;
+    }
+
+    
+    async userFindByUserName(userName: string): Promise<User | null> {
+      consoleLogger.logInfo('UserService > userFindByUserName');
+      const result = await this.userRepository.findByUserName(userName);
       return result;
     }
 

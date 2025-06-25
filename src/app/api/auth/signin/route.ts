@@ -2,6 +2,7 @@ import { container } from '@/dicontainer';
 import { HttpStatusCode } from '@/lib/constants';
 import { TYPES } from '@/lib/types';
 import IUserService from '@/services/contracts/IUserService';
+import IAuthService from '@/services/contracts/IAuthService';
 import { NextRequest, NextResponse } from 'next/server'
 import { userSignInSchema } from '@/lib/zodschema';
 
@@ -23,8 +24,8 @@ export async function POST(request: NextRequest) {
 
     //validation pass, check db
     const { userName, password } = parsedData.data;
-    const userService = container.get<IUserService>(TYPES.IUserServce);
-    const user = await userService.userFindByUserNameAndPassword(userName, password);
+    const userService = container.get<IAuthService>(TYPES.IAuthService);
+    const user = await userService.signMeIn(userName, password);
     
     //wrong credential, return response
     if(!user)
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     //everything is right
     return NextResponse.json(user, { status: HttpStatusCode.Ok });
   }catch(error){
-    consoleLogger.logError(error.message);
+    consoleLogger.logError(error instanceof Error ? error.message : JSON.stringify(error));
     return NextResponse.json({ message: "Unknown error occured."}, { status: HttpStatusCode.ServerError });
   }
 }

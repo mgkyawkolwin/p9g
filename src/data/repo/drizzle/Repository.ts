@@ -7,7 +7,6 @@ import { db, type DBType, type TransactionType } from "@/data/orm/drizzle/mysql/
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
 
-//Local Imports
 import IRepository from "../IRepository";
 import { PagerParams, SearchParam, TYPES } from "@/lib/types";
 import { type IDatabase } from "@/data/db/IDatabase";

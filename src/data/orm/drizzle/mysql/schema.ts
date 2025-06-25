@@ -1,70 +1,155 @@
-import { mysqlTable, int, varchar, serial, timestamp, tinyint, text, datetime } from "drizzle-orm/mysql-core";
-import { relations } from "drizzle-orm"
+import { mysqlTable, primaryKey,unique, int, boolean, char, varchar, serial, timestamp, tinyint, text,date, datetime } from "drizzle-orm/mysql-core";
+import { relations, sql } from "drizzle-orm";
+import {v4 as uuidv4} from 'uuid';
+
+
+export const config = mysqlTable("config", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  group: varchar("group", {length: 50}).notNull(),
+  value: varchar("value", {length: 50}).notNull(),
+  text: varchar("text", {length: 50}).notNull(),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
+  updatedBy: char("updatedBy", {length: 36}).notNull(),
+});
+
+export const customer = mysqlTable("customer", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  dob: date("dob"),
+  passport: varchar("passport", { length: 50 }).unique(),
+  nationalId: varchar("nationalId", { length: 50 }).unique(),
+  address: varchar("address", { length: 255 }),
+  country: varchar("country", { length: 50 }),
+  phone: varchar("phone", { length: 50 }),
+  email: varchar("email", { length: 50 }).unique(),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
+  updatedBy: char("updatedBy", {length: 36}).notNull(),
+});
+
+export const prepaid = mysqlTable("prepaid", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  value: varchar("value", {length: 50}).notNull(),
+  text: varchar("text", {length: 50}).notNull(),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
+  updatedBy: char("updatedBy", {length: 36}).notNull(),
+});
+
+export const promotion = mysqlTable("promotion", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  value: varchar("value", {length: 50}).notNull(),
+  text: varchar("text", {length: 50}).notNull(),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
+  updatedBy: char("updatedBy", {length: 36}).notNull(),
+});
+
+export const reservation = mysqlTable("reservation", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  reservationTypeId: char("reservationTypeId", {length: 36}).notNull(),
+  arrivalDateTime: datetime("arrivalDateTime"),
+  arrivalFlight: varchar("arrivalFlight", { length: 50 }),
+  depertureDateTime: datetime("depertureDateTime"),
+  depertureFlight: varchar("depertureFlight", { length: 50 }),
+  checkInDate: date("checkInDate"),
+  checkOutDate: date("checkOutDate"),
+  noOfDays: tinyint("noOfDays"),
+  depositAmount: int("depositAmount"),
+  depositCurrency: char("depositCurrency", {length: 3}),
+  roomNo: varchar("roomNo", {length: 10}),
+  pickUpTypeId: char("pickUpTypeId", {length: 36}),
+  pickUpFee: tinyint("pickUpFee"),
+  pickUpCurrency: char("pickUpCurrency", {length: 3}),
+  pickUpCarNo: varchar("pickUpCarNo", {length: 10}),
+  dropOffTypeId: char("pickUpTypeId", {length: 36}),
+  dropOffFee: tinyint("dropOffFee"),
+  dropOffFeeCurrency: char("dropOffFeeCurrency", {length: 3}),
+  dropOffCarNo: varchar("dropOffCarNo", {length: 10}),
+  statusId: char("statusId", {length: 36}).notNull(),
+  remark: varchar("remark", {length: 255}),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
+  updatedBy: char("updatedBy", {length: 36}).notNull(),
+});
+
+export const reservationCustomer = mysqlTable("reservationCustomer", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  reservationId: char("reservationId", {length: 36}).notNull(),
+  customerId: char("customerId", {length: 36}).notNull(),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
+  updatedBy: char("updatedBy", {length: 36}).notNull(),
+});
+
+export const reservationRoom = mysqlTable("reservationRoom", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  reservationId: char("reservationId", {length: 36}).notNull(),
+  roomId: char("roomId", {length: 36}).notNull(),
+  fromDate: date().notNull(),
+  toDate: date().notNull(),
+  noOfExtraBed: tinyint(),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
+  updatedBy: char("updatedBy", {length: 36}).notNull(),
+});
+
+export const roomSetUp = mysqlTable("roomSetUp", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  roomNo: varchar("roomNo", { length: 50 }).notNull(),
+  roomTypeId: char("roomTypeId", {length: 36}).notNull(),
+  isAvailable: boolean("isAvailable").default(true).notNull(),
+  isDoubleBed: boolean("isDoubleBed").default(true).notNull(),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
+  updatedBy: char("updatedBy", {length: 36}).notNull(),
+});
+
+export const roomType = mysqlTable("roomType", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  roomType: varchar("roomType", { length: 50 }).notNull(),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
+  updatedBy: char("updatedBy", {length: 36}).notNull(),
+});
 
 export const user = mysqlTable("user", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }),
-  userName: varchar("userName", { length: 255 }),
-  email: varchar("email", { length: 255 }).notNull().unique(),
-  //emailVerified: datetime("emailVerified"),
-  //image: varchar("image", { length: 255 }),
-  password: varchar("password", { length: 255 }), // Only for credentials provider
-  role: varchar("role", { length: 50 }).$type<"ADMIN" | "MANAGER" | "USER">().default("USER"),
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").onUpdateNow(),
-})
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  userName: varchar("userName", { length: 255 }).notNull().unique(),
+  email: varchar("email", { length: 255 }).unique(),
+  password: varchar('password', { length: 100 }).notNull(),
+  //role: varchar("role", { length: 50 }).$type<"ADMIN" | "MANAGER" | "USER">().default("USER"),
+  role: varchar("role", { length: 50 }).notNull(),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
+  updatedBy: char("updatedBy", {length: 36}).notNull(),
+});
 
-// export const accounts = mysqlTable("account", {
-//   id: varchar("id", { length: 255 }).primaryKey(),
-//   userId: int("userId")
-//     .notNull()
-//     .references(() => user.id, { onDelete: "cascade" }),
-//   type: varchar("type", { length: 255 }).notNull(),
-//   provider: varchar("provider", { length: 255 }).notNull(),
-//   providerAccountId: varchar("providerAccountId", { length: 255 }).notNull(),
-//   refresh_token: text("refresh_token"),
-//   access_token: text("access_token"),
-//   expires_at: int("expires_at"),
-//   token_type: varchar("token_type", { length: 255 }),
-//   scope: varchar("scope", { length: 255 }),
-//   id_token: text("id_token"),
-//   session_state: varchar("session_state", { length: 255 }),
-// })
 
-// export const sessions = mysqlTable("session", {
-//   id: varchar("id", { length: 255 }).primaryKey(),
-//   sessionToken: varchar("sessionToken", { length: 255 }).notNull().unique(),
-//   userId: int("userId")
-//     .notNull()
-//     .references(() => user.id, { onDelete: "cascade" }),
-//   expires: datetime("expires").notNull(),
-// })
-
-// export const verificationTokens = mysqlTable("verificationToken", {
-//   identifier: varchar("identifier", { length: 255 }).notNull(),
-//   token: varchar("token", { length: 255 }).notNull().unique(),
-//   expires: datetime("expires").notNull(),
-// })
-
-// // Define relations
-// export const usersRelations = relations(user, ({ many }) => ({
-//   accounts: many(accounts),
-//   sessions: many(sessions),
-// }))
-
-// export const accountsRelations = relations(accounts, ({ one }) => ({
-//   user: one(user, {
-//     fields: [accounts.userId],
-//     references: [user.id],
-//   }),
-// }))
-
-// export const sessionsRelations = relations(sessions, ({ one }) => ({
-//   user: one(user, {
-//     fields: [sessions.userId],
-//     references: [user.id],
-//   }),
-// }))
+export const reservationRelations = relations(reservation, ({ one, many }) => ({
+  reservationType: one(config, {
+    fields: [reservation.reservationTypeId],
+    references: [config.id],
+  }),
+  status: one(config, {
+    fields: [reservation.statusId],
+    references: [config.id],
+  }),
+  customers: many(reservationCustomer),
+  rooms: many(reservationRoom)
+}));
 
 // Export TypeScript types
 export type User = typeof user.$inferSelect;
