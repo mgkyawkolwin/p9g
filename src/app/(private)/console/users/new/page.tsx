@@ -1,11 +1,11 @@
 "use server";
 
-import UserCreate from "@/app/(private)/console/users/new/usercreate";
-import { userCreate } from "./actions";
+import UserNew from "@/app/(private)/console/users/new/usernew";
+import { userNew } from "./actions";
 
 export default async function UserNewPage() {
 
   return (
-    <UserCreate action={userCreate}/>
+    <UserNew action={userNew}/>
   );
 }

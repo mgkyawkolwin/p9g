@@ -11,9 +11,11 @@
 - Caching - NextJs built-in cache, fetch catching, unstable-cache
 - Migration - Drizzle
 - Form Validation - Zod Schema
+- Hashing - Argon2
 
 ## Database
 MySql
+DateTime - Precision 3, UTC Time
 
 ## Testing
 Unit/Integration Testing - Vitest

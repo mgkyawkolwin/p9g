@@ -7,7 +7,7 @@ import { APIResponse, FormState } from "@/lib/types";
 import consoleLogger from "@/lib/core/logger/ConsoleLogger";
 
 
-export async function userNew(formState : FormState, formData: FormData) : Promise<FormState>{
+export async function userCreate(formState : FormState, formData: FormData) : Promise<FormState>{
   try {
     consoleLogger.logInfo('Actions > /admin/users/new > userCreate');
     consoleLogger.logDebug(JSON.stringify(formData.entries));

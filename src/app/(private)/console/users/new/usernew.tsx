@@ -6,7 +6,7 @@ import { FormState } from "@/lib/types";
 import { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export default function UserCreate({action}:{action:(formState:FormState,formData:FormData)=>Promise<FormState>}) {
+export default function UserNew({action}:{action:(formState:FormState,formData:FormData)=>Promise<FormState>}) {
 
   const [state, formAction, isPending] = useActionState(action, {
     error: false,

@@ -9,7 +9,7 @@ export default function SignOutButton({action} : { action: () => Promise<FormSta
     
   return (
     <form key={"signOutForm"} action={formAction} >
-      <Button type="submit" >Sign Out</Button>
+      <Button type="submit" variant={"destructive"} >Sign Out</Button>
     </form>
   )
 }

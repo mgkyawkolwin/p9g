@@ -154,3 +154,5 @@ export const reservationRelations = relations(reservation, ({ one, many }) => ({
 // Export TypeScript types
 export type User = typeof user.$inferSelect;
 export type NewUser = typeof user.$inferInsert; // For INSERT queries
+export type Customer = typeof customer.$inferSelect;
+export type Reservation = typeof reservation.$inferSelect;
