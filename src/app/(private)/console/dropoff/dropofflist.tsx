@@ -8,6 +8,8 @@ import consoleLogger from "@/lib/core/logger/ConsoleLogger";
 import ReservationListTable from "@/components/tables/reservationlisttable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import CheckInTable from "@/components/tables/checkintable";
+import DropOffTable from "@/components/tables/dropofftable";
+import DropOffSearch from "@/components/searchs/dropoffsearch";
 
 export default function DropOffList() {
   consoleLogger.logInfo("Client > DropOffList");
@@ -29,7 +31,10 @@ export default function DropOffList() {
         Drop-Off List
       </GroupTitle>
       <GroupContent>
-      <CheckInTable formState={state} formAction={formAction} isPending={isPending} />
+              <div className="flex flex-col gap-4">
+                <DropOffSearch />
+                <DropOffTable formState={state} formAction={formAction} isPending={isPending} />
+              </div>
       </GroupContent>
     </Group>
   );

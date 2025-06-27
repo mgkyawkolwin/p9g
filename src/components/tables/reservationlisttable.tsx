@@ -85,12 +85,12 @@ export const columns: ColumnDef<Reservation>[] = [
     accessorKey: "reservationStatus",
     header: ({ column }) => {
       return (
-        <Button
+        <Button className="p-0 m-0 w-fit"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          Emailx
+          <ArrowUpDown className="ml-1 h-4" />
         </Button>
       )
     },

@@ -8,6 +8,8 @@ import consoleLogger from "@/lib/core/logger/ConsoleLogger";
 import ReservationListTable from "@/components/tables/reservationlisttable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import CheckInTable from "@/components/tables/checkintable";
+import CheckOutSearch from "@/components/searchs/checkoutsearch";
+import CheckOutTable from "@/components/tables/checkouttable";
 
 export default function CheckOutList() {
   consoleLogger.logInfo("Client > CheckInList");
@@ -29,7 +31,10 @@ export default function CheckOutList() {
         Check-Out List
       </GroupTitle>
       <GroupContent>
-      <CheckInTable formState={state} formAction={formAction} isPending={isPending} />
+        <div className="flex flex-col gap-4">
+          <CheckOutSearch />
+          <CheckOutTable formState={state} formAction={formAction} isPending={isPending} />
+        </div>
       </GroupContent>
     </Group>
   );

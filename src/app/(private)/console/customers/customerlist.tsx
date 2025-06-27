@@ -8,6 +8,8 @@ import consoleLogger from "@/lib/core/logger/ConsoleLogger";
 import ReservationListTable from "@/components/tables/reservationlisttable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import CheckInTable from "@/components/tables/checkintable";
+import CustomerSearch from "@/components/searchs/customersearch";
+import CustomerTable from "@/components/tables/customertable";
 
 export default function CustomerList() {
   consoleLogger.logInfo("Client > CustomerList");
@@ -29,7 +31,10 @@ export default function CustomerList() {
         Customer List
       </GroupTitle>
       <GroupContent>
-      <CheckInTable formState={state} formAction={formAction} isPending={isPending} />
+              <div className="flex flex-col gap-4">
+                <CustomerSearch />
+                <CustomerTable formState={state} formAction={formAction} isPending={isPending} />
+              </div>
       </GroupContent>
     </Group>
   );

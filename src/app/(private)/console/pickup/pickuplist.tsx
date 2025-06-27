@@ -8,6 +8,8 @@ import consoleLogger from "@/lib/core/logger/ConsoleLogger";
 import ReservationListTable from "@/components/tables/reservationlisttable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import CheckInTable from "@/components/tables/checkintable";
+import PickUpSearch from "@/components/searchs/pickupsearch";
+import PickUpTable from "@/components/tables/pickuptable";
 
 export default function PickUpList() {
   consoleLogger.logInfo("Client > PickUpList");
@@ -29,7 +31,10 @@ export default function PickUpList() {
         Pick-Up List
       </GroupTitle>
       <GroupContent>
-      <CheckInTable formState={state} formAction={formAction} isPending={isPending} />
+        <div className="flex flex-col gap-4">
+          <PickUpSearch />
+          <PickUpTable formState={state} formAction={formAction} isPending={isPending} />
+        </div>
       </GroupContent>
     </Group>
   );

@@ -8,6 +8,7 @@ import consoleLogger from "@/lib/core/logger/ConsoleLogger";
 import ReservationListTable from "@/components/tables/reservationlisttable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import CheckInTable from "@/components/tables/checkintable";
+import CheckInSearch from "@/components/searchs/checkinsearch";
 
 export default function CheckInList() {
   consoleLogger.logInfo("Client > CheckInList");
@@ -29,7 +30,10 @@ export default function CheckInList() {
         Check-In List
       </GroupTitle>
       <GroupContent>
-      <CheckInTable formState={state} formAction={formAction} isPending={isPending} />
+        <div className="flex flex-col gap-4">
+          <CheckInSearch />
+          <CheckInTable formState={state} formAction={formAction} isPending={isPending} />
+        </div>
       </GroupContent>
     </Group>
   );
