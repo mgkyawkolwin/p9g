@@ -9,6 +9,46 @@ curl --request POST \
   --data '{"userName" : "test", "password": "test"}'
 ###
 
+### CUSTOMERS ###
+
+# Default - Get All Users With default paging
+curl --request GET \
+  --url {{END_POINT}}customers \
+  --header 'Content-Type: application/json'
+###
+
+# Default - Get By Id
+curl --request GET \
+  --url {{END_POINT}}customers/24ebc764-5420-11f0-9671-b88d122a4ff4 \
+  --header 'Content-Type: application/json'
+###
+
+# Default - Update
+curl --request PUT \
+  --url {{END_POINT}}customers/24ebc764-5420-11f0-9671-b88d122a4ff4 \
+  --header 'Content-Type: application/json'
+  --data '{"name":"Customer 1 Updated"}'
+###
+
+# Paging - Get All Users With Paging
+curl --request GET \
+  --url {{END_POINT}}customers?pageIndex=2&pageSize=2 \
+  --header 'Content-Type: application/json'
+###
+
+# Filter
+curl --request GET \
+  --url {{END_POINT}}customers?orderBy=id&orderDirection=asc&pageIndex=1&pageSize=10&name=2 \
+  --header 'Content-Type: application/json'
+###
+
+# Order
+curl --request GET \
+  --url {{END_POINT}}customers/?orderBy=id&orderDirection=desc \
+  --header 'Content-Type: application/json'
+###
+
+#################
 # Default - Get All Users With default paging
 curl --request GET \
   --url {{END_POINT}}users \

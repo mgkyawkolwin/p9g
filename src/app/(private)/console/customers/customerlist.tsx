@@ -10,11 +10,20 @@ import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import CheckInTable from "@/components/tables/checkintable";
 import CustomerSearch from "@/components/searchs/customersearch";
 import CustomerTable from "@/components/tables/customertable";
+import { customerGetList, customerUpdate } from "./actions";
+import React from "react";
 
 export default function CustomerList() {
   consoleLogger.logInfo("Client > CustomerList");
 
-  const [state, formAction, isPending] = useActionState(userGetList, {
+  const formRef = React.useRef<HTMLFormElement>(null);
+
+  const [state, formAction, isPending] = useActionState(customerGetList, {
+    error: false,
+    message: ""
+  });
+
+  const [rowFromState, rowFormAction, rowFormIsPending] = useActionState(customerUpdate, {
     error: false,
     message: ""
   });
@@ -32,8 +41,10 @@ export default function CustomerList() {
       </GroupTitle>
       <GroupContent>
               <div className="flex flex-col gap-4">
-                <CustomerSearch />
-                <CustomerTable formState={state} formAction={formAction} isPending={isPending} />
+                <form ref={formRef} action={formAction} className="flex flex-col gap-4">
+                <CustomerSearch formAction={formAction} formRef={formRef}/>
+                <CustomerTable formState={state} formAction={formAction} formRef={formRef} isPending={isPending} rowFormAction={rowFormAction} />
+                </form>
               </div>
       </GroupContent>
     </Group>

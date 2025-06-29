@@ -44,6 +44,8 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   formState: FormState;
   formAction: (formData: FormData) => void;
+  formRef?: React.RefObject<HTMLFormElement | null>;
+  rowFormAction?: (formData: FormData) => void;
   isPending: boolean;
 }
 
@@ -54,6 +56,8 @@ export default function DataTable<TData, TValue>({
   data,
   formState,
   formAction,
+  formRef,
+  rowFormAction,
   isPending
 }: DataTableProps<TData, TValue>) {
 
@@ -62,23 +66,23 @@ export default function DataTable<TData, TValue>({
 
   const [pageIndex, setPageIndex] = React.useState(1);
   const [pages, setPages] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(2);
+  const [pageSize, setPageSize] = React.useState(10);
+  //const [pageSizeList, setPageSizeList] = React.useState(new Map<string, string>([["10", "10"]]));
   const [orderBy, setOrderBy] = React.useState("id");
   const [orderDirection, setOrderDirection] = React.useState("asc");
   const [pageIndexList, setPageIndexList] = React.useState(new Map<string, string>([["1", "1"]]));
 
-  const formRef = React.useRef<HTMLFormElement>(null);
+  //const formRef = React.useRef<HTMLFormElement>(null);
+  // const [rowFormAction, setRowFormAction] = React.useState<(formData: FormData) => void>(
+  //   () => {} // Initial empty function
+  // );
 
   //Filter related
-  const itemsPerPageMap = new Map<string, string>([
-    ["1", "1"],
-    ["2", "2"],
-    ["3", "3"],
-    ["4", "4"],
-    ["5", "5"],
+  const pageSizeList = new Map<string, string>([
     ["10", "10"],
     ["20", "20"],
-    ["30", "30"]
+    ["30", "30"],
+    ["50", "50"]
   ]);
 
   //Table Related
@@ -125,6 +129,8 @@ export default function DataTable<TData, TValue>({
       React.startTransition(() => {
       });
     }
+    //setPageSizeList(itemsPerPageMap);
+    //setRowFormAction(formAction);
   }, []);
 
 
@@ -152,22 +158,21 @@ export default function DataTable<TData, TValue>({
     consoleLogger.logDebug(pages);
     consoleLogger.logDebug(orderBy);
     consoleLogger.logDebug(orderDirection);
-    formRef.current?.requestSubmit();
+    formRef?.current?.requestSubmit();
   }, [pageSize, pageIndex]);
 
+  const handleSubmit = async (formData: FormData) => {
+    // Client-side validation if needed
+    consoleLogger.logInfo('handleSubmit is called.');
+    await formAction(formData); // Your server action
+  };
+
   return (
-    <form className="flex flex-1" ref={formRef} action={formAction}>
-      <Loader isLoading={isPending} />
-      <div className="flex flex-1 flex-col gap-y-4">
+      <div>
+        <Loader isLoading={isPending} />
+      <div className="flex flex-col gap-y-4 w-full max-w-full">
         <div className="flex">
-          <Input
-            placeholder="enter search values ..."
-            value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("email")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -197,8 +202,8 @@ export default function DataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="flex">
-          <Table className="bg-[#dddddd] rounded-xl">
+        <div className="flex max-w-full">
+          <Table className="bg-[#e0e0e0] rounded-xl max-w-full border-[#333333]">
             <TableHeader className="border-b-2 border-b-[#cccccc]">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -220,16 +225,16 @@ export default function DataTable<TData, TValue>({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="text-[#333333]">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
+                    <TableRow id={row.id}
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="text-[#333333]">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
                 ))
               ) : (
                 <TableRow>
@@ -245,7 +250,7 @@ export default function DataTable<TData, TValue>({
           <div className="flex gap-x-2">
             <SelectWithLabel label="Records Per Page:"
               name="pageSizex"
-              items={itemsPerPageMap}
+              items={pageSizeList}
               value={String(pageSize)}
               onValueChange={(value) => {
                 setPageSize(Number(value));
@@ -319,6 +324,6 @@ export default function DataTable<TData, TValue>({
       <input type="hidden" name="pageSize" value={pageSize} />
       <input type="hidden" name="orderBy" value={sorting[0].id} />
       <input type="hidden" name="orderDirection" value={sorting[0].desc ? "desc" : "asc"} />
-    </form>
+      </div>
   )
 }

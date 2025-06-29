@@ -29,6 +29,8 @@ export type SearchParam = {
 
 export const TYPES = {
   IAuthService : Symbol.for('IAuthService'),
+  ICustomerRepository : Symbol.for('ICustomerRepository'),
+  ICustomerService : Symbol.for('ICustomerService'),
   IDatabase : Symbol.for('IDatabase'),
   IDbType : Symbol.for('IDbType'),
   IRepository : Symbol.for('IRepository'),

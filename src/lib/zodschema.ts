@@ -1,6 +1,13 @@
 import { Regex } from 'lucide-react';
 import { z } from 'zod';
 
+
+
+export const customerUpdateSchema = z.object({
+  id: z.string().length(36, "Id is required"),
+  name: z.string().min(1, 'Name is required'),
+});
+
 export const userInsertSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   password: z.string().min(1, 'Password is required'),
@@ -33,6 +40,7 @@ export const pagerSchema = z.object({
 
 
 export const searchSchema = z.object({
+  search_name: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional(),
   userName: z.string().regex(RegExp('[a-zA-Z]'),'Invalid search column.').optional(),
   email: z.string().regex(RegExp('[a-zA-Z0-9@ ]'),'Invalid search column.').optional()
 });

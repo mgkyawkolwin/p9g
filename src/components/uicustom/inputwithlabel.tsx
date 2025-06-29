@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { InputCustom } from "./inputcustom";
 
 const inputVariants = cva(
-  "w-auto border-gray-300 bg-[#eeeeee]",
+  "w-[150] border-gray-300 bg-[#eeeeee]",
   {
     variants: {
       variant: {

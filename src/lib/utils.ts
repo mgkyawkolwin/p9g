@@ -9,6 +9,9 @@ export function cn(...inputs: ClassValue[]) {
 
 export function buildSearchParams(pagerParams : any) : SearchParam[] {
   const search : SearchParam[]= [];
+  if(pagerParams.search_name){
+    search.push({searchColumn:'name', searchValue: pagerParams.search_name});
+  }
   if(pagerParams.userName){
     search.push({searchColumn:'userName', searchValue: pagerParams.UserName});
   }

@@ -5,12 +5,13 @@ import { cn } from "@/lib/utils"
 import { cva, type VariantProps } from "class-variance-authority";
 
 const inputVariants = cva(
-  "w-auto border-gray-300 bg-[#eeeeee]",
+  "w-[100] border-gray-300 bg-[#eeeeee]",
   {
     variants: {
       variant: {
         default: "min-h-4",
-        form: "min-h-3"
+        form: "min-h-3",
+        table: "bg-[#eaeaea] text-[#333333] border-[#bbbbbb]"
       },
       size: {
         default: "h-9",

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "4e83f0b4-1c30-4f69-bc2b-c6226a932ca3",
+  "id": "b5c2c026-7dad-49c9-bc29-3af85afcd381",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "config": {
@@ -124,6 +124,13 @@
         },
         "country": {
           "name": "country",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "phone": {
+          "name": "phone",
           "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false,
@@ -416,21 +423,12 @@
           "notNull": false,
           "autoincrement": false
         },
-        "isPickUpRequired": {
-          "name": "isPickUpRequired",
-          "type": "boolean",
+        "pickUpTypeId": {
+          "name": "pickUpTypeId",
+          "type": "char(36)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": true
-        },
-        "isPickUpSharedRide": {
-          "name": "isPickUpSharedRide",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": true
+          "notNull": false,
+          "autoincrement": false
         },
         "pickUpFee": {
           "name": "pickUpFee",
@@ -452,22 +450,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "isDropOffRequired": {
-          "name": "isDropOffRequired",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": true
-        },
-        "isDropOffSharedRide": {
-          "name": "isDropOffSharedRide",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": true
         },
         "dropOffFee": {
           "name": "dropOffFee",
@@ -873,7 +855,7 @@
         },
         "password": {
           "name": "password",
-          "type": "char(97)",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false

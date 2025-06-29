@@ -104,7 +104,7 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
     if (searchParams.length > 0) {
       consoleLogger.logInfo('Where applied.');
       searchParams.forEach((searchParam : SearchParam) => {
-        const condition = like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}`);
+        const condition = like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`);
         countQuery = countQuery.where(condition);
         dataQuery = dataQuery.where(condition);
       });

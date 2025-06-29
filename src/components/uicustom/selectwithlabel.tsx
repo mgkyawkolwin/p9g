@@ -63,7 +63,7 @@ export function SelectWithLabel({
             <SelectTrigger className={cn(selectVariants({ variant, size, className }))}>
                 <SelectValue placeholder="Choose" />
             </SelectTrigger>
-            <SelectContent className={cn(selectVariants({ variant, size, className }))}>
+            <SelectContent >
                 <SelectGroup>
                   {Array.from(items.entries()).map(([value,displayText]) => (
                     <SelectItem key={value} value={value}>{displayText}</SelectItem>
