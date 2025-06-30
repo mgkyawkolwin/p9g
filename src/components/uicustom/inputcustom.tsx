@@ -15,7 +15,12 @@ const inputVariants = cva(
       },
       size: {
         default: "h-9",
-        sm: "max-h-7 text-[10pt]"
+        xl: "max-h-7 text-[10pt] max-w-60",
+        lg: "max-h-7 text-[10pt] max-w-50",
+        md: "max-h-7 text-[10pt] max-w-40",
+        sm: "max-h-7 text-[10pt] max-w-30",
+        xs: "max-h-7 text-[10pt] max-w-20",
+        xxs: "max-h-7 text-[10pt] max-w-10"
       },
     },
     defaultVariants: {

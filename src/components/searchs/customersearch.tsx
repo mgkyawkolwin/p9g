@@ -24,7 +24,10 @@ export default function CustomerSearch({
     isPending
   }: DataTableProps){
 
-    const [name, setName] = React.useState("");
+    const [searchName, setSearchName] = React.useState("");
+    const [searchNationalId, setSearchNationalId] = React.useState("");
+    const [searchPassport, setSearchPassport] = React.useState("");
+    const [searchPhone, setSearchPhone] = React.useState("");
 
     React.useEffect(() => {
         //formRef?.current?.requestSubmit();
@@ -32,12 +35,11 @@ export default function CustomerSearch({
 
     return (
         <section aria-label="CheckIn Search" className="flex w-full flex-col gap-4">
-            <div className="flex gap-4">
-                <DatePickerCustomWithLabel label="Date" />
-                <InputWithLabel label="Guest Name" name="search_name" defaultValue={name} onBlur={(e) => setName(e.target.value)} />
-                <InputWithLabel label="National ID" defaultValue={""} />
-                <InputWithLabel label="Passport"  defaultValue={""}/>
-                <InputWithLabel label="Phone"  defaultValue={""}/>
+            <div className="flex gap-4">\
+                <InputWithLabel label="Guest Name" name="search_name" defaultValue={searchName} onBlur={(e) => setSearchName(e.target.value)} />
+                <InputWithLabel label="National ID" name="search_nationalId" defaultValue={searchNationalId} onBlur={(e) => setSearchNationalId(e.target.value)} />
+                <InputWithLabel label="Passport"  name="search_passport" defaultValue={searchPassport} onBlur={(e) => setSearchPassport(e.target.value)} />
+                <InputWithLabel label="Phone"  name="search_phone" defaultValue={searchPhone} onBlur={(e) => setSearchPhone(e.target.value)} />
                 <Button onClick={() => formRef?.current?.requestSubmit()}>Search</Button>
             </div>
         </section>

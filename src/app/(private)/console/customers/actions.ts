@@ -13,61 +13,93 @@ export async function customerGetList(formState : FormState, formData: FormData)
     consoleLogger.logInfo('Actions > /console/customers > customerGetList');
     consoleLogger.logDebug(Object.fromEntries(formData?.entries()));
 
-    //workaround for auto form submission at page load
-    if (!formData || !(formData instanceof FormData))
-      return {error:false, message : ""};
+    //form data is blank, get the list by default pager
+    if (!formData || !(formData instanceof FormData)){
+      consoleLogger.logInfo("formData is invalid. Retrieve list by default pager.");
+      //retrieve users
+      const response = await fetch(process.env.API_URL + `customers`, {
+        method: 'GET',
+      });
 
-    if(!formData?.entries)
-      return {error:false, message : ""};
+      //fail
+      if(!response.ok){
+        consoleLogger.logInfo("List retrieval failed. Return error.");
+        return {error:true, message : "Customer list retrieval failed."};
+      }
+        
+      //success
+      const responseData = await response.json();
+      consoleLogger.logDebug(JSON.stringify(responseData));
 
+      //retrieve data from tuple
+      const [users, pager] = responseData.data;
+      return {error:false, message : "", data: users, pager: pager};
+    }
+    
+
+    // formData is valid, further process
     let queryString = null;
 
-    //validate and parse table input
+    //validate and parse paging input
+    consoleLogger.logInfo("Parsing pager fields from from entries.");
     const pagerFields = pagerSchema.safeParse(Object.fromEntries(formData.entries()));
-    consoleLogger.logDebug(JSON.stringify(pagerFields));
+    consoleLogger.logDebug(pagerFields);
 
     //table pager field validatd, build query string
     if(pagerFields.success){
+      consoleLogger.logInfo("Pager fields validation successful. Build query string.");
       queryString = buildTableQueryString(pagerFields.data);
       consoleLogger.logDebug(queryString);
+    }else{
+      consoleLogger.logInfo("Pager fields validation failed.");
+      
     }
+
     //validate and parse search input
+    consoleLogger.logInfo("Parsing search fields from from entries.");
     const searchFields = searchSchema.safeParse(Object.fromEntries(formData.entries()));
-    consoleLogger.logDebug(JSON.stringify(searchFields));
+    consoleLogger.logDebug(searchFields);
 
     //table pager field validatd, build query string
     if(searchFields.success){
+      consoleLogger.logInfo("Search fields validation successful. Building query string.");
       queryString = queryString ? queryString + '&' + buildTableQueryString(searchFields.data) : buildTableQueryString(searchFields.data);
       consoleLogger.logDebug(queryString);
     }
 
+    //detect table action
+    consoleLogger.logInfo("Detecting table action.");
     const formObj = Object.fromEntries(formData.entries());
     if(formObj.action && formObj.action == "UPDATE")
     {
+      consoleLogger.logInfo("Table action is UPDATE");
       //validate and parse form input
+      consoleLogger.logInfo("Validating update fields.");
       const validatedFields = customerUpdateSchema.safeParse(Object.fromEntries(formData.entries()));
       consoleLogger.logDebug(validatedFields);
 
       //form validation fail
       if (!validatedFields.success) {
-        //consoleLogger.logError(JSON.stringify(validatedFields.error.flatten().fieldErrors));
+        consoleLogger.logInfo("Update fields validation failed. Return response.");
         return { error: true, message: 'Invalid inputs.', data: null, formData: null};
       }
 
       //form validation pass
-      const { id, name } = validatedFields.data;
+      const { id, ...updatefields } = validatedFields.data;
 
       //update user
+      consoleLogger.logInfo("Update fields validation successful. Requesting API to update.");
       const response = await fetch(process.env.API_URL + `customers/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify(updatefields),
       });
       
       //update user failed
       if (!response.ok) {
+        consoleLogger.logInfo("Update api response failed. Return response.");
         const errorData = await response.json();
         consoleLogger.logError(errorData.message);
         return { error: true, message: 'Failed to update customer.', data: null, formData: null};
@@ -75,19 +107,24 @@ export async function customerGetList(formState : FormState, formData: FormData)
     }
 
     //retrieve users
+    consoleLogger.logInfo("Update successful. Get the updated list based on query string.");
     const response = await fetch(process.env.API_URL + `customers?${queryString}`, {
       method: 'GET',
     });
 
     //fail
-    if(!response.ok)
+    if(!response.ok){
+      consoleLogger.logInfo("Updated list retrieval failed. Return response.");
       return {error:true, message : "Customer list retrieval failed."};
+    }
 
     //success
+    consoleLogger.logInfo("Updated list retrieval successful.");
     const responseData = await response.json();
     consoleLogger.logDebug(JSON.stringify(responseData));
 
     //retrieve data from tuple
+    consoleLogger.logInfo("Everything is alright. Return response.");
     const [users, pager] = responseData.data;
     return {error:false, message : "", data: users, pager: pager};
   }catch(error){

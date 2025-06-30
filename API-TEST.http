@@ -27,7 +27,7 @@ curl --request GET \
 curl --request PUT \
   --url {{END_POINT}}customers/24ebc764-5420-11f0-9671-b88d122a4ff4 \
   --header 'Content-Type: application/json'
-  --data '{"name":"Customer 1 Updated"}'
+  --data '{"name":"Customer 1","country":"Korea"}'
 ###
 
 # Paging - Get All Users With Paging

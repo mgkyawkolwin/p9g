@@ -38,7 +38,13 @@ export default function CustomerTable<TData, TValue>({
   consoleLogger.logDebug(JSON.stringify(formState));
 
   const [clientState, setClientState] = React.useState(formState);
-  const inputRefs = React.useRef<Record<string, HTMLInputElement>>({});
+  const nameRefs = React.useRef<Record<string, HTMLInputElement>>({});
+  const nationalIdRefs = React.useRef<Record<string, HTMLInputElement>>({});
+  const passportRefs = React.useRef<Record<string, HTMLInputElement>>({});
+  const phoneRefs = React.useRef<Record<string, HTMLInputElement>>({});
+  const emailRefs = React.useRef<Record<string, HTMLInputElement>>({});
+  const addressRefs = React.useRef<Record<string, HTMLInputElement>>({});
+  const countryRefs = React.useRef<Record<string, HTMLInputElement>>({});
 
   React.useEffect(() => {
     setClientState(formState);
@@ -51,7 +57,6 @@ export default function CustomerTable<TData, TValue>({
     cell: ({ row }) => {
       return <div>
         {String(row.getValue("id")).substring(0,8)}
-        <input type="hidden" name="id" defaultValue={row.getValue('id')} />
       </div>
     }
   },{
@@ -59,29 +64,71 @@ export default function CustomerTable<TData, TValue>({
     header: "Name",
     cell: ({ row }) => {
       return <div>
-        <InputCustom ref={(el : any) => (inputRefs.current[String(row.getValue('id'))] = el)} variant={'table'} size={'sm'} className="w-50" defaultValue={row.getValue('name')} 
-        
+        <InputCustom variant={'table'} size={'sm'} className="w-50" defaultValue={row.getValue('name')} 
+          ref={(el : any) => (nameRefs.current[String(row.getValue('id'))] = el)}
         />
       </div>
     }
   },{
     accessorKey: "nationaId",
-    header: "National ID"
+    header: "National ID",
+    cell: ({ row }) => {
+      return <div>
+        <InputCustom variant={'table'} size={'xs'} className="w-50" defaultValue={row.getValue('nationalId')} 
+          ref={(el : any) => (nationalIdRefs.current[String(row.getValue('id'))] = el)}
+        />
+      </div>
+    }
   },{
     accessorKey: "passport",
-    header: "Passport"
+    header: "Passport",
+    cell: ({ row }) => {
+      return <div>
+        <InputCustom variant={'table'} size={'xs'} className="w-50" defaultValue={row.getValue('passport')} 
+          ref={(el : any) => (passportRefs.current[String(row.getValue('id'))] = el)}
+        />
+      </div>
+    }
   },{
     accessorKey: "phone",
-    header: "Phone"
+    header: "Phone",
+    cell: ({ row }) => {
+      return <div>
+        <InputCustom variant={'table'} size={'xs'} className="w-50" defaultValue={row.getValue('phone')} 
+          ref={(el : any) => (phoneRefs.current[String(row.getValue('id'))] = el)}
+        />
+      </div>
+    }
   },{
     accessorKey: "email",
-    header: "Email"
+    header: "Email",
+    cell: ({ row }) => {
+      return <div>
+        <InputCustom variant={'table'} size={'xs'} className="w-50" defaultValue={row.getValue('email')} 
+          ref={(el : any) => (emailRefs.current[String(row.getValue('id'))] = el)}
+        />
+      </div>
+    }
   },{
     accessorKey: "address",
-    header: "Address"
+    header: "Address",
+    cell: ({ row }) => {
+      return <div>
+        <InputCustom variant={'table'} size={'xs'} className="w-50" defaultValue={row.getValue('address')} 
+          ref={(el : any) => (addressRefs.current[String(row.getValue('id'))] = el)}
+        />
+      </div>
+    }
   },{
     accessorKey: "country",
-    header: "Country"
+    header: "Country",
+    cell: ({ row }) => {
+      return <div>
+        <InputCustom variant={'table'} size={'xs'} className="w-50" defaultValue={row.getValue('country')} 
+          ref={(el : any) => (countryRefs.current[String(row.getValue('id'))] = el)}
+        />
+      </div>
+    }
   },
   {
     accessorKey: "action",
@@ -90,45 +137,67 @@ export default function CustomerTable<TData, TValue>({
       return <div>
         <Button type="button" onClick={(e) => {
           consoleLogger.logInfo('[Client] Save action is clicked.');
-          //var r = document.getElementById(String(row.index));
-          //if(!r) return;
-          consoleLogger.logInfo('got row');
-          //const inputs = r.querySelectorAll('input[type="text"]');
           if(formRef){
             const formData = new FormData(formRef.current);
-            // formData.set("action", "UPDATE");
-            // formData.set("id", String(row.getValue("id")));
-            // formData.set("name", inputRefs.current[String(row.getValue('id'))].value);
+
             let input = document.createElement('input');
             input.type = 'hidden';
-            input.name = "name";
-            input.value = inputRefs.current[String(row.getValue('id'))].value;
-
+            input.name = "id";
+            input.value = row.getValue('id');
             formRef.current.appendChild(input);
+
             input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = "name";
+            input.value = nameRefs.current[String(row.getValue('id'))].value;
+            formRef.current.appendChild(input);
+
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = "natinalId";
+            input.value = nationalIdRefs.current[String(row.getValue('id'))].value;
+            formRef.current.appendChild(input);
+
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = "passport";
+            input.value = passportRefs.current[String(row.getValue('id'))].value;
+            formRef.current.appendChild(input);
+
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = "phone";
+            input.value = phoneRefs.current[String(row.getValue('id'))].value;
+            formRef.current.appendChild(input);
+
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = "email";
+            input.value = emailRefs.current[String(row.getValue('id'))].value;
+            formRef.current.appendChild(input);
+
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = "address";
+            input.value = addressRefs.current[String(row.getValue('id'))].value;
+            formRef.current.appendChild(input);
+
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = "country";
+            input.value = countryRefs.current[String(row.getValue('id'))].value;
+            formRef.current.appendChild(input);
+
+            input = document.createElement('input');
+            input.type = 'hidden';
             input.name = "action";
             input.value = "UPDATE";
             formRef.current.appendChild(input);
 
+            //submit form
             formRef.current.requestSubmit();
           }
 
-          
-          // inputs.forEach(input => {
-          //   consoleLogger.logInfo('loop');
-          //   const i = input as HTMLInputElement;
-          //   formData.set(i.name, i.value);
-          // });
-          //if(rowFormAction) rowFormAction(formData);
-          //formRef?.current?.appendChild(new HTMLHtmlElement());
-          // React.startTransition(() => {
-          //   consoleLogger.logInfo('start tran');
-          //   if(formAction) {
-          //     consoleLogger.logInfo('sumitting');
-          //     //formAction(formData);
-          //     consoleLogger.logInfo('submitted');
-          //   }
-          //       });
           
         }}>Save</Button>
       </div>

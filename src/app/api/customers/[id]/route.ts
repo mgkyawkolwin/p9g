@@ -29,7 +29,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
 export async function PUT(request: Request, { params }: { params: { id: number } }) {
     try{
+        consoleLogger.logInfo("PUT api/customers[id]");
         const body = await request.json();
+        consoleLogger.logDebug(body);
         const { id } = await params;
         const service = container.get<ICustomerService>(TYPES.ICustomerService);
         // find existing user

@@ -6,6 +6,12 @@ import { z } from 'zod';
 export const customerUpdateSchema = z.object({
   id: z.string().length(36, "Id is required"),
   name: z.string().min(1, 'Name is required'),
+  nationalId: z.string().min(1, 'NationalId is required').optional(),
+  passport: z.string().min(1, 'Passport is required').optional(),
+  phone: z.string().min(1, 'Phone is required').optional(),
+  email: z.string().min(1, 'Email is required').optional(),
+  address: z.string().min(1, 'Address is required').optional(),
+  country: z.string().min(1, 'Country is required').optional(),
 });
 
 export const userInsertSchema = z.object({
@@ -40,9 +46,11 @@ export const pagerSchema = z.object({
 
 
 export const searchSchema = z.object({
-  search_name: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional(),
-  userName: z.string().regex(RegExp('[a-zA-Z]'),'Invalid search column.').optional(),
-  email: z.string().regex(RegExp('[a-zA-Z0-9@ ]'),'Invalid search column.').optional()
+  searchName: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional(),
+  searchNationalId: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional(),
+  searchPassport: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional(),
+  searchPhone: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional(),
+  searchEmail: z.string().regex(RegExp('[a-zA-Z0-9@ ]'),'Invalid search column.').optional()
 });
 
 
