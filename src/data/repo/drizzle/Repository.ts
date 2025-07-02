@@ -1,5 +1,5 @@
 //Ordered Imports
-import { SQL, and,  count, asc, desc, eq, gt, gte, inArray, lt, lte, or, like, Table, Column, getTableColumns } from "drizzle-orm";
+import { SQL, and,  count, asc, desc, eq, gt, gte, inArray, lt, lte, or, like, Table, Column, getTableColumns, getTableName } from "drizzle-orm";
 import { MySqlColumn, MySqlTable, MySqlTableWithColumns } from "drizzle-orm/mysql-core";
 import { MySqlQueryResultHKT } from "drizzle-orm/mysql-core";
 import { MySqlTransaction } from "drizzle-orm/mysql-core";
@@ -13,8 +13,9 @@ import { type IDatabase } from "@/data/db/IDatabase";
 import IDrizzleTable from "@/data/repo/drizzle/IDrizzleTable";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { pages } from "next/dist/build/templates/app-page";
-import { user } from "@/data/orm/drizzle/mysql/schema";
+import { user, config } from "@/data/orm/drizzle/mysql/schema";
 import { pagerWithDefaults } from "@/lib/utils";
+import { timeStamp } from "console";
 
 
 @injectable()
@@ -27,7 +28,7 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
     table: TTable
   ) {
     this.dbClient = dbClient;
-    this.table = table;;
+    this.table = table;
   }
 
   async create(data: Omit<TEntity, "id" | "createdAt" | "updatedAt">): Promise<TEntity> {
@@ -118,6 +119,14 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
     //calculate number of pages
     const pages = Math.ceil(countResult[0].count / pagerParams.pageSize);
     c.d(countResult[0]);
+
+    const result = await this.dbClient.db.query[getTableName(this.table)].findMany(
+      {with: {
+        status: true
+      }}
+    );
+
+    c.d(result);
 
     // Execute query
     return [dataResult as TEntity[], {...pagerParams, pages: pages}];

@@ -15,6 +15,20 @@
       "when": 17510803292045,
       "tag": "0000_seed_test_data",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1751428493199,
+      "tag": "0002_chief_texas_twister",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1751428493200,
+      "tag": "0002_chief_texas_twister",
+      "breakpoints": true
     }
   ]
 }

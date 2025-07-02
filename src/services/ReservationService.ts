@@ -12,7 +12,7 @@ export default class ReservationService implements IReservationService{
     }
     
     async reservationTopList(pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
-        return this.reservationRepository.findMany([], pagerParams);
+        return this.reservationRepository.findReservationsX([], pagerParams);
     }
     
 }

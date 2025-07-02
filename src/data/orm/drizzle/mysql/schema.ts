@@ -52,7 +52,7 @@ export const promotion = mysqlTable("promotion", {
 
 export const reservation = mysqlTable("reservation", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
-  reservationTypeId: char("reservationTypeId", {length: 36}).notNull(),
+  reservationTypeId: char("reservationTypeId", {length: 36}),
   arrivalDateTime: datetime("arrivalDateTime"),
   arrivalFlight: varchar("arrivalFlight", { length: 50 }),
   depertureDateTime: datetime("depertureDateTime"),
@@ -71,7 +71,7 @@ export const reservation = mysqlTable("reservation", {
   dropOffFee: tinyint("dropOffFee"),
   dropOffFeeCurrency: char("dropOffFeeCurrency", {length: 3}),
   dropOffCarNo: varchar("dropOffCarNo", {length: 10}),
-  statusId: char("statusId", {length: 36}).notNull(),
+  reservationStatusId: char("reservationStatusId", {length: 36}).notNull().references(() => config.id),
   remark: varchar("remark", {length: 255}),
   createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
   createdBy: char("createdBy", {length: 36}).notNull(),
@@ -137,19 +137,25 @@ export const user = mysqlTable("user", {
   updatedBy: char("updatedBy", {length: 36}).notNull(),
 });
 
-
-export const reservationRelations = relations(reservation, ({ one, many }) => ({
-  reservationType: one(config, {
-    fields: [reservation.reservationTypeId],
-    references: [config.id],
-  }),
+export const reservationConfigStatusRelations = relations(reservation, ({ one }) => ({
   status: one(config, {
-    fields: [reservation.statusId],
+    fields: [reservation.reservationStatusId],
     references: [config.id],
   }),
-  customers: many(reservationCustomer),
-  rooms: many(reservationRoom)
 }));
+
+// export const reservationRelations = relations(reservation, ({ one, many }) => ({
+//   reservationType: one(config, {
+//     fields: [reservation.reservationTypeId],
+//     references: [config.id],
+//   }),
+//   status: one(config, {
+//     fields: [reservation.statusId],
+//     references: [config.id],
+//   }),
+//   customers: many(reservationCustomer),
+//   rooms: many(reservationRoom)
+// }));
 
 // Export TypeScript types
 export type User = typeof user.$inferSelect;
