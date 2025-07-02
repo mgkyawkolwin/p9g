@@ -8,6 +8,7 @@ import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { DatePickerCustomWithLabel } from "../uicustom/datepickercustomwithlabel";
 import { Button } from "../ui/button";
 import { FormState } from "@/lib/types";
+import { ButtonCustom } from "../uicustom/buttoncustom";
 
 
 interface DataTableProps {
@@ -35,12 +36,12 @@ export default function CustomerSearch({
 
     return (
         <section aria-label="CheckIn Search" className="flex w-full flex-col gap-4">
-            <div className="flex gap-4">\
-                <InputWithLabel label="Guest Name" name="search_name" defaultValue={searchName} onBlur={(e) => setSearchName(e.target.value)} />
-                <InputWithLabel label="National ID" name="search_nationalId" defaultValue={searchNationalId} onBlur={(e) => setSearchNationalId(e.target.value)} />
-                <InputWithLabel label="Passport"  name="search_passport" defaultValue={searchPassport} onBlur={(e) => setSearchPassport(e.target.value)} />
-                <InputWithLabel label="Phone"  name="search_phone" defaultValue={searchPhone} onBlur={(e) => setSearchPhone(e.target.value)} />
-                <Button onClick={() => formRef?.current?.requestSubmit()}>Search</Button>
+            <div className="flex gap-4">
+                <InputWithLabel label="Guest Name" name="searchName" defaultValue={searchName} onBlur={(e) => setSearchName(e.target.value)} />
+                <InputWithLabel label="National ID" name="searchNationalId" defaultValue={searchNationalId} onBlur={(e) => setSearchNationalId(e.target.value)} />
+                <InputWithLabel label="Passport"  name="searchPassport" defaultValue={searchPassport} onBlur={(e) => setSearchPassport(e.target.value)} />
+                <InputWithLabel label="Phone"  name="searchPhone" defaultValue={searchPhone} onBlur={(e) => setSearchPhone(e.target.value)} />
+                <ButtonCustom variant={"black"} onClick={() => formRef?.current?.requestSubmit()}>Search</ButtonCustom>
             </div>
         </section>
     );

@@ -1,3 +1,4 @@
+import { ColumnDef } from "@tanstack/react-table";
 
 
 export type APIResponse = {
@@ -34,7 +35,9 @@ export const TYPES = {
   IDatabase : Symbol.for('IDatabase'),
   IDbType : Symbol.for('IDbType'),
   IRepository : Symbol.for('IRepository'),
-  IRepositoryFactory : Symbol.for('IRepositoryFactory'),
+  IReservationRepository: Symbol.for('IReservationRepository'),
+  IReservationService: Symbol.for('IReservationService'),
   IUserRepository : Symbol.for('IUserRepository'),
   IUserService : Symbol.for('IUserService'),
 }
+

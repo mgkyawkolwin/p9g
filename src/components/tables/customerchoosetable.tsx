@@ -17,14 +17,20 @@ import SimpleDataTable from "./simpledatatable"
 import { ButtonCustom } from "../uicustom/buttoncustom"
 
 
+
+
 interface DataTableProps<TData, TValue> {
   data: Customer[];
-  setData: React.Dispatch<React.SetStateAction<Customer[]>>;
+  selectedCustomers: any;
+  setSelectedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function GuestInformationTable<TData, TValue>({
+export default function CustomerChooseTable<TData, TValue>({
   data,
-  setData
+  selectedCustomers,
+  setSelectedCustomers,
+  setOpen
 }: DataTableProps<TData, TValue>) {
   c.i('Client GuestInformationTable');
   c.d(JSON.stringify(data));
@@ -137,9 +143,11 @@ export default function GuestInformationTable<TData, TValue>({
       header: "Action",
       cell: ({ row }) => {
         return <div>
-          <ButtonCustom variant={"red"} size={"sm"} onClick={() => {
-            setData(data.filter(customer => customer.id !== row.getValue('id')));
-          }}>Remove</ButtonCustom>
+          <ButtonCustom variant={"green"} size={"sm"}
+          onClick={() => {
+            setSelectedCustomers([...selectedCustomers, row.original]);
+            setOpen(false);
+          }}>Choose</ButtonCustom>
         </div>
       }
     },

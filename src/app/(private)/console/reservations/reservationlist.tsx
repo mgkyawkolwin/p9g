@@ -4,13 +4,13 @@ import { useActionState, useEffect } from "react";
 import { userGetList } from "@/app/(private)/console/users/actions";
 import { toast } from "sonner";
 import UserListTable from "@/components/tables/userlisttable";
-import consoleLogger from "@/lib/core/logger/ConsoleLogger";
+import c from "@/lib/core/logger/ConsoleLogger";
 import ReservationListTable from "@/components/tables/reservationlisttable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import ReservationListSearch from "@/components/searchs/reservationlistsearch";
 
 export default function ReservationList() {
-  consoleLogger.logInfo("Client > ReservationList");
+  c.i("Client > ReservationList");
 
   const [state, formAction, isPending] = useActionState(userGetList, {
     error: false,

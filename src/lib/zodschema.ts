@@ -46,11 +46,11 @@ export const pagerSchema = z.object({
 
 
 export const searchSchema = z.object({
-  searchName: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional(),
-  searchNationalId: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional(),
-  searchPassport: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional(),
-  searchPhone: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional(),
-  searchEmail: z.string().regex(RegExp('[a-zA-Z0-9@ ]'),'Invalid search column.').optional()
+  searchName: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
+  searchNationalId: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
+  searchPassport: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
+  searchPhone: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
+  searchEmail: z.string().regex(RegExp('[a-zA-Z0-9@ ]'),'Invalid search column.').optional().or(z.literal(''))
 });
 
 

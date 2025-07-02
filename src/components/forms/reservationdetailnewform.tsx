@@ -8,8 +8,8 @@ import { Group, GroupContent, GroupTitle } from "../uicustom/group";
 export default function ReservationDetailNewForm() {
 
     return (
-        <div className="flex flex-1 flex-col">
-            <Group className="flex w-auto">
+        <div className="flex flex-col">
+            <Group className="flex">
                 <GroupTitle>
                     Reservation Details
                 </GroupTitle>

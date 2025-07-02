@@ -9,27 +9,18 @@ import { pagerSchema, searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
 import ICustomerService from "@/services/contracts/ICustomerService";
+import IReservationService from "@/services/contracts/IReservationService";
 
 
 export async function GET(request: NextRequest) {
   try{
-    c.i("GET /api/customers");
+    c.i("----------------------------------------------------------");
+    c.i("GET /api/reservations/top");
     c.d(JSON.stringify(request));
 
     //retrieve search params from request
     const searchParams = Object.fromEntries(request.nextUrl.searchParams);
     c.d(JSON.stringify(searchParams));
-
-    //validate search params
-    let searchFields : SearchParam[] = [];
-    const searchValidatedFields = await searchSchema.safeParseAsync(searchParams);
-    c.d(JSON.stringify(searchValidatedFields));
-    if(searchValidatedFields.success){
-      //validation successful, build search objects
-      //convert raw params into searchParam array
-      searchFields = buildSearchParams(searchValidatedFields.data);
-      c.d(JSON.stringify(searchFields));
-    }
 
     //no need to validate pager params, if not valid, will use defaults
     const pagerValidatedFields = await pagerSchema.safeParseAsync(searchParams);
@@ -38,9 +29,9 @@ export async function GET(request: NextRequest) {
     c.d(JSON.stringify(pager));
 
     //call service to retrieve data
-    const customerService = container.get<ICustomerService>(TYPES.ICustomerService);
-    const result = await customerService.customerFindMany(searchFields, pager);
-    c.d(JSON.stringify(result));
+    const service = container.get<IReservationService>(TYPES.IReservationService);
+    const result = await service.reservationTopList(pager);
+    c.d(result);
 
     return NextResponse.json({data : result}, {status: 200});
   }catch(error){

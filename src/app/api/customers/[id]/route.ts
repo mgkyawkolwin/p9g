@@ -5,14 +5,14 @@ import { eq } from "drizzle-orm";
 import { container } from "@/dicontainer";
 import IUserService from "@/services/contracts/IUserService";
 import { TYPES } from "@/lib/types";
-import consoleLogger from "@/lib/core/logger/ConsoleLogger";
+import c from "@/lib/core/logger/ConsoleLogger";
 import ICustomerService from "@/services/contracts/ICustomerService";
 
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
     try {
-        consoleLogger.logInfo("GET /api/customers/[id]");
-        consoleLogger.logDebug(JSON.stringify(await params));
+        c.i("GET /api/customers/[id]");
+        c.d(JSON.stringify(await params));
         const { id } = await params;
         const service = container.get<ICustomerService>(TYPES.ICustomerService);
         const result = await service.customerFindById(parseInt(id));
@@ -21,7 +21,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         }
         return NextResponse.json({ data: result }, { status: 200 });
     } catch (error) {
-        consoleLogger.logError(error instanceof Error ? error.message : String(error));
+        c.e(error instanceof Error ? error.message : String(error));
         return NextResponse.json({ message: "Unknow error occured." }, { status: 500 });
     }
 }
@@ -29,9 +29,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
 export async function PUT(request: Request, { params }: { params: { id: number } }) {
     try{
-        consoleLogger.logInfo("PUT api/customers[id]");
+        c.i("PUT api/customers[id]");
         const body = await request.json();
-        consoleLogger.logDebug(body);
+        c.d(body);
         const { id } = await params;
         const service = container.get<ICustomerService>(TYPES.ICustomerService);
         // find existing user
@@ -46,7 +46,7 @@ export async function PUT(request: Request, { params }: { params: { id: number }
         }
         return NextResponse.json({ message: "Updated" }, { status: 201 });
     }catch(error){
-        consoleLogger.logError(error instanceof Error ? error.message : String(error));
+        c.e(error instanceof Error ? error.message : String(error));
         return NextResponse.json({ message: "Unknow error occured." }, { status: 500 });
     }
 }
@@ -63,7 +63,7 @@ export async function DELETE(request: Request, { params }: { params: { id: numbe
         }
         return NextResponse.json({ message: "Deleted" }, { status: 200 });
     }catch(error){
-        consoleLogger.logError(error instanceof Error ? error.message : String(error));
+        c.e(error instanceof Error ? error.message : String(error));
         return NextResponse.json({ message: "Unknow error occured." }, { status: 500 });
     }
 }

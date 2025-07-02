@@ -10,32 +10,27 @@ import {
 
 import DataTable from "./datatable"
 import { Reservation } from "@/data/orm/drizzle/mysql/schema"
-import consoleLogger from "@/lib/core/logger/ConsoleLogger"
+import c from "@/lib/core/logger/ConsoleLogger"
 import { FormState } from "@/lib/types"
 import { useRouter } from "next/router"
 import { Input } from "../ui/input"
 import { InputCustom } from "../uicustom/inputcustom"
-
-
+import { ButtonCustom } from "../uicustom/buttoncustom"
 
 
 interface DataTableProps<TData, TValue> {
-  formState: FormState
-  formAction: (formData: FormData) => void
-    formRef?: React.RefObject<HTMLFormElement>;
-  rowFormAction?: (formData: FormData) => void;
-  isPending: boolean
+  formState: FormState;
+  formAction: (formData: FormData) => void;
+  formRef: React.RefObject<HTMLFormElement|null>;
 }
 
 export default function CustomerTable<TData, TValue>({
   formState,
   formAction,
   formRef,
-  rowFormAction,
-  isPending
 }: DataTableProps<TData, TValue>) {
-  consoleLogger.logInfo('Client CustomerTable');
-  consoleLogger.logDebug(JSON.stringify(formState));
+  c.i('Client CustomerTable');
+  c.d(JSON.stringify(formState));
 
   const [clientState, setClientState] = React.useState(formState);
   const nameRefs = React.useRef<Record<string, HTMLInputElement>>({});
@@ -70,7 +65,7 @@ export default function CustomerTable<TData, TValue>({
       </div>
     }
   },{
-    accessorKey: "nationaId",
+    accessorKey: "nationalId",
     header: "National ID",
     cell: ({ row }) => {
       return <div>
@@ -135,77 +130,77 @@ export default function CustomerTable<TData, TValue>({
     header: "Action",
     cell: ({ row }) => {
       return <div>
-        <Button type="button" onClick={(e) => {
-          consoleLogger.logInfo('[Client] Save action is clicked.');
+        <ButtonCustom variant={"green"} size={"sm"} type="button" onClick={(e) => {
+          c.i('[Client] Save action is clicked.');
           if(formRef){
-            const formData = new FormData(formRef.current);
+            const formData = new FormData(formRef.current ?? undefined);
 
             let input = document.createElement('input');
             input.type = 'hidden';
             input.name = "id";
             input.value = row.getValue('id');
-            formRef.current.appendChild(input);
+            formRef?.current?.appendChild(input);
 
             input = document.createElement('input');
             input.type = 'hidden';
             input.name = "name";
             input.value = nameRefs.current[String(row.getValue('id'))].value;
-            formRef.current.appendChild(input);
+            formRef?.current?.appendChild(input);
 
             input = document.createElement('input');
             input.type = 'hidden';
-            input.name = "natinalId";
+            input.name = "nationalId";
             input.value = nationalIdRefs.current[String(row.getValue('id'))].value;
-            formRef.current.appendChild(input);
+            formRef?.current?.appendChild(input);
 
             input = document.createElement('input');
             input.type = 'hidden';
             input.name = "passport";
             input.value = passportRefs.current[String(row.getValue('id'))].value;
-            formRef.current.appendChild(input);
+            formRef?.current?.appendChild(input);
 
             input = document.createElement('input');
             input.type = 'hidden';
             input.name = "phone";
             input.value = phoneRefs.current[String(row.getValue('id'))].value;
-            formRef.current.appendChild(input);
+            formRef?.current?.appendChild(input);
 
             input = document.createElement('input');
             input.type = 'hidden';
             input.name = "email";
             input.value = emailRefs.current[String(row.getValue('id'))].value;
-            formRef.current.appendChild(input);
+            formRef?.current?.appendChild(input);
 
             input = document.createElement('input');
             input.type = 'hidden';
             input.name = "address";
             input.value = addressRefs.current[String(row.getValue('id'))].value;
-            formRef.current.appendChild(input);
+            formRef?.current?.appendChild(input);
 
             input = document.createElement('input');
             input.type = 'hidden';
             input.name = "country";
             input.value = countryRefs.current[String(row.getValue('id'))].value;
-            formRef.current.appendChild(input);
+            formRef?.current?.appendChild(input);
 
             input = document.createElement('input');
             input.type = 'hidden';
             input.name = "action";
             input.value = "UPDATE";
-            formRef.current.appendChild(input);
+            formRef?.current?.appendChild(input);
 
             //submit form
-            formRef.current.requestSubmit();
+            formRef?.current?.requestSubmit();
           }
 
           
-        }}>Save</Button>
+        }}>Save</ButtonCustom>
       </div>
     }
   },
 ];
 
   return (
-    <DataTable columns={columns} data={clientState.data ?? []} formState={clientState} formAction={formAction} formRef={formRef} isPending={isPending} rowFormAction={rowFormAction} />
+    <DataTable columns={columns} formState={clientState} formAction={formAction} formRef={formRef} />
   )
 }

@@ -11,7 +11,7 @@ import IRepository from "../IRepository";
 import { PagerParams, SearchParam, TYPES } from "@/lib/types";
 import { type IDatabase } from "@/data/db/IDatabase";
 import IDrizzleTable from "@/data/repo/drizzle/IDrizzleTable";
-import consoleLogger from "@/lib/core/logger/ConsoleLogger";
+import c from "@/lib/core/logger/ConsoleLogger";
 import { pages } from "next/dist/build/templates/app-page";
 import { user } from "@/data/orm/drizzle/mysql/schema";
 import { pagerWithDefaults } from "@/lib/utils";
@@ -42,8 +42,8 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
 
 
   async findAll(pagerParams : PagerParams): Promise<TEntity[]> {
-    consoleLogger.logInfo('Repository > findAll');
-    consoleLogger.logDebug(JSON.stringify(pagerParams));
+    c.i('Repository > findAll');
+    c.d(JSON.stringify(pagerParams));
     // Calculate offset
     const offset = (pagerParams.pageIndex - 1) * pagerParams.pageSize;
 
@@ -78,9 +78,9 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
 
 
   async findMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[TEntity[], PagerParams]> {
-    consoleLogger.logInfo('Repository > findMany');
-    consoleLogger.logDebug(JSON.stringify(searchParams));
-    consoleLogger.logDebug(JSON.stringify(pagerParams));
+    c.i('Repository > findMany');
+    c.d(JSON.stringify(searchParams));
+    c.d(JSON.stringify(pagerParams));
 
     // Calculate offset
     const offset = (pagerParams.pageIndex - 1) * pagerParams.pageSize;
@@ -101,8 +101,8 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
     .offset(offset);
 
     //Add search condition if parameters provided
-    if (searchParams.length > 0) {
-      consoleLogger.logInfo('Where applied.');
+    if (searchParams && searchParams.length > 0) {
+      c.i('Where applied.');
       searchParams.forEach((searchParam : SearchParam) => {
         const condition = like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`);
         countQuery = countQuery.where(condition);
@@ -117,7 +117,7 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
 
     //calculate number of pages
     const pages = Math.ceil(countResult[0].count / pagerParams.pageSize);
-    consoleLogger.logDebug(countResult[0]);
+    c.d(countResult[0]);
 
     // Execute query
     return [dataResult as TEntity[], {...pagerParams, pages: pages}];

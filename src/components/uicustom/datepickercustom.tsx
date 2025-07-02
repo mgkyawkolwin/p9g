@@ -41,6 +41,7 @@ const datepickerVariants = cva(
 interface DatePickerCustomProps 
   extends Omit<React.ComponentProps<typeof DayPicker>, 'size'>, 
     VariantProps<typeof datepickerVariants> {
+
 }
 
 export function DatePickerCustom({
@@ -51,7 +52,7 @@ export function DatePickerCustom({
 
   return (
     <div className="flex">
-        <InputCustom className="w-[120px] text-center" size={size} placeholder="yyyy-mm-dd" value={date?.toDateString()}/>
+        <InputCustom className="text-center" variant={variant} size={size} placeholder="yyyy-mm-dd" defaultValue={date?.toDateString()} />
         <Popover>
       <PopoverTrigger asChild>
         <Button

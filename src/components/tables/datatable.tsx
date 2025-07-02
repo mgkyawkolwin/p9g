@@ -33,49 +33,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import consoleLogger from "@/lib/core/logger/ConsoleLogger"
+import c from "@/lib/core/logger/ConsoleLogger"
 import { SelectWithLabel } from "../uicustom/selectwithlabel"
 import { FormState } from "@/lib/types"
-import { Loader } from "../uicustom/loader"
 
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: TData[]
   formState: FormState;
   formAction: (formData: FormData) => void;
-  formRef?: React.RefObject<HTMLFormElement | null>;
-  rowFormAction?: (formData: FormData) => void;
-  isPending: boolean;
+  formRef: React.RefObject<HTMLFormElement | null>;
 }
-
 
 
 export default function DataTable<TData, TValue>({
   columns,
-  data,
   formState,
   formAction,
   formRef,
-  rowFormAction,
-  isPending
 }: DataTableProps<TData, TValue>) {
 
-  consoleLogger.logInfo("DataTable is called.");
-  consoleLogger.logDebug(JSON.stringify(formState));
+  c.i("DataTable is called.");
+  c.d(JSON.stringify(formState));
 
   const [pageIndex, setPageIndex] = React.useState(1);
   const [pages, setPages] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(10);
-  //const [pageSizeList, setPageSizeList] = React.useState(new Map<string, string>([["10", "10"]]));
   const [orderBy, setOrderBy] = React.useState("id");
   const [orderDirection, setOrderDirection] = React.useState("asc");
   const [pageIndexList, setPageIndexList] = React.useState(new Map<string, string>([["1", "1"]]));
-
-  //const formRef = React.useRef<HTMLFormElement>(null);
-  // const [rowFormAction, setRowFormAction] = React.useState<(formData: FormData) => void>(
-  //   () => {} // Initial empty function
-  // );
 
   //Filter related
   const pageSizeList = new Map<string, string>([
@@ -117,31 +103,13 @@ export default function DataTable<TData, TValue>({
 
 
   React.useEffect(() => {
-    consoleLogger.logInfo("sorting is called.");
-    consoleLogger.logDebug(sorting);
-  }, [sorting]);
-
-
-  React.useEffect(() => {
-    consoleLogger.logInfo("useEfect is called.");
-    if (!formState.data) {
-      consoleLogger.logInfo("Form is submitted");
-      React.startTransition(() => {
-      });
-    }
-    //setPageSizeList(itemsPerPageMap);
-    //setRowFormAction(formAction);
-  }, []);
-
-
-  React.useEffect(() => {
-    consoleLogger.logInfo("formState is changed.");
+    c.i("formState is changed.");
     setPages(formState.pager?.pages ?? 1);
   }, [formState]);
 
 
   React.useEffect(() => {
-    consoleLogger.logInfo("pages is changed.");
+    c.i("pages is changed.");
     const temp = new Map<string, string>();
     //rebuid pages
     for (let x = 1; x <= pages; x++) {
@@ -152,24 +120,13 @@ export default function DataTable<TData, TValue>({
 
   
   React.useEffect(() => {
-    consoleLogger.logInfo("pagination is changed.");
-    consoleLogger.logDebug(pageIndex);
-    consoleLogger.logDebug(pageSize);
-    consoleLogger.logDebug(pages);
-    consoleLogger.logDebug(orderBy);
-    consoleLogger.logDebug(orderDirection);
+    c.i("pagination is changed.");
     formRef?.current?.requestSubmit();
   }, [pageSize, pageIndex]);
 
-  const handleSubmit = async (formData: FormData) => {
-    // Client-side validation if needed
-    consoleLogger.logInfo('handleSubmit is called.');
-    await formAction(formData); // Your server action
-  };
 
   return (
       <div>
-        <Loader isLoading={isPending} />
       <div className="flex flex-col gap-y-4 w-full max-w-full">
         <div className="flex">
           

@@ -13,7 +13,8 @@ import ICustomerService from "@/services/contracts/ICustomerService";
 
 export async function GET(request: NextRequest) {
   try{
-    c.i("GET /api/customers");
+    c.i("----------------------------------------------------------");
+    c.i("GET /api/reservations");
     c.d(JSON.stringify(request));
 
     //retrieve search params from request

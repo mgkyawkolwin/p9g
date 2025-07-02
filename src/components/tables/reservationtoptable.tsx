@@ -10,12 +10,13 @@ import {
 
 import DataTable from "./datatable"
 import { Reservation } from "@/data/orm/drizzle/mysql/schema"
-import consoleLogger from "@/lib/core/logger/ConsoleLogger"
+import c from "@/lib/core/logger/ConsoleLogger"
 import { FormState } from "@/lib/types"
 import { useRouter } from "next/router"
+import SimpleDataTable from "./simpledatatable"
 
 
-export const columns: ColumnDef<Reservation>[] = [
+export const columns: ColumnDef<Reservation, any>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -26,7 +27,7 @@ export const columns: ColumnDef<Reservation>[] = [
     }
   },
   {
-    accessorKey: "reservationType",
+    accessorKey: "reservationTypeId",
     header: ({ column }) => {
       return (
         <Button
@@ -54,34 +55,6 @@ export const columns: ColumnDef<Reservation>[] = [
     },
   },
   {
-    accessorKey: "reservationStatus",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Phone
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-  },
-  {
-    accessorKey: "nationalId",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          National ID
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-  },
-  {
     accessorKey: "passport",
     header: ({ column }) => {
       return (
@@ -96,7 +69,7 @@ export const columns: ColumnDef<Reservation>[] = [
     },
   },
   {
-    accessorKey: "reservationStatus",
+    accessorKey: "action",
     header: ({ column }) => {
       return (
         <Button
@@ -109,37 +82,19 @@ export const columns: ColumnDef<Reservation>[] = [
       )
     },
   },
-  {
-    accessorKey: "reservationStatus",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Arrival / Deperture
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-  },
 ];
 
 interface DataTableProps<TData, TValue> {
-  formState: FormState
-  formAction: (formData: FormData) => void
-  isPending: boolean
+  data: Reservation[]
 }
 
 export default function ReservationTopTable<TData, TValue>({
-  formState,
-  formAction,
-  isPending
+  data
 }: DataTableProps<TData, TValue>) {
-  consoleLogger.logInfo('Client UserListTable');
-  consoleLogger.logDebug(JSON.stringify(formState));
+  c.i('Client ReservationTopTable');
+  c.d(JSON.stringify(data));
 
   return (
-    <DataTable columns={columns} data={formState.data ?? []} formState={formState} formAction={formAction} isPending={isPending} />
+    <SimpleDataTable columns={columns} data={data ?? []} />
   )
 }

@@ -4,31 +4,22 @@ import { useActionState, useEffect } from "react";
 import { userGetList } from "@/app/(private)/console/users/actions";
 import { toast } from "sonner";
 import UserListTable from "@/components/tables/userlisttable";
-import consoleLogger from "@/lib/core/logger/ConsoleLogger";
+import c from "@/lib/core/logger/ConsoleLogger";
 import ReservationTopTable from "@/components/tables/reservationtoptable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
+import { Reservation } from "@/data/orm/drizzle/mysql/schema";
 
-export default function ReservationTopList() {
-  consoleLogger.logInfo("Client > ReservationList");
-
-  const [state, formAction, isPending] = useActionState(userGetList, {
-    error: false,
-    message: ""
-  });
-
-  useEffect(() => {
-    if(state.error){
-      toast(state.message);
-    }
-  },[state]);
+export default function ReservationTopList({data} : {data:Reservation[]}) {
+  c.i("Client > ReservationTopList");
+  c.d(data);
 
   return (
-    <Group>
+    <Group className="flex w-full">
       <GroupTitle>
         Latest Reservations
       </GroupTitle>
       <GroupContent>
-      <ReservationTopTable formState={state} formAction={formAction} isPending={isPending} />
+        <ReservationTopTable data={data}  />
       </GroupContent>
     </Group>
   );

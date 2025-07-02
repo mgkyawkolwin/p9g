@@ -6,12 +6,12 @@ import IAuthService from '@/services/contracts/IAuthService';
 import { NextRequest, NextResponse } from 'next/server'
 import { userSignInSchema } from '@/lib/zodschema';
 
-import consoleLogger from '@/lib/core/logger/ConsoleLogger';
+import c from '@/lib/core/logger/ConsoleLogger';
 
 export async function POST(request: NextRequest) {
   try{
-    consoleLogger.logInfo('/api/auth/signin/route.ts is called.');
-    consoleLogger.logDebug(JSON.stringify(request));
+    c.i('/api/auth/signin/route.ts is called.');
+    c.d(JSON.stringify(request));
 
     //parse and validate data
     const data = await request.json();
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     //everything is right
     return NextResponse.json(user, { status: HttpStatusCode.Ok });
   }catch(error){
-    consoleLogger.logError(error instanceof Error ? error.message : JSON.stringify(error));
+    c.e(error instanceof Error ? error.message : JSON.stringify(error));
     return NextResponse.json({ message: "Unknown error occured."}, { status: HttpStatusCode.ServerError });
   }
 }

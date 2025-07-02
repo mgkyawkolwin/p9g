@@ -15,6 +15,10 @@ import ICustomerService from './services/contracts/ICustomerService';
 import CustomerService from './services/ICustomerService';
 import ICustomerRepository from './data/repo/ICustomerRepository';
 import CustomerRepository from './data/repo/drizzle/CustomerRepository';
+import IReservationRepository from './data/repo/IReservationRepository';
+import ReservationRepository from './data/repo/drizzle/ReservationRepository';
+import ReservationService from './services/ReservationService';
+import IReservationService from './services/contracts/IReservationService';
 
 // create a DI container
 const container = new Container();
@@ -25,10 +29,12 @@ container.bind<IDatabase<MySqlDbType>>(TYPES.IDatabase).to(MySqlDatabase).inSing
 // Bind Services
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService);
 container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService);
+container.bind<IReservationService>(TYPES.IReservationService).to(ReservationService);
 container.bind<IUserService>(TYPES.IUserService).to(UserService);
 
 // Bind Repositories
 container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
 container.bind<ICustomerRepository>(TYPES.ICustomerRepository).to(CustomerRepository);
+container.bind<IReservationRepository>(TYPES.IReservationRepository).to(ReservationRepository)
 
 export { container };
