@@ -1,8 +1,8 @@
 import { container } from '@/dicontainer';
 import { HttpStatusCode } from '@/lib/constants';
 import { TYPES } from '@/lib/types';
-import IUserService from '@/services/contracts/IUserService';
-import IAuthService from '@/services/contracts/IAuthService';
+import IUserService from '@/domain/services/contracts/IUserService';
+import IAuthService from '@/domain/services/contracts/IAuthService';
 import { NextRequest, NextResponse } from 'next/server'
 import { userSignInSchema } from '@/lib/zodschema';
 

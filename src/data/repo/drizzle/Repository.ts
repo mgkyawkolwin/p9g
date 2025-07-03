@@ -31,13 +31,22 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
     this.table = table;
   }
 
-  async create(data: Omit<TEntity, "id" | "createdAt" | "updatedAt">): Promise<TEntity> {
-    const result = await this.dbClient.db.insert(this.table).values(data as any);
-    // For MySQL, we need to fetch the inserted record separately
+  async create(data: TEntity): Promise<TEntity> {
+    c.i("Repository > Create");
+    c.d(data);
+    data.createdAt = new Date();
+    data.updatedAt = new Date();
+    c.i("Inserting new entity.");
+    const [insertedResult] = await this.dbClient.db.insert(this.table).values(data as TEntity).$returningId();
+    c.i("Entity inserted.");
+    c.d(insertedResult);
+    c.i("Retrieving newly inserted entity.");
     const [record] = await this.dbClient.db.select()
       .from(this.table)
-      .where(eq(this.table.id as Column, result[0].insertId))
+      .where(eq(this.table.id as Column, insertedResult.id))
       .limit(1);
+    c.d(record);
+    c.i("Returning result from Repository > create.");
     return record as TEntity;
   }
 
@@ -137,15 +146,11 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
     id: string | number,
     data: Partial<Omit<TEntity, "id" | "createdAt" | "updatedAt">>
   ): Promise<TEntity> {
+    data.updatedAt = new Date();
     await this.dbClient.db.update(this.table)
       .set(data as any)
       .where(eq(this.table.id as Column, id));
-    // For MySQL, we need to fetch the updated record separately
-    const [record] = await this.dbClient.db.select()
-      .from(this.table)
-      .where(eq(this.table.id as Column, id))
-      .limit(1);
-    return record as TEntity;
+    return data as TEntity;
   }
 
 

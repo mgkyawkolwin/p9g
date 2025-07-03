@@ -2,14 +2,14 @@ import { db } from "@/data/orm/drizzle/mysql/db";
 import { user } from "@/data/orm/drizzle/mysql/schema";
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import IUserService from "@/services/contracts/IUserService";
+import IUserService from "@/domain/services/contracts/IUserService";
 import { TYPES, PagerParams, SearchParam } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { pagerSchema, searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
-import ICustomerService from "@/services/contracts/ICustomerService";
-import IReservationService from "@/services/contracts/IReservationService";
+import ICustomerService from "@/domain/services/contracts/ICustomerService";
+import IReservationService from "@/domain/services/contracts/IReservationService";
 
 
 export async function GET(request: NextRequest) {

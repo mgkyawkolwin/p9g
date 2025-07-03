@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table"
 
 import DataTable from "./datatable"
-import { Reservation } from "@/data/orm/drizzle/mysql/schema"
+import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema"
 import c from "@/lib/core/logger/ConsoleLogger"
 import { FormState } from "@/lib/types"
 import { useRouter } from "next/router"
@@ -45,7 +45,7 @@ export default function CustomerTable<TData, TValue>({
     setClientState(formState);
   }, [formState]);
 
-  const columns: ColumnDef<Reservation>[] = [
+  const columns: ColumnDef<ReservationEntity>[] = [
   {
     accessorKey: "id",
     header: "Info",

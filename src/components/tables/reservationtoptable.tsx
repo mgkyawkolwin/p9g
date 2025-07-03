@@ -9,14 +9,14 @@ import {
 } from "@tanstack/react-table"
 
 import DataTable from "./datatable"
-import { Reservation } from "@/data/orm/drizzle/mysql/schema"
+import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema"
 import c from "@/lib/core/logger/ConsoleLogger"
 import { FormState } from "@/lib/types"
 import { useRouter } from "next/router"
 import SimpleDataTable from "./simpledatatable"
 
 
-export const columns: ColumnDef<Reservation, any>[] = [
+export const columns: ColumnDef<ReservationEntity, any>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -27,7 +27,7 @@ export const columns: ColumnDef<Reservation, any>[] = [
     }
   },
   {
-    accessorKey: "reservationTypeId",
+    accessorKey: "status.text",
     header: ({ column }) => {
       return (
         <Button
@@ -85,7 +85,7 @@ export const columns: ColumnDef<Reservation, any>[] = [
 ];
 
 interface DataTableProps<TData, TValue> {
-  data: Reservation[]
+  data: ReservationEntity[]
 }
 
 export default function ReservationTopTable<TData, TValue>({

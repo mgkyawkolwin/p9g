@@ -7,9 +7,9 @@ import UserListTable from "@/components/tables/userlisttable";
 import c from "@/lib/core/logger/ConsoleLogger";
 import ReservationTopTable from "@/components/tables/reservationtoptable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import { Reservation } from "@/data/orm/drizzle/mysql/schema";
+import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema";
 
-export default function ReservationTopList({data} : {data:Reservation[]}) {
+export default function ReservationTopList({data} : {data:ReservationEntity[]}) {
   c.i("Client > ReservationTopList");
   c.d(data);
 

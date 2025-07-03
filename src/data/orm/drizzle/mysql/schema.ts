@@ -67,16 +67,16 @@ export const reservation = mysqlTable("reservation", {
   pickUpFee: tinyint("pickUpFee"),
   pickUpCurrency: char("pickUpCurrency", {length: 3}),
   pickUpCarNo: varchar("pickUpCarNo", {length: 10}),
-  dropOffTypeId: char("pickUpTypeId", {length: 36}),
+  dropOffTypeId: char("dropOffTypeId", {length: 36}),
   dropOffFee: tinyint("dropOffFee"),
   dropOffFeeCurrency: char("dropOffFeeCurrency", {length: 3}),
   dropOffCarNo: varchar("dropOffCarNo", {length: 10}),
   reservationStatusId: char("reservationStatusId", {length: 36}).notNull().references(() => config.id),
   remark: varchar("remark", {length: 255}),
-  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
-  createdBy: char("createdBy", {length: 36}).notNull(),
-  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
-  updatedBy: char("updatedBy", {length: 36}).notNull(),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),//.defaultNow(),//.default(sql`CURRENT_TIMESTAMP(3)`),
+  createdBy: char("createdBy", {length: 36}),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),//.default(new Date()),//.default(sql`CURRENT_TIMESTAMP(3)`),
+  updatedBy: char("updatedBy", {length: 36})
 });
 
 export const reservationCustomer = mysqlTable("reservationCustomer", {
@@ -131,9 +131,9 @@ export const user = mysqlTable("user", {
   password: varchar('password', { length: 100 }).notNull(),
   //role: varchar("role", { length: 50 }).$type<"ADMIN" | "MANAGER" | "USER">().default("USER"),
   role: varchar("role", { length: 50 }).notNull(),
-  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}),
+  createdAt: timestamp("createdAt", {mode: 'date', fsp: 3}).default(sql`UTC_TIMESTAMP(3)`),
   createdBy: char("createdBy", {length: 36}).notNull(),
-  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}),
+  updatedAt: timestamp("updatedAt", {mode: 'date', fsp: 3}).default(sql`UTC_TIMESTAMP(3)`),
   updatedBy: char("updatedBy", {length: 36}).notNull(),
 });
 
@@ -161,4 +161,4 @@ export const reservationConfigStatusRelations = relations(reservation, ({ one })
 export type User = typeof user.$inferSelect;
 export type NewUser = typeof user.$inferInsert; // For INSERT queries
 export type Customer = typeof customer.$inferSelect;
-export type Reservation = typeof reservation.$inferSelect;
+export type ReservationEntity = typeof reservation.$inferSelect;

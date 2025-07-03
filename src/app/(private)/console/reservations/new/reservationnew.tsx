@@ -13,7 +13,7 @@ import React, { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import ReservationTopList from "./reservationtoplist";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
-import { Customer, Reservation, User } from "@/data/orm/drizzle/mysql/schema";
+import { Customer, ReservationEntity, User } from "@/data/orm/drizzle/mysql/schema";
 import GuestInformationForm from "@/components/forms/guestinformationform";
 import { newReservationAction } from "./actions";
 import c from "@/lib/core/logger/ConsoleLogger";
@@ -25,7 +25,7 @@ export default function ReservationNew() {
   const [customerName, setCustomerName] = React.useState("");
   const [customerList, setCustomerList] = React.useState<Customer[]>([]);
   const [selectedCustomerList, setSelectedCustomerList] = React.useState<Customer[]>([]);
-  const [newReservations, setNewReservations] = React.useState<Reservation[]>([]);
+  const [newReservations, setNewReservations] = React.useState<ReservationEntity[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   const [state, formAction, isPending] = useActionState(newReservationAction, {

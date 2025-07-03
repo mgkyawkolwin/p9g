@@ -3,10 +3,10 @@ import { user } from "@/data/orm/drizzle/mysql/schema";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { container } from "@/dicontainer";
-import IUserService from "@/services/contracts/IUserService";
+import IUserService from "@/domain/services/contracts/IUserService";
 import { TYPES } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
-import ICustomerService from "@/services/contracts/ICustomerService";
+import ICustomerService from "@/domain/services/contracts/ICustomerService";
 
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {

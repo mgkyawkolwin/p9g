@@ -61,7 +61,7 @@ export function DatePickerCustomWithLabel({
         )}>
             <Label className={cn("whitespace-nowrap", labelPosition === "top" ? "mb-1" : "")}>{label}</Label>
             <div className="flex">
-                <InputCustom className="text-center" variant={variant} size={size} placeholder="yyyy-mm-dd" value={date?.toDateString()} />
+                <InputCustom type="date" className="text-center" variant={variant} size={size} placeholder="yyyy-mm-dd" value={date?.toDateString()} />
                 <Popover>
                     <PopoverTrigger asChild>
                         <Button

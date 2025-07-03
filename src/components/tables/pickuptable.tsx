@@ -9,13 +9,13 @@ import {
 } from "@tanstack/react-table"
 
 import DataTable from "./datatable"
-import { Reservation } from "@/data/orm/drizzle/mysql/schema"
+import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema"
 import c from "@/lib/core/logger/ConsoleLogger"
 import { FormState } from "@/lib/types"
 import { useRouter } from "next/router"
 
 
-export const columns: ColumnDef<Reservation>[] = [
+export const columns: ColumnDef<ReservationEntity>[] = [
   {
     accessorKey: "id",
     header: "Info",

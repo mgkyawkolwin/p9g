@@ -1,5 +1,5 @@
 import { Regex } from 'lucide-react';
-import { z } from 'zod';
+import { number, z } from 'zod';
 
 
 
@@ -42,6 +42,30 @@ export const pagerSchema = z.object({
   orderDirection: z.string().regex(RegExp('asc|desc'),'Invalid search column.').optional(),
   pageIndex: z.coerce.number().optional(),
   pageSize: z.coerce.number().optional(),
+});
+
+
+
+export const reservationValidator = z.object({
+  id: z.string().min(1,"Id is required").optional(),
+  arrivalDateTime: z.date().optional(),
+  arrivalFlight: z.string().min(1, 'Arrival flight is required').optional(),
+  checkInDate: z.coerce.date(),
+  checkOutDate: z.coerce.date(),
+  departureDateTime: z.date().optional(),
+  departureFlight: z.string().min(1, 'Arrival flight is required').optional(),
+  deposit: z.number().optional(),
+  depositCurrency: z.string().min(1, "Deposity currency is required.").optional(),
+  dropOffType: z.string().optional(),
+  noOfDays: z.number().optional(),
+  noOfGuests: z.number().optional(),
+  pickUpType: z.string().optional(),
+  prepaidPackage: z.string().optional(),
+  promotionPackage: z.string().optional(),
+  remark: z.string().optional(),
+  reservationStatus: z.string().min(1, "Reservation status ID is required.").optional(),
+  reservationType: z.string().min(1,"Reservation status is required.").optional(),
+  roomNo: z.string().min(1, "Room number is required.").optional(),
 });
 
 

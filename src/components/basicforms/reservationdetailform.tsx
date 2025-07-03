@@ -11,6 +11,7 @@ import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import React from "react";
+import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
 
 const PREPAID_PACKAGES: Map<string, string> = new Map([
     ["NINETY_DAYS", "90 Days"]
@@ -19,6 +20,12 @@ const PREPAID_PACKAGES: Map<string, string> = new Map([
 const PROMOTION_PACKAGES = new Map<string, string>([
     ["TWELVE_PEOPLE", "12 Guests"],
     ["THIRTY_DAYS", "30 Days"]
+]);
+
+const TRANSPORTATION = new Map<string, string>([
+    ["NOT_REQUIRED", "Not Required"],
+    ["SHARED", "Shared"],
+    ["PRIVATE", "Private"]
 ]);
 
 export default function ReservationDetailForm() {
@@ -50,21 +57,21 @@ export default function ReservationDetailForm() {
                     <SelectWithLabel label="Promotion Packages" size="sm" labelPosition="top" items={PROMOTION_PACKAGES} />
                 </div>
                 <div className="flex gap-2">
-                    <DatePickerCustomWithLabel label="Check-in*" size={"sm"} labelPosition="top" />
-                    <DatePickerCustomWithLabel label="Check-out*" size={"sm"} labelPosition="top" />
+                    <DateInputWithLabel label="Check-in*" size={"sm"} labelPosition="top" />
+                    <DateInputWithLabel label="Check-out*" size={"sm"} labelPosition="top" />
                     <InputWithLabel label="No of Days*" size={"xs"} labelPosition="top" />
                 </div>
                 <div className="flex gap-2">
-                    <DatePickerCustomWithLabel label="Arrival Date" size={"sm"} labelPosition="top" />
+                    <DateInputWithLabel label="Arrival Date" size={"sm"} labelPosition="top" />
                     <InputWithLabel label="Arrival Flight" size={"xs"} labelPosition="top" 
                         defaultValue={arrivalFlight}  onBlur={(e) => setArrivalFlight(e.target.value)}/>
-                    <SelectWithLabel label="Pick Up" size={"sm"} labelPosition="top" />
+                    <SelectWithLabel label="Pick Up" size={"sm"} labelPosition="top" items={TRANSPORTATION} />
                 </div>
                 <div className="flex gap-2">
-                    <DatePickerCustomWithLabel label="Deperture Date" size={"sm"} labelPosition="top" />
+                    <DateInputWithLabel label="Deperture Date" size={"sm"} labelPosition="top" />
                     <InputWithLabel label="Deperture Flight" size={"xs"} labelPosition="top" 
                         defaultValue={depertureFlight}  onBlur={(e) => setDepertureFlight(e.target.value)}/>
-                    <SelectWithLabel label="Drop Off" size={"sm"} labelPosition="top" />
+                    <SelectWithLabel label="Drop Off" size={"sm"} labelPosition="top" items={TRANSPORTATION} />
                 </div>
                 <div className="flex gap-2 items-end">
                     <InputWithLabel label="No of Guests" size={"xs"} labelPosition="top" 

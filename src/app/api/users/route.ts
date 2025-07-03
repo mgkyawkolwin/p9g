@@ -2,7 +2,7 @@ import { db } from "@/data/orm/drizzle/mysql/db";
 import { user } from "@/data/orm/drizzle/mysql/schema";
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import IUserService from "@/services/contracts/IUserService";
+import IUserService from "@/domain/services/contracts/IUserService";
 import { TYPES, PagerParams, SearchParam } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { pagerSchema, searchSchema } from "@/lib/zodschema";

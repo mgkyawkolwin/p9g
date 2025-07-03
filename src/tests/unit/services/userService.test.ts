@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import UserService from '../../../services/UserService';
+import UserService from '../../../domain/services/UserService';
 import UserRepository from '../../../data/repo/drizzle/UserRepository';
 
 // Mock repository
