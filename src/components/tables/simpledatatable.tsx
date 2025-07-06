@@ -41,12 +41,14 @@ import { FormState } from "@/lib/types"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: any;
+  showColVisibilityControl?:boolean;
 }
 
 
 export default function SimpleDataTable<TData, TValue>({
   columns,
-  data
+  data,
+  showColVisibilityControl = false
 }: DataTableProps<TData, TValue>) {
 
   c.i("DataTable is called.");
@@ -83,8 +85,7 @@ export default function SimpleDataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col gap-y-4 w-full max-w-full">
-    <div className="flex">
-      
+    <div className="flex" hidden={!showColVisibilityControl} >
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="ml-auto">

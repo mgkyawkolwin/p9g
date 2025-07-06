@@ -1,4 +1,13 @@
+export const AppUrl = {
+    signin : '/auth/signin',
+    main : '/console/users'
+}
 
+export const CurrencyList = ['KWR', 'MMK', 'THB', 'USD'];
+
+export const CONSTANTS = {
+    DEFAULT_CURRENCY: 'KWR'
+};
 
 export const HttpStatusCode = {
     Ok : 200,
@@ -11,7 +20,3 @@ export const HttpStatusCode = {
     ServerError : 500,
 }
 
-export const AppUrl = {
-    signin : '/auth/signin',
-    main : '/console/users'
-}

@@ -14,20 +14,20 @@ import c from "@/lib/core/logger/ConsoleLogger"
 import { FormState } from "@/lib/types"
 import { useRouter } from "next/router"
 import SimpleDataTable from "./simpledatatable"
+import Reservation from "@/domain/models/Reservation"
+import Customer from "@/domain/models/Customer"
 
 
-export const columns: ColumnDef<ReservationEntity, any>[] = [
+export const columns: ColumnDef<Reservation & Customer[], any>[] = [
   {
     accessorKey: "id",
     header: "ID",
-    cell: ({ row }) => {
-      return <div>
-        {String(row.getValue("id")).substring(0,5)}
-      </div>
+    accessorFn: (row) => {
+      return row.id.substring(0,8);
     }
   },
   {
-    accessorKey: "status.text",
+    accessorKey: "reservationStatusText",
     header: ({ column }) => {
       return (
         <Button
@@ -41,7 +41,21 @@ export const columns: ColumnDef<ReservationEntity, any>[] = [
     },
   },
   {
-    accessorKey: "name",
+    accessorKey: "reservationTypeText",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Type
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+  },
+  {
+    accessorKey: "customers",
     header: ({ column }) => {
       return (
         <Button
@@ -53,23 +67,20 @@ export const columns: ColumnDef<ReservationEntity, any>[] = [
         </Button>
       )
     },
-  },
-  {
-    accessorKey: "passport",
-    header: ({ column }) => {
+    cell: ({row}) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Passport
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+        <div className="flex flex-col">
+        {
+          row.original.customers?.map(customer => (<span key={customer.id}>{customer.name}</span>))
+        }
+        </div>
+    )}
   },
   {
-    accessorKey: "action",
+    id: "checkInOutDateUTC",
+    accessorFn: (row) => {
+      return <span>{new Date(String(row.checkInDateUTC)).toLocaleDateString('sv-SE')} <br/> {new Date(String(row.checkOutDateUTC)).toLocaleDateString('sv-SE')}</span>;
+    },
     header: ({ column }) => {
       return (
         <Button
@@ -81,6 +92,9 @@ export const columns: ColumnDef<ReservationEntity, any>[] = [
         </Button>
       )
     },
+    cell: (row) => {
+      return row.getValue();
+    }
   },
 ];
 
@@ -91,8 +105,7 @@ interface DataTableProps<TData, TValue> {
 export default function ReservationTopTable<TData, TValue>({
   data
 }: DataTableProps<TData, TValue>) {
-  c.i('Client ReservationTopTable');
-  c.d(JSON.stringify(data));
+  c.i('Client > ReservationTopTable');
 
   return (
     <SimpleDataTable columns={columns} data={data ?? []} />

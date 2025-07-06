@@ -2,7 +2,7 @@
 import { User } from "@/data/orm/drizzle/mysql/schema"
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { customerUpdateSchema, pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';
+import { customerValidator, pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import { signOut } from "@/app/auth";
 import c from "@/lib/core/logger/ConsoleLogger";
@@ -75,7 +75,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
       c.i("Table action is UPDATE");
       //validate and parse form input
       c.i("Validating update fields.");
-      const validatedFields = customerUpdateSchema.safeParse(Object.fromEntries(formData.entries()));
+      const validatedFields = customerValidator.safeParse(Object.fromEntries(formData.entries()));
       c.d(validatedFields);
 
       //form validation fail
@@ -139,7 +139,7 @@ export async function customerUpdate(formState : FormState, formData: FormData) 
     c.i('Actions > /console/customers > customerUpdate');
 
     //validate and parse form input
-    const validatedFields = customerUpdateSchema.safeParse(Object.fromEntries(formData.entries()));
+    const validatedFields = customerValidator.safeParse(Object.fromEntries(formData.entries()));
     c.d(validatedFields);
 
     //form validation fail

@@ -1,5 +1,5 @@
 import { db } from "@/data/orm/drizzle/mysql/db";
-import { user } from "@/data/orm/drizzle/mysql/schema";
+import { userTable } from "@/data/orm/drizzle/mysql/schema";
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
 import IUserService from "@/domain/services/contracts/IUserService";
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     //call service to retrieve data
     const service = container.get<IReservationService>(TYPES.IReservationService);
     const result = await service.reservationTopList(pager);
-    c.d(result);
+    c.d(result?.length);
 
     return NextResponse.json({data : result}, {status: 200});
   }catch(error){

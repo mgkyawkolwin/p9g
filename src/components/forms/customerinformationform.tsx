@@ -1,14 +1,14 @@
-import { Customer } from "@/data/orm/drizzle/mysql/schema";
-import GuestInformationTable from "../tables/guestinformationtable";
+import { CustomerEntity } from "@/data/orm/drizzle/mysql/schema";
+import CustomerInformationTable from "../tables/customerinformationtable";
 import { Group, GroupContent, GroupTitle } from "../uicustom/group";
 
 
 interface GuestInformationFormProps {
-    data: Customer[];
-    setData: React.Dispatch<React.SetStateAction<Customer[]>>;
+    data: CustomerEntity[];
+    setData: React.Dispatch<React.SetStateAction<CustomerEntity[]>>;
 }
 
-export default function GuestInformationForm({
+export default function CustomerInformationForm({
     data,
     setData
 } : GuestInformationFormProps){
@@ -18,7 +18,7 @@ export default function GuestInformationForm({
             Guest Information
             </GroupTitle>
             <GroupContent>
-                <GuestInformationTable data={data} setData={setData} />
+                <CustomerInformationTable data={data} setData={setData} />
             </GroupContent>
         </Group>
     );

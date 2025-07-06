@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table"
 
 import DataTable from "./datatable"
-import { Customer } from "@/data/orm/drizzle/mysql/schema"
+import { CustomerEntity } from "@/data/orm/drizzle/mysql/schema"
 import c from "@/lib/core/logger/ConsoleLogger"
 import { FormState } from "@/lib/types"
 import { useRouter } from "next/router"
@@ -18,21 +18,28 @@ import { ButtonCustom } from "../uicustom/buttoncustom"
 
 
 interface DataTableProps<TData, TValue> {
-  data: Customer[];
-  setData: React.Dispatch<React.SetStateAction<Customer[]>>;
+  data: CustomerEntity[];
+  setData: React.Dispatch<React.SetStateAction<CustomerEntity[]>>;
 }
 
-export default function GuestInformationTable<TData, TValue>({
+export default function CustomerInformationTable<TData, TValue>({
   data,
   setData
 }: DataTableProps<TData, TValue>) {
   c.i('Client GuestInformationTable');
   c.d(JSON.stringify(data));
 
-  const columns: ColumnDef<Customer, any>[] = [
+  const columns: ColumnDef<CustomerEntity, any>[] = [
     {
       accessorKey: "id",
       header: "Guest ID",
+      cell: ({row, table}) => {
+        return (
+          <div>
+            {row.getValue('id')}
+          </div>
+        );
+      }
     },
     {
       accessorKey: "name",

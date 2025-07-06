@@ -1,17 +1,19 @@
 import { Regex } from 'lucide-react';
 import { number, z } from 'zod';
+import { RegularExpressions } from './regularExpressions';
 
 
 
-export const customerUpdateSchema = z.object({
-  id: z.string().length(36, "Id is required"),
-  name: z.string().min(1, 'Name is required'),
-  nationalId: z.string().min(1, 'NationalId is required').optional(),
-  passport: z.string().min(1, 'Passport is required').optional(),
-  phone: z.string().min(1, 'Phone is required').optional(),
-  email: z.string().min(1, 'Email is required').optional(),
-  address: z.string().min(1, 'Address is required').optional(),
-  country: z.string().min(1, 'Country is required').optional(),
+export const customerValidator = z.object({
+  id: z.string().length(36, "Id is required").nullish().catch(undefined).optional(),
+  dob: z.date().nullish().catch(undefined).optional(),
+  name: z.string().regex(RegExp(RegularExpressions.name)).optional(),
+  nationalId: z.string().regex(RegExp(RegularExpressions.nationalId)).optional(),
+  passport: z.string().regex(RegExp(RegularExpressions.passport)).optional(),
+  phone: z.string().regex(RegExp(RegularExpressions.phone)).optional(),
+  email: z.string().regex(RegExp(RegularExpressions.email)).optional(),
+  address: z.string().regex(RegExp(RegularExpressions.address)).optional(),
+  country: z.string().regex(RegExp(RegularExpressions.country)).optional(),
 });
 
 export const userInsertSchema = z.object({
@@ -48,24 +50,41 @@ export const pagerSchema = z.object({
 
 export const reservationValidator = z.object({
   id: z.string().min(1,"Id is required").optional(),
-  arrivalDateTime: z.date().optional(),
-  arrivalFlight: z.string().min(1, 'Arrival flight is required').optional(),
-  checkInDate: z.coerce.date(),
-  checkOutDate: z.coerce.date(),
-  departureDateTime: z.date().optional(),
-  departureFlight: z.string().min(1, 'Arrival flight is required').optional(),
-  deposit: z.number().optional(),
-  depositCurrency: z.string().min(1, "Deposity currency is required.").optional(),
+  arrivalDateTimeUTC: z.coerce.date().nullish().catch(undefined).optional(),
+  arrivalFlight: z.coerce.string().optional(),
+  checkInDateUTC: z.coerce.date(),
+  checkOutDateUTC: z.coerce.date(),
+  customers: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return [];
+        }
+      }
+      return val;
+    },
+    z.array(
+      z.object({
+      id: z.string().min(1, "Customer ID is required")
+    })
+  ).optional()
+  ),
+  departureDateTimeUTC: z.coerce.date().nullish().catch(undefined).optional(),
+  departureFlight: z.coerce.string().optional(),
+  depositAmount: z.coerce.number().optional(),
+  depositCurrency: z.coerce.string().min(1, "Deposity currency is required.").optional(),
   dropOffType: z.string().optional(),
-  noOfDays: z.number().optional(),
-  noOfGuests: z.number().optional(),
+  noOfDays: z.coerce.number(),
+  noOfGuests: z.coerce.number().optional(),
   pickUpType: z.string().optional(),
   prepaidPackage: z.string().optional(),
   promotionPackage: z.string().optional(),
-  remark: z.string().optional(),
-  reservationStatus: z.string().min(1, "Reservation status ID is required.").optional(),
-  reservationType: z.string().min(1,"Reservation status is required.").optional(),
-  roomNo: z.string().min(1, "Room number is required.").optional(),
+  remark: z.coerce.string().optional(),
+  reservationStatus: z.string().optional(),
+  reservationType: z.string().optional(),
+  roomNo: z.coerce.string().optional(),
 });
 
 

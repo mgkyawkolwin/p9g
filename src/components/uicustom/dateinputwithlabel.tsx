@@ -10,7 +10,9 @@ const inputVariants = cva(
     variants: {
       variant: {
         default: "min-h-4",
-        form: "min-h-3"
+        form: "min-h-3",
+        date: "min-w-30",
+        datetime: "min-w-55"
       },
       size: {
         default: "h-9",
@@ -38,7 +40,6 @@ function DateInputWithLabel({
   size,
   label = 'Label',
   labelPosition = "left",
-  type = "text",
   ...props 
 }: DateInputWithLabelProps) {
   return (
@@ -52,7 +53,6 @@ function DateInputWithLabel({
         {label}
       </Label>
       <InputCustom
-        type={"date"}
         className={inputVariants({ variant, size, className })}
         {...props}
       />

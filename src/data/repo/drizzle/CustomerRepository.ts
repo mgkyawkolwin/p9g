@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
 
-import { customer, Customer, User, user } from "@/data/orm/drizzle/mysql/schema";
+import { customerTable, CustomerEntity, User, userTable } from "@/data/orm/drizzle/mysql/schema";
 import { Repository } from "./Repository";
 import IUserRepository from "../IUserRepository";
 
@@ -12,12 +12,12 @@ import ICustomerRepository from "../ICustomerRepository";
 
 
 @injectable()
-export default class CustomerRepository extends Repository<Customer, typeof customer> implements ICustomerRepository {
+export default class CustomerRepository extends Repository<CustomerEntity, typeof customerTable> implements ICustomerRepository {
 
     constructor(
         @inject(TYPES.IDatabase) protected readonly dbClient: IDatabase<any>
     ) {
-        super(dbClient, customer);
+        super(dbClient, customerTable);
     }
 
     

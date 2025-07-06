@@ -1,5 +1,5 @@
 import { db } from "@/data/orm/drizzle/mysql/db";
-import { ReservationEntity, user } from "@/data/orm/drizzle/mysql/schema";
+import { ReservationEntity, userTable } from "@/data/orm/drizzle/mysql/schema";
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
 import IUserService from "@/domain/services/contracts/IUserService";
@@ -10,6 +10,7 @@ import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
 import ICustomerService from "@/domain/services/contracts/ICustomerService";
 import IReservationService from "@/domain/services/contracts/IReservationService";
+import Reservation from "@/domain/models/Reservation";
 
 
 export async function POST(request: NextRequest) {
@@ -38,9 +39,9 @@ export async function POST(request: NextRequest) {
         }
 
         c.i("Everything is fine. Return final result.");
-        return NextResponse.json({ message: "Created" }, { status: 201 });
+        return NextResponse.json({ message: "Created", data: createdReservation }, { status: HttpStatusCode.Created });
     }catch(error){
         c.e(error instanceof Error ? error.message : String(error));
-        return NextResponse.json({ message: "Unknow error occured." }, { status: 500 });
+        return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }

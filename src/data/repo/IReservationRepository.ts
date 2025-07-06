@@ -3,7 +3,7 @@ import IRepository from "./IRepository";
 import Reservation from "@/domain/models/Reservation";
 import { ReservationEntity } from "../orm/drizzle/mysql/schema";
 
-export default interface IReservationRepository extends IRepository<ReservationEntity>{
+export default interface IReservationRepository extends IRepository<Reservation>{
     
     createReservation(reservation: Reservation) : Promise<Reservation>;
 

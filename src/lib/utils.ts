@@ -2,6 +2,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { SearchParam, PagerParams } from "./types"
+import c from "./core/logger/ConsoleLogger";
 
 /**
  * Merge two or more className into one.
@@ -59,6 +60,56 @@ export function buildQueryString(input:any): string{
       .map(([key, value]) => [key, String(value)])
   ).toString();
   return queryString;
+}
+
+
+/**
+ * Get local date string to display in client browser.
+ */
+export function getLocalDateString(){
+  const now = new Date();//this is local time
+  // Adjust for timezone offset (critical step!)
+  const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
+  const localISOFormatDate = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 10);
+  return localISOFormatDate;
+}
+
+
+/**
+ * Convert local date string to UTC date in ISO format
+ * @param dateString date value in local timezone
+ * @returns UTC date value in ISO format
+ */
+export function getUTCISODateString(dateString: string):string{
+  //c.d(dateString);
+  const now = new Date(dateString);
+  //c.d(now.toISOString().slice(0,10));
+  return now.toISOString();
+}
+
+
+/**
+ * Convert local date string to UTC date in ISO format
+ * @param dateString date value in local timezone
+ * @returns UTC date value in ISO format
+ */
+export function getUTCISODateTimeString(dateTimeString: string):string{c.i('xxx')
+  c.d(dateTimeString);
+  const now = new Date(dateTimeString);
+  c.d(now.toISOString());
+  return now.toISOString();
+}
+
+
+/**
+ * Get local datetime string to display in client browser.
+ */
+export function getLocalDateTimeString(){
+  const now = new Date();//this is local time
+  // Adjust for timezone offset (critical step!), wihtout adjustment , toISOString will output UTC/GMT datetime
+  const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
+  const localISOFormatDateTime = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 16);
+  return localISOFormatDateTime;
 }
 
 

@@ -1,6 +1,6 @@
 //Ordered Imports
 import { SQL, and,  count, asc, desc, eq, gt, gte, inArray, lt, lte, or, like, Table, Column, getTableColumns, getTableName } from "drizzle-orm";
-import { MySqlColumn, MySqlTable, MySqlTableWithColumns } from "drizzle-orm/mysql-core";
+import { AnyMySqlSelectQueryBuilder, MySqlColumn, MySqlSelectQueryBuilder, MySqlTable, MySqlTableWithColumns } from "drizzle-orm/mysql-core";
 import { MySqlQueryResultHKT } from "drizzle-orm/mysql-core";
 import { MySqlTransaction } from "drizzle-orm/mysql-core";
 import { db, type DBType, type TransactionType } from "@/data/orm/drizzle/mysql/db";
@@ -13,7 +13,7 @@ import { type IDatabase } from "@/data/db/IDatabase";
 import IDrizzleTable from "@/data/repo/drizzle/IDrizzleTable";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { pages } from "next/dist/build/templates/app-page";
-import { user, config } from "@/data/orm/drizzle/mysql/schema";
+import { userTable, configTable } from "@/data/orm/drizzle/mysql/schema";
 import { pagerWithDefaults } from "@/lib/utils";
 import { timeStamp } from "console";
 
@@ -31,11 +31,43 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
     this.table = table;
   }
 
+
+  applyCondition<T extends MySqlSelectQueryBuilder>(query: T, searchParams: SearchParam[]) : T{
+    if (searchParams && searchParams.length > 0) {
+      searchParams.forEach((searchParam : SearchParam) => {
+        const condition = like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`);
+        return query.where(condition);
+      });
+    }
+    return query;
+  }
+
+
+  applyConditionAndPaging<T extends MySqlSelectQueryBuilder>(query: T, searchParams: SearchParam[], pagerParams: PagerParams) : T{
+    query = this.applyCondition(query, searchParams);
+    query = this.applyPaging(query, pagerParams);
+    return query;
+  }
+
+
+  applyPaging<T extends MySqlSelectQueryBuilder>(query: T, pagerParams: PagerParams) : T{
+    if(pagerParams.orderDirection === 'desc')
+      query = query.orderBy(desc(getTableColumns(this.table)[pagerParams.orderBy]));
+    else
+      query = query.orderBy(asc(getTableColumns(this.table)[pagerParams.orderBy]));
+
+    query.limit(pagerParams.pageSize);
+    query.offset((pagerParams.pageIndex - 1) * pagerParams.pageSize);
+
+    return query;
+  }
+
+
   async create(data: TEntity): Promise<TEntity> {
     c.i("Repository > Create");
-    c.d(data);
-    data.createdAt = new Date();
-    data.updatedAt = new Date();
+    c.d(data as any);
+    // data.createdAtUTC = new Date();
+    // data.updatedAtUTC = new Date();
     c.i("Inserting new entity.");
     const [insertedResult] = await this.dbClient.db.insert(this.table).values(data as TEntity).$returningId();
     c.i("Entity inserted.");
@@ -111,14 +143,16 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
     .offset(offset);
 
     //Add search condition if parameters provided
-    if (searchParams && searchParams.length > 0) {
-      c.i('Where applied.');
-      searchParams.forEach((searchParam : SearchParam) => {
-        const condition = like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`);
-        countQuery = countQuery.where(condition);
-        dataQuery = dataQuery.where(condition);
-      });
-    }
+    // if (searchParams && searchParams.length > 0) {
+    //   c.i('Where applied.');
+    //   searchParams.forEach((searchParam : SearchParam) => {
+    //     const condition = like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`);
+    //     countQuery = countQuery.where(condition);
+    //     dataQuery = dataQuery.where(condition);
+    //   });
+    // }
+    countQuery = this.applyConditionAndPaging(countQuery, searchParams, pagerParams);
+    dataQuery = this.applyConditionAndPaging(dataQuery, searchParams, pagerParams);
 
     const [countResult, dataResult] = await Promise.all([
       countQuery.execute(),
@@ -129,14 +163,7 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
     const pages = Math.ceil(countResult[0].count / pagerParams.pageSize);
     c.d(countResult[0]);
 
-    const result = await this.dbClient.db.query[getTableName(this.table)].findMany(
-      {with: {
-        status: true
-      }}
-    );
-
-    c.d(result);
-
+    c.i('Return result from Repository > findManay')
     // Execute query
     return [dataResult as TEntity[], {...pagerParams, pages: pages}];
   }
@@ -146,7 +173,7 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
     id: string | number,
     data: Partial<Omit<TEntity, "id" | "createdAt" | "updatedAt">>
   ): Promise<TEntity> {
-    data.updatedAt = new Date();
+    //data.updatedAtUTC = new Date();
     await this.dbClient.db.update(this.table)
       .set(data as any)
       .where(eq(this.table.id as Column, id));

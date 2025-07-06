@@ -11,10 +11,9 @@ import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema";
 
 export default function ReservationTopList({data} : {data:ReservationEntity[]}) {
   c.i("Client > ReservationTopList");
-  c.d(data);
 
   return (
-    <Group className="flex w-full">
+    <Group className="flex w-full h-full">
       <GroupTitle>
         Latest Reservations
       </GroupTitle>

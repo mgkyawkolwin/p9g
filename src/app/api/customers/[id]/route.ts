@@ -1,5 +1,5 @@
 import { db } from "@/data/orm/drizzle/mysql/db";
-import { user } from "@/data/orm/drizzle/mysql/schema";
+import { userTable } from "@/data/orm/drizzle/mysql/schema";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { container } from "@/dicontainer";

@@ -3,7 +3,7 @@ import { injectable, inject } from 'inversify';
 import c from '@/lib/core/logger/ConsoleLogger';
 import type ICustomerRepository from '@/data/repo/ICustomerRepository';
 import type ICustomerService from "./contracts/ICustomerService";
-import { Customer } from "@/data/orm/drizzle/mysql/schema"
+import { CustomerEntity } from "@/data/orm/drizzle/mysql/schema"
 import { PagerParams, SearchParam, TYPES } from '@/lib/types';
 
 
@@ -15,7 +15,7 @@ export default class CustomerService implements ICustomerService{
     }
 
 
-    async customerCreate(CustomerPosted: Customer): Promise<Customer> {
+    async customerCreate(CustomerPosted: CustomerEntity): Promise<CustomerEntity> {
         c.i('CustomerService > CustomerCreate');
         const result = await this.CustomerRepository.create(CustomerPosted);
         return result;
@@ -29,7 +29,7 @@ export default class CustomerService implements ICustomerService{
     }
 
 
-    async customerFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[Customer[], PagerParams]> {
+    async customerFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[CustomerEntity[], PagerParams]> {
       c.i('CustomerService > CustomerFindMany');
       const result = await this.CustomerRepository.findMany(searchParams, pagerParams);
       return result;
@@ -43,7 +43,7 @@ export default class CustomerService implements ICustomerService{
     // }
 
 
-    async customerFindById(id: number): Promise<Customer | null> {
+    async customerFindById(id: number): Promise<CustomerEntity | null> {
       c.i('CustomerService > CustomerFindById');
       c.d(String(id));
       const result = await this.CustomerRepository.findById(id);
@@ -51,7 +51,7 @@ export default class CustomerService implements ICustomerService{
     }
 
 
-    async customerUpdate(id:number, CustomerPosted: Customer): Promise<Customer> {
+    async customerUpdate(id:number, CustomerPosted: CustomerEntity): Promise<CustomerEntity> {
       c.i('CustomerService > CustomerUpdate');
       const result = await this.CustomerRepository.update(id, CustomerPosted);
       return result;
