@@ -1,5 +1,20 @@
 import { Regex } from 'lucide-react';
-import { z } from 'zod';
+import { number, z } from 'zod';
+import { RegularExpressions } from './regularExpressions';
+
+
+
+export const customerValidator = z.object({
+  id: z.string().length(36, "Id is required").nullish().catch(undefined).optional(),
+  dob: z.date().nullish().catch(undefined).optional(),
+  name: z.string().regex(RegExp(RegularExpressions.name)).optional(),
+  nationalId: z.string().regex(RegExp(RegularExpressions.nationalId)).optional(),
+  passport: z.string().regex(RegExp(RegularExpressions.passport)).optional(),
+  phone: z.string().regex(RegExp(RegularExpressions.phone)).optional(),
+  email: z.string().regex(RegExp(RegularExpressions.email)).optional(),
+  address: z.string().regex(RegExp(RegularExpressions.address)).optional(),
+  country: z.string().regex(RegExp(RegularExpressions.country)).optional(),
+});
 
 export const userInsertSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -32,9 +47,61 @@ export const pagerSchema = z.object({
 });
 
 
+
+export const reservationValidator = z.object({
+  id: z.string().min(1,"Id is required").optional(),
+  arrivalDateTimeUTC: z.coerce.date().nullish().catch(undefined).optional(),
+  arrivalFlight: z.coerce.string().optional(),
+  checkInDateUTC: z.coerce.date(),
+  checkOutDateUTC: z.coerce.date(),
+  customers: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return [];
+        }
+      }
+      return val;
+    },
+    z.array(
+      z.object({
+      id: z.string().min(1, "Customer ID is required")
+    })
+  ).optional()
+  ),
+  departureDateTimeUTC: z.coerce.date().nullish().catch(undefined).optional(),
+  departureFlight: z.coerce.string().optional(),
+  depositAmount: z.coerce.number().optional(),
+  depositCurrency: z.coerce.string().min(1, "Deposity currency is required.").optional(),
+  dropOffType: z.string().optional(),
+  noOfDays: z.coerce.number(),
+  noOfGuests: z.coerce.number().optional(),
+  pickUpType: z.string().optional(),
+  prepaidPackage: z.string().optional(),
+  promotionPackage: z.string().optional(),
+  remark: z.coerce.string().optional(),
+  reservationStatus: z.string().optional(),
+  reservationType: z.string().optional(),
+  roomNo: z.coerce.string().optional(),
+});
+
+
 export const searchSchema = z.object({
-  userName: z.string().regex(RegExp('[a-zA-Z]'),'Invalid search column.').optional(),
-  email: z.string().regex(RegExp('[a-zA-Z0-9@ ]'),'Invalid search column.').optional()
+  searchCreatedFrom: z.string().optional(),
+  searchCreatedUntil: z.string().optional(),
+  searchEmail: z.string().regex(RegExp('[a-zA-Z0-9@ ]'),'Invalid search column.').optional().or(z.literal('')),
+  searchId: z.string().optional(),
+  searchName: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
+  searchNationalId: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
+  searchPassport: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
+  searchPhone: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
+  searchPrepaidPackage: z.string().optional(),
+  searchPromotionPackage: z.string().optional(),
+  searchReservationStatus: z.string().optional(),
+  searchReservationType: z.string().optional(),
+
 });
 
 

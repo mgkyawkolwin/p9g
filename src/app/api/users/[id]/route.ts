@@ -1,17 +1,17 @@
 import { db } from "@/data/orm/drizzle/mysql/db";
-import { user } from "@/data/orm/drizzle/mysql/schema";
+import { userTable } from "@/data/orm/drizzle/mysql/schema";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { container } from "@/dicontainer";
-import IUserService from "@/services/contracts/IUserService";
+import IUserService from "@/domain/services/contracts/IUserService";
 import { TYPES } from "@/lib/types";
-import consoleLogger from "@/lib/core/logger/ConsoleLogger";
+import c from "@/lib/core/logger/ConsoleLogger";
 
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
     try {
-        consoleLogger.logInfo("GET /api/users/[id]");
-        consoleLogger.logDebug(JSON.stringify(await params));
+        c.i("GET /api/users/[id]");
+        c.d(JSON.stringify(await params));
         const { id } = await params;
         const service = container.get<IUserService>(TYPES.IUserService);
         const result = await service.userFindById(parseInt(id));
@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         }
         return NextResponse.json({ data: result }, { status: 200 });
     } catch (error) {
-        consoleLogger.logError(error instanceof Error ? error.message : String(error));
+        c.e(error instanceof Error ? error.message : String(error));
         return NextResponse.json({ message: "Unknow error occured." }, { status: 500 });
     }
 }
@@ -43,7 +43,7 @@ export async function PUT(request: Request, { params }: { params: { id: number }
         }
         return NextResponse.json({ message: "Updated" }, { status: 201 });
     }catch(error){
-        consoleLogger.logError(error instanceof Error ? error.message : String(error));
+        c.e(error instanceof Error ? error.message : String(error));
         return NextResponse.json({ message: "Unknow error occured." }, { status: 500 });
     }
 }
@@ -60,7 +60,7 @@ export async function DELETE(request: Request, { params }: { params: { id: numbe
         }
         return NextResponse.json({ message: "Deleted" }, { status: 200 });
     }catch(error){
-        consoleLogger.logError(error instanceof Error ? error.message : String(error));
+        c.e(error instanceof Error ? error.message : String(error));
         return NextResponse.json({ message: "Unknow error occured." }, { status: 500 });
     }
 }

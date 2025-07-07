@@ -3,7 +3,7 @@ import { createTestContainer } from '@/tests/utils/testContainer';
 import UserRepository from '@/data/repo/drizzle/UserRepository';
 import { IDatabase } from '@/data/db/IDatabase';
 import { and, eq } from 'drizzle-orm';
-import { user } from '@/data/orm/drizzle/mysql/schema';
+import { userTable } from '@/data/orm/drizzle/mysql/schema';
 import { TYPES } from '@/lib/types';
 
 describe('UserRepository', () => {

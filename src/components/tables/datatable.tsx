@@ -33,56 +33,48 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import consoleLogger from "@/lib/core/logger/ConsoleLogger"
+import c from "@/lib/core/logger/ConsoleLogger"
 import { SelectWithLabel } from "../uicustom/selectwithlabel"
 import { FormState } from "@/lib/types"
-import { Loader } from "../uicustom/loader"
 
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: TData[]
   formState: FormState;
   formAction: (formData: FormData) => void;
-  isPending: boolean;
+  formRef: React.RefObject<HTMLFormElement | null>;
 }
-
 
 
 export default function DataTable<TData, TValue>({
   columns,
-  data,
   formState,
   formAction,
-  isPending
+  formRef,
 }: DataTableProps<TData, TValue>) {
 
-  consoleLogger.logInfo("DataTable is called.");
-  consoleLogger.logDebug(JSON.stringify(formState));
+  c.i("DataTable is called.");
+  c.d(JSON.stringify(formState));
 
+  const [data, setData] = React.useState([]);
   const [pageIndex, setPageIndex] = React.useState(1);
   const [pages, setPages] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(2);
-  const [orderBy, setOrderBy] = React.useState("id");
+  const [pageSize, setPageSize] = React.useState(1);
+  const [orderBy, setOrderBy] = React.useState("createdAtUTC");
   const [orderDirection, setOrderDirection] = React.useState("asc");
-  const [pageIndexList, setPageIndexList] = React.useState(new Map<string, string>([["1", "1"]]));
-
-  const formRef = React.useRef<HTMLFormElement>(null);
+  const [records, setRecords] = React.useState(0);
+  const [pageIndexList, setPageIndexList] = React.useState(new Map<string, string>([["10", "10"]]));
 
   //Filter related
-  const itemsPerPageMap = new Map<string, string>([
-    ["1", "1"],
-    ["2", "2"],
-    ["3", "3"],
-    ["4", "4"],
-    ["5", "5"],
+  const pageSizeList = new Map<string, string>([
     ["10", "10"],
     ["20", "20"],
-    ["30", "30"]
+    ["30", "30"],
+    ["50", "50"]
   ]);
 
   //Table Related
-  const [sorting, setSorting] = React.useState<SortingState>([{id:"id",desc:false}]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const defaultData = React.useMemo(() => [], [])
@@ -113,29 +105,18 @@ export default function DataTable<TData, TValue>({
 
 
   React.useEffect(() => {
-    consoleLogger.logInfo("sorting is called.");
-    consoleLogger.logDebug(sorting);
-  }, [sorting]);
-
-
-  React.useEffect(() => {
-    consoleLogger.logInfo("useEfect is called.");
-    if (!formState.data) {
-      consoleLogger.logInfo("Form is submitted");
-      React.startTransition(() => {
-      });
-    }
-  }, []);
-
-
-  React.useEffect(() => {
-    consoleLogger.logInfo("formState is changed.");
-    setPages(formState.pager?.pages ?? 1);
+    c.i("formState is changed.");
+    //setData(formState.data);
+    if(records !== formState.pager?.records)
+      setRecords(formState.pager?.records ?? 0);
+    if(pages !== formState.pager?.pages)
+      setPages(formState.pager?.pages ?? 0);
+    c.d(data);
   }, [formState]);
 
 
   React.useEffect(() => {
-    consoleLogger.logInfo("pages is changed.");
+    c.i("pages is changed.");
     const temp = new Map<string, string>();
     //rebuid pages
     for (let x = 1; x <= pages; x++) {
@@ -146,28 +127,23 @@ export default function DataTable<TData, TValue>({
 
   
   React.useEffect(() => {
-    consoleLogger.logInfo("pagination is changed.");
-    consoleLogger.logDebug(pageIndex);
-    consoleLogger.logDebug(pageSize);
-    consoleLogger.logDebug(pages);
-    consoleLogger.logDebug(orderBy);
-    consoleLogger.logDebug(orderDirection);
-    formRef.current?.requestSubmit();
-  }, [pageSize, pageIndex]);
+    c.i("########################### pageIndex is changed.");
+    formRef?.current?.requestSubmit();
+  }, [pageIndex]);
+
+  
+  React.useEffect(() => {
+    c.i("########################### pageSize is changed.");
+    setPageIndex(1);
+    formRef?.current?.requestSubmit();
+  }, [pageSize]);
+
 
   return (
-    <form className="flex flex-1" ref={formRef} action={formAction}>
-      <Loader isLoading={isPending} />
-      <div className="flex flex-1 flex-col gap-y-4">
+      <div>
+      <div className="flex flex-col gap-y-4 w-full max-w-full">
         <div className="flex">
-          <Input
-            placeholder="enter search values ..."
-            value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("email")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -197,8 +173,8 @@ export default function DataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="flex">
-          <Table className="bg-[#dddddd] rounded-xl">
+        <div className="flex max-w-full">
+          <Table className="bg-[#e0e0e0] rounded-xl max-w-full border-[#333333]">
             <TableHeader className="border-b-2 border-b-[#cccccc]">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -220,16 +196,16 @@ export default function DataTable<TData, TValue>({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="text-[#333333]">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
+                    <TableRow id={row.id}
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="text-[#333333]">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
                 ))
               ) : (
                 <TableRow>
@@ -245,7 +221,7 @@ export default function DataTable<TData, TValue>({
           <div className="flex gap-x-2">
             <SelectWithLabel label="Records Per Page:"
               name="pageSizex"
-              items={itemsPerPageMap}
+              items={pageSizeList}
               value={String(pageSize)}
               onValueChange={(value) => {
                 setPageSize(Number(value));
@@ -273,7 +249,7 @@ export default function DataTable<TData, TValue>({
               <div>
                 Total records:&nbsp;
                 <strong>
-                  {pageSize * pages}
+                  {records}
                 </strong>
                 &nbsp;
               </div>
@@ -317,8 +293,8 @@ export default function DataTable<TData, TValue>({
       </div>
       <input type="hidden" name="pageIndex" value={pageIndex} />
       <input type="hidden" name="pageSize" value={pageSize} />
-      <input type="hidden" name="orderBy" value={sorting[0].id} />
-      <input type="hidden" name="orderDirection" value={sorting[0].desc ? "desc" : "asc"} />
-    </form>
+      <input type="hidden" name="orderBy" value={sorting[0]?.id ?? 'createdAtUTC'} />
+      <input type="hidden" name="orderDirection" value={sorting[0]?.desc ? "desc" : "asc"} />
+      </div>
   )
 }

@@ -1,6 +1,6 @@
 // scripts/seed.ts
 import { drizzle } from 'drizzle-orm/mysql2';
-import { config } from '@/data/orm/drizzle/mysql/schema';
+import { configTable } from '@/data/orm/drizzle/mysql/schema';
 import {MySqlDatabase} from '@/data/db/mysql/MySqlDatabase';
 import dotenv from 'dotenv';
 import argon2 from 'argon2';

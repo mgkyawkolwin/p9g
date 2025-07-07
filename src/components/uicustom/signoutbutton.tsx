@@ -2,6 +2,7 @@ import { useActionState } from "react";
 //Local Imports
 import { Button } from "../ui/button";
 import { FormState } from "@/lib/types";
+import { ButtonCustom } from "./buttoncustom";
  
 
 export default function SignOutButton({action} : { action: () => Promise<FormState> }) {
@@ -9,7 +10,7 @@ export default function SignOutButton({action} : { action: () => Promise<FormSta
     
   return (
     <form key={"signOutForm"} action={formAction} >
-      <Button type="submit" >Sign Out</Button>
+      <ButtonCustom type="submit" variant={"red"} size={"sm"} >Sign Out</ButtonCustom>
     </form>
   )
 }

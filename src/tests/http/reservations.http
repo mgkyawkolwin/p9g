@@ -1,0 +1,22 @@
+@END_POINT=http://localhost:3000/api/
+
+
+# /api/reservations/top - get latest 10 reservation list
+curl --request GET \
+  --url {{END_POINT}}reservations/top \
+  --header 'Content-Type: application/json'
+###
+
+# Create New Reservation - /api/reservations/create
+curl --request POST \
+  --url {{END_POINT}}reservations/create \
+  --header 'Content-Type: application/json'
+  --data '{"roomNo":"A1002", "reservationStatus": "NEW", "checkInDate":"2025-01-01", "checkOutDate":"2025-01-31"}' 
+###
+
+# Update New Reservation - /api/reservations/create
+curl --request PUT \
+  --url {{END_POINT}}reservations/72603bd3-ded4-41f6-b887-3bcf664425d1/update \
+  --header 'Content-Type: application/json'
+  --data '{"id":"72603bd3-ded4-41f6-b887-3bcf664425d1","roomNo":"AAA", "checkInDate":"2025-01-01", "checkOutDate":"2025-01-31"}' 
+###

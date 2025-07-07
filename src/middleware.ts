@@ -2,7 +2,7 @@
 import { NextResponse, NextRequest } from "next/server"
 //local import, sorted
 import {auth} from "@/app/auth"
-import consoleLogger from "@/lib/core/logger/ConsoleLogger";
+import c from "@/lib/core/logger/ConsoleLogger";
 
 export async function middleware(request : NextRequest) {
   try {
@@ -29,6 +29,6 @@ export async function middleware(request : NextRequest) {
     }
     return NextResponse.next();
   } catch (error) {
-    consoleLogger.logError(error instanceof Error ? error.message : String(error));
+    c.e(error instanceof Error ? error.message : String(error));
   }
 }

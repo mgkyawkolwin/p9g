@@ -1,3 +1,4 @@
+import { ColumnDef } from "@tanstack/react-table";
 
 
 export type APIResponse = {
@@ -19,7 +20,8 @@ export type PagerParams = {
   orderDirection: string, 
   pageIndex: number, 
   pageSize: number,
-  pages: number
+  pages: number,
+  records: number
 }
 
 export type SearchParam = {
@@ -29,10 +31,14 @@ export type SearchParam = {
 
 export const TYPES = {
   IAuthService : Symbol.for('IAuthService'),
+  ICustomerRepository : Symbol.for('ICustomerRepository'),
+  ICustomerService : Symbol.for('ICustomerService'),
   IDatabase : Symbol.for('IDatabase'),
   IDbType : Symbol.for('IDbType'),
   IRepository : Symbol.for('IRepository'),
-  IRepositoryFactory : Symbol.for('IRepositoryFactory'),
+  IReservationRepository: Symbol.for('IReservationRepository'),
+  IReservationService: Symbol.for('IReservationService'),
   IUserRepository : Symbol.for('IUserRepository'),
   IUserService : Symbol.for('IUserService'),
 }
+

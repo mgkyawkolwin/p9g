@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
 
-import { User, user } from "@/data/orm/drizzle/mysql/schema";
+import { User, userTable } from "@/data/orm/drizzle/mysql/schema";
 import { Repository } from "./Repository";
 import IUserRepository from "../IUserRepository";
 
@@ -11,12 +11,12 @@ import { type IDatabase } from "@/data/db/IDatabase";
 
 
 @injectable()
-export default class UserRepository extends Repository<User, typeof user> implements IUserRepository {
+export default class UserRepository extends Repository<User, typeof userTable> implements IUserRepository {
 
     constructor(
         @inject(TYPES.IDatabase) protected readonly dbClient: IDatabase<any>
     ) {
-        super(dbClient, user);
+        super(dbClient, userTable);
     }
 
     async findByEmailAndPassword(email: string, password: string): Promise<User> {

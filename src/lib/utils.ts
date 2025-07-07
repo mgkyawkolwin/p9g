@@ -2,23 +2,79 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { SearchParam, PagerParams } from "./types"
+import c from "./core/logger/ConsoleLogger";
 
+/**
+ * Merge two or more className into one.
+ * @param {ClassValue[]}  ...inputs - className array.
+ * @returns combined className
+ * @example
+ * <Button className={cn(className, "flex flex-1")} />;
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function buildSearchParams(pagerParams : any) : SearchParam[] {
+/**
+ * Build SearchParam array from the querystring, which will be used in repository filtering.
+ * Query string field should be start with search (e.g. searchName) to be distinguished from
+ * entity values. Only known list will be converted into SearchParam.
+ * 
+ * Note: Intendted to be used in API route.
+ * @param {Object} queryStringObject - Query string object with key/value.
+ * @returns {SearchParam[]} - Array of SearchParam.
+ */
+export function buildSearchParams(queryStringObject : any) : SearchParam[] {
   const search : SearchParam[]= [];
-  if(pagerParams.userName){
-    search.push({searchColumn:'userName', searchValue: pagerParams.UserName});
+  if(queryStringObject.searchCheckInFrom){
+    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInFrom});
   }
-  if(pagerParams.email){
-    search.push({searchColumn:'email', searchValue: pagerParams.email});
+  if(queryStringObject.searchCheckInUntil){
+    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInUntil});
   }
-  return search
+  if(queryStringObject.searchCreatedFrom){
+    search.push({searchColumn:'createdFrom', searchValue: queryStringObject.searchCreatedFrom});
+  }
+  if(queryStringObject.searchCreatedUntil){
+    search.push({searchColumn:'createdUntil', searchValue: queryStringObject.searchCreatedUntil});
+  }
+  if(queryStringObject.searchId){
+    search.push({searchColumn:'id', searchValue: queryStringObject.searchId});
+  }
+  if(queryStringObject.searchName){
+    search.push({searchColumn:'name', searchValue: queryStringObject.searchName});
+  }
+  if(queryStringObject.searchNationalId){
+    search.push({searchColumn:'nationalId', searchValue: queryStringObject.searchNationalId});
+  }
+  if(queryStringObject.searchPassport){
+    search.push({searchColumn:'passport', searchValue: queryStringObject.searchPassport});
+  }
+  if(queryStringObject.searchPhone){
+    search.push({searchColumn:'phone', searchValue: queryStringObject.searchPhone});
+  }
+  if(queryStringObject.searchReservationStatus){
+    search.push({searchColumn:'reservationStatus', searchValue: queryStringObject.searchReservationStatus});
+  }
+  if(queryStringObject.searchReservationType){
+    search.push({searchColumn:'reservationType', searchValue: queryStringObject.searchReservationType});
+  }
+  if(queryStringObject.searchUserName){
+    search.push({searchColumn:'userName', searchValue: queryStringObject.UserName});
+  }
+  if(queryStringObject.searchEmail){
+    search.push({searchColumn:'email', searchValue: queryStringObject.email});
+  }
+  return search.filter((s) => s.searchValue !== 'DEFAULT');
 }
 
-export function buildTableQueryString(input:any): string{
+
+/**
+ * Build query string from object, filter out invalid values (undefined, null, empty string)
+ * @param {object} input - Any object with property.
+ * @returns {string} Query string.
+ */
+export function buildQueryString(input:any): string{
   const queryString = new URLSearchParams(
     Object.entries(input)
       .filter(([_, value]) => value !== undefined && value !== null && value !== '')
@@ -27,12 +83,68 @@ export function buildTableQueryString(input:any): string{
   return queryString;
 }
 
-export function pagerWithDefaults(searchParams : any) : PagerParams {
+
+/**
+ * Get local date string to display in client browser.
+ */
+export function getLocalDateString(){
+  const now = new Date();//this is local time
+  // Adjust for timezone offset (critical step!)
+  const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
+  const localISOFormatDate = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 10);
+  return localISOFormatDate;
+}
+
+
+/**
+ * Convert local date string to UTC date in ISO format
+ * @param dateString date value in local timezone
+ * @returns UTC date value in ISO format
+ */
+export function getUTCISODateString(dateString: string):string{
+  //c.d(dateString);
+  const now = new Date(dateString);
+  //c.d(now.toISOString().slice(0,10));
+  return now.toISOString();
+}
+
+
+/**
+ * Convert local date string to UTC date in ISO format
+ * @param dateString date value in local timezone
+ * @returns UTC date value in ISO format
+ */
+export function getUTCISODateTimeString(dateTimeString: string):string{c.i('xxx')
+  c.d(dateTimeString);
+  const now = new Date(dateTimeString);
+  c.d(now.toISOString());
+  return now.toISOString();
+}
+
+
+/**
+ * Get local datetime string to display in client browser.
+ */
+export function getLocalDateTimeString(){
+  const now = new Date();//this is local time
+  // Adjust for timezone offset (critical step!), wihtout adjustment , toISOString will output UTC/GMT datetime
+  const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
+  const localISOFormatDateTime = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 16);
+  return localISOFormatDateTime;
+}
+
+
+/**
+ * Build pagination PagerParams with default fields if fields are invalid.
+ * @param inputObject - Any Object
+ * @returns Original object with pager fields default.
+ */
+export function pagerWithDefaults(inputObject : any) : PagerParams {
   return {
-    ...searchParams,
-    orderBy : searchParams.orderBy ?? 'id',
-    orderDirection : searchParams.orderDirection ?? 'asc',
-    pageIndex : searchParams.pageIndex ?? 1,
-    pageSize : searchParams.pageSize ?? 10
+    ...inputObject,
+    orderBy : inputObject.orderBy ?? 'id',
+    orderDirection : inputObject.orderDirection ?? 'asc',
+    pageIndex : inputObject.pageIndex ?? 1,
+    pageSize : inputObject.pageSize ?? 10
   }
 }
