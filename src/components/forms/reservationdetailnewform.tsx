@@ -20,6 +20,11 @@ export default function ReservationDetailNewForm({
 }: ReservationDetailNewFormProps) {
     c.i('Client > ReservationDetailNewForm');
 
+    const detailFormRef = React.useRef<{ resetForm: () => void }>(null);
+
+    function clearForm(){
+        detailFormRef.current?.resetForm();
+    }
 
     return (
         <div className="flex flex-col">
@@ -29,13 +34,13 @@ export default function ReservationDetailNewForm({
                 </GroupTitle>
                 <GroupContent>
                     <div className="flex flex-col gap-4">
-                    <ReservationDetailForm />
+                    <ReservationDetailForm ref={detailFormRef} />
                     <div className="flex gap-4">
                         <ButtonCustom variant={"green"} disabled={isPending} onClick={() => {
                             c.i('[CLICKED] Save Reservation');
                             setActionVerb('SAVE');
                         }}>Save Reservation</ButtonCustom>
-                        <ButtonCustom variant={"green"} disabled={isPending}>Save & Copy</ButtonCustom>
+                        <ButtonCustom variant={"red"} disabled={isPending} onClick={() => clearForm()}>Clear Form</ButtonCustom>
                     </div>
                     </div>
                 </GroupContent>

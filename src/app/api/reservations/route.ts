@@ -9,6 +9,7 @@ import { pagerSchema, searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
 import ICustomerService from "@/domain/services/contracts/ICustomerService";
+import IReservationService from "@/domain/services/contracts/IReservationService";
 
 
 export async function GET(request: NextRequest) {
@@ -26,8 +27,7 @@ export async function GET(request: NextRequest) {
     const searchValidatedFields = await searchSchema.safeParseAsync(searchParams);
     c.d(JSON.stringify(searchValidatedFields));
     if(searchValidatedFields.success){
-      //validation successful, build search objects
-      //convert raw params into searchParam array
+      c.i('Search param is valid. Building search fields.');
       searchFields = buildSearchParams(searchValidatedFields.data);
       c.d(JSON.stringify(searchFields));
     }
@@ -39,8 +39,8 @@ export async function GET(request: NextRequest) {
     c.d(JSON.stringify(pager));
 
     //call service to retrieve data
-    const customerService = container.get<ICustomerService>(TYPES.ICustomerService);
-    const result = await customerService.customerFindMany(searchFields, pager);
+    const reservationService = container.get<IReservationService>(TYPES.IReservationService);
+    const result = await reservationService.reservationFindMany(searchFields, pager);
     c.d(JSON.stringify(result));
 
     return NextResponse.json({data : result}, {status: 200});

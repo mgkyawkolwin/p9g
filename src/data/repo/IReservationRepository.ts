@@ -7,7 +7,7 @@ export default interface IReservationRepository extends IRepository<Reservation>
     
     createReservation(reservation: Reservation) : Promise<Reservation>;
 
-    findReservations(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]>;
+    reservationFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]>;
 
     updateReservation(id:string, reservation: Reservation) : Promise<Reservation>;
     

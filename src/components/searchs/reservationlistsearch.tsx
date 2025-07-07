@@ -5,20 +5,55 @@ import { SelectReservationType } from "../selects/selectreservationtype";
 import { SelectPromotion } from "../selects/selectpromotion";
 import { InputDateRange } from "../uicustom/inputdaterange";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
+import { SelectWithLabel } from "../uicustom/selectwithlabel";
+import { SelectList, SelectListSearch } from "@/lib/constants";
+import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
+import { Button } from "../ui/button";
+import { ButtonCustom } from "../uicustom/buttoncustom";
+import { Checkbox } from "../ui/checkbox";
+import { FormState } from "@/lib/types";
 
-export default function ReservationListSearch(){
+
+const initialData = {
+    createdDateFrom: new Date().toLocaleDateString('sv-SE'),
+    createdDateUntil: new Date().toLocaleDateString('sv-SE'),
+    id: "",
+    name: "",
+    prepaidPackage: "DEFAULT",
+    promotionPackage: "DEFAULT",
+    reservationStatus: "DEFAULT",
+    reservationType: "DEFAULT",
+};
+
+interface DataTableProps {
+    formRef?: React.RefObject<HTMLFormElement | null>;
+}
+
+
+export default function ReservationListSearch({
+    formRef
+  }: DataTableProps){
+
+    const [formData, setFormData] = React.useState(initialData);
 
     return (
         <section aria-label="Reservatoin List Search" className="flex w-full flex-col gap-4">
             <div className="flex gap-4">
-                <SelectReservationStatus />
-                <SelectReservationType />
-                <SelectPromotion />
+                <SelectWithLabel label="Reservation Status" items={SelectListSearch.RESERVATION_STATUS} defaultValue={formData.reservationStatus} onValueChange={(value) => setFormData({...formData, reservationStatus: value})} />
+                <SelectWithLabel label="Reservation Type" items={SelectListSearch.RESERVATION_TYPE} defaultValue={formData.reservationType} onValueChange={(value) => setFormData({...formData, reservationType: value})} />
+                <SelectWithLabel label="Promotion" items={SelectListSearch.PROMOTION_PACKAGES} defaultValue={formData.promotionPackage} onValueChange={(value) => setFormData({...formData, promotionPackage: value})} />
+                <SelectWithLabel label="Prepaid" items={SelectListSearch.PREPAID_PACKAGES} defaultValue={formData.prepaidPackage} onValueChange={(value) => setFormData({...formData, prepaidPackage: value})} />
+                <input type="hidden" name="searchReservationStatus" value={formData.reservationStatus} />
+                <input type="hidden" name="searchReservationType" value={formData.reservationType} />
+                <input type="hidden" name="searchPromotionPackage" value={formData.promotionPackage} />
+                <input type="hidden" name="searchPrepaidPackage" value={formData.prepaidPackage} />
             </div>
-            <div className="flex gap-4">
-                <InputDateRange />
-                <InputWithLabel label="Guest Name" />
-                <InputWithLabel label="Reservation ID" />
+            <div className="flex gap-4 items-center">
+                <DateInputWithLabel type="date" name="searchCreatedFrom" label="Created From" defaultValue={formData.createdDateFrom} onChange={(e) => setFormData({...formData, createdDateFrom: e.target.value})} />
+                <DateInputWithLabel type="date" name="searchCreatedUntil" label="Until" defaultValue={formData.createdDateUntil} onChange={(e) => setFormData({...formData, createdDateUntil: e.target.value})}/>
+                <InputWithLabel name="searchId" label="Reservation ID" defaultValue={formData.id} onChange={(e) => setFormData({...formData, id: e.target.value})}/>
+                <InputWithLabel name="searchName" label="Customer Name" defaultValue={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}/>
+                <ButtonCustom onClick={() => formRef?.current?.requestSubmit()}>Search</ButtonCustom>
             </div>
         </section>
     );

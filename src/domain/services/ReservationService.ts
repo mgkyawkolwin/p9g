@@ -2,7 +2,7 @@ import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema";
 import IReservationService from "./contracts/IReservationService";
 import { inject, injectable } from "inversify";
 import type IReservationRepository from "@/data/repo/IReservationRepository";
-import { PagerParams, TYPES } from "@/lib/types";
+import { PagerParams, SearchParam, TYPES } from "@/lib/types";
 import { BaseService } from "./BaseService";
 import Reservation from "@/domain/models/Reservation";
 import IRepository from "@/data/repo/IRepository";
@@ -24,13 +24,22 @@ export default class ReservationService implements IReservationService{
         return this.reservationRepository.createReservation(reservation);
     }
     
+    async reservationFindMany(searchParams: SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
+        c.i('ReservationService > reservationFindMany');
+        c.d(pagerParams);
+        pagerParams.orderBy = "createdAtUTC";
+        pagerParams.orderDirection = "desc";
+        c.d(pagerParams);
+        return this.reservationRepository.reservationFindMany(searchParams, pagerParams);
+    }
+    
     async reservationTopList(pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
         c.i('ReservationService > reservationTopList');
         c.d(pagerParams);
         pagerParams.orderBy = "createdAtUTC";
         pagerParams.orderDirection = "desc";
         c.d(pagerParams);
-        return this.reservationRepository.findReservations([], pagerParams);
+        return this.reservationRepository.reservationFindMany([], pagerParams);
     }
     
     async updateReservation(id:string, reservation : Reservation): Promise<Reservation> {

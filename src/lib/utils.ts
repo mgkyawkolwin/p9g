@@ -26,6 +26,21 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function buildSearchParams(queryStringObject : any) : SearchParam[] {
   const search : SearchParam[]= [];
+  if(queryStringObject.searchCheckInFrom){
+    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInFrom});
+  }
+  if(queryStringObject.searchCheckInUntil){
+    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInUntil});
+  }
+  if(queryStringObject.searchCreatedFrom){
+    search.push({searchColumn:'createdFrom', searchValue: queryStringObject.searchCreatedFrom});
+  }
+  if(queryStringObject.searchCreatedUntil){
+    search.push({searchColumn:'createdUntil', searchValue: queryStringObject.searchCreatedUntil});
+  }
+  if(queryStringObject.searchId){
+    search.push({searchColumn:'id', searchValue: queryStringObject.searchId});
+  }
   if(queryStringObject.searchName){
     search.push({searchColumn:'name', searchValue: queryStringObject.searchName});
   }
@@ -38,13 +53,19 @@ export function buildSearchParams(queryStringObject : any) : SearchParam[] {
   if(queryStringObject.searchPhone){
     search.push({searchColumn:'phone', searchValue: queryStringObject.searchPhone});
   }
-  if(queryStringObject.userName){
+  if(queryStringObject.searchReservationStatus){
+    search.push({searchColumn:'reservationStatus', searchValue: queryStringObject.searchReservationStatus});
+  }
+  if(queryStringObject.searchReservationType){
+    search.push({searchColumn:'reservationType', searchValue: queryStringObject.searchReservationType});
+  }
+  if(queryStringObject.searchUserName){
     search.push({searchColumn:'userName', searchValue: queryStringObject.UserName});
   }
-  if(queryStringObject.email){
+  if(queryStringObject.searchEmail){
     search.push({searchColumn:'email', searchValue: queryStringObject.email});
   }
-  return search
+  return search.filter((s) => s.searchValue !== 'DEFAULT');
 }
 
 

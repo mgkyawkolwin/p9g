@@ -89,11 +89,19 @@ export const reservationValidator = z.object({
 
 
 export const searchSchema = z.object({
+  searchCreatedFrom: z.string().optional(),
+  searchCreatedUntil: z.string().optional(),
+  searchEmail: z.string().regex(RegExp('[a-zA-Z0-9@ ]'),'Invalid search column.').optional().or(z.literal('')),
+  searchId: z.string().optional(),
   searchName: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
   searchNationalId: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
   searchPassport: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
   searchPhone: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
-  searchEmail: z.string().regex(RegExp('[a-zA-Z0-9@ ]'),'Invalid search column.').optional().or(z.literal(''))
+  searchPrepaidPackage: z.string().optional(),
+  searchPromotionPackage: z.string().optional(),
+  searchReservationStatus: z.string().optional(),
+  searchReservationType: z.string().optional(),
+
 });
 
 

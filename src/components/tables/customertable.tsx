@@ -16,6 +16,8 @@ import { useRouter } from "next/router"
 import { Input } from "../ui/input"
 import { InputCustom } from "../uicustom/inputcustom"
 import { ButtonCustom } from "../uicustom/buttoncustom"
+import Reservation from "@/domain/models/Reservation"
+import Customer from "@/domain/models/Customer"
 
 
 interface DataTableProps<TData, TValue> {
@@ -45,7 +47,7 @@ export default function CustomerTable<TData, TValue>({
     setClientState(formState);
   }, [formState]);
 
-  const columns: ColumnDef<ReservationEntity>[] = [
+  const columns: ColumnDef<Customer>[] = [
   {
     accessorKey: "id",
     header: "Info",

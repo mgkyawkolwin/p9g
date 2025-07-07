@@ -20,7 +20,8 @@ export type PagerParams = {
   orderDirection: string, 
   pageIndex: number, 
   pageSize: number,
-  pages: number
+  pages: number,
+  records: number
 }
 
 export type SearchParam = {

@@ -56,12 +56,14 @@ export default function DataTable<TData, TValue>({
   c.i("DataTable is called.");
   c.d(JSON.stringify(formState));
 
+  const [data, setData] = React.useState([]);
   const [pageIndex, setPageIndex] = React.useState(1);
   const [pages, setPages] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(10);
-  const [orderBy, setOrderBy] = React.useState("id");
+  const [pageSize, setPageSize] = React.useState(1);
+  const [orderBy, setOrderBy] = React.useState("createdAtUTC");
   const [orderDirection, setOrderDirection] = React.useState("asc");
-  const [pageIndexList, setPageIndexList] = React.useState(new Map<string, string>([["1", "1"]]));
+  const [records, setRecords] = React.useState(0);
+  const [pageIndexList, setPageIndexList] = React.useState(new Map<string, string>([["10", "10"]]));
 
   //Filter related
   const pageSizeList = new Map<string, string>([
@@ -72,7 +74,7 @@ export default function DataTable<TData, TValue>({
   ]);
 
   //Table Related
-  const [sorting, setSorting] = React.useState<SortingState>([{id:"id",desc:false}]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const defaultData = React.useMemo(() => [], [])
@@ -104,7 +106,12 @@ export default function DataTable<TData, TValue>({
 
   React.useEffect(() => {
     c.i("formState is changed.");
-    setPages(formState.pager?.pages ?? 1);
+    //setData(formState.data);
+    if(records !== formState.pager?.records)
+      setRecords(formState.pager?.records ?? 0);
+    if(pages !== formState.pager?.pages)
+      setPages(formState.pager?.pages ?? 0);
+    c.d(data);
   }, [formState]);
 
 
@@ -120,9 +127,16 @@ export default function DataTable<TData, TValue>({
 
   
   React.useEffect(() => {
-    c.i("pagination is changed.");
+    c.i("########################### pageIndex is changed.");
     formRef?.current?.requestSubmit();
-  }, [pageSize, pageIndex]);
+  }, [pageIndex]);
+
+  
+  React.useEffect(() => {
+    c.i("########################### pageSize is changed.");
+    setPageIndex(1);
+    formRef?.current?.requestSubmit();
+  }, [pageSize]);
 
 
   return (
@@ -235,7 +249,7 @@ export default function DataTable<TData, TValue>({
               <div>
                 Total records:&nbsp;
                 <strong>
-                  {pageSize * pages}
+                  {records}
                 </strong>
                 &nbsp;
               </div>
@@ -279,8 +293,8 @@ export default function DataTable<TData, TValue>({
       </div>
       <input type="hidden" name="pageIndex" value={pageIndex} />
       <input type="hidden" name="pageSize" value={pageSize} />
-      <input type="hidden" name="orderBy" value={sorting[0].id} />
-      <input type="hidden" name="orderDirection" value={sorting[0].desc ? "desc" : "asc"} />
+      <input type="hidden" name="orderBy" value={sorting[0]?.id ?? 'createdAtUTC'} />
+      <input type="hidden" name="orderDirection" value={sorting[0]?.desc ? "desc" : "asc"} />
       </div>
   )
 }

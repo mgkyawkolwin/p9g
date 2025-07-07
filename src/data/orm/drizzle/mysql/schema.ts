@@ -1,8 +1,6 @@
 import { mysqlTable, primaryKey,unique, int, boolean, char, varchar, serial, timestamp, tinyint, text,date, datetime } from "drizzle-orm/mysql-core";
 import { relations, sql } from "drizzle-orm";
 import {v4 as uuidv4} from 'uuid';
-import { number } from "zod";
-import { customer } from "@/drizzle/migrations/schema";
 
 
 export const configTable = mysqlTable("config", {
@@ -218,5 +216,6 @@ export const reservationCustomerRelations = relations(reservationCustomerTable, 
 // Export TypeScript types
 export type User = typeof userTable.$inferSelect;
 export type NewUser = typeof userTable.$inferInsert; // For INSERT queries
+export type ConfigEntity = typeof configTable.$inferSelect;
 export type CustomerEntity = typeof customerTable.$inferSelect;
 export type ReservationEntity = typeof reservationTable.$inferSelect;
