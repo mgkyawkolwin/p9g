@@ -59,7 +59,7 @@ export default function DataTable<TData, TValue>({
   const [data, setData] = React.useState([]);
   const [pageIndex, setPageIndex] = React.useState(1);
   const [pages, setPages] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(10);
   const [orderBy, setOrderBy] = React.useState("createdAtUTC");
   const [orderDirection, setOrderDirection] = React.useState("asc");
   const [records, setRecords] = React.useState(0);
@@ -174,13 +174,13 @@ export default function DataTable<TData, TValue>({
           </DropdownMenu>
         </div>
         <div className="flex max-w-full">
-          <Table className="bg-[#e0e0e0] rounded-xl max-w-full border-[#333333]">
-            <TableHeader className="border-b-2 border-b-[#cccccc]">
+              <Table className="bg-[#e3e3e3] rounded-xl w-full">
+                <TableHeader className="bg-[#dddddd] rounded-t-xl border-b-2 border-b-[#aaaaaa]">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id} className=" text-[#333333]">
+                      <TableHead key={header.id} className=" text-[#444444]">
                         {header.isPlaceholder
                           ? null
                           : flexRender(

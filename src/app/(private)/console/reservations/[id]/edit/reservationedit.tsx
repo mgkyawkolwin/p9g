@@ -15,12 +15,13 @@ import ReservationTopList from "@/components/groups/reservationtoplist";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 import { CustomerEntity, ReservationEntity, User } from "@/data/orm/drizzle/mysql/schema";
 import CustomerInformationForm from "@/components/forms/customerinformationform";
-import { newReservationAction } from "./actions";
+import { editReservationAction } from "./actions";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import CustomerChooseTable from "@/components/tables/customerchoosetable";
+import ReservationDetailEditForm from "@/components/forms/reservationdetaileditform";
 
-export default function ReservationNew() {
+export default function ReservationEdit({id}:{id:string}) {
 
   const [actionVerb, setActionVerb] = React.useState('');
   const [customerName, setCustomerName] = React.useState("");
@@ -29,7 +30,7 @@ export default function ReservationNew() {
   const [newReservations, setNewReservations] = React.useState<ReservationEntity[]>([]);
   const [selectedCustomerList, setSelectedCustomerList] = React.useState<CustomerEntity[]>([]);
 
-  const [state, formAction, isPending] = useActionState(newReservationAction, {
+  const [state, formAction, isPending] = useActionState(editReservationAction, {
     error: false,
     message: ""
   });
@@ -54,16 +55,30 @@ export default function ReservationNew() {
 
   useEffect(() => {
     c.i('useEffect > state or isPending is changed.');
-    if (!isPending && state.message) {
+    if(isPending)
+      return;
+
+    if (state.message) {
       toast(state.message);
     }
 
-    if(state.data && state.data.reservations){
+    //return if no valid data presents
+    if(!state || !state.data)
+      return;
+
+    if(state.data.reservations){
       c.i("Data is changed.");
       c.d(state.data.reservations);
       setNewReservations(state.data.reservations);
     }
-    if(state.data && state.data.customers && state.data.customers.length > 0 && !isPending){
+
+    //set original customers from reservation
+    if(selectedCustomerList.length == 0 && state.data.reservation && state.data.reservation.customers){
+      setSelectedCustomerList(state.data.reservation.customers);
+    }
+
+    //set search result customer list
+    if(state.data.customers && state.data.customers.length > 0 && !isPending){
       c.i("Customer data is changed.");
       c.d(state.data.customers);
       setCustomerList(state.data.customers);
@@ -90,7 +105,7 @@ export default function ReservationNew() {
         </section>
         <section aria-label="Bottom Section" className="flex flex-row gap-4">
           <section aria-label="New Reservation" className="flex">
-            <ReservationDetailNewForm formRef={formRef} isPending={isPending} setActionVerb={setActionVerb} />
+            <ReservationDetailEditForm formState={state} formRef={formRef} isPending={isPending} setActionVerb={setActionVerb} />
           </section>
           <section aria-label="Reservation List" className="flex w-full">
             <ReservationTopList data={newReservations}/>
@@ -100,12 +115,12 @@ export default function ReservationNew() {
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTitle></DialogTitle>
             <DialogContent className="flex min-w-[90vw]">
-            
             <CustomerChooseTable data={customerList} selectedCustomers={selectedCustomerList} setSelectedCustomers={setSelectedCustomerList} setOpen={setIsDialogOpen}/>
             </DialogContent>
           </Dialog>
         </section>
       </div>
+      <input type="hidden" name="id" value={id} />
       <input type="hidden" name="actionVerb" value={actionVerb} />
       <input type="hidden" name="customers" value={JSON.stringify(selectedCustomerList.map(c => ({id:c.id})))} />
     </form>

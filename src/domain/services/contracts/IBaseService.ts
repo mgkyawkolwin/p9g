@@ -1,22 +1,22 @@
 import { PagerParams, SearchParam } from "@/lib/types";
 import { SQL } from "drizzle-orm";
 
-export default interface IBaseService<TDomainModel, TEntity> {
+export default interface IBaseService<TEntity> {
 
-  create(entity: Omit<TDomainModel, "id" | "createdAt" | "updatedAt">): Promise<TDomainModel>;
+  create(entity: Omit<TEntity, "id" | "createdAt" | "updatedAt">): Promise<TEntity>;
 
-  findAll(pagerParams : PagerParams): Promise<TDomainModel[]>;
+  findAll(pagerParams : PagerParams): Promise<TEntity[]>;
 
-  findById(id: number): Promise<TDomainModel | null>;
+  findById(id: number): Promise<TEntity | null>;
 
-  findOne(where?: SQL | undefined): Promise<TDomainModel | null>;
+  findOne(where?: SQL | undefined): Promise<TEntity | null>;
 
-  findMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[TDomainModel[], PagerParams]>;
+  findMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[TEntity[], PagerParams]>;
 
   update(
     id: string | number,
-    data: Partial<Omit<TDomainModel, "id" | "createdAt" | "updatedAt">>
-  ): Promise<TDomainModel>;
+    data: Partial<Omit<TEntity, "id" | "createdAt" | "updatedAt">>
+  ): Promise<TEntity>;
 
   delete(id: string | number): Promise<boolean>;
   

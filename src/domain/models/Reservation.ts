@@ -11,6 +11,8 @@ export default class Reservation{
     public departureDateTimeUTC!: Date;
     public departureFlight!: string;
     public depositAmount!: number;
+    public depositCurrency!: string;
+    public depositDateUTC!: Date;
     public dropOffType!: string;
     public dropOffTypeId!: string;
     public dropOffTypeText!: string;

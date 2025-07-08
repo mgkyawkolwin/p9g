@@ -11,6 +11,8 @@ import ReservationListSearch from "@/components/searchs/reservationlistsearch";
 import { reservationGetList } from "./actions";
 import React from "react";
 import { Loader } from "@/components/uicustom/loader";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 
 export default function ReservationList() {
   c.i("Client > ReservationList");
@@ -23,29 +25,31 @@ export default function ReservationList() {
   });
 
   useEffect(() => {
-    if(state.error){
+    if (state.error) {
       toast(state.message);
     }
-  },[state]);
+  }, [state]);
 
   return (
     <div className="flex flex-1 w-auto">
-          <Loader isLoading={isPending} />
-<Group className="flex w-full">
-      <GroupTitle>
-        Reservation List
-      </GroupTitle>
-      <GroupContent>
-        <div className="flex flex-col gap-4">
-        <form ref={formRef} action={formAction} className="flex flex-col gap-4">
-        <ReservationListSearch formRef={formRef}/>
-        <ReservationListTable formState={state} formAction={formAction} formRef={formRef} />
-        </form>
-        
-        </div>
-      </GroupContent>
-    </Group>
+      <Loader isLoading={isPending} />
+      <Group className="flex w-full">
+        <GroupTitle>
+          Reservation List
+        </GroupTitle>
+        <GroupContent>
+          <div className="flex flex-col gap-4">
+            <form ref={formRef} action={formAction} className="flex flex-col gap-4">
+              <ReservationListSearch formRef={formRef} />
+              <ReservationListTable formState={state} formAction={formAction} formRef={formRef} />
+
+              
+            </form>
+
+          </div>
+        </GroupContent>
+      </Group>
     </div>
-    
+
   );
 }

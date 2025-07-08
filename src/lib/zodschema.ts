@@ -75,6 +75,7 @@ export const reservationValidator = z.object({
   departureFlight: z.coerce.string().optional(),
   depositAmount: z.coerce.number().optional(),
   depositCurrency: z.coerce.string().min(1, "Deposity currency is required.").optional(),
+  depositDateUTC: z.coerce.date().nullish().catch(undefined).optional(),
   dropOffType: z.string().optional(),
   noOfDays: z.coerce.number(),
   noOfGuests: z.coerce.number().optional(),

@@ -12,18 +12,37 @@ import c from "@/lib/core/logger/ConsoleLogger";
 @injectable()
 export default class ReservationService implements IReservationService{
 
+
     constructor(@inject(TYPES.IReservationRepository) private reservationRepository : IReservationRepository){
         
     }
     
+
     async createReservation(reservation : Reservation): Promise<Reservation> {
-        //prepare
-        // reservation.reservationStatus = "NEW";
-        // reservation.createdAtUTC = new Date();
-        // reservation.updatedAtUTC = new Date();
+        c.i('ReservationService > createReservation');
         return this.reservationRepository.createReservation(reservation);
     }
     
+
+    async patch(id:string, operation : string): Promise<void> {
+        c.i('ReservationService > patch');
+        c.d(id);
+        c.d(operation);
+        if(operation === 'CANCEL'){
+            c.i('Cancel operation running.');
+            this.reservationRepository.cancel(id);
+        }
+
+        c.i('Returning from ReservationService > patch.');
+    }
+
+
+    async reservationFindById(id:string): Promise<Reservation|undefined> {
+        c.i('ReservationService > reservationFindById');
+        return this.reservationRepository.reservationFindById(id);
+    }
+    
+
     async reservationFindMany(searchParams: SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
         c.i('ReservationService > reservationFindMany');
         c.d(pagerParams);
@@ -33,6 +52,7 @@ export default class ReservationService implements IReservationService{
         return this.reservationRepository.reservationFindMany(searchParams, pagerParams);
     }
     
+
     async reservationTopList(pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
         c.i('ReservationService > reservationTopList');
         c.d(pagerParams);
@@ -42,7 +62,9 @@ export default class ReservationService implements IReservationService{
         return this.reservationRepository.reservationFindMany([], pagerParams);
     }
     
+
     async updateReservation(id:string, reservation : Reservation): Promise<Reservation> {
+        c.i('ReservationService > updateReservation');
         return this.reservationRepository.updateReservation(id, reservation);
     }
     

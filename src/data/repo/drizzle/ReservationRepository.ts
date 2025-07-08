@@ -11,6 +11,7 @@ import { TransactionType } from "@/data/orm/drizzle/mysql/db";
 import { mapper } from "@/lib/automapper";
 import { customer } from "@/drizzle/migrations/schema";
 import { alias } from "drizzle-orm/mysql-core";
+import Reservations from "@/app/(private)/console/admin/reservations/page";
 
 
 @injectable()
@@ -24,13 +25,64 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
+    async cancel(id: string) : Promise<void> {
+        c.i('ReservationRepository > cancel');
+        c.d(id);
+        const [reservationStatus] = await this.dbClient.db.select().from(configTable).where(
+            and(
+                eq(configTable.group, "RESERVATION_STATUS"),
+                eq(configTable.value, "CCL")
+            )
+        );
+        
+        c.d(reservationStatus);
+
+        await this.dbClient.db.update(reservationTable)
+        .set(reservationTable.reservationStatusId, reservationStatus.id)
+        .where(eq(reservationTable.id, id));
+        c.i('Return from ReservationRepository > cancel');
+    }
+
+
     async createReservation(reservation: Reservation): Promise<Reservation> {
         c.i("ReservationRepository > createReservation");
         c.d(reservation);
 
-        //cast domain model to entity
-        //const reservationEntity : ReservationEntity = reservation as unknown as ReservationEntity;
-        //retrieve reservation type
+        reservation = await this.prepareReservation(reservation);
+
+        // Use transaction
+        return await this.dbClient.db.transaction(async (tx: TransactionType) => {
+            c.i('Starting transaction.');
+            c.d(reservation);
+
+            // Use the transaction for create operation
+            const [createdId] = await tx.insert(reservationTable).values(reservation).$returningId();
+            c.i("Insert return new entity.");
+            c.d(createdId);
+            reservation.id = createdId.id;
+
+            //insert reservation-customer
+            if (reservation.customers && reservation.customers.length > 0) {
+                c.i('Customers exist. Prepare to insert.');
+                const newReservationCustomers = reservation.customers.map((c) => {
+                    return {
+                        reservationId: createdId.id,
+                        customerId: c.id,
+                        createdBy: "xxx",
+                        updatedBy: 'xxx'
+                    };
+                });
+                c.d(newReservationCustomers?.length);
+                //insert using transaction
+                await tx.insert(reservationCustomerTable).values(newReservationCustomers);
+            }
+
+            return reservation;
+        });
+    }
+
+
+    async prepareReservation(reservation: Reservation){
         //retrieve and assign prepaidPackageId
         const [prepaidPackage] = await this.dbClient.db.select().from(prepaidTable).where(
             eq(prepaidTable.value, reservation.prepaidPackage)
@@ -81,38 +133,54 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             reservation.dropOffTypeId = dropOffType.id;
 
 
-        c.i("Prepared entity for insert.");
+        c.i("Prepared entity for insert/update.");
         c.d(reservation);
+        return reservation;
+    }
 
-        // Use transaction
-        return await this.dbClient.db.transaction(async (tx: TransactionType) => {
-            c.i('Starting transaction.');
-            c.d(reservation);
 
-            // Use the transaction for create operation
-            const [createdId] = await tx.insert(reservationTable).values(reservation).$returningId();
-            c.i("Insert return new entity.");
-            c.d(createdId);
-            reservation.id = createdId.id;
+    async reservationFindById(id: string): Promise<Reservation|undefined> {
+        c.i('ReservationRepository > reservationFindById');
+        c.d(id);
+        
+        const reservationTypeAlias = alias(configTable, 'reservation_type');
+        const reservationStatusAlias = alias(configTable, 'reservation_status');
 
-            //insert reservation-customer
-            if (reservation.customers && reservation.customers.length > 0) {
-                c.i('Customers exist. Prepare to insert.');
-                const newReservationCustomers = reservation.customers.map((c) => {
-                    return {
-                        reservationId: createdId.id,
-                        customerId: c.id,
-                        createdBy: "xxx",
-                        updatedBy: 'xxx'
-                    };
-                });
-                c.d(newReservationCustomers?.length);
-                //insert using transaction
-                await tx.insert(reservationCustomerTable).values(newReservationCustomers);
+        let dataQuery = this.dbClient.db.select({ 
+            ...reservationTable,
+            customer: {...customerTable},
+            reservationStatus: reservationStatusAlias.value,
+            reservationStatusText: reservationStatusAlias.text,
+            reservationType: reservationTypeAlias.value,
+            reservationTypeText: reservationTypeAlias.text
+         })
+        .from(reservationTable)
+        .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
+        .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+        .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
+        .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id))
+        .where(eq(reservationTable.id, id));
+
+        const dataqueryresult = await dataQuery;    
+
+        //transform to desired result
+        const [reservation] = dataqueryresult?.reduce((acc:Reservation[], current:any) => {
+            const {customer, ...reservation} = current;
+            let rsvn = acc.find(r => r.id === current.id);
+            if (!rsvn) {
+                rsvn = reservation;
+                rsvn!.customers = [];
+                acc.push(rsvn!);
             }
+            if(customer)
+                rsvn?.customers?.push(customer);
+            
+            return acc;
+          }, [] as Reservation[]);
 
-            return reservation;
-        });
+        c.d(reservation);
+        c.i('Returning result from ReservationRepository > reservationFindById');
+        return reservation;
     }
 
 
@@ -126,11 +194,15 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         //const countQuery = {...pocoQuery, extras: {count: this.dbClient.db.$count(pocoQuery)}};
         const reservationTypeAlias = alias(configTable, 'reservation_type');
         const reservationStatusAlias = alias(configTable, 'reservation_status');
+        const pickUpAlias = alias(configTable, 'pickUpAlias');
+        const dropOffAlias = alias(configTable, 'dropOffAlias');
 
         let countQuery = this.dbClient.db.select({ count: count() })
             .from(reservationTable)
             .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
             .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+            .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
+            .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
             .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id));
 
@@ -140,11 +212,16 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             reservationStatus: reservationStatusAlias.value,
             reservationStatusText: reservationStatusAlias.text,
             reservationType: reservationTypeAlias.value,
-            reservationTypeText: reservationTypeAlias.text
-         })
+            reservationTypeText: reservationTypeAlias.text,
+            pickUpType: pickUpAlias.value,
+            pickUpTypeText: pickUpAlias.text,
+            dropOffType: dropOffAlias.value,
+            dropOffTypeText: dropOffAlias.text})
             .from(reservationTable)
             .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
             .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+            .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
+            .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
             .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id))
             .limit(pagerParams.pageSize)
@@ -163,10 +240,15 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         return gte(reservationTable.createdAtUTC, new Date(searchParam.searchValue));
                     }
                     if (searchParam.searchColumn === 'createdUntil') {
-                        return lte(reservationTable.createdAtUTC, new Date(searchParam.searchValue));
+                        let d : Date = new Date(searchParam.searchValue);
+                        d.setHours(23,59,59,999);
+                        return lte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'name') {
                         return like(customerTable.name, `%${searchParam.searchValue}%`);
+                    }
+                    if (searchParam.searchColumn === 'id') {
+                        return like(reservationTable.id, `%${searchParam.searchValue}%`);
                     }
                     return undefined;
                 })
@@ -177,7 +259,9 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 dataQuery.where(and(...conditions));
             }
         }
-        
+
+        //order
+        dataQuery.orderBy(pagerParams.orderDirection === 'desc' ? desc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]) : asc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]));
         const dataqueryresult = await dataQuery;    
 
         //transform to desired result
@@ -213,28 +297,6 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         c.d(pagerParams);
         //calculate offset
         const offset = pagerParams.pageSize * (pagerParams.pageIndex - 1);
-        //first build POCO query object
-        // let pocoQuery: any = {
-        //     with: {
-        //         reservationStatus: true,
-        //         reservationType: true,
-        //         customers: {
-        //             with: {
-        //                 customer: true // Include full customer data
-        //             }
-        //         },
-        //         prepaidPackage: true,
-        //         promotionPackage: true
-        //     },
-        //     where: (rtable, { and, gte, lte }) => {
-        //         and(
-        //             get(rtable.name, '')
-        //         )
-        //     },
-        //     limit: pagerParams.pageSize,
-        //     offset: offset,
-        //     orderBy: desc(reservationTable.createdAtUTC)
-        // };
 
         //const countQuery = {...pocoQuery, extras: {count: this.dbClient.db.$count(pocoQuery)}};
         const reservationTypeAlias = alias(configTable, 'reservation_type');
@@ -408,25 +470,43 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         return query;
     }
 
+
+
     async updateReservation(id: string, reservation: Reservation): Promise<Reservation> {
         c.i("ReservationRepository > updateReservation");
+        c.d(id);
         c.d(reservation);
-        //retrieve and assign reservationTypeId
-        const [reservationStatus] = await this.dbClient.db.select().from(configTable).where(
-            and(
-                eq(configTable.group, "RESERVATION_STATUS"),
-                eq(configTable.value, reservation.reservationStatus)
-            )
-        ).limit(1);
 
-        if (reservationStatus)
-            reservation.reservationStatusId = reservationStatus.id;
+        reservation = await this.prepareReservation(reservation);
 
-        c.i("Prepared entity for update.");
-        c.d(reservation);
-        const updatedEntity = await this.update(id, reservation);
-        c.i("Update return updated entity.");
-        c.d(updatedEntity);
-        return reservation;
+        // Use transaction
+        return await this.dbClient.db.transaction(async (tx: TransactionType) => {
+            c.i('Starting transaction.');
+
+            c.i('Updating reservation.');
+            const [createdId] = await tx.update(reservationTable).set(reservation)
+            .where(eq(reservationTable.id, id));
+
+            c.i('For simplicity, delete all customers from reservations and insert new.');
+            await tx.delete(reservationCustomerTable).where(eq(reservationCustomerTable.reservationId, id));
+            
+            if (reservation.customers && reservation.customers.length > 0) {
+                c.i('Customers exist. Prepare to insert.');
+                const newReservationCustomers = reservation.customers.map((c) => {
+                    return {
+                        reservationId: id,
+                        customerId: c.id,
+                        createdBy: "xxx",
+                        updatedBy: 'xxx'
+                    };
+                });
+                c.d(newReservationCustomers?.length);
+                //insert using transaction
+                await tx.insert(reservationCustomerTable).values(newReservationCustomers);
+            }
+
+            c.i('Return > ReservationRepository > updateReservation');
+            return reservation;
+        });
     }
 }

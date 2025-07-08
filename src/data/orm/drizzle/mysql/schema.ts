@@ -63,7 +63,9 @@ export const reservationTable = mysqlTable("reservation", {
   noOfDays: tinyint("noOfDays"),
   depositAmount: int("depositAmount"),
   depositCurrency: char("depositCurrency", {length: 3}),
+  depositDateUTC: date("depositDateUTC"),
   roomNo: varchar("roomNo", {length: 10}),
+  noOfGuests: tinyint("noOfGuests"),
   pickUpTypeId: char("pickUpTypeId", {length: 36}).references(() => configTable.id),
   pickUpFee: tinyint("pickUpFee"),
   pickUpCurrency: char("pickUpCurrency", {length: 3}),
@@ -84,8 +86,8 @@ export const reservationTable = mysqlTable("reservation", {
 
 export const reservationCustomerTable = mysqlTable("reservationCustomer", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
-  reservationId: char("reservationId", {length: 36}).notNull(),
-  customerId: char("customerId", {length: 36}).notNull(),
+  reservationId: char("reservationId", {length: 36}).notNull().references(() => reservationTable.id, {onDelete: 'set null'}),
+  customerId: char("customerId", {length: 36}).notNull().references(() => customerTable.id, {onDelete: 'set null'}),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),

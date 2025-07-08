@@ -8,10 +8,9 @@ import { signOut } from "@/app/auth";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
 
-export async function newReservationAction(formState : FormState, formData: FormData): Promise<FormState> {
+export async function editReservationAction(formState : FormState, formData: FormData): Promise<FormState> {
   try{
-    c.i("----------------------------------------------------------");
-    c.i('Actions > /console/reservations/new > newReservationAction');
+    c.i('Actions > /console/reservations/[id] > editReservationAction');
     c.d(Object.fromEntries(formData.entries()));
 
     let queryString = null;
@@ -20,6 +19,29 @@ export async function newReservationAction(formState : FormState, formData: Form
 
     c.i("Finding form action for further processing.");
     const formObj = Object.fromEntries(formData.entries());
+    const { id } = formObj;
+
+    //first retrieve reservation to edit
+    const getReservationResponse = await fetch(process.env.API_URL + `reservations/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    //retrieve user failed
+    if (!getReservationResponse.ok) {
+      c.i("Retrieve reservation api response failed. Return response.");
+      const errorData = await getReservationResponse.json();
+      c.e(errorData.message);
+      return { error: true, message: 'Failed to retrieve reservation.', data: null, formData: null};
+    }
+
+    c.i("Retrieve reservation successful.");
+    const reservationData = await getReservationResponse.json();
+    const reservation = reservationData.data;
+    c.d(reservation);
+
     if(formObj.actionVerb && formObj.actionVerb == "SEARCH")
     {
       c.i("Action is SEARCH. Validating search fields.");
@@ -58,9 +80,9 @@ export async function newReservationAction(formState : FormState, formData: Form
       c.d(customers?.length);
     }
 
-    if(formObj.actionVerb && formObj.actionVerb == "SAVE")
+    if(formObj.actionVerb && formObj.actionVerb == "UPDATE")
     {
-      c.i("Action is SAVE. Validating search fields.");
+      c.i("Action is SAVE. Validating input fields.");
       const reservationFields = reservationValidator.safeParse(formObj);
       c.d(reservationFields);
 
@@ -70,9 +92,9 @@ export async function newReservationAction(formState : FormState, formData: Form
       }
 
       //update user
-      c.i("Requesting API to creaate reservation.");
-      const reservationResponse = await fetch(process.env.API_URL + `reservations`, {
-        method: 'POST',
+      c.i("Requesting API to update reservation.");
+      const reservationResponse = await fetch(process.env.API_URL + `reservations/${id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -81,29 +103,29 @@ export async function newReservationAction(formState : FormState, formData: Form
       
       //retrieve user failed
       if (!reservationResponse.ok) {
-        c.i("Create reservation api response failed. Return response.");
+        c.i("Upate reservation api response failed. Return response.");
         const errorData = await reservationResponse.json();
         c.e(errorData.message);
-        return { error: true, message: 'Failed to create reservation.', data: null, formData: null};
+        return { error: true, message: 'Failed to update reservation.', data: null, formData: null};
       }
 
-      c.i("Create reservation successful.");
+      c.i("Update reservation successful.");
       const reservationData = await reservationResponse.json();
       const reservation = reservationData.data;
       c.d(reservation);
 
       //set success message for save operation
-      message = "Reservation created.";
+      message = "Reservation updated.";
     }
 
-    c.i("Retrieving latest reservation list.")
+    c.i("Retrieving latest reservation list.");
     //define default pageer fields for new reservation list
     const pager = {orderBy: "createdAtUTC", orderDirection: "desc", pageIndex: 1, pageSize: 10};
     queryString = buildQueryString(pager);
     c.d(queryString);
     
     c.i("Request api to retrieve latest 10 reservations");
-    const reservationResponse = await fetch(process.env.API_URL + `reservations?${queryString}`, {
+    const getReservationsResponse = await fetch(process.env.API_URL + `reservations?${queryString}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -114,21 +136,21 @@ export async function newReservationAction(formState : FormState, formData: Form
     });
 
     //fail
-    if(!reservationResponse.ok){
-      c.i("Reservation retrieval failed. Return response.");
+    if(!getReservationsResponse.ok){
+      c.i("Reservaton retrieval failed. Return response.");
       return {error:true, message : "Reservation list retrieval failed."};
     }
       
     c.i("Reservation retrieval success.");
-    const reservationData = await reservationResponse.json();
+    const reservationsData = await getReservationsResponse.json();
     c.d(reservationData);
 
     //retrieve data from tuple
-    const [reservations] = reservationData.data;
+    const [reservations] = reservationsData.data;
     c.d(reservations?.length);
 
     c.i("Returning final response.");
-    const successresponse = {error:false, message : message, data: {reservations: reservations, customers: customers}};
+    const successresponse = {error:false, message : message, data: {reservation: reservation, reservations: reservations, customers: customers}};
     //c.d(successresponse);
     return successresponse;
   }catch(error){

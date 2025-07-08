@@ -15,6 +15,9 @@ import { FormState } from "@/lib/types"
 import { useRouter } from "next/router"
 import Reservation from "@/domain/models/Reservation"
 import Customer from "@/domain/models/Customer"
+import { access } from "fs"
+import { ButtonCustom } from "../uicustom/buttoncustom"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 
 
 
@@ -22,7 +25,7 @@ import Customer from "@/domain/models/Customer"
 interface DataTableProps<TData, TValue> {
   formState: FormState
   formAction: (formData: FormData) => void
-  formRef: React.RefObject<HTMLFormElement|null>;
+  formRef: React.RefObject<HTMLFormElement | null>;
 }
 
 export default function ReservationListTable<TData, TValue>({
@@ -35,83 +38,69 @@ export default function ReservationListTable<TData, TValue>({
 
   const columns: ColumnDef<Reservation>[] = [
     {
-      accessorKey: "id",
+      accessorKey: "customReservationInfo",
       header: "ID",
-      cell: ({ row }) => {
-        return <div>
-          {String(row.getValue("id")).substring(0,8)}
+      accessorFn: (row, index) => {
+        return <span><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />{row.reservationStatusText}<br />{row.reservationTypeText}</span>;
+      },
+      cell: (row) => row.getValue(),
+    },
+    {
+      accessorKey: "customers",
+      cell: ({ row }) => (
+        <div>
+          {row.original.customers?.map((customer, i) => (
+            <React.Fragment key={i}>
+              {i > 0 && <br />}
+              {customer.name} ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
+            </React.Fragment>
+          ))}
         </div>
-      }
-    },
-    {
-      accessorKey: "reservationType",
+      ),
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Type
+            Customer Info
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
       },
     },
     {
-      accessorKey: "reservationStatus",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Status
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
+      accessorKey: "roomInfo",
+      header: "",
+      accessorFn: (row, index) => {
+        return <span>{row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}<br />{row.roomNo}</span>;
       },
+      cell: (row) => row.getValue(),
     },
     {
-      accessorKey: "name",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Customer Name
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
+      accessorKey: "checkInCheckOut",
+      header: "Check-In / Check-Out",
+      accessorFn: (row, index) => {
+        return <span>{new Date(row.checkInDateUTC).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC).toLocaleDateString('sv-SE')}<br />{row.noOfDays} days</span>;
       },
+      cell: (row) => row.getValue(),
     },
     {
-      accessorKey: "phone",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Phone
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
+      accessorKey: "arrivalDeparture",
+      header: "Arrival / Departure",
+      accessorFn: (row, index) => {
+        return <span>{new Date(row.arrivalDateTimeUTC).toLocaleString('sv-SE')} {row.pickUpTypeText}<br />
+          {new Date(row.departureDateTimeUTC).toLocaleString('sv-SE')} {row.dropOffTypeText}</span>;
       },
+      cell: (row) => row.getValue(),
     },
     {
-      accessorKey: "email",
-      header: ({ column }) => {
-        return (
-          <Button className="p-0 m-0 w-fit"
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Emailx
-            <ArrowUpDown className="ml-1 h-4" />
-          </Button>
-        )
+      accessorKey: "depositInfo",
+      header: "Deposit",
+      accessorFn: (row, index) => {
+        return <span>{row.depositAmount > 0 ? row.depositAmount + ' ' + row.depositCurrency : ''} <br /> {row.depositDateUTC ? new Date(row.depositDateUTC).toLocaleDateString('sv-SE') : ""}</span>;
       },
+      cell: (row) => row.getValue(),
     },
     {
       accessorKey: "remark",
@@ -131,14 +120,56 @@ export default function ReservationListTable<TData, TValue>({
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => {
-        return <div>
-          <Button>Edit</Button>
+        return <div className="flex gap-1">
+          <ButtonCustom type="button" variant={"black"} size={"sm"}>View Bill</ButtonCustom>
+          <ButtonCustom type="button" variant={"black"} size={"sm"}>Edit</ButtonCustom>
+          <ButtonCustom type="button" variant={"red"} size={"sm"} onClick={() => {
+            setCancelId(row.original.id);
+            setOpenDialog(true);
+            }}>Cancel</ButtonCustom>
         </div>
       }
     },
   ];
 
+  const [openDiallog, setOpenDialog] = React.useState(false);
+  const [cancelId, setCancelId] = React.useState<string>('');
+
   return (
-    <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
+    <>
+      <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
+      <section className="flex">
+        <Dialog open={openDiallog} onOpenChange={setOpenDialog}>
+          <DialogContent className="">
+            <DialogHeader>
+              <DialogTitle>Confirm!</DialogTitle>
+              <DialogDescription>Are you sure you want to cancel the reservation?</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <ButtonCustom variant={"red"} type="button" onClick={() => {
+                setOpenDialog(false);
+                const action = document.createElement('input');
+                action.type = 'hidden';
+                action.name = 'actionVerb';
+                action.value = 'CANCEL';
+                formRef?.current?.appendChild(action);
+                const cancelIdInput = document.createElement('input');
+                cancelIdInput.type = 'hidden';
+                cancelIdInput.name = 'cancelId';
+                cancelIdInput.value = cancelId;
+                formRef?.current?.appendChild(cancelIdInput);
+                formRef.current?.requestSubmit();
+              }}>Yes</ButtonCustom>
+              <DialogClose asChild>
+                <ButtonCustom variant="black" onClick={() => {
+                  setCancelId('');
+                  setOpenDialog(false);
+                }}>No</ButtonCustom>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </section>
+    </>
   )
 }

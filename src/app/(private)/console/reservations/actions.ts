@@ -13,29 +13,44 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.i('Actions > /console/reservation > reservationGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
-    //form data is blank, get the list by default pager
-    if (!formData || !(formData instanceof FormData)){
-      c.i("formData is invalid. Retrieve list by default pager.");
-      //retrieve users
-      const response = await fetch(process.env.API_URL + `reservations`, {
-        method: 'GET',
-      });
+    const formObject = Object.fromEntries(formData?.entries());
 
+    //form data is blank, get the list by default pager
+    // if (!formData || !(formData instanceof FormData)){
+    //   c.i("formData is invalid. Retrieve list by default pager.");
+    //   //retrieve users
+    //   const response = await fetch(process.env.API_URL + `reservations`, {
+    //     method: 'GET',
+    //   });
+
+    //   //fail
+    //   if(!response.ok){
+    //     c.i("List retrieval failed. Return error.");
+    //     return {error:true, message : "Reservation list retrieval failed."};
+    //   }
+        
+    //   //success
+    //   const responseData = await response.json();
+    //   c.d(JSON.stringify(responseData));
+
+    //   //retrieve data from tuple
+    //   const [reservations, pager] = responseData.data;
+    //   return {error:false, message : "", data: reservations, pager: pager};
+    // }
+    
+    
+    if(formObject.actionVerb === 'CANCEL'){
+      c.i('Action is CANCEL');
+      const response = await fetch(process.env.API_URL + `reservations/${formObject.cancelId}?operation=CANCEL`, {
+        method: 'PATCH',
+      });
+  
       //fail
       if(!response.ok){
-        c.i("List retrieval failed. Return error.");
-        return {error:true, message : "Reservation list retrieval failed."};
+        c.i("Cancel failed. Return response.");
+        return {error:true, message : "Cancel reservation failed."};
       }
-        
-      //success
-      const responseData = await response.json();
-      c.d(JSON.stringify(responseData));
-
-      //retrieve data from tuple
-      const [reservations, pager] = responseData.data;
-      return {error:false, message : "", data: reservations, pager: pager};
     }
-    
 
     // formData is valid, further process
     let queryString = null;

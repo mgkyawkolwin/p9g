@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Templte - NextJS",
+  title: "Console - NextJS",
   description: "NextJS, Shadcn UI, Tailwind Css, Drizzle ORM, Inversify DI, MySql Db",
 };
 

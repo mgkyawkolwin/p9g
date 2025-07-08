@@ -30,10 +30,6 @@ export default function CustomerSearch({
     const [searchPassport, setSearchPassport] = React.useState("");
     const [searchPhone, setSearchPhone] = React.useState("");
 
-    React.useEffect(() => {
-        //formRef?.current?.requestSubmit();
-    }, [name]);
-
     return (
         <section aria-label="CheckIn Search" className="flex w-full flex-col gap-4">
             <div className="flex gap-4">
