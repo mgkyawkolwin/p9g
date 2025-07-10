@@ -1,17 +1,20 @@
-import { configTable, ReservationEntity, reservationTable, reservationCustomerTable, prepaidTable, promotionTable, customerTable, ConfigEntity } from "@/data/orm/drizzle/mysql/schema";
+import { configTable, ReservationEntity, reservationTable, reservationCustomerTable, prepaidTable, promotionTable, customerTable, ConfigEntity, roomTable, roomReservationTable } from "@/data/orm/drizzle/mysql/schema";
 import IReservationRepository from "../IReservationRepository";
 import { inject, injectable } from "inversify";
 import type { IDatabase } from "@/data/db/IDatabase";
 import { PagerParams, SearchParam, TYPES } from "@/lib/types";
 import { Repository } from "./Repository";
 import c from "@/lib/core/logger/ConsoleLogger";
-import { SQL, and, count, asc, desc, eq, gt, gte, inArray, lt, lte, or, like, Table, Column, getTableColumns, getTableName, AnyColumn } from "drizzle-orm";
+import { SQL, and, count, asc, desc, eq, ne, gt, gte,between, inArray, lt, lte, or, like, Table, Column, getTableColumns, getTableName, AnyColumn, isNull } from "drizzle-orm";
 import Reservation from "@/domain/models/Reservation";
 import { TransactionType } from "@/data/orm/drizzle/mysql/db";
 import { mapper } from "@/lib/automapper";
 import { customer } from "@/drizzle/migrations/schema";
 import { alias } from "drizzle-orm/mysql-core";
 import Reservations from "@/app/(private)/console/admin/reservations/page";
+import Room from "@/domain/models/Room";
+import { searchSchema } from "@/lib/zodschema";
+import RoomReservation from "@/domain/dtos/roomreservation";
 
 
 @injectable()
@@ -28,19 +31,50 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     async cancel(id: string) : Promise<void> {
         c.i('ReservationRepository > cancel');
         c.d(id);
+        const t = this.dbClient.db.select().from(configTable).where(
+            and(
+                eq(configTable.group, "RESERVATION_STATUS"),
+                eq(configTable.value, "CCL")
+            )
+        ).limit(1);
+        c.d(t.toSQL());
         const [reservationStatus] = await this.dbClient.db.select().from(configTable).where(
             and(
                 eq(configTable.group, "RESERVATION_STATUS"),
                 eq(configTable.value, "CCL")
             )
-        );
+        ).limit(1);
+        
+        c.d(reservationStatus);
+
+        const a = this.dbClient.db.update(reservationTable)
+        .set({reservationStatusId: reservationStatus.id})
+        .where(eq(reservationTable.id, id));
+        c.d(a.toSQL())
+
+        await this.dbClient.db.update(reservationTable)
+        .set({reservationStatusId: reservationStatus.id})
+        .where(eq(reservationTable.id, id));
+        c.i('Return from ReservationRepository > cancel');
+    }
+
+
+    async checkIn(id: string) : Promise<void> {
+        c.i('ReservationRepository > checkIn');
+        c.d(id);
+        const [reservationStatus] = await this.dbClient.db.select().from(configTable).where(
+            and(
+                eq(configTable.group, "RESERVATION_STATUS"),
+                eq(configTable.value, "CIN")
+            )
+        ).limit(1);
         
         c.d(reservationStatus);
 
         await this.dbClient.db.update(reservationTable)
-        .set(reservationTable.reservationStatusId, reservationStatus.id)
+        .set({reservationStatusId: reservationStatus.id})
         .where(eq(reservationTable.id, id));
-        c.i('Return from ReservationRepository > cancel');
+        c.i('Return from ReservationRepository > checkIn');
     }
 
 
@@ -75,6 +109,21 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 c.d(newReservationCustomers?.length);
                 //insert using transaction
                 await tx.insert(reservationCustomerTable).values(newReservationCustomers);
+            }
+
+            //insert roomReservation
+            if(reservation.roomNo){
+                //retrieve room id
+                const [room] = await this.dbClient.db.select()
+                .from(roomTable)
+                .where(eq(roomTable.roomNo, reservation.roomNo)).limit(1);
+                if(!room)
+                    throw new Error('Roon number is invalid.');
+                //insert into roomReservation
+                const roomReservation = new RoomReservation();
+                roomReservation.roomId = room.id;
+                roomReservation.reservationId = reservation.id;
+                await tx.insert(roomReservationTable).values(roomReservation);
             }
 
             return reservation;
@@ -224,8 +273,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
             .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id))
-            .limit(pagerParams.pageSize)
-            .offset(offset);
+            .offset(offset)
+            .limit(pagerParams.pageSize);
 
         if (searchParams && searchParams.length > 0) {
             const conditions = searchParams
@@ -235,6 +284,9 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     }
                     if (searchParam.searchColumn === 'reservationType') {
                         return eq(reservationTypeAlias.value, searchParam.searchValue);
+                    }
+                    if (searchParam.searchColumn === 'checkInDateUTC') {
+                        return eq(reservationTable.checkInDateUTC, new Date('2025-07-08'));
                     }
                     if (searchParam.searchColumn === 'createdFrom') {
                         return gte(reservationTable.createdAtUTC, new Date(searchParam.searchValue));
@@ -264,6 +316,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         dataQuery.orderBy(pagerParams.orderDirection === 'desc' ? desc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]) : asc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]));
         const dataqueryresult = await dataQuery;    
 
+        c.d(dataQuery.toSQL());
+
         //transform to desired result
         const reservations = dataqueryresult?.reduce((acc:Reservation[], current:any) => {
             const {customer, ...reservation} = current;
@@ -287,6 +341,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         pagerParams = { ...pagerParams, records: countResult.count, pages: Math.ceil((countResult.count) / pagerParams.pageSize) };
         c.d(pagerParams);
 
+        c.i('Return ReservationRepository > reservtionFindMany');
         return [reservations, pagerParams];
     }
 
@@ -471,6 +526,120 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
+    async roomReservationList(searchParams: SearchParam[]): Promise<Room[]> {
+        c.i('ReservationRepository > roomReservationList');
+        c.d(searchParams);
+            
+
+        const dataQuery = this.dbClient.db
+        .select()
+        .from(roomTable)
+        .leftJoin(roomReservationTable, or(
+            eq(roomReservationTable.roomId, roomTable.id), 
+            isNull(roomReservationTable.id)
+        ))
+        .leftJoin(reservationTable, 
+            and(
+                eq(reservationTable.id, roomReservationTable.reservationId),
+                or( 
+                    and(
+                        lte(reservationTable.checkInDateUTC, new Date(searchParams[0].searchValue)),
+                        gte(reservationTable.checkOutDateUTC, new Date(searchParams[0].searchValue))
+                    ),
+                    isNull(reservationTable.id)
+                )
+            )
+        )
+        .leftJoin(configTable, or(
+            and(
+                eq(configTable.id, reservationTable.reservationStatusId),
+                ne(configTable.value, 'CCL')
+            ),
+            isNull(configTable.id)
+        ));
+
+        c.d(dataQuery.toSQL());
+        const dataQueryResult = await dataQuery;
+
+        const rooms = dataQueryResult?.reduce((acc:Room[], current:any) => {
+            const {room, reservation} = current;
+            let currentRoom = acc.find(r => r.id === room.id);
+            if (!currentRoom) {
+                currentRoom = room;
+                currentRoom!.reservations = [];
+                acc.push(currentRoom!);
+            }
+            if(reservation)
+                currentRoom?.reservations?.push(reservation);
+            
+            return acc;
+          }, [] as Room[]);
+
+        return rooms;
+    }
+
+
+    async roomScheduleList(searchParams: SearchParam[]): Promise<Room[]> {
+        c.i('ReservationRepository > roomScheduleList');
+        c.d(searchParams);
+
+        //build conditions first for join
+        let start: Date, end: Date;
+        searchParams.forEach((searchParam: SearchParam) => {
+            if (searchParam.searchColumn === 'checkInDateUTCFrom') {
+                start = new Date(searchParam.searchValue);
+            }
+            if (searchParam.searchColumn === 'checkInDateUTCTo') {
+                end = new Date(searchParam.searchValue);
+            }
+        });
+            
+
+        const dataQuery = this.dbClient.db
+        .select()
+        .from(roomTable)
+        .leftJoin(roomReservationTable, or(eq(roomReservationTable.roomId, roomTable.id), isNull(roomReservationTable.id)))
+        .leftJoin(reservationTable, and(
+            eq(reservationTable.id, roomReservationTable.reservationId),
+            or( 
+                between(reservationTable.checkInDateUTC, start!, end!),
+                between(reservationTable.checkOutDateUTC, start!, end!),
+                and(
+                    lte(reservationTable.checkInDateUTC, start!),
+                    gte(reservationTable.checkOutDateUTC, end!)),
+                isNull(reservationTable.id)
+            )
+            
+        ))
+        .leftJoin(configTable, or(
+            and(
+                eq(configTable.id, reservationTable.reservationStatusId),
+                ne(configTable.value, 'CCL')
+            ),
+            isNull(configTable.id)
+        ));
+
+        c.d(dataQuery.toSQL());
+        const dataQueryResult = await dataQuery;
+
+        const rooms = dataQueryResult?.reduce((acc:Room[], current:any) => {
+            const {room, reservation} = current;
+            let currentRoom = acc.find(r => r.id === room.id);
+            if (!currentRoom) {
+                currentRoom = room;
+                currentRoom!.reservations = [];
+                acc.push(currentRoom!);
+            }
+            if(reservation)
+                currentRoom?.reservations?.push(reservation);
+            
+            return acc;
+          }, [] as Room[]);
+
+        return rooms;
+    }
+
+
 
     async updateReservation(id: string, reservation: Reservation): Promise<Reservation> {
         c.i("ReservationRepository > updateReservation");
@@ -503,6 +672,23 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 c.d(newReservationCustomers?.length);
                 //insert using transaction
                 await tx.insert(reservationCustomerTable).values(newReservationCustomers);
+            }
+
+            if(reservation.roomNo){
+                //retrieve room id
+                const [room] = await this.dbClient.db.select()
+                .from(roomTable)
+                .where(eq(roomTable.roomNo, reservation.roomNo)).limit(1);
+                if(!room)
+                    throw new Error('Roon number is invalid.');
+                //insert into roomReservation
+                const roomReservation = new RoomReservation();
+                roomReservation.roomId = room.id;
+                roomReservation.reservationId = reservation.id;
+                await tx.insert(roomReservationTable).values(roomReservation);
+            }else{
+                //no room provided, delete room reservation list
+                await tx.delete(roomReservationTable).where(eq(roomReservationTable.reservationId, reservation.id))
             }
 
             c.i('Return > ReservationRepository > updateReservation');

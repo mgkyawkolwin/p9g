@@ -38,16 +38,5 @@ export default class Reservation{
     public createdBy!: string;
     public updatedAtUTC!: Date;
     public updatedBy!: string;
-
-
-    constructor(){
-        this.createdAtUTC = new Date("2024-01-01");
-        this.updatedAtUTC = new Date("2024-01-02");
-        this.reservationStatus = 'NEW';
-    }
-
-    sayHello(){
-        return "HELLO WORLD";
-    }
 }
 

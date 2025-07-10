@@ -21,8 +21,28 @@ export const HttpStatusCode = {
 } as const;
 
 
+export const SearchParams = {
+    date: "date"
+}
+
+
 export const SelectList = {
     CURRENCY: new Map<string,string>(CurrencyList.map(cl => [cl, cl])),
+
+    MONTH: new Map<string, string>([
+        ["0","JAN"],
+        ["1","FEB"],
+        ["2","MAR"],
+        ["3","APR"],
+        ["4","MAY"],
+        ["5","JUN"],
+        ["6","JUL"],
+        ["7","AUG"],
+        ["8","SEP"],
+        ["9","OCT"],
+        ["10","NOV"],
+        ["11","DEC"]
+    ]),
 
     PREPAID_PACKAGES: new Map<string,string>([
         ["NINETY_DAYS", "90 Days"]

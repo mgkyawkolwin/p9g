@@ -94,25 +94,23 @@ export const reservationCustomerTable = mysqlTable("reservationCustomer", {
   updatedBy: char("updatedBy", {length: 36}).notNull()
 });
 
-export const reservationRoomTable = mysqlTable("reservationRoom", {
+export const roomTable = mysqlTable("room", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
-  reservationId: char("reservationId", {length: 36}).notNull(),
-  roomId: char("roomId", {length: 36}).notNull(),
-  fromDate: date().notNull(),
-  toDate: date().notNull(),
-  noOfExtraBed: tinyint(),
+  roomNo: varchar("roomNo", { length: 50 }).notNull().references(() => roomTypeTable.id),
+  roomTypeId: char("roomTypeId", {length: 36}).notNull(),
+  isAvailable: boolean("isAvailable").default(true).notNull(),
+  isDoubleBed: boolean("isDoubleBed").default(true).notNull(),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
   updatedBy: char("updatedBy", {length: 36}).notNull()
 });
 
-export const roomSetUpTable = mysqlTable("roomSetUp", {
+export const roomReservationTable = mysqlTable("roomReservation", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
-  roomNo: varchar("roomNo", { length: 50 }).notNull(),
-  roomTypeId: char("roomTypeId", {length: 36}).notNull(),
-  isAvailable: boolean("isAvailable").default(true).notNull(),
-  isDoubleBed: boolean("isDoubleBed").default(true).notNull(),
+  roomId: char("roomId", {length: 36}).notNull().references(() => roomTable.id),
+  reservationId: char("reservationId", {length: 36}).notNull().references(() => reservationTable.id),
+  noOfExtraBed: tinyint(),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
@@ -163,6 +161,10 @@ export const reservationRelations = relations(reservationTable, ({ one, many }) 
   promotionPackage: one(promotionTable, {
     fields: [reservationTable.promotionPackageId],
     references: [promotionTable.id]
+  }),
+  roomReservation: one(roomReservationTable, {
+    fields: [reservationTable.id],
+    references: [roomReservationTable.reservationId]
   })
 }));
 
@@ -176,6 +178,31 @@ export const reservationCustomerRelations = relations(reservationCustomerTable, 
   customer: one(customerTable, {
     fields: [reservationCustomerTable.customerId],
     references: [customerTable.id]
+  })
+}));
+
+export const roomSetUpRooomReservationRelations = relations(roomTable, ({ many }) => ({
+  reservations: many(reservationTable, {
+    relationName: 'roomSetUp_to_reservation'
+  })
+}));
+
+export const roomSetRoomTypeRelations = relations(roomTable, ({ one }) => ({
+  roomType: one(roomTypeTable, {
+    fields: [roomTable.roomTypeId],
+    references: [roomTypeTable.id],
+    relationName: 'roomSetUp_to_roomType'
+  })
+}));
+
+export const roomReservationRelations = relations(roomReservationTable, ({ one, many }) => ({
+  room: one(roomTable, {
+    fields: [roomReservationTable.roomId],
+    references: [roomTable.id],
+    relationName: 'roomReservation_to_roomSetup'
+  }),
+  reservation: many(reservationTable, {
+    relationName: 'roomReservation_to_roomReservation'
   })
 }));
 

@@ -1,0 +1,102 @@
+"use client"
+
+import * as React from "react"
+import { Button } from "@/components/ui/button"
+import { ArrowUpDown } from "lucide-react"
+
+import {
+  ColumnDef
+} from "@tanstack/react-table"
+
+import DataTable from "./datatable"
+import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema"
+import c from "@/lib/core/logger/ConsoleLogger"
+import { FormState } from "@/lib/types"
+import { useRouter } from "next/navigation"
+import Reservation from "@/domain/models/Reservation"
+import Customer from "@/domain/models/Customer"
+import { access } from "fs"
+import { ButtonCustom } from "../uicustom/buttoncustom"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import { InputCustom } from "../uicustom/inputcustom"
+import Room from "@/domain/models/Room"
+
+
+
+
+interface DataTableProps<TData, TValue> {
+  formState: FormState
+  formAction: (formData: FormData) => void
+  formRef: React.RefObject<HTMLFormElement | null>;
+}
+
+export default function RoomScheduleListTable<TData, TValue>({
+  formState,
+  formAction,
+  formRef
+}: DataTableProps<TData, TValue>) {
+  c.i('Client > RoomScheduleListTable');
+  c.d(JSON.stringify(formState));
+
+  const router = useRouter();
+
+  const columns: ColumnDef<Room>[] = [
+    {
+      accessorKey: "roomNo",
+      header: "Room"
+    },
+    {
+        accessorKey: "reservations",
+        accessorFn: (row) => {
+            return row?.reservations?.map(r => {
+                return <div>[{r.checkInDateUTC?.toString()} - {r.checkOutDateUTC?.toString()}]</div>
+            });
+        },
+        cell: row => {
+            return <div className="flex">{row.getValue() as unknown as React.ReactNode}</div>
+            }
+    }
+  ];
+
+  const [openCheckInDialog, setOpenCheckInDialog] = React.useState(false);
+  const [checkOutId, setCheckOutId] = React.useState('');
+  const [actionVerb, setActionVerb] = React.useState('');
+
+  React.useEffect(() => {
+    //reset IDs and actionVerb
+    setCheckOutId('');
+    setActionVerb('');
+  },[formState]);
+
+  return (
+    <>
+      <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
+      
+      <section className="flex">
+        <Dialog key={'checkindialog'} open={openCheckInDialog} onOpenChange={setOpenCheckInDialog}>
+          <DialogContent className="">
+            <DialogHeader>
+              <DialogTitle>CONFIRM CHECK-OUT</DialogTitle>
+              <DialogDescription>Are you sure you want to check-in the reservation?</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <ButtonCustom variant={"green"} type="button" onClick={async () => {
+                setOpenCheckInDialog(false);
+                setActionVerb('CHECKOUT');
+                await formRef.current?.requestSubmit();
+              }}>Yes</ButtonCustom>
+              <DialogClose asChild>
+                <ButtonCustom variant="black" onClick={() => {
+                  setCheckOutId('');
+                  setOpenCheckInDialog(false);
+                }}>No</ButtonCustom>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </section>
+      <input type="hidden" name="actionVerb" value={actionVerb} />
+      <input type="hidden" name="checkInId" value={checkOutId} />
+    </>
+  )
+}

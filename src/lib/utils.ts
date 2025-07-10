@@ -26,17 +26,26 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function buildSearchParams(queryStringObject : any) : SearchParam[] {
   const search : SearchParam[]= [];
-  if(queryStringObject.searchCheckInFrom){
-    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInFrom});
+  if(queryStringObject.searchCheckInDateUTC){
+    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInDateUTC});
   }
-  if(queryStringObject.searchCheckInUntil){
-    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInUntil});
+  if(queryStringObject.searchCheckInDateUTCFrom){
+    search.push({searchColumn:'checkInDateUTCFrom', searchValue: queryStringObject.searchCheckInDateUTCFrom});
+  }
+  if(queryStringObject.searchCheckInDateUTCTo){
+    search.push({searchColumn:'checkInDateUTCTo', searchValue: queryStringObject.searchCheckInDateUTCTo});
   }
   if(queryStringObject.searchCreatedFrom){
     search.push({searchColumn:'createdFrom', searchValue: queryStringObject.searchCreatedFrom});
   }
   if(queryStringObject.searchCreatedUntil){
     search.push({searchColumn:'createdUntil', searchValue: queryStringObject.searchCreatedUntil});
+  }
+  if(queryStringObject.date){
+    search.push({searchColumn:'date', searchValue: queryStringObject.date});
+  }
+  if(queryStringObject.searchDate){
+    search.push({searchColumn:'date', searchValue: queryStringObject.searchDate});
   }
   if(queryStringObject.searchId){
     search.push({searchColumn:'id', searchValue: queryStringObject.searchId});
@@ -83,6 +92,29 @@ export function buildQueryString(input:any): string{
   return queryString;
 }
 
+
+export function getCurrentMonthFirstDate(): Date{
+  const today = new Date();
+  return new Date(today.getFullYear(), today.getMonth(), 1);
+}
+
+
+export function getCurrentMonthLastDate(): Date{
+  const today = new Date();
+  return new Date(today.getFullYear(), today.getMonth() + 1, 0,23,59,59,999);
+}
+
+
+export function getFirstDate(year: number, month: number): Date{
+  const today = new Date();
+  return new Date(year, month, 1);
+}
+
+
+export function getLastDate(year: number, month: number): Date{
+  const today = new Date();
+  return new Date(year,month + 1, 0, 23, 59, 59, 999);
+}
 
 /**
  * Get local date string to display in client browser.

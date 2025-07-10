@@ -38,3 +38,9 @@ Sub-query must be used to achieve desired result.
 
 ### MySql Database
 - date/time are stored as UTC/GMT and datetime data type is used. timestamp is only valid till 2038, datetime can be used till 9999, timestamp has db conversion between locale <> UTC/GMT.
+
+
+## Notes
+### Date/Time
+- use locale date/time in UI
+- use ISO date/time in server side, api, service, repo, db, etc.

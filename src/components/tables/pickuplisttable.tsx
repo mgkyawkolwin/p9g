@@ -18,6 +18,7 @@ import Customer from "@/domain/models/Customer"
 import { access } from "fs"
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import { InputCustom } from "../uicustom/inputcustom"
 
 
 
@@ -28,12 +29,12 @@ interface DataTableProps<TData, TValue> {
   formRef: React.RefObject<HTMLFormElement | null>;
 }
 
-export default function ReservationListTable<TData, TValue>({
+export default function PickUpListTable<TData, TValue>({
   formState,
   formAction,
   formRef
 }: DataTableProps<TData, TValue>) {
-  c.i('Client > ReservationListTable');
+  c.i('Client > PickUpListTable');
   c.d(JSON.stringify(formState));
 
   const router = useRouter();
@@ -46,6 +47,11 @@ export default function ReservationListTable<TData, TValue>({
         return <span><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />{row.reservationStatusText}<br />{row.reservationTypeText}</span>;
       },
       cell: (row) => row.getValue(),
+    },
+    {
+      accessorKey: "pickUpCarNo",
+      header: "Vehicle No",
+      cell: (row) => <InputCustom value={row.getValue() ?? ''} onChange={() => {}} />,
     },
     {
       accessorKey: "customers",
@@ -72,18 +78,12 @@ export default function ReservationListTable<TData, TValue>({
       },
     },
     {
-      accessorKey: "roomInfo",
-      header: "",
-      accessorFn: (row, index) => {
-        return <span>{row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}<br />{row.roomNo}</span>;
-      },
-      cell: (row) => row.getValue(),
-    },
-    {
       accessorKey: "checkInCheckOut",
       header: "Check-In / Check-Out",
       accessorFn: (row, index) => {
-        return <span>{new Date(row.checkInDateUTC).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC).toLocaleDateString('sv-SE')}<br />{row.noOfDays} days</span>;
+        return <span>
+          {new Date(row.checkInDateUTC).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC).toLocaleDateString('sv-SE')}<br />
+          {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -106,74 +106,65 @@ export default function ReservationListTable<TData, TValue>({
     },
     {
       accessorKey: "remark",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Remark
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: 'Remark',
+      cell: (row) => {
+        return <div className="flex" style={{maxWidth:"150px", color:"green", whiteSpace:"normal", wordBreak:"break-word", wordWrap:"break-word"}} >x{String(row.getValue())}</div>
+      }
     },
     {
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => {
         return <div className="flex gap-1">
-          <ButtonCustom type="button" variant={"black"} size={"sm"}>View Bill</ButtonCustom>
-          <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
-            router.push(`/console/reservations/${row.original.id}/edit`);
-          }} >Edit</ButtonCustom>
-          <ButtonCustom type="button" variant={"red"} size={"sm"} onClick={() => {
-            setCancelId(row.original.id);
-            setOpenDialog(true);
-            }}>Cancel</ButtonCustom>
+          <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={() => {
+            setCheckOutId(row.original.id);
+            setActionVerb('SAVEVEHICLE');
+            setOpenCheckInDialog(true);
+          }} >Save</ButtonCustom>
         </div>
       }
     },
   ];
 
-  const [openDiallog, setOpenDialog] = React.useState(false);
-  const [cancelId, setCancelId] = React.useState<string>('');
+  const [openCheckInDialog, setOpenCheckInDialog] = React.useState(false);
+  const [checkOutId, setCheckOutId] = React.useState('');
+  const [actionVerb, setActionVerb] = React.useState('');
+
+  React.useEffect(() => {
+    //reset IDs and actionVerb
+    setCheckOutId('');
+    setActionVerb('');
+  },[formState]);
 
   return (
     <>
       <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
+      
       <section className="flex">
-        <Dialog open={openDiallog} onOpenChange={setOpenDialog}>
+        <Dialog key={'checkindialog'} open={openCheckInDialog} onOpenChange={setOpenCheckInDialog}>
           <DialogContent className="">
             <DialogHeader>
-              <DialogTitle>Confirm!</DialogTitle>
-              <DialogDescription>Are you sure you want to cancel the reservation?</DialogDescription>
+              <DialogTitle>CONFIRM CHECK-OUT</DialogTitle>
+              <DialogDescription>Are you sure you want to check-in the reservation?</DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <ButtonCustom variant={"red"} type="button" onClick={async () => {
-                setOpenDialog(false);
-                const action = document.createElement('input');
-                action.type = 'hidden';
-                action.name = 'actionVerb';
-                action.value = 'CANCEL';
-                formRef?.current?.appendChild(action);
-                const cancelIdInput = document.createElement('input');
-                cancelIdInput.type = 'hidden';
-                cancelIdInput.name = 'cancelId';
-                cancelIdInput.value = cancelId;
-                formRef?.current?.appendChild(cancelIdInput);
+              <ButtonCustom variant={"green"} type="button" onClick={async () => {
+                setOpenCheckInDialog(false);
+                setActionVerb('CHECKOUT');
                 await formRef.current?.requestSubmit();
               }}>Yes</ButtonCustom>
               <DialogClose asChild>
                 <ButtonCustom variant="black" onClick={() => {
-                  setCancelId('');
-                  setOpenDialog(false);
+                  setCheckOutId('');
+                  setOpenCheckInDialog(false);
                 }}>No</ButtonCustom>
               </DialogClose>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </section>
+      <input type="hidden" name="actionVerb" value={actionVerb} />
+      <input type="hidden" name="checkInId" value={checkOutId} />
     </>
   )
 }

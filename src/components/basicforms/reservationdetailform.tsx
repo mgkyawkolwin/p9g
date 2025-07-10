@@ -108,9 +108,12 @@ export default React.forwardRef<ReservationDetailFormInterface, {initialReservat
                     </div>
                 </RadioGroup>
                 <div className="flex gap-2">
-                    <SelectWithLabel name="reservationStatus" label="Reservation Status" size="sm" labelPosition="top" items={SelectList.RESERVATION_STATUS} defaultValue={reservation.reservationStatus} />
-                    <SelectWithLabel name="prepaidPackage" label="Prepaid Packages" size="sm" labelPosition="top" items={SelectList.PREPAID_PACKAGES} defaultValue={reservation.prepaidPackage} />
-                    <SelectWithLabel name="promotionPackage" label="Promotion Packages" size="sm" labelPosition="top" items={SelectList.PROMOTION_PACKAGES} defaultValue={reservation.promotionPackage} />
+                    <SelectWithLabel name="reservationStatus" label="Reservation Status" size="sm" labelPosition="top" items={SelectList.RESERVATION_STATUS} defaultValue={reservation.reservationStatus}  value={reservation.reservationStatus} 
+                         />
+                    <SelectWithLabel name="prepaidPackage" label="Prepaid Packages" size="sm" labelPosition="top" items={SelectList.PREPAID_PACKAGES} value={reservation.prepaidPackage} 
+                        onValueChange={value => setReservation(prev => ({...prev, reservationStatus: value}))} />
+                    <SelectWithLabel name="promotionPackage" label="Promotion Packages" size="sm" labelPosition="top" items={SelectList.PROMOTION_PACKAGES} value={reservation.promotionPackage} 
+                        onValueChange={value => setReservation(prev => ({...prev, reservationStatus: value}))} />
                 </div>
                 <div className="flex gap-2">
                     <DateInputWithLabel label="Check-in*" type="date" size={"sm"} labelPosition="top" defaultValue={reservation.checkInDateUTC ? new Date(reservation.checkInDateUTC).toLocaleDateString('sv-SE') : ''}
@@ -184,10 +187,10 @@ export default React.forwardRef<ReservationDetailFormInterface, {initialReservat
                             depositDateUTC: newDate ? getUTCISODateString(newDate) : ''
                         }));
                         }} />
-                    <input type="hidden" name="depositDateUTC" value={reservation.depositDateUTC} />
+                    <input type="hidden" name="depositDateUTC" value={reservation.depositDateUTC ?? ''} />
                 </div>
                 <div className="flex gap-2">
-                    <Textarea name="remark" placeholder="Remarks ..." value={reservation.remark} onChange={(e) => setReservation({...reservation, remark: e.target.value})} />
+                    <Textarea name="remark" placeholder="Remarks ..." value={reservation.remark ?? ''} onChange={(e) => setReservation({...reservation, remark: e.target.value})} />
                 </div>
             </section>
         </div>

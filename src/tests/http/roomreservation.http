@@ -1,0 +1,8 @@
+@END_POINT=http://localhost:3000/api/
+
+
+# /api/reservations/top - get latest 10 reservation list
+curl --request GET \
+  --url {{END_POINT}}roomreservation?date=2025-07-01 \
+  --header 'Content-Type: application/json'
+###

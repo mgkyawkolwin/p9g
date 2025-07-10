@@ -2,7 +2,7 @@
 
 import PickUpList from "./pickuplist";
 
-export default async function PickUpListPage() {
+export default async function CheckOutListPage() {
   const allowedRoles = ['ADMIN', 'STAFF', 'AUTHENTICATED'];
 
   return (

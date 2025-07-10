@@ -28,12 +28,12 @@ interface DataTableProps<TData, TValue> {
   formRef: React.RefObject<HTMLFormElement | null>;
 }
 
-export default function ReservationListTable<TData, TValue>({
+export default function CheckOutListTable<TData, TValue>({
   formState,
   formAction,
   formRef
 }: DataTableProps<TData, TValue>) {
-  c.i('Client > ReservationListTable');
+  c.i('Client > CheckOutListTable');
   c.d(JSON.stringify(formState));
 
   const router = useRouter();
@@ -124,56 +124,55 @@ export default function ReservationListTable<TData, TValue>({
       cell: ({ row }) => {
         return <div className="flex gap-1">
           <ButtonCustom type="button" variant={"black"} size={"sm"}>View Bill</ButtonCustom>
-          <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
-            router.push(`/console/reservations/${row.original.id}/edit`);
-          }} >Edit</ButtonCustom>
-          <ButtonCustom type="button" variant={"red"} size={"sm"} onClick={() => {
-            setCancelId(row.original.id);
-            setOpenDialog(true);
-            }}>Cancel</ButtonCustom>
+          <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={() => {
+            setCheckOutId(row.original.id);
+            setActionVerb('CHECKOUT');
+            setOpenCheckInDialog(true);
+          }} >Check-Out</ButtonCustom>
         </div>
       }
     },
   ];
 
-  const [openDiallog, setOpenDialog] = React.useState(false);
-  const [cancelId, setCancelId] = React.useState<string>('');
+  const [openCheckInDialog, setOpenCheckInDialog] = React.useState(false);
+  const [checkOutId, setCheckOutId] = React.useState('');
+  const [actionVerb, setActionVerb] = React.useState('');
+
+  React.useEffect(() => {
+    //reset IDs and actionVerb
+    setCheckOutId('');
+    setActionVerb('');
+  },[formState]);
 
   return (
     <>
       <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
+      
       <section className="flex">
-        <Dialog open={openDiallog} onOpenChange={setOpenDialog}>
+        <Dialog key={'checkindialog'} open={openCheckInDialog} onOpenChange={setOpenCheckInDialog}>
           <DialogContent className="">
             <DialogHeader>
-              <DialogTitle>Confirm!</DialogTitle>
-              <DialogDescription>Are you sure you want to cancel the reservation?</DialogDescription>
+              <DialogTitle>CONFIRM CHECK-OUT</DialogTitle>
+              <DialogDescription>Are you sure you want to check-in the reservation?</DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <ButtonCustom variant={"red"} type="button" onClick={async () => {
-                setOpenDialog(false);
-                const action = document.createElement('input');
-                action.type = 'hidden';
-                action.name = 'actionVerb';
-                action.value = 'CANCEL';
-                formRef?.current?.appendChild(action);
-                const cancelIdInput = document.createElement('input');
-                cancelIdInput.type = 'hidden';
-                cancelIdInput.name = 'cancelId';
-                cancelIdInput.value = cancelId;
-                formRef?.current?.appendChild(cancelIdInput);
+              <ButtonCustom variant={"green"} type="button" onClick={async () => {
+                setOpenCheckInDialog(false);
+                setActionVerb('CHECKOUT');
                 await formRef.current?.requestSubmit();
               }}>Yes</ButtonCustom>
               <DialogClose asChild>
                 <ButtonCustom variant="black" onClick={() => {
-                  setCancelId('');
-                  setOpenDialog(false);
+                  setCheckOutId('');
+                  setOpenCheckInDialog(false);
                 }}>No</ButtonCustom>
               </DialogClose>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </section>
+      <input type="hidden" name="actionVerb" value={actionVerb} />
+      <input type="hidden" name="checkInId" value={checkOutId} />
     </>
   )
 }
