@@ -18,6 +18,8 @@ import Customer from "@/domain/models/Customer"
 import { access } from "fs"
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import { reservationCheckOut } from "@/app/(private)/console/checkout/actions"
+import { toast } from "sonner"
 
 
 
@@ -49,41 +51,29 @@ export default function CheckOutListTable<TData, TValue>({
     },
     {
       accessorKey: "customers",
+      header: ({ column }) => {
+        return (
+          "Customer Info"
+        )
+      },
       cell: ({ row }) => (
         <div>
           {row.original.customers?.map((customer, i) => (
             <React.Fragment key={i}>
               {i > 0 && <br />}
-              {customer.name} ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
+              {customer.name}<br /> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
             </React.Fragment>
           ))}
         </div>
       ),
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Customer Info
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
-    },
-    {
-      accessorKey: "roomInfo",
-      header: "",
-      accessorFn: (row, index) => {
-        return <span>{row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}<br />{row.roomNo}</span>;
-      },
-      cell: (row) => row.getValue(),
     },
     {
       accessorKey: "checkInCheckOut",
       header: "Check-In / Check-Out",
       accessorFn: (row, index) => {
-        return <span>{new Date(row.checkInDateUTC).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC).toLocaleDateString('sv-SE')}<br />{row.noOfDays} days</span>;
+        return <span>
+          {new Date(row.checkInDateUTC).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC).toLocaleDateString('sv-SE')}<br />
+          {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -106,17 +96,10 @@ export default function CheckOutListTable<TData, TValue>({
     },
     {
       accessorKey: "remark",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Remark
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: 'Remark',
+      cell: (row) => {
+        return <div className="flex max-w-[150px] whitespace-normal" >{String(row.getValue())}</div>
+      }
     },
     {
       accessorKey: "action",
@@ -126,30 +109,22 @@ export default function CheckOutListTable<TData, TValue>({
           <ButtonCustom type="button" variant={"black"} size={"sm"}>View Bill</ButtonCustom>
           <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={() => {
             setCheckOutId(row.original.id);
-            setActionVerb('CHECKOUT');
-            setOpenCheckInDialog(true);
+            setOpenCheckOutDialog(true);
           }} >Check-Out</ButtonCustom>
         </div>
       }
     },
   ];
 
-  const [openCheckInDialog, setOpenCheckInDialog] = React.useState(false);
+  const [openCheckOutDialog, setOpenCheckOutDialog] = React.useState(false);
   const [checkOutId, setCheckOutId] = React.useState('');
-  const [actionVerb, setActionVerb] = React.useState('');
-
-  React.useEffect(() => {
-    //reset IDs and actionVerb
-    setCheckOutId('');
-    setActionVerb('');
-  },[formState]);
 
   return (
     <>
       <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
-      
+
       <section className="flex">
-        <Dialog key={'checkindialog'} open={openCheckInDialog} onOpenChange={setOpenCheckInDialog}>
+        <Dialog key={'checkindialog'} open={openCheckOutDialog} onOpenChange={setOpenCheckOutDialog}>
           <DialogContent className="">
             <DialogHeader>
               <DialogTitle>CONFIRM CHECK-OUT</DialogTitle>
@@ -157,22 +132,22 @@ export default function CheckOutListTable<TData, TValue>({
             </DialogHeader>
             <DialogFooter>
               <ButtonCustom variant={"green"} type="button" onClick={async () => {
-                setOpenCheckInDialog(false);
-                setActionVerb('CHECKOUT');
+                setOpenCheckOutDialog(false);
+                const response = await reservationCheckOut(checkOutId);
+                toast(response.message);
+                setCheckOutId('');
                 await formRef.current?.requestSubmit();
               }}>Yes</ButtonCustom>
               <DialogClose asChild>
                 <ButtonCustom variant="black" onClick={() => {
                   setCheckOutId('');
-                  setOpenCheckInDialog(false);
+                  setOpenCheckOutDialog(false);
                 }}>No</ButtonCustom>
               </DialogClose>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </section>
-      <input type="hidden" name="actionVerb" value={actionVerb} />
-      <input type="hidden" name="checkInId" value={checkOutId} />
     </>
   )
 }

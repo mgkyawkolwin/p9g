@@ -1,12 +1,9 @@
 'use server';
-import { User } from "@/data/orm/drizzle/mysql/schema"
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { customerValidator, pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';
+import { searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
-import { signOut } from "@/app/auth";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+
 
 export async function roomReservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
@@ -15,12 +12,9 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
 
     const formObject = Object.fromEntries(formData?.entries());
     let message = '';
-    
-    
 
     // formData is valid, further process
     let queryString = null;
-
 
     //validate and parse search input
     c.i("Parsing search fields from from entries.");
@@ -61,3 +55,24 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
   }
 }
 
+
+export async function moveRoom(id: string, roomNo:string){
+  try{
+    c.i('Action > roomchange > moveRoom');
+    const response = await fetch(process.env.API_URL + `roomreservation?id=${id}&roomNo=${roomNo}`, {
+      method: 'PATCH',
+    });
+
+    //fail
+    if(!response.ok){
+      c.i("Room move failed. Return response.");
+      return {error:true, message : "Room move failed."};
+    }
+
+    c.i('Return > moveRoom');
+    return {error:false, message:'Room moved.'};
+  }catch(error){
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error:true, message : "Room move failed."};
+  }
+}

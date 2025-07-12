@@ -15,8 +15,8 @@ import { FormState } from "@/lib/types";
 
 
 const initialData = {
-    createdDateFrom: new Date().toLocaleDateString('sv-SE'),
-    createdDateUntil: new Date().toLocaleDateString('sv-SE'),
+    createdDateFrom: '',
+    createdDateUntil: '',
     id: "",
     name: "",
     prepaidPackage: "DEFAULT",

@@ -1,5 +1,5 @@
 'use server';
-import { User } from "@/data/orm/drizzle/mysql/schema"
+import { UserEntity } from "@/data/orm/drizzle/mysql/schema"
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { customerValidator, pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';
@@ -103,3 +103,18 @@ export async function reservationGetList(formState : FormState, formData: FormDa
   }
 }
 
+
+export async function updatePickUpCarNo(id:string, carNo:string) : Promise<FormState>{
+  c.i('Action > updatePickUpCarNo');
+    const response = await fetch(process.env.API_URL + `reservations/${id}/pickup`, {
+      method: 'PATCH',
+    });
+
+    //fail
+    if(!response.ok){
+      c.i("Car no update failed. Return response.");
+      return {error:true, message : "Car number update failed."};
+    }
+
+    return {error: false, message:'Car number update successful.'};
+}

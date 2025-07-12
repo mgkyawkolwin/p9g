@@ -1,6 +1,6 @@
 export const AppUrl = {
     signin : '/auth/signin',
-    main : '/console/users'
+    main : '/console/reservations'
 } as const;
 
 export const CurrencyList = ['KWR', 'MMK', 'THB', 'USD'] as const;

@@ -49,41 +49,29 @@ export default function DropOffListTable<TData, TValue>({
     },
     {
       accessorKey: "customers",
+      header: ({ column }) => {
+        return (
+          "Customer Info"
+        )
+      },
       cell: ({ row }) => (
         <div>
           {row.original.customers?.map((customer, i) => (
             <React.Fragment key={i}>
               {i > 0 && <br />}
-              {customer.name} ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
+              {customer.name}<br /> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
             </React.Fragment>
           ))}
         </div>
       ),
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Customer Info
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
-    },
-    {
-      accessorKey: "roomInfo",
-      header: "",
-      accessorFn: (row, index) => {
-        return <span>{row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}<br />{row.roomNo}</span>;
-      },
-      cell: (row) => row.getValue(),
     },
     {
       accessorKey: "checkInCheckOut",
       header: "Check-In / Check-Out",
       accessorFn: (row, index) => {
-        return <span>{new Date(row.checkInDateUTC).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC).toLocaleDateString('sv-SE')}<br />{row.noOfDays} days</span>;
+        return <span>
+          {new Date(row.checkInDateUTC).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC).toLocaleDateString('sv-SE')}<br />
+          {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -106,17 +94,10 @@ export default function DropOffListTable<TData, TValue>({
     },
     {
       accessorKey: "remark",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Remark
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: 'Remark',
+      cell: (row) => {
+        return <div className="flex max-w-[150px] whitespace-normal" >{String(row.getValue())}</div>
+      }
     },
     {
       accessorKey: "action",
@@ -142,12 +123,12 @@ export default function DropOffListTable<TData, TValue>({
     //reset IDs and actionVerb
     setCheckOutId('');
     setActionVerb('');
-  },[formState]);
+  }, [formState]);
 
   return (
     <>
       <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
-      
+
       <section className="flex">
         <Dialog key={'checkindialog'} open={openCheckInDialog} onOpenChange={setOpenCheckInDialog}>
           <DialogContent className="">

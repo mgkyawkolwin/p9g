@@ -18,6 +18,8 @@ import Customer from "@/domain/models/Customer"
 import { access } from "fs"
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import { reservationCancel, reservationCheckIn } from "@/app/(private)/console/checkin/actions"
+import { toast } from "sonner"
 
 
 
@@ -36,8 +38,6 @@ export default function CheckInListTable<TData, TValue>({
   c.i('Client > CheckInListTable');
   c.d(JSON.stringify(formState));
 
-  const router = useRouter();
-
   const columns: ColumnDef<Reservation>[] = [
     {
       accessorKey: "customReservationInfo",
@@ -47,43 +47,31 @@ export default function CheckInListTable<TData, TValue>({
       },
       cell: (row) => row.getValue(),
     },
-    {
-      accessorKey: "customers",
-      cell: ({ row }) => (
-        <div>
-          {row.original.customers?.map((customer, i) => (
-            <React.Fragment key={i}>
-              {i > 0 && <br />}
-              {customer.name} ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
-            </React.Fragment>
-          ))}
-        </div>
-      ),
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Customer Info
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
-    },
-    {
-      accessorKey: "roomInfo",
-      header: "",
-      accessorFn: (row, index) => {
-        return <span>{row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}<br />{row.roomNo}</span>;
-      },
-      cell: (row) => row.getValue(),
-    },
+        {
+          accessorKey: "customers",
+          header: ({ column }) => {
+            return (
+              "Customer Info"
+            )
+          },
+          cell: ({ row }) => (
+            <div>
+              {row.original.customers?.map((customer, i) => (
+                <React.Fragment key={i}>
+                  {i > 0 && <br />}
+                  {customer.name}<br/> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
+                </React.Fragment>
+              ))}
+            </div>
+          ),
+        },
     {
       accessorKey: "checkInCheckOut",
       header: "Check-In / Check-Out",
       accessorFn: (row, index) => {
-        return <span>{new Date(row.checkInDateUTC).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC).toLocaleDateString('sv-SE')}<br />{row.noOfDays} days</span>;
+        return <span>
+          {new Date(row.checkInDateUTC).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC).toLocaleDateString('sv-SE')}<br />
+          {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -106,17 +94,10 @@ export default function CheckInListTable<TData, TValue>({
     },
     {
       accessorKey: "remark",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Remark
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: 'Remark',
+      cell: (row) => {
+        return <div className="flex max-w-[150px] whitespace-normal" >{String(row.getValue())}</div>
+      }
     },
     {
       accessorKey: "action",
@@ -138,6 +119,8 @@ export default function CheckInListTable<TData, TValue>({
       }
     },
   ];
+
+  const router = useRouter();
 
   const [openCancelDiallog, setOpenCancelDialog] = React.useState(false);
   const [openCheckInDialog, setOpenCheckInDialog] = React.useState(false);
@@ -165,20 +148,11 @@ export default function CheckInListTable<TData, TValue>({
             <DialogFooter>
               <ButtonCustom variant={"red"} type="button" onClick={async () => {
                 setOpenCancelDialog(false);
-                // const action = document.createElement('input');
-                // action.type = 'hidden';
-                // action.name = 'actionVerb';
-                // action.value = actionVerb;
-                // formRef?.current?.appendChild(action);
-                // const cancelIdInput = document.createElement('input');
-                // cancelIdInput.type = 'hidden';
-                // cancelIdInput.name = 'cancelId';
-                // cancelIdInput.value = cancelId;
-                // formRef?.current?.appendChild(cancelIdInput);
-                setActionVerb('CANCEL');
-                await formRef.current?.requestSubmit();
-                setActionVerb('');
+                const response = await reservationCancel(cancelId);
+                toast(response.message);
                 setCancelId('');
+                //reload page
+                formRef.current?.requestSubmit();
               }}>Yes</ButtonCustom>
               <DialogClose asChild>
                 <ButtonCustom variant="black" onClick={() => {
@@ -200,18 +174,11 @@ export default function CheckInListTable<TData, TValue>({
             <DialogFooter>
               <ButtonCustom variant={"green"} type="button" onClick={async () => {
                 setOpenCheckInDialog(false);
-                setActionVerb('CHECKIN');
-                // const action = document.createElement('input');
-                // action.type = 'hidden';
-                // action.name = 'actionVerb';
-                // action.value = actionVerb;
-                // formRef?.current?.appendChild(action);
-                // const checkInIdInput = document.createElement('input');
-                // checkInIdInput.type = 'hidden';
-                // checkInIdInput.name = 'checkInId';
-                // checkInIdInput.value = checkInId;
-                // formRef?.current?.appendChild(checkInIdInput);
-                await formRef.current?.requestSubmit();
+                const response = await reservationCheckIn(checkInId);
+                toast(response.message);
+                setCheckInId('');
+                //reload page
+                formRef.current?.requestSubmit();
               }}>Yes</ButtonCustom>
               <DialogClose asChild>
                 <ButtonCustom variant="black" onClick={() => {
@@ -223,7 +190,6 @@ export default function CheckInListTable<TData, TValue>({
           </DialogContent>
         </Dialog>
       </section>
-      <input type="hidden" name="actionVerb" value={actionVerb} />
       <input type="hidden" name="cancelId" value={cancelId} />
       <input type="hidden" name="checkInId" value={checkInId} />
     </>

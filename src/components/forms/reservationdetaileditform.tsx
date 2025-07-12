@@ -2,48 +2,57 @@
 
 import React from "react";
 import ReservationDetailForm from "../basicforms/reservationdetailform";
-import { Button } from "../ui/button";
 import { Group, GroupContent, GroupTitle } from "../uicustom/group";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom";
-import { Route } from "lucide-react";
-import { FormState } from "@/lib/types";
+import Customer from "@/domain/models/Customer";
+import Reservation from "@/domain/models/Reservation";
+import { updateReservationAction } from "@/app/(private)/console/reservations/[id]/edit/actions";
+import { toast } from "sonner";
 
-interface ReservationDetailNewFormProps {
-    formState: FormState;
-    formRef?: React.RefObject<HTMLFormElement | null>;
-    isPending?: boolean,
-    setActionVerb: React.Dispatch<React.SetStateAction<string>>;
+interface ReservationDetailEditFormProps {
+    customers?: Customer[];
+    reservation: Reservation;
 }
 
 export default function ReservationDetailEditForm({
-    formState,
-    formRef,
-    isPending,
-    setActionVerb
-}: ReservationDetailNewFormProps) {
+    customers,
+    reservation
+}: ReservationDetailEditFormProps) {
     c.i('Client > ReservationDetailEditForm');
 
     const detailFormRef = React.useRef<{ resetForm: () => void }>(null);
+
+    const [state, formAction, isPending] = React.useActionState(updateReservationAction, {
+        error: false,
+        message:''
+    });
 
     function clearForm(){
         detailFormRef.current?.resetForm();
     }
 
+    React.useEffect(() => {
+        if(state.message)
+            toast(state.message);
+        if(state.reload)
+            window.location.reload();
+    },[state]);
+
     return (
-        <div className="flex flex-col">
+        <form className="flex h-full" action={formAction}>
+            <div className="flex flex-col">
             <Group className="flex h-full">
                 <GroupTitle>
-                    Reservation Details
+                    Reservation Details (Edit)
                 </GroupTitle>
                 <GroupContent>
                     <div className="flex flex-col gap-4">
-                    <ReservationDetailForm ref={detailFormRef} initialReservation={formState?.data?.reservation} />
+                    <ReservationDetailForm ref={detailFormRef} initialReservation={reservation} />
                     <div className="flex gap-4">
                         <ButtonCustom variant={"green"} disabled={isPending} onClick={() => {
-                            c.i('[CLICKED] Save Reservation');
-                            setActionVerb('UPDATE');
-                        }}>Save Reservation</ButtonCustom>
+                            
+                        }}>Update Reservation</ButtonCustom>
                         <ButtonCustom variant={"red"} disabled={isPending} onClick={() => {
                             
                         }}>Cancel</ButtonCustom>
@@ -52,6 +61,9 @@ export default function ReservationDetailEditForm({
                 </GroupContent>
             </Group>
         </div>
+        <input type="hidden" name="id" defaultValue={reservation.id} />
+        <input type="hidden" name="customers" defaultValue={JSON.stringify(customers?.map(c => ({id:c.id})))} />
+        </form>
 
     );
 };

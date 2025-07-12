@@ -1,15 +1,11 @@
 "use client";
-import { useActionState, useEffect } from "react";
 
-import { userGetList } from "@/app/(private)/console/users/actions";
-import { toast } from "sonner";
-import UserListTable from "@/components/tables/userlisttable";
 import c from "@/lib/core/logger/ConsoleLogger";
 import ReservationTopTable from "@/components/tables/reservationtoptable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema";
+import Reservation from "@/domain/models/Reservation";
 
-export default function ReservationTopList({data} : {data:ReservationEntity[]}) {
+export default function ReservationTopList({data} : {data:Reservation[]}) {
   c.i("Client > ReservationTopList");
 
   return (

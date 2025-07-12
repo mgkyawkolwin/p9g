@@ -4,7 +4,7 @@ import argon2 from 'argon2';
 import IAuthService from "./contracts/IAuthService";
 import type IUserService from './contracts/IUserService';
 import { TYPES } from '@/lib/types';
-import { User } from '@/data/orm/drizzle/mysql/schema';
+import { UserEntity } from '@/data/orm/drizzle/mysql/schema';
 
 @injectable()
 export default class AuthService implements IAuthService{
@@ -13,7 +13,7 @@ export default class AuthService implements IAuthService{
 
     }
 
-    async signMeIn(userName: string, password: string): Promise<User | null> {
+    async signMeIn(userName: string, password: string): Promise<UserEntity | null> {
         //retrieve user based on userName
         const user = await this.userService.userFindByUserName(userName);
 

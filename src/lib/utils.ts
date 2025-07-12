@@ -35,6 +35,9 @@ export function buildSearchParams(queryStringObject : any) : SearchParam[] {
   if(queryStringObject.searchCheckInDateUTCTo){
     search.push({searchColumn:'checkInDateUTCTo', searchValue: queryStringObject.searchCheckInDateUTCTo});
   }
+  if(queryStringObject.searchCheckOutDateUTC){
+    search.push({searchColumn:'checkOutDateUTC', searchValue: queryStringObject.searchCheckOutDateUTC});
+  }
   if(queryStringObject.searchCreatedFrom){
     search.push({searchColumn:'createdFrom', searchValue: queryStringObject.searchCreatedFrom});
   }

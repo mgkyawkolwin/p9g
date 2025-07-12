@@ -1,5 +1,5 @@
 'use server';
-import { User } from "@/data/orm/drizzle/mysql/schema"
+import { UserEntity } from "@/data/orm/drizzle/mysql/schema"
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { customerValidator, pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';

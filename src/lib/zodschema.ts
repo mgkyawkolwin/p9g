@@ -90,15 +90,17 @@ export const reservationValidator = z.object({
 
 
 export const searchSchema = z.object({
+  searchId: z.string().optional(),
+  searchRoomNo: z.string().optional(),
   searchCreatedFrom: z.string().optional(),
   searchCreatedUntil: z.string().optional(),
   searchCheckInDateUTC: z.string().optional(),
   searchCheckInDateUTCFrom: z.string().optional(),
   searchCheckInDateUTCTo: z.string().optional(),
+  searchCheckOutDateUTC: z.string().optional(),
   searchDate: z.string().regex(RegExp('\d{4}-\d{2}-\d{2}')).optional().or(z.literal('')),
   date: z.string().optional(),
   searchEmail: z.string().regex(RegExp('[a-zA-Z0-9@ ]'),'Invalid search column.').optional().or(z.literal('')),
-  searchId: z.string().optional(),
   searchName: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
   searchNationalId: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
   searchPassport: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),

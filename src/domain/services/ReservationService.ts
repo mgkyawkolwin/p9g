@@ -24,6 +24,16 @@ export default class ReservationService implements IReservationService{
         c.i('ReservationService > createReservation');
         return this.reservationRepository.createReservation(reservation);
     }
+
+    
+    async moveRoom(id:string, roomNo:string): Promise<void> {
+        c.i('ReservationService > patch');
+        c.d(id);
+        c.d(roomNo);
+        
+        c.i('Returning from ReservationService > moveRoom.');
+        return this.reservationRepository.moveRoom(id, roomNo);
+    }
     
 
     async patch(id:string, operation : string): Promise<void> {
@@ -35,13 +45,39 @@ export default class ReservationService implements IReservationService{
             this.reservationRepository.cancel(id);
         }
 
-
         if(operation === 'CHECKIN'){
             c.i('CheckIn operation running.');
             this.reservationRepository.checkIn(id);
         }
 
         c.i('Returning from ReservationService > patch.');
+    }
+
+
+    async reservationCancel(id:string):Promise<void>{
+        c.i('ReservationService > reservationCancel');
+        c.d(id);
+        this.reservationRepository.cancel(id);
+
+        c.i('Returning from ReservationService > reservationCancel.');
+    }
+
+
+    async reservationCheckIn(id:string):Promise<void>{
+        c.i('ReservationService > reservationCheckIn');
+        c.d(id);
+        this.reservationRepository.checkIn(id);
+
+        c.i('Returning from ReservationService > reservationCheckIn.');
+    }
+
+
+    async reservationCheckOut(id:string):Promise<void>{
+        c.i('ReservationService > reservationCheckOut');
+        c.d(id);
+        this.reservationRepository.checkOut(id);
+
+        c.i('Returning from ReservationService > reservationCheckOut.');
     }
 
 
@@ -85,8 +121,42 @@ export default class ReservationService implements IReservationService{
         return this.reservationRepository.roomScheduleList(searchParams);
     }
 
+
+    async updateDropOffCarNo(id:string, carNo:string) : Promise<void>{
+        c.i('ReservationRepository > updateDropOffCarNo');
+        if(!id || id === 'undefined')
+            throw new Error('Car number update failed. Id is required.');
+        if(!carNo || carNo === 'undefined')
+            throw new Error('Car number update failed. Car number is required.');
+
+        c.i('Return ReservationService> updatePickUpCarNo');
+        return this.reservationRepository.updateDropOffCarNo(id,carNo);
+    }
+
+
+    async updatePickUpCarNo(id:string, carNo:string) : Promise<void>{
+        c.i('ReservationRepository > updatePickUpCarNo');
+        if(!id || id === 'undefined')
+            throw new Error('Car number update failed. Id is required.');
+        if(!carNo || carNo === 'undefined')
+            throw new Error('Car number update failed. Car number is required.');
+
+        c.i('Return ReservationService> updatePickUpCarNo');
+        return this.reservationRepository.updatePickUpCarNo(id,carNo);
+    }
+
+    
     async updateReservation(id:string, reservation : Reservation): Promise<Reservation> {
         c.i('ReservationService > updateReservation');
+
+        if(!id || id === 'undefined') {
+            throw new Error('Reservation update failed. Id is required.');
+        }
+
+        if(!reservation) {
+            throw new Error('Reservation update failed. Reservation is required.');
+        }
+
         return this.reservationRepository.updateReservation(id, reservation);
     }
     

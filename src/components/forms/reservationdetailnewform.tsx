@@ -6,19 +6,25 @@ import { Button } from "../ui/button";
 import { Group, GroupContent, GroupTitle } from "../uicustom/group";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom";
+import { saveReservation } from "@/app/(private)/console/reservations/new/actions";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import Customer from "@/domain/models/Customer";
+import Reservation from "@/domain/models/Reservation";
 
 interface ReservationDetailNewFormProps {
-    formRef?: React.RefObject<HTMLFormElement | null>;
-    isPending?: boolean,
-    setActionVerb: React.Dispatch<React.SetStateAction<string>>;
+    customers?: Customer[]
 }
 
-export default function ReservationDetailNewForm({
-    formRef,
-    isPending,
-    setActionVerb
-}: ReservationDetailNewFormProps) {
+export default function ReservationDetailNewForm({customers}: ReservationDetailNewFormProps)  {
     c.i('Client > ReservationDetailNewForm');
+
+    const router = useRouter();
+    const [state, formAction, isPending] = React.useActionState(saveReservation,
+        {
+            error:false,
+            message:''
+        });
 
     const detailFormRef = React.useRef<{ resetForm: () => void }>(null);
 
@@ -26,25 +32,35 @@ export default function ReservationDetailNewForm({
         detailFormRef.current?.resetForm();
     }
 
+    React.useEffect(() => {
+        if(state.message)
+            toast(state.message);
+        if(state.reload){
+            //router.replace(`/console/reservations/new/?id=${Date.now()}`);
+            window.location.reload();
+        }
+    },[state]);
+
     return (
-        <div className="flex flex-col">
+        <form action={formAction}>
+            <div className="flex flex-col">
             <Group className="flex h-full">
                 <GroupTitle>
-                    Reservation Details
+                    Reservation Details (New)
                 </GroupTitle>
                 <GroupContent>
                     <div className="flex flex-col gap-4">
-                    <ReservationDetailForm ref={detailFormRef} initialReservation={undefined} />
+                    <ReservationDetailForm ref={detailFormRef} initialReservation={new Reservation()} />
                     <div className="flex gap-4">
-                        <ButtonCustom variant={"green"} disabled={isPending} onClick={() => {
-                            setActionVerb('SAVE');
-                        }}>Create Reservation</ButtonCustom>
-                        <ButtonCustom variant={"red"} disabled={isPending} onClick={() => clearForm()}>Clear Form</ButtonCustom>
+                        <ButtonCustom type="submit" variant={"green"} disabled={isPending} >Create Reservation</ButtonCustom>
+                        <ButtonCustom type="button" variant={"red"} disabled={isPending} onClick={() => clearForm()}>Clear Form</ButtonCustom>
                     </div>
                     </div>
                 </GroupContent>
             </Group>
         </div>
+        <input type="hidden" name="customers" value={JSON.stringify(customers?.map(c => ({id:c.id})))} />
+        </form>
 
     );
 };

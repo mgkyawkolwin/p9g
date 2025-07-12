@@ -1,21 +1,16 @@
 "use client"
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { ArrowUpDown } from "lucide-react"
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowUpDown } from "lucide-react";
 
 import {
   ColumnDef
-} from "@tanstack/react-table"
-
-import DataTable from "./datatable"
-import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema"
-import c from "@/lib/core/logger/ConsoleLogger"
-import { FormState } from "@/lib/types"
-import { useRouter } from "next/router"
-import SimpleDataTable from "./simpledatatable"
-import Reservation from "@/domain/models/Reservation"
-import Customer from "@/domain/models/Customer"
+} from "@tanstack/react-table";
+import c from "@/lib/core/logger/ConsoleLogger";
+import SimpleDataTable from "./simpledatatable";
+import Reservation from "@/domain/models/Reservation";
+import Customer from "@/domain/models/Customer";
 
 
 export const columns: ColumnDef<Reservation & Customer[], any>[] = [
@@ -113,7 +108,7 @@ export const columns: ColumnDef<Reservation & Customer[], any>[] = [
 ];
 
 interface DataTableProps<TData, TValue> {
-  data: ReservationEntity[]
+  data: Reservation[]
 }
 
 export default function ReservationTopTable<TData, TValue>({

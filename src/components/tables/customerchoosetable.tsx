@@ -15,14 +15,15 @@ import { FormState } from "@/lib/types"
 import { useRouter } from "next/router"
 import SimpleDataTable from "./simpledatatable"
 import { ButtonCustom } from "../uicustom/buttoncustom"
+import Customer from "@/domain/models/Customer"
 
 
 
 
 interface DataTableProps<TData, TValue> {
-  data: CustomerEntity[];
+  data: Customer[];
   selectedCustomers: any;
-  setSelectedCustomers: React.Dispatch<React.SetStateAction<CustomerEntity[]>>;
+  setSelectedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -35,7 +36,7 @@ export default function CustomerChooseTable<TData, TValue>({
   c.i('Client GuestInformationTable');
   c.d(JSON.stringify(data));
 
-  const columns: ColumnDef<CustomerEntity, any>[] = [
+  const columns: ColumnDef<Customer, any>[] = [
     {
       accessorKey: "id",
       header: "Guest ID",

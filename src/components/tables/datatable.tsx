@@ -109,8 +109,12 @@ export default function DataTable<TData, TValue>({
     //setData(formState.data);
     if(records !== formState.pager?.records)
       setRecords(formState.pager?.records ?? 0);
-    if(pages !== formState.pager?.pages)
+    if(pages !== formState.pager?.pages){
       setPages(formState.pager?.pages ?? 0);
+      //reset page index if pages is changed
+      setPageIndex(1);
+    }
+      
     c.d(data);
   }, [formState]);
 
@@ -127,13 +131,11 @@ export default function DataTable<TData, TValue>({
 
   
   React.useEffect(() => {
-    c.i("########################### pageIndex is changed.");
     formRef?.current?.requestSubmit();
   }, [pageIndex]);
 
   
   React.useEffect(() => {
-    c.i("########################### pageSize is changed.");
     setPageIndex(1);
     formRef?.current?.requestSubmit();
   }, [pageSize]);
@@ -201,7 +203,7 @@ export default function DataTable<TData, TValue>({
                       data-state={row.getIsSelected() && "selected"}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="text-[#333333]">
+                        <TableCell key={cell.id} className="align-top text-[#333333]">
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}

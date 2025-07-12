@@ -9,13 +9,13 @@ import {
 } from "@tanstack/react-table"
 
 import DataTable from "./datatable"
-import { User } from "@/data/orm/drizzle/mysql/schema"
+import { UserEntity } from "@/data/orm/drizzle/mysql/schema"
 import c from "@/lib/core/logger/ConsoleLogger"
 import { FormState } from "@/lib/types"
 import { useRouter } from "next/router"
 
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<UserEntity>[] = [
   {
     accessorKey: "id",
     header: "User ID",

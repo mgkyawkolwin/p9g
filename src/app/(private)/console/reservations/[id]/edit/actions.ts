@@ -1,5 +1,5 @@
 'use server';
-import { User } from "@/data/orm/drizzle/mysql/schema"
+import { UserEntity } from "@/data/orm/drizzle/mysql/schema"
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { pagerSchema, reservationValidator, searchSchema, userUpdateSchema } from '@/lib/zodschema';
@@ -14,7 +14,6 @@ export async function editReservationAction(formState : FormState, formData: For
     c.d(Object.fromEntries(formData.entries()));
 
     let queryString = null;
-    let customers = [];
     let message = "";
 
     c.i("Finding form action for further processing.");
@@ -42,81 +41,6 @@ export async function editReservationAction(formState : FormState, formData: For
     const reservation = reservationData.data;
     c.d(reservation);
 
-    if(formObj.actionVerb && formObj.actionVerb == "SEARCH")
-    {
-      c.i("Action is SEARCH. Validating search fields.");
-      const searchFields = searchSchema.safeParse(formObj);
-      c.d(searchFields);
-
-      if (!searchFields.success) {
-        c.i("Search fields validation failed. Return response.");
-        return { error: true, message: 'Invalid inputs.', data: null, formData: null};
-      }
-
-      c.i("Search field validation pass. Build query string.");
-      queryString = buildQueryString(searchFields.data);
-      c.d(queryString);
-
-      //update user
-      c.i("Requesting API to retrieve customers.");
-      const customersResponse = await fetch(process.env.API_URL + `customers?${queryString}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      //retrieve user failed
-      if (!customersResponse.ok) {
-        c.i("Retrieve customers api response failed. Return response.");
-        const errorData = await customersResponse.json();
-        c.e(errorData.message);
-        return { error: true, message: 'Failed to retrieve customer.', data: null, formData: null};
-      }
-
-      c.i("Retrieve users successful.");
-      const customersData = await customersResponse.json();
-      [customers] = customersData.data;
-      c.d(customers?.length);
-    }
-
-    if(formObj.actionVerb && formObj.actionVerb == "UPDATE")
-    {
-      c.i("Action is SAVE. Validating input fields.");
-      const reservationFields = reservationValidator.safeParse(formObj);
-      c.d(reservationFields);
-
-      if (!reservationFields.success) {
-        c.i("Reservation fields validation failed. Return response.");
-        return { error: true, message: 'Invalid inputs.', data: null, formData: null};
-      }
-
-      //update user
-      c.i("Requesting API to update reservation.");
-      const reservationResponse = await fetch(process.env.API_URL + `reservations/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(reservationFields.data)
-      });
-      
-      //retrieve user failed
-      if (!reservationResponse.ok) {
-        c.i("Upate reservation api response failed. Return response.");
-        const errorData = await reservationResponse.json();
-        c.e(errorData.message);
-        return { error: true, message: 'Failed to update reservation.', data: null, formData: null};
-      }
-
-      c.i("Update reservation successful.");
-      const reservationData = await reservationResponse.json();
-      const reservation = reservationData.data;
-      c.d(reservation);
-
-      //set success message for save operation
-      message = "Reservation updated.";
-    }
 
     c.i("Retrieving latest reservation list.");
     //define default pageer fields for new reservation list
@@ -143,15 +67,99 @@ export async function editReservationAction(formState : FormState, formData: For
       
     c.i("Reservation retrieval success.");
     const reservationsData = await getReservationsResponse.json();
-    c.d(reservationData);
+    c.d(reservationsData);
 
     //retrieve data from tuple
     const [reservations] = reservationsData.data;
     c.d(reservations?.length);
 
     c.i("Returning final response.");
-    const successresponse = {error:false, message : message, data: {reservation: reservation, reservations: reservations, customers: customers}};
+    const successresponse = {error:false, message : message, data: {reservation: reservation, reservations: reservations}};
     //c.d(successresponse);
+    return successresponse;
+  }catch(error){
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error:true, message : "Unknown error occured."};
+  }
+}
+
+
+export async function searchCustomer(search:string){
+    c.i("Action is SEARCH. Validating search fields.");
+
+    //update user
+    c.i("Requesting API to retrieve customers.");
+    const customersResponse = await fetch(process.env.API_URL + `customers?searchName=${search}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    //retrieve user failed
+    if (!customersResponse.ok) {
+      c.i("Retrieve customers api response failed. Return response.");
+      const errorData = await customersResponse.json();
+      c.e(errorData.message);
+      return { error: true, message: 'Failed to retrieve customer.', data: null, formData: null};
+    }
+
+    c.i("Retrieve users successful.");
+    const responseData = await customersResponse.json();
+    c.d(responseData);
+    const [customers, pager] = responseData.data;
+    
+    return {error:false, data:customers};
+}
+
+
+export async function updateReservationAction(formState : FormState, formData: FormData): Promise<FormState> {
+  try{
+    c.i('Actions > /console/reservations/[id]/edit > updateReservationAction');
+    c.d(Object.fromEntries(formData.entries()));
+
+    let queryString = null;
+    let customers = [];
+    let message = "";
+
+    c.i("Finding form action for further processing.");
+    const formObj = Object.fromEntries(formData.entries());
+    const { id } = formObj;
+
+    c.i("Action is SAVE. Validating input fields.");
+    const reservationFields = reservationValidator.safeParse(formObj);
+    c.d(reservationFields);
+
+    if (!reservationFields.success) {
+      c.i("Reservation fields validation failed. Return response.");
+      return { error: true, message: 'Invalid inputs.', data: null, formData: null};
+    }
+
+    //update user
+    c.i("Requesting API to update reservation.");
+    const reservationResponse = await fetch(process.env.API_URL + `reservations/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(reservationFields.data)
+    });
+    
+    //retrieve user failed
+    if (!reservationResponse.ok) {
+      c.i("Upate reservation api response failed. Return response.");
+      const errorData = await reservationResponse.json();
+      c.e(errorData.message);
+      return { error: true, message: 'Failed to update reservation.', data: null, formData: null};
+    }
+
+    c.i("Update reservation successful.");
+    const reservationData = await reservationResponse.json();
+    const reservation = reservationData.data;
+    c.d(reservation);
+
+    c.i("Returning final response.");
+    const successresponse = {error:false, message : 'Update reservation successful.', reload: true};
     return successresponse;
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));

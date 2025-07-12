@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
 
-import { User, userTable } from "@/data/orm/drizzle/mysql/schema";
+import { UserEntity, userTable } from "@/data/orm/drizzle/mysql/schema";
 import { Repository } from "./Repository";
 import IUserRepository from "../IUserRepository";
 
@@ -11,7 +11,7 @@ import { type IDatabase } from "@/data/db/IDatabase";
 
 
 @injectable()
-export default class UserRepository extends Repository<User, typeof userTable> implements IUserRepository {
+export default class UserRepository extends Repository<UserEntity, typeof userTable> implements IUserRepository {
 
     constructor(
         @inject(TYPES.IDatabase) protected readonly dbClient: IDatabase<any>
@@ -19,7 +19,7 @@ export default class UserRepository extends Repository<User, typeof userTable> i
         super(dbClient, userTable);
     }
 
-    async findByEmailAndPassword(email: string, password: string): Promise<User> {
+    async findByEmailAndPassword(email: string, password: string): Promise<UserEntity> {
         const [user] = await this.dbClient.db
             .select()
             .from(this.table)
@@ -31,10 +31,10 @@ export default class UserRepository extends Repository<User, typeof userTable> i
             )
             .limit(1);
 
-        return user as User;
+        return user as UserEntity;
     }
 
-    async findByUserName(userName: string): Promise<User> {
+    async findByUserName(userName: string): Promise<UserEntity> {
         const [user] = await this.dbClient.db
             .select()
             .from(this.table)
@@ -45,10 +45,10 @@ export default class UserRepository extends Repository<User, typeof userTable> i
             )
             .limit(1);
 
-        return user as User;
+        return user as UserEntity;
     }
 
-    async findByUserNameAndPassword(userName: string, password: string): Promise<User> {
+    async findByUserNameAndPassword(userName: string, password: string): Promise<UserEntity> {
         const [user] = await this.dbClient.db
             .select()
             .from(this.table)
@@ -60,7 +60,7 @@ export default class UserRepository extends Repository<User, typeof userTable> i
             )
             .limit(1);
 
-        return user as User;
+        return user as UserEntity;
     }
 
 }

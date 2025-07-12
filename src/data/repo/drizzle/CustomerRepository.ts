@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
 
-import { customerTable, CustomerEntity, User, userTable } from "@/data/orm/drizzle/mysql/schema";
+import { customerTable, CustomerEntity, UserEntity, userTable } from "@/data/orm/drizzle/mysql/schema";
 import { Repository } from "./Repository";
 import IUserRepository from "../IUserRepository";
 

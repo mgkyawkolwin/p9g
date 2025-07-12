@@ -58,8 +58,8 @@ export const reservationTable = mysqlTable("reservation", {
   arrivalFlight: varchar("arrivalFlight", { length: 50 }),
   departureDateTimeUTC: datetime("departureDateTimeUTC"),
   departureFlight: varchar("departureFlight", { length: 50 }),
-  checkInDateUTC: date("checkInDateUTC"),
-  checkOutDateUTC: date("checkOutDateUTC"),
+  checkInDateUTC: datetime("checkInDateUTC"),
+  checkOutDateUTC: datetime("checkOutDateUTC"),
   noOfDays: tinyint("noOfDays"),
   depositAmount: int("depositAmount"),
   depositCurrency: char("depositCurrency", {length: 3}),
@@ -111,6 +111,8 @@ export const roomReservationTable = mysqlTable("roomReservation", {
   roomId: char("roomId", {length: 36}).notNull().references(() => roomTable.id),
   reservationId: char("reservationId", {length: 36}).notNull().references(() => reservationTable.id),
   noOfExtraBed: tinyint(),
+  checkInDateUTC: datetime("checkInDateUTC", {mode: 'date', fsp: 3}).notNull(),
+  checkOutDateUTC: datetime("checkOutDateUTC", {mode: 'date', fsp: 3}).notNull(), 
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
@@ -243,8 +245,7 @@ export const roomReservationRelations = relations(roomReservationTable, ({ one, 
 // }));
 
 // Export TypeScript types
-export type User = typeof userTable.$inferSelect;
-export type NewUser = typeof userTable.$inferInsert; // For INSERT queries
+export type UserEntity = typeof userTable.$inferSelect;
 export type ConfigEntity = typeof configTable.$inferSelect;
 export type CustomerEntity = typeof customerTable.$inferSelect;
 export type ReservationEntity = typeof reservationTable.$inferSelect;

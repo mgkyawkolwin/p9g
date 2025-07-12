@@ -1,7 +1,7 @@
 // app/CustomerList.tsx
 "use client";
 
-import { User } from "@/data/orm/drizzle/mysql/schema";
+import { UserEntity } from "@/data/orm/drizzle/mysql/schema";
 
 import { use, useEffect, useState } from "react";
 
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 
 export default function UserView({ params }: { params: Promise<{ id: number }> }) {
   const { id } = use(params);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserEntity | null>(null);
   const [loading, setLoading] = useState(true);
 
 

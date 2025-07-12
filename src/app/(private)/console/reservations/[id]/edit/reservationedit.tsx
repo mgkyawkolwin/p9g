@@ -1,11 +1,5 @@
 'use client';
 
-import ReservationDetailForm from "@/components/basicforms/reservationdetailform";
-import ReservationDetailNewForm from "@/components/forms/reservationdetailnewform";
-import DataTable from "@/components/tables/datatable";
-import CustomerInformationTable from "@/components/tables/customerinformationtable";
-import { Button } from "@/components/ui/button";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { InputWithLabel } from "@/components/uicustom/inputwithlabel";
 import { Loader } from "@/components/uicustom/loader";
 import { FormState } from "@/lib/types";
@@ -13,22 +7,24 @@ import React, { useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
 import ReservationTopList from "@/components/groups/reservationtoplist";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
-import { CustomerEntity, ReservationEntity, User } from "@/data/orm/drizzle/mysql/schema";
 import CustomerInformationForm from "@/components/forms/customerinformationform";
-import { editReservationAction } from "./actions";
+import { editReservationAction, searchCustomer } from "./actions";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import CustomerChooseTable from "@/components/tables/customerchoosetable";
 import ReservationDetailEditForm from "@/components/forms/reservationdetaileditform";
+import Customer from "@/domain/models/Customer";
+import Reservation from "@/domain/models/Reservation";
 
 export default function ReservationEdit({id}:{id:string}) {
 
   const [actionVerb, setActionVerb] = React.useState('');
   const [customerName, setCustomerName] = React.useState("");
-  const [customerList, setCustomerList] = React.useState<CustomerEntity[]>([]);
+  const [customerList, setCustomerList] = React.useState<Customer[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [newReservations, setNewReservations] = React.useState<ReservationEntity[]>([]);
-  const [selectedCustomerList, setSelectedCustomerList] = React.useState<CustomerEntity[]>([]);
+  const [newReservations, setNewReservations] = React.useState<Reservation[]>([]);
+  const [reservation, setReservation] = React.useState(new Reservation());
+  const [selectedCustomerList, setSelectedCustomerList] = React.useState<Customer[]>([]);
 
   const [state, formAction, isPending] = useActionState(editReservationAction, {
     error: false,
@@ -66,6 +62,11 @@ export default function ReservationEdit({id}:{id:string}) {
     if(!state || !state.data)
       return;
 
+    if(state.data.reservation){
+      setReservation(state.data.reservation);
+    }
+      
+
     if(state.data.reservations){
       c.i("Data is changed.");
       c.d(state.data.reservations);
@@ -89,15 +90,22 @@ export default function ReservationEdit({id}:{id:string}) {
 
 
   return (
-    <form ref={formRef} className="flex flex-1 flex-col gap-4" action={formAction}>
       <div className="flex flex-1 flex-col gap-y-4">
+      <form ref={formRef} className="flex flex-1 flex-col gap-4" action={formAction}>
+        <input type="hidden" name="id" value={id} />
+      </form>
         <Loader isLoading={isPending} />
         <section aria-label="Search" className="flex flex-row h-fit items-center gap-x-4">
           <InputWithLabel label="Search" defaultValue={customerName} onBlur={(e) => setCustomerName(e.target.value)}></InputWithLabel>
           <input type="hidden" name="searchName" value={customerName} />
-          <ButtonCustom type="button" variant={"black"} onClick={() => {
-            setActionVerb('SEARCH');
-            formRef?.current?.requestSubmit();
+          <ButtonCustom type="button" variant={"black"} onClick={ async () => {
+            const response = await searchCustomer(customerName);
+            if(response.error){
+              toast(response.message);
+            }else{
+              setCustomerList(response.data);
+              setIsDialogOpen(true);
+            }
           }}>Search Customer</ButtonCustom>
         </section>
         <section aria-label="Guest List" className="flex w-full h-fit items-center gap-x-4">
@@ -105,7 +113,7 @@ export default function ReservationEdit({id}:{id:string}) {
         </section>
         <section aria-label="Bottom Section" className="flex flex-row gap-4">
           <section aria-label="New Reservation" className="flex">
-            <ReservationDetailEditForm formState={state} formRef={formRef} isPending={isPending} setActionVerb={setActionVerb} />
+            <ReservationDetailEditForm reservation={reservation} customers={selectedCustomerList} />
           </section>
           <section aria-label="Reservation List" className="flex w-full">
             <ReservationTopList data={newReservations}/>
@@ -120,9 +128,5 @@ export default function ReservationEdit({id}:{id:string}) {
           </Dialog>
         </section>
       </div>
-      <input type="hidden" name="id" value={id} />
-      <input type="hidden" name="actionVerb" value={actionVerb} />
-      <input type="hidden" name="customers" value={JSON.stringify(selectedCustomerList.map(c => ({id:c.id})))} />
-    </form>
   );
 }

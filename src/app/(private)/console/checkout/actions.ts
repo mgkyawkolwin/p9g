@@ -1,5 +1,5 @@
 'use server';
-import { User } from "@/data/orm/drizzle/mysql/schema"
+import { UserEntity } from "@/data/orm/drizzle/mysql/schema"
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { customerValidator, pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';
@@ -24,36 +24,6 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     const formObject = Object.fromEntries(formData?.entries());
     let message = '';
-    
-    if(formObject.actionVerb === 'CANCEL'){
-      c.i('Action is CANCEL');
-      const response = await fetch(process.env.API_URL + `reservations/${formObject.cancelId}?operation=CANCEL`, {
-        method: 'PATCH',
-      });
-  
-      //fail
-      if(!response.ok){
-        c.i("Cancel failed. Return response.");
-        return {error:true, message : "Cancel reservation failed."};
-      }
-      //update message
-      message = 'Cancelling reservation successful.';
-    }
-
-    if(formObject.actionVerb === 'CHECKIN'){
-      c.i('Action is CHECKIN');
-      const response = await fetch(process.env.API_URL + `reservations/${formObject.checkInId}?operation=CHECKIN`, {
-        method: 'PATCH',
-      });
-  
-      //fail
-      if(!response.ok){
-        c.i("Checkin failed. Return response.");
-        return {error:true, message : "Checkin reservation failed."};
-      }
-      //update message
-      message = 'Checking in reservation successful.';
-    }
 
     // formData is valid, further process
     let queryString = null;
@@ -110,5 +80,21 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.e(error instanceof Error ? error.message : String(error));
     return {error:true, message : "Reservation list retrieval failed."};
   }
+}
+
+
+export async function reservationCheckOut(id:string): Promise<FormState> {
+    c.i('Action > reservationCheckOut');
+    const response = await fetch(process.env.API_URL + `reservations/${id}/checkout`, {
+      method: 'PATCH',
+    });
+
+    //fail
+    if(!response.ok){
+      c.i("Check out failed. Return response.");
+      return {error:true, message : "Check out reservation failed."};
+    }
+
+    return {error: false, message:'Check out reservation successful.'};
 }
 

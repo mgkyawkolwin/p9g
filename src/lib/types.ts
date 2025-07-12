@@ -12,7 +12,8 @@ export type FormState = {
   message : string,
   data? : any,
   formData? : FormData | null,
-  pager?: PagerParams
+  pager?: PagerParams,
+  reload?: boolean
 };
 
 export type PagerParams = {

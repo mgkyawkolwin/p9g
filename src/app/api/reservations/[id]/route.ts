@@ -42,42 +42,6 @@ export async function GET(request: NextRequest,{ params }: { params: { id: strin
 }
 
 
-export async function PATCH(request: NextRequest,{ params }: { params: { id: string } }) {
-    try{
-      c.i("PATCH /api/reservations/[id]");
-      c.d(JSON.stringify(request));
-
-      const searchParams = Object.fromEntries(request.nextUrl.searchParams);
-  
-      //retrieve search params from request
-      const p = await params;
-      c.d(p);
-      const { id } = p;
-  
-      if(!id){
-          c.i('No reservationId. Return invalid response.');
-          return NextResponse.json({status: HttpStatusCode.BadRequest});
-      }
-
-      if(!searchParams.operation){
-        c.i('Invalid operation. Return invalid response.');
-        return NextResponse.json({status: HttpStatusCode.BadRequest});
-        }
-          
-      //call service to retrieve data
-      const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-      await reservationService.patch(id, searchParams.operation);
-      
-  
-      c.i('Return PATCH /api/reservations/[id]');
-      return NextResponse.json({status: HttpStatusCode.Ok});
-    }catch(error){
-      c.e(error instanceof Error ? error.message : String(error));
-      return NextResponse.json(error, { status: HttpStatusCode.ServerError });
-    }
-  }
-
-
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
     try{
         c.i("POST api/reservations/[id]/update");

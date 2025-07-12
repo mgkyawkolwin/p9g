@@ -10,7 +10,11 @@ export default interface IReservationRepository extends IRepository<Reservation>
 
     checkIn(id: string) : Promise<void>;
 
+    checkOut(id: string) : Promise<void>;
+
     createReservation(reservation: Reservation) : Promise<Reservation>;
+
+    moveRoom(id:string,roomNo:string):Promise<void>;
 
     reservationFindById(id: string): Promise<Reservation|undefined>;
 
@@ -19,6 +23,10 @@ export default interface IReservationRepository extends IRepository<Reservation>
     roomReservationList(searchParams:SearchParam[]) : Promise<Room[]>;
 
     roomScheduleList(searchParams:SearchParam[]) : Promise<Room[]>;
+
+    updateDropOffCarNo(id:string, carNo:string) : Promise<void>;
+
+    updatePickUpCarNo(id:string, carNo:string) : Promise<void>;
 
     updateReservation(id:string, reservation: Reservation) : Promise<Reservation>;
     

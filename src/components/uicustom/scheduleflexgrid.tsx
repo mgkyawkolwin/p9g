@@ -4,6 +4,7 @@ import Room from '@/domain/models/Room';
 import React, { useMemo, useEffect, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { Button } from '../ui/button';
+import RoomReservation from '@/domain/dtos/roomreservation';
 
 const reservationColors = [
   'bg-red-400', 'bg-blue-400', 'bg-green-400',
@@ -18,7 +19,7 @@ const getColorForUUID = (uuid: string) => {
 };
 
 // Helper function to clamp dates to current month
-const clampReservationToMonth = (res: Reservation, month: Date) : Reservation & {startDate:Date, endDate:Date} => {
+const clampReservationToMonth = (res: RoomReservation, month: Date) : RoomReservation & {startDate:Date, endDate:Date} => {
   const monthStart = new Date(month.getFullYear(), month.getMonth(), 1);
   const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0);
   
@@ -46,21 +47,21 @@ export default function ScheduleFlexGrid({ rooms, month }: { rooms: Room[]; mont
   // Process all room data in one memo
   const processedRooms = rooms?.map(room => {
     // Clone reservations and clamp to current month
-    const monthReservations = room.reservations?.map(res => 
+    const monthRoomReservations = room.roomReservations?.map(res => 
       clampReservationToMonth(res, month)) ?? [];
       // //.filter((res : Reservation & any) => 
       //   new Date(res.startDate) <= new Date(res.endDate)
       // ) || [];
 
     // Sort and process spans
-    const spans: { day: number; colSpan: number; res: Reservation | null }[] = [];
+    const spans: { day: number; colSpan: number; res: RoomReservation | null }[] = [];
     let currentDay = 1;
 
-    const sortedReservations = ([...monthReservations]).sort(
+    const sortedRoomReservations = ([...monthRoomReservations]).sort(
       (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
     );
 
-    for (const res of sortedReservations) {
+    for (const res of sortedRoomReservations) {
       const checkInDay = new Date(res.startDate).getDate();
       const checkOutDay = new Date(res.endDate).getDate();
 
@@ -118,12 +119,12 @@ export default function ScheduleFlexGrid({ rooms, month }: { rooms: Room[]; mont
                 key={`${room.id}-${span.day}-${index}`}
                 className={`h-10 ${span.res ? `${getColorForUUID(span.res.id)} rounded-lg mx-px` : 'bg-gray-100'}`}
                 style={{ flex: `${span.colSpan} 0 0` }}
-                title={span.res ? `[${new Date(span.res.checkInDateUTC).toLocaleDateString('sv-SE')}] - [${new Date(span.res.checkOutDateUTC).toLocaleDateString('sv-SE')}]\n${span.res.id}` : ''}
+                title={span.res ? `[${new Date(span.res.checkInDateUTC).toLocaleDateString('sv-SE')}] - [${new Date(span.res.checkOutDateUTC).toLocaleDateString('sv-SE')}]\n${span.res.reservationId}` : ''}
               >
                 {span.res && (
                   <div className="relative w-full h-full">
                     <div className="absolute z-10 hidden group-hover:block px-2 py-1 text-xs bg-gray-800 text-white rounded whitespace-nowrap -top-8">
-                      {span.res.id}
+                      {span.res.reservationId}
                     </div>
                   </div>
                 )}

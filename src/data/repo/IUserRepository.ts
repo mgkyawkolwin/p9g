@@ -1,12 +1,12 @@
 import IRepository from "./IRepository";
-import { User } from "../orm/drizzle/mysql/schema";
+import { UserEntity } from "../orm/drizzle/mysql/schema";
 
-export default interface IUserRepository extends IRepository<User>{
+export default interface IUserRepository extends IRepository<UserEntity>{
 
-    findByEmailAndPassword(email : string, password : string) : Promise<User>;
+    findByEmailAndPassword(email : string, password : string) : Promise<UserEntity>;
     
-    findByUserName(userName : string) : Promise<User>;
+    findByUserName(userName : string) : Promise<UserEntity>;
 
-    findByUserNameAndPassword(userName : string, password : string) : Promise<User>;
+    findByUserNameAndPassword(userName : string, password : string) : Promise<UserEntity>;
 
 }
