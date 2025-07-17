@@ -13,23 +13,23 @@ import { ButtonCustom } from "../uicustom/buttoncustom"
 import Customer from "@/domain/models/Customer";
 
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps {
   data: Customer[];
   setData: React.Dispatch<React.SetStateAction<Customer[]>>;
 }
 
-export default function CustomerInformationTable<TData, TValue>({
+export default function CustomerInformationTable({
   data,
   setData
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
   c.i('Client GuestInformationTable');
   c.d(JSON.stringify(data));
 
-  const columns: ColumnDef<Customer, any>[] = [
+  const columns: ColumnDef<Customer>[] = [
     {
       accessorKey: "id",
       header: "Guest ID",
-      cell: ({row, table}) => {
+      cell: ({row}) => {
         return (
           <div>
             {row.getValue('id')}

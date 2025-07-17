@@ -11,14 +11,14 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
     c.d(Object.fromEntries(formData?.entries()));
 
     const formObject = Object.fromEntries(formData?.entries());
-    let message = '';
+    const message = '';
 
     // formData is valid, further process
     let queryString = null;
 
     //validate and parse search input
     c.i("Parsing search fields from from entries.");
-    const searchFields = searchSchema.safeParse(Object.fromEntries(formData.entries()));
+    const searchFields = searchSchema.safeParse(formObject);
     c.d(searchFields);
 
     //table pager field validatd, build query string

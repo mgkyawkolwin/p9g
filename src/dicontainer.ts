@@ -12,7 +12,7 @@ import UserRepository from './data/repo/drizzle/UserRepository';
 import IAuthService from './domain/services/contracts/IAuthService';
 import AuthService from './domain/services/AuthService';
 import ICustomerService from './domain/services/contracts/ICustomerService';
-import CustomerService from './domain/services/ICustomerService';
+import CustomerService from './domain/services/CustomerService';
 import ICustomerRepository from './data/repo/ICustomerRepository';
 import CustomerRepository from './data/repo/drizzle/CustomerRepository';
 import IReservationRepository from './data/repo/IReservationRepository';

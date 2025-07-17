@@ -1,10 +1,6 @@
 'use server';
-import { UserEntity } from "@/data/orm/drizzle/mysql/schema"
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { pagerSchema, reservationValidator, searchSchema, userUpdateSchema } from '@/lib/zodschema';
+import {  reservationValidator} from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
-import { signOut } from "@/app/auth";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
 
@@ -16,10 +12,11 @@ export async function newReservationAction(formState : FormState, formData: Form
 
     let queryString = null;
     //let customers = [];
-    let message = "";
+    const message = "";
 
     c.i("Finding form action for further processing.");
     const formObj = Object.fromEntries(formData.entries());
+    c.d(formObj);
 
     c.i("Retrieving latest reservation list.")
     //define default pageer fields for new reservation list
@@ -124,7 +121,7 @@ export async function searchCustomer(search:string){
     c.i("Retrieve users successful.");
     const responseData = await customersResponse.json();
     c.d(responseData);
-    const [customers, pager] = responseData.data;
+    const [customers] = responseData.data;
     
     return {error:false, data:customers};
 }

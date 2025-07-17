@@ -37,11 +37,9 @@ export default class UserRepository extends Repository<UserEntity, typeof userTa
     async findByUserName(userName: string): Promise<UserEntity> {
         const [user] = await this.dbClient.db
             .select()
-            .from(this.table)
+            .from(userTable)
             .where(
-            and(
-                eq(this.table.userName, userName)
-            )
+                eq(userTable.userName, userName)
             )
             .limit(1);
 

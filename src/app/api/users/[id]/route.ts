@@ -1,14 +1,11 @@
-import { db } from "@/data/orm/drizzle/mysql/db";
-import { userTable } from "@/data/orm/drizzle/mysql/schema";
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
 import { container } from "@/dicontainer";
 import IUserService from "@/domain/services/contracts/IUserService";
 import { TYPES } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         c.i("GET /api/users/[id]");
         c.d(JSON.stringify(await params));
@@ -26,7 +23,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 
-export async function PUT(request: Request, { params }: { params: { id: number } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: number }> }) {
     try{
         const body = await request.json();
         const { id } = await params;
@@ -50,7 +47,7 @@ export async function PUT(request: Request, { params }: { params: { id: number }
 
 
 
-export async function DELETE(request: Request, { params }: { params: { id: number } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: number }> }) {
     try{
         const {id} = await params;
         const service = container.get<IUserService>(TYPES.IUserService);

@@ -1,7 +1,6 @@
 "use client"
 
-import * as React from "react"
-import { format } from "date-fns"
+import * as React from "react";
 import { Calendar as CalendarIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -38,6 +37,8 @@ const datepickerCustomVariants = cva(
         },
     }
 );
+
+console.log(datepickerCustomVariants);
 
 interface DatePickerCustomProps
     extends Omit<React.ComponentProps<typeof DayPicker>, 'size'>,

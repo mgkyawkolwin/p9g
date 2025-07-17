@@ -1,14 +1,12 @@
-import { db } from "@/data/orm/drizzle/mysql/db";
-import { userTable } from "@/data/orm/drizzle/mysql/schema";
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import IUserService from "@/domain/services/contracts/IUserService";
-import { TYPES, PagerParams, SearchParam } from "@/lib/types";
+import { TYPES, SearchParam } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
-import { pagerSchema, searchSchema } from "@/lib/zodschema";
+import { customerValidator, pagerSchema, searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
 import ICustomerService from "@/domain/services/contracts/ICustomerService";
+import Customer from "@/domain/models/Customer";
 
 
 export async function GET(request: NextRequest) {
@@ -47,4 +45,38 @@ export async function GET(request: NextRequest) {
     c.e(error instanceof Error ? error.message : String(error));
     return NextResponse.json(error, { status: HttpStatusCode.ServerError });
   }
+}
+
+
+export async function POST(request: NextRequest) {
+    try{
+        c.i("POST api/customers");
+        c.i("Retrieving post body.")
+        const body = await request.json();
+        c.d(body);
+
+        c.i("Validating post data.");
+        const validatedReservation = await customerValidator.safeParseAsync(body);
+        
+        if(!validatedReservation.success){
+            c.d("Reservation data is invalid. Return result.");
+            c.d(validatedReservation.error.flatten().fieldErrors);
+            return NextResponse.json({ message: "Invalid input." }, { status: HttpStatusCode.BadRequest });
+        }
+
+        // update user
+        c.i("Calling service.");
+        const customerService = container.get<ICustomerService>(TYPES.ICustomerService);
+        const createdCustomer = await customerService.customerCreate(validatedReservation.data as unknown as Customer);
+        if(!createdCustomer){
+            c.d("Customer creation failed. Return result.");
+            return NextResponse.json({ message: "Create failed." }, { status: HttpStatusCode.ServerError });
+        }
+
+        c.i("Everything is fine. Return final result.");
+        return NextResponse.json({ message: "Created", data: createdCustomer }, { status: HttpStatusCode.Created });
+    }catch(error){
+        c.e(error instanceof Error ? error.message : String(error));
+        return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
+    }
 }

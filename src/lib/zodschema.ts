@@ -1,19 +1,30 @@
-import { Regex } from 'lucide-react';
-import { number, z } from 'zod';
+import { z } from 'zod';
 import { RegularExpressions } from './regularExpressions';
 
 
+export const billValidator = z.object({
+  reservationId: z.string(),
+  dateUTC: z.coerce.date(),
+  itemName: z.string(),
+  unitPrice: z.coerce.number().nullish().catch(undefined),
+  quantity: z.coerce.number().nullish().catch(undefined),
+  amount: z.coerce.number().nullish().catch(undefined),
+  currency: z.string(),
+  isPaid: z.boolean(),
+  paidOnUTC: z.coerce.date().nullish().catch(undefined).optional()
+});
+
 
 export const customerValidator = z.object({
-  id: z.string().length(36, "Id is required").nullish().catch(undefined).optional(),
-  dob: z.date().nullish().catch(undefined).optional(),
-  name: z.string().regex(RegExp(RegularExpressions.name)).optional(),
-  nationalId: z.string().regex(RegExp(RegularExpressions.nationalId)).optional(),
-  passport: z.string().regex(RegExp(RegularExpressions.passport)).optional(),
-  phone: z.string().regex(RegExp(RegularExpressions.phone)).optional(),
-  email: z.string().regex(RegExp(RegularExpressions.email)).optional(),
-  address: z.string().regex(RegExp(RegularExpressions.address)).optional(),
-  country: z.string().regex(RegExp(RegularExpressions.country)).optional(),
+  id: z.string().nullish().catch(undefined).optional(),
+  name: z.string().nullish().catch(undefined).optional(),
+  nationalId: z.string().nullish().catch(undefined).optional(),
+  passport: z.string().nullish().catch(undefined).optional(),
+  phone: z.string().nullish().catch(undefined).optional(),
+  email: z.string().nullish().catch(undefined).optional(),
+  country: z.string().nullish().catch(undefined).optional(),
+  dob: z.string().nullish().catch(undefined).optional(),
+  address: z.string().nullish().catch(undefined).optional()
 });
 
 export const userInsertSchema = z.object({
@@ -36,6 +47,7 @@ export const userUpdateSchema = z.object({
   id: z.coerce.number(),
   userName: z.string().min(1, 'Name is required'),
   email: z.string().min(1, 'Email is required'),
+  password: z.string().min(1, 'Password is required')
 });
 
 
@@ -74,7 +86,7 @@ export const reservationValidator = z.object({
   departureDateTimeUTC: z.coerce.date().nullish().catch(undefined).optional(),
   departureFlight: z.coerce.string().optional(),
   depositAmount: z.coerce.number().optional(),
-  depositCurrency: z.coerce.string().min(1, "Deposity currency is required.").optional(),
+  depositCurrency: z.coerce.string().nullish().catch(undefined).optional(),
   depositDateUTC: z.coerce.date().nullish().catch(undefined).optional(),
   dropOffType: z.string().optional(),
   noOfDays: z.coerce.number(),
@@ -109,6 +121,7 @@ export const searchSchema = z.object({
   searchPromotionPackage: z.string().optional(),
   searchReservationStatus: z.string().optional(),
   searchReservationType: z.string().optional(),
+  searchUserName: z.string().optional(),
 
 });
 

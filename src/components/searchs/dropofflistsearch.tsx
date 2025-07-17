@@ -1,17 +1,8 @@
 
 import * as React from "react";
-import { SelectReservationStatus } from "../selects/selectreservationstatus";
-import { SelectReservationType } from "../selects/selectreservationtype";
-import { SelectPromotion } from "../selects/selectpromotion";
-import { InputDateRange } from "../uicustom/inputdaterange";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
-import { SelectWithLabel } from "../uicustom/selectwithlabel";
-import { SelectList, SelectListSearch } from "@/lib/constants";
 import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
-import { Button } from "../ui/button";
 import { ButtonCustom } from "../uicustom/buttoncustom";
-import { Checkbox } from "../ui/checkbox";
-import { FormState } from "@/lib/types";
 
 
 const initialData = {

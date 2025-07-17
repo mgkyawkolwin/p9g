@@ -1,19 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-
+import { Button } from "@/components/ui/button";
 import {
   ColumnDef,
   ColumnFiltersState,
-  PaginationState,
-  SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
@@ -32,15 +27,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import c from "@/lib/core/logger/ConsoleLogger"
-import { SelectWithLabel } from "../uicustom/selectwithlabel"
-import { FormState } from "@/lib/types"
-
+} from "@/components/ui/table";
+import c from "@/lib/core/logger/ConsoleLogger";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: any;
+  data: TData[];
   showColVisibilityControl?:boolean;
 }
 

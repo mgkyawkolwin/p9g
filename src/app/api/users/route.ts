@@ -1,9 +1,7 @@
-import { db } from "@/data/orm/drizzle/mysql/db";
-import { userTable } from "@/data/orm/drizzle/mysql/schema";
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
 import IUserService from "@/domain/services/contracts/IUserService";
-import { TYPES, PagerParams, SearchParam } from "@/lib/types";
+import { TYPES, SearchParam } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { pagerSchema, searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
@@ -56,7 +54,7 @@ export async function POST(request: Request) {
     c.d(JSON.stringify(request));
     const body = await request.json();
     const userService = container.get<IUserService>(TYPES.IUserService);
-    const selected = await userService.userCreate(body);
+    await userService.userCreate(body);
     return NextResponse.json({ message: "Inserted"}, { status: 201 });
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));

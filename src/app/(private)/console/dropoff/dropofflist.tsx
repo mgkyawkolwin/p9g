@@ -1,24 +1,14 @@
 "use client";
 import { useActionState, useEffect } from "react";
 
-import { userGetList } from "@/app/(private)/console/users/actions";
 import { toast } from "sonner";
-import UserListTable from "@/components/tables/userlisttable";
 import c from "@/lib/core/logger/ConsoleLogger";
-import ReservationListTable from "@/components/tables/reservationlisttable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import ReservationListSearch from "@/components/searchs/reservationlistsearch";
 import { reservationGetList } from "./actions";
 import React from "react";
 import { Loader } from "@/components/uicustom/loader";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ButtonCustom } from "@/components/uicustom/buttoncustom";
-import CheckInListSearch from "@/components/searchs/checkinlistsearch";
-import CheckInListTable from "@/components/tables/checkinlisttable";
-import CheckOutListSearch from "@/components/searchs/checkoutlistsearch";
-import CheckOutListTable from "@/components/tables/checkoutlisttable";
-import PickUpListSearch from "@/components/searchs/pickuplistsearch";
-import PickUpListTable from "@/components/tables/pickuplisttable";
+import DropOffListSearch from "@/components/searchs/dropofflistsearch";
+import DropOffListTable from "@/components/tables/dropofflisttable";
 
 export default function DropOffList() {
   c.i("Client > DropOffList");
@@ -46,8 +36,8 @@ export default function DropOffList() {
         <GroupContent>
           <div className="flex flex-col gap-4">
             <form ref={formRef} action={formAction} className="flex flex-col gap-4">
-              <PickUpListSearch formRef={formRef} />
-              <PickUpListTable formState={state} formAction={formAction} formRef={formRef} />
+              <DropOffListSearch formRef={formRef} />
+              <DropOffListTable formState={state} formAction={formAction} formRef={formRef} />
               <input type="hidden" name="searchReservationStatus" value={"CIN"} />
             </form>
           </div>

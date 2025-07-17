@@ -16,18 +16,18 @@ import { toast } from "sonner";
 import Room from "@/domain/models/Room";
 
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps {
   formState: FormState
   formAction: (formData: FormData) => void
   formRef: React.RefObject<HTMLFormElement | null>;
 }
 
 
-export default function RoomChangeListTable<TData, TValue>({
+export default function RoomChangeListTable({
   formState,
   formAction,
   formRef
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
   c.i('Client > RoomChangeListTable');
   c.d(JSON.stringify(formState));
 
@@ -44,12 +44,12 @@ export default function RoomChangeListTable<TData, TValue>({
     {
       accessorKey: "checkInDateUTC",
       header: "Check-In",
-      accessorFn: (row) => {return  row.reservations.length > 0 ? new Date(row.reservations[0].checkInDateUTC).toLocaleDateString('sv-SE') : ''}
+      accessorFn: (row) => {return  row.reservations.length > 0 ? new Date(row.reservations[0].checkInDateUTC!).toLocaleDateString('sv-SE') : ''}
     },
     {
       accessorKey: "checkOutDateUTC",
       header: "Check-Out",
-      accessorFn: (row) => {return  row.reservations.length > 0 ? new Date(row.reservations[0].checkOutDateUTC).toLocaleDateString('sv-SE') : ''}
+      accessorFn: (row) => {return  row.reservations.length > 0 ? new Date(row.reservations[0].checkOutDateUTC!).toLocaleDateString('sv-SE') : ''}
     },
     {
       accessorKey: "noOfDays",
@@ -106,13 +106,13 @@ export default function RoomChangeListTable<TData, TValue>({
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <ButtonCustom variant={"red"} type="button" onClick={async (e) => {
+              <ButtonCustom variant={"red"} type="button" onClick={async () => {
                 setOpenMoveRoomDialog(false);
                 const response = await moveRoom(reservationId, roomNo);
                 if(response.error)
                   toast(response.message);
                 else
-                  router.push('roomchange');
+                  window.location.href = '/console/roomchange';
               }}>Move</ButtonCustom>
               <DialogClose asChild>
                 <ButtonCustom variant="black" onClick={() => {

@@ -6,20 +6,17 @@ import { MySqlTransaction } from "drizzle-orm/mysql-core";
 import { db, type DBType, type TransactionType } from "@/data/orm/drizzle/mysql/db";
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
-
+import {auth} from "@/app/auth";
 import IRepository from "../IRepository";
 import { PagerParams, SearchParam, TYPES } from "@/lib/types";
 import { type IDatabase } from "@/data/db/IDatabase";
 import IDrizzleTable from "@/data/repo/drizzle/IDrizzleTable";
 import c from "@/lib/core/logger/ConsoleLogger";
-import { pages } from "next/dist/build/templates/app-page";
-import { userTable, configTable } from "@/data/orm/drizzle/mysql/schema";
-import { pagerWithDefaults } from "@/lib/utils";
-import { timeStamp } from "console";
+import IEntity from "../IEntity";
 
 
 @injectable()
-export abstract class Repository<TEntity, TTable extends  IDrizzleTable> implements IRepository<TEntity> {
+export abstract class Repository<TEntity extends IEntity, TTable extends  IDrizzleTable> implements IRepository<TEntity> {
   protected readonly dbClient: IDatabase<any>;
   protected readonly table: TTable;
 
@@ -64,9 +61,11 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
 
 
   async create(data: TEntity): Promise<TEntity> {
+    const session = await auth();
     c.i("Repository > Create");
     c.d(data as any);
-    // data.createdAtUTC = new Date();
+    data.createdBy = '00000000-0000-0000-0000-000000000000';
+    data.updatedBy = '00000000-0000-0000-0000-000000000000';
     // data.updatedAtUTC = new Date();
     c.i("Inserting new entity.");
     const [insertedResult] = await this.dbClient.db.insert(this.table).values(data as TEntity).$returningId();
@@ -170,13 +169,19 @@ export abstract class Repository<TEntity, TTable extends  IDrizzleTable> impleme
 
 
   async update(
-    id: string | number,
+    id: string,
     data: Partial<Omit<TEntity, "id" | "createdAt" | "updatedAt">>
   ): Promise<TEntity> {
-    //data.updatedAtUTC = new Date();
-    await this.dbClient.db.update(this.table)
+    c.i('Reository > Update');
+    c.d(String(id));
+    c.d(data);
+    const session = await auth();
+    data.updatedBy = '00000000-0000-0000-0000-000000000000';
+    const query = this.dbClient.db.update(this.table)
       .set(data as any)
       .where(eq(this.table.id as Column, id));
+    c.d(query.toSQL());
+    await query;
     return data as TEntity;
   }
 

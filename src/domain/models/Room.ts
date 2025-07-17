@@ -8,4 +8,8 @@ export default class Room {
     public roomType!: string;
     public reservations: Reservation[] = [];
     public roomReservations:RoomReservation[] = [];
+    public createdAtUTC!: Date;
+    public createdBy!: string;
+    public updatedAtUTC?: Date;
+    public updatedBy?: string;
 }

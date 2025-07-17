@@ -1,14 +1,10 @@
-import { db } from "@/data/orm/drizzle/mysql/db";
-import { userTable } from "@/data/orm/drizzle/mysql/schema";
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import IUserService from "@/domain/services/contracts/IUserService";
-import { TYPES, PagerParams, SearchParam } from "@/lib/types";
+import { TYPES, SearchParam } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
-import { pagerSchema, reservationValidator, searchSchema } from "@/lib/zodschema";
+import { searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
-import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
-import ICustomerService from "@/domain/services/contracts/ICustomerService";
+import { buildSearchParams } from "@/lib/utils";
 import IReservationService from "@/domain/services/contracts/IReservationService";
 
 
@@ -16,7 +12,7 @@ export async function GET(request: NextRequest) {
   try{
     c.i("GET /api/roomreservation");
     c.d(JSON.stringify(request));
-    let searchParams : SearchParam[] = [];
+    let searchParams : SearchParam[];
 
     c.i('Converting url search params into form object.')
     const searchFormData = Object.fromEntries(request.nextUrl.searchParams);
@@ -52,7 +48,7 @@ export async function PATCH(request: NextRequest) {
   try{
     c.i("PATCH /api/roomreservation");
     c.d(JSON.stringify(request));
-    let searchParams : SearchParam[] = [];
+    //const searchParams : SearchParam[] = [];
 
     c.i('Converting url search params into form object.');
     const queryStringObject = Object.fromEntries(request.nextUrl.searchParams);

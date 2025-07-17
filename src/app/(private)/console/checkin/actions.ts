@@ -1,12 +1,9 @@
 'use server';
-import { UserEntity } from "@/data/orm/drizzle/mysql/schema"
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { customerValidator, pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';
+import { pagerSchema, searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
-import { signOut } from "@/app/auth";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+import { headers } from 'next/headers';
 
 export async function reservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
@@ -14,14 +11,14 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.d(Object.fromEntries(formData?.entries()));
 
     const formObject = Object.fromEntries(formData?.entries());
-    let message = '';
+    const message = '';
 
     // formData is valid, further process
     let queryString = null;
 
     //validate and parse paging input
     c.i("Parsing pager fields from form entries.");
-    const pagerFields = pagerSchema.safeParse(Object.fromEntries(formData.entries()));
+    const pagerFields = pagerSchema.safeParse(formObject);
     c.d(pagerFields);
 
     //table pager field validatd, build query string
@@ -93,7 +90,7 @@ export async function reservationCancel(id:string): Promise<FormState> {
 export async function reservationCheckIn(id:string): Promise<FormState> {
     c.i('Action > reservationCheckIn');
     const response = await fetch(process.env.API_URL + `reservations/${id}/checkin`, {
-      method: 'PATCH',
+      method: 'PATCH'
     });
 
     //fail

@@ -28,9 +28,9 @@ export default function ReservationDetailEditForm({
         message:''
     });
 
-    function clearForm(){
-        detailFormRef.current?.resetForm();
-    }
+    // function clearForm(){
+    //     detailFormRef.current?.resetForm();
+    // }
 
     React.useEffect(() => {
         if(state.message)

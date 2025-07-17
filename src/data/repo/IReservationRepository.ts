@@ -1,10 +1,14 @@
 import { PagerParams, SearchParam } from "@/lib/types";
 import IRepository from "./IRepository";
 import Reservation from "@/domain/models/Reservation";
-import { ReservationEntity } from "../orm/drizzle/mysql/schema";
 import Room from "@/domain/models/Room";
+import Bill from "@/domain/models/Bill";
 
 export default interface IReservationRepository extends IRepository<Reservation>{
+
+    billsGet(reservationId:string) : Promise<Bill[]>;
+
+    billsSave(reservationId:string, bills:Bill[]) : Promise<void>;
     
     cancel(id: string) : Promise<void>;
 

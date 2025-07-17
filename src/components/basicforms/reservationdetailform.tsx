@@ -6,16 +6,15 @@ import {
     RadioGroupItem,
 } from "@/components/ui/radio-group"
 import { SelectWithLabel } from "../uicustom/selectwithlabel";
-import { DatePickerCustomWithLabel } from "../uicustom/datepickercustomwithlabel";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
-import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import React from "react";
 import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
-import { getLocalDateString, getLocalDateTimeString, getUTCISODateString, getUTCISODateTimeString } from "@/lib/utils";
+import { getUTCISODateString } from "@/lib/utils";
 import c from "@/lib/core/logger/ConsoleLogger";
-import { CONSTANTS, CurrencyList, SelectList } from "@/lib/constants";
+import { SelectList } from "@/lib/constants";
 import Reservation from "@/domain/models/Reservation";
+import { Checkbox } from "../ui/checkbox";
 
 
 // const initialState = {
@@ -97,6 +96,10 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         <DateInputWithLabel label="Check-in*" type="date" size={"sm"} labelPosition="top" value={reservation?.checkInDateUTC ? new Date(reservation?.checkInDateUTC).toLocaleDateString('sv-SE') : ''}
                             onChange={(e) => {
                                 const newDate = e.target.value;
+                                if(newDate && reservation?.checkOutDate){
+                                    const days = Math.round(Math.abs((new Date(newDate).getTime() - new Date(reservation?.checkOutDate).getTime()) / (1000 * 60 * 60 * 24))) + 1;
+                                    setReservation(prev => ({...prev, noOfDays: days}));
+                                }
                                 setReservation(prev => ({
                                     ...prev,
                                     checkInDate: newDate,
@@ -107,6 +110,10 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         <DateInputWithLabel label="Check-out*" type="date" size={"sm"} labelPosition="top" value={reservation?.checkOutDateUTC ? new Date(reservation?.checkOutDateUTC).toLocaleDateString('sv-SE') : ''}
                             onChange={(e) => {
                                 const newDate = e.target.value;
+                                if(newDate && reservation?.checkInDate){
+                                    const days = Math.round(Math.abs((new Date(newDate).getTime() - new Date(reservation?.checkInDate).getTime()) / (1000 * 60 * 60 * 24))) + 1;
+                                    setReservation(prev => ({...prev, noOfDays: days}));
+                                }
                                 setReservation(prev => ({
                                     ...prev,
                                     checkOutDate: newDate,
@@ -157,6 +164,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                             value={reservation?.noOfGuests} onChange={(e) => setReservation(prev => ({...prev, noOfGuests: Number(e.target.value)}))} />
                         <InputWithLabel name="roomNo" label="Room No" size={"xs"} labelPosition="top"
                             value={reservation?.roomNo} onChange={(e) => setReservation(prev => ({...prev, roomNo: e.target.value}))} />
+                        <Checkbox /> Single Occupancy
                         {/* <Button size={"sm"}>Search Available Rooms</Button> */}
                     </div>
                     <div className="flex gap-2 items-end">

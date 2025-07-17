@@ -1,6 +1,6 @@
 'use client';
 
-import { version as nextVersion } from 'next/package.json';
+//import { version as nextVersion } from 'next/package.json';
 
 export function Footer() {
   return (
@@ -8,7 +8,7 @@ export function Footer() {
       <div className="text-[#ffffff] text-sm">
         Copyright &copy; 2025. All rights reserverd.
         Node.js Version: 
-        Next.js Version: {nextVersion}
+        Next.js Version: 
       </div>
     </footer>
   );

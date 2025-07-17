@@ -1,7 +1,6 @@
 
 import { NextResponse, NextRequest } from "next/server"
-//local import, sorted
-import {auth} from "@/app/auth"
+import {auth} from "@/app/auth";
 import c from "@/lib/core/logger/ConsoleLogger";
 
 export async function middleware(request : NextRequest) {
@@ -9,17 +8,18 @@ export async function middleware(request : NextRequest) {
     //check session
     const session = await auth();
     if(session){
-      
+      console.log('middleware');
+      console.log(JSON.stringify(session.user));
     }
     else{
       //no session, if accessing authenticated area, redirect to login page
       const { pathname, origin } = request.nextUrl;
-      if (pathname === '/') {
+      if (pathname === '/console') {
         return NextResponse.redirect(new URL('/auth/signin', request.url))
       }
       //admin urls
-      if (pathname.startsWith("/admin")) {
-        //return NextResponse.redirect(`${origin}/auth/signin`)
+      if (pathname.startsWith("/console")) {
+        return NextResponse.redirect(new URL('/auth/signin', request.url))
       }
 
       //private api

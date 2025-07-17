@@ -1,4 +1,4 @@
-import { CustomerEntity } from "@/data/orm/drizzle/mysql/schema"
+import Customer from "@/domain/models/Customer";
 import { PagerParams, SearchParam } from "@/lib/types";
 
 
@@ -6,12 +6,12 @@ export default interface ICustomerService {
 
     customerDelete(id : number) : Promise<boolean>;
 
-    customerFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[CustomerEntity[],PagerParams]>;
+    customerFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[Customer[],PagerParams]>;
 
-    customerFindById(id : number) : Promise<CustomerEntity | null>;
+    customerFindById(id : number) : Promise<Customer | null>;
 
-    customerCreate(customer : CustomerEntity) : Promise<CustomerEntity>;
+    customerCreate(customer : Customer) : Promise<Customer>;
 
-    customerUpdate(id:number, user : CustomerEntity) : Promise<CustomerEntity>;
+    customerUpdate(id:number, user : Customer) : Promise<Customer>;
     
 }

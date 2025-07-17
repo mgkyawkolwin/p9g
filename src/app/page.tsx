@@ -1,12 +1,13 @@
 'use server';
 
 import {auth} from "@/app/auth";
+import { AppUrl } from "@/lib/constants";
 import { redirect } from 'next/navigation';
 
 export default async function Home() {
   const session = await auth();
     if(session)
-      redirect('/console/users');
+      redirect(AppUrl.main);
     else
-      redirect('/auth/signin');
+      redirect(AppUrl.signin);
 }

@@ -1,12 +1,6 @@
 'use server';
-//Ordered Imports
 
-//Local Imports
-import { UserEntity } from "@/data/orm/drizzle/mysql/schema"
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { userUpdateSchema } from '@/lib/zodschema';
-import { APIResponse } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { FormState } from "@/lib/types";
 

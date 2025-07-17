@@ -1,7 +1,6 @@
 import { container } from '@/dicontainer';
 import { HttpStatusCode } from '@/lib/constants';
 import { TYPES } from '@/lib/types';
-import IUserService from '@/domain/services/contracts/IUserService';
 import IAuthService from '@/domain/services/contracts/IAuthService';
 import { NextRequest, NextResponse } from 'next/server'
 import { userSignInSchema } from '@/lib/zodschema';
@@ -24,8 +23,8 @@ export async function POST(request: NextRequest) {
 
     //validation pass, check db
     const { userName, password } = parsedData.data;
-    const userService = container.get<IAuthService>(TYPES.IAuthService);
-    const user = await userService.signMeIn(userName, password);
+    const authService = container.get<IAuthService>(TYPES.IAuthService);
+    const user = await authService.signMeIn(userName, password);
     
     //wrong credential, return response
     if(!user)

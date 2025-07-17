@@ -3,9 +3,10 @@ import { redirect } from 'next/navigation';
 import { signIn } from "@/app/auth";
 import c from '@/lib/core/logger/ConsoleLogger';
 import { AppUrl } from '@/lib/constants';
+import { FormState } from '@/lib/types';
 
 
-export async function signInAction(state : {error:boolean, message:string}, formData:FormData){
+export async function signInAction(state : FormState, formData:FormData){
     try {
         c.i("singInAction");
         c.d(JSON.stringify(formData));
@@ -29,7 +30,7 @@ export async function signInAction(state : {error:boolean, message:string}, form
         const user = await response.json();
 
         // valid credentials, sign the user in
-        await signIn('credentials',  {redirect : false, userName:user.userName, role: user.role});
+        await signIn('credentials',  {redirect : false, name:user.userName, id: user.id, role: user.role});
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
         return {error: true,  message: "Unknown error.", formData: formData};

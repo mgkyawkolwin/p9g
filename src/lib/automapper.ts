@@ -2,7 +2,6 @@
 import { createMapper, createMap } from '@automapper/core';
 import { classes } from '@automapper/classes';
 import Reservation from '@/domain/models/Reservation';
-import { reservationTable, type ReservationEntity,ReservationEntity as e } from '@/data/orm/drizzle/mysql/schema';
 
 
 //var config = new MapperConfiguration(cfg => cfg.CreateMap<Reservation, ReservationEntity>(), loggerFactory);

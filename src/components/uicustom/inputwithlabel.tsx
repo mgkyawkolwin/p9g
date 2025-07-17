@@ -9,11 +9,12 @@ const inputVariants = cva(
   {
     variants: {
       variant: {
-        default: "min-h-4",
-        form: "min-h-3"
+        default: "max-h-9",
+        form: "max-h-7"
       },
       size: {
-        default: "h-9",
+        default: "",
+        full: "w-full",
         sm: "max-h-7 text-[10pt]",
         xs: "max-h-7 max-w-20 text-[10pt]"
       },

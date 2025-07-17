@@ -1,10 +1,8 @@
 'use server';
-import { UserEntity } from "@/data/orm/drizzle/mysql/schema"
-import { revalidatePath } from 'next/cache';
+
 import { redirect } from 'next/navigation';
-import { customerValidator, pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';
+import { customerValidator, pagerSchema, searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
-import { signOut } from "@/app/auth";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
 
@@ -12,6 +10,8 @@ export async function customerGetList(formState : FormState, formData: FormData)
   try{
     c.i('Actions > /console/customers > customerGetList');
     c.d(Object.fromEntries(formData?.entries()));
+
+    let message = '';
 
     //form data is blank, get the list by default pager
     if (!formData || !(formData instanceof FormData)){
@@ -104,6 +104,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
         c.e(errorData.message);
         return { error: true, message: 'Failed to update customer.', data: null, formData: null};
       }
+      message = 'Customer updated';
     }
 
     //retrieve users
@@ -126,7 +127,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
     //retrieve data from tuple
     c.i("Everything is alright. Return response.");
     const [users, pager] = responseData.data;
-    return {error:false, message : "", data: users, pager: pager};
+    return {error:false, message : message, data: users, pager: pager};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
     return {error:true, message : "Customer list retrieval failed."};
@@ -169,7 +170,7 @@ export async function customerUpdate(formState : FormState, formData: FormData) 
 
     //update user success
     const data = await response.json();
-    //return {error: false, message:"", data: data, formData: null};
+    return {error: false, message:"Customer update successful", data: data, formData: null};
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return {error: true, message: 'Failed to update customer.', data: null, formData: null};

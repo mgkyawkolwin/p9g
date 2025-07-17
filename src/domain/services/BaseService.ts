@@ -1,11 +1,10 @@
 //Ordered Imports
-import { SQL, and, count, asc, desc, eq, gt, gte, inArray, lt, lte, or, like, Table, Column, getTableColumns, getTableName } from "drizzle-orm";
-import { inject, injectable } from "inversify";
+import { SQL } from "drizzle-orm";
+import { injectable } from "inversify";
 import "reflect-metadata";
-import { PagerParams, SearchParam, TYPES } from "@/lib/types";
+import { PagerParams, SearchParam } from "@/lib/types";
 import IBaseService from "./contracts/IBaseService";
 import type IRepository from "@/data/repo/IRepository";
-import c from "@/lib/core/logger/ConsoleLogger";
 
 
 @injectable()

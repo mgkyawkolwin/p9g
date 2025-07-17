@@ -1,10 +1,7 @@
 'use server';
-import { UserEntity } from "@/data/orm/drizzle/mysql/schema"
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { customerValidator, pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';
+
+import { pagerSchema, searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
-import { signOut } from "@/app/auth";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
 
@@ -14,37 +11,37 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.d(Object.fromEntries(formData?.entries()));
 
     const formObject = Object.fromEntries(formData?.entries());
-    let message = '';
+    const message = '';
     
-    if(formObject.actionVerb === 'CANCEL'){
-      c.i('Action is CANCEL');
-      const response = await fetch(process.env.API_URL + `reservations/${formObject.cancelId}?operation=CANCEL`, {
-        method: 'PATCH',
-      });
+    // if(formObject.actionVerb === 'CANCEL'){
+    //   c.i('Action is CANCEL');
+    //   const response = await fetch(process.env.API_URL + `reservations/${formObject.cancelId}?operation=CANCEL`, {
+    //     method: 'PATCH',
+    //   });
   
-      //fail
-      if(!response.ok){
-        c.i("Cancel failed. Return response.");
-        return {error:true, message : "Cancel reservation failed."};
-      }
-      //update message
-      message = 'Cancelling reservation successful.';
-    }
+    //   //fail
+    //   if(!response.ok){
+    //     c.i("Cancel failed. Return response.");
+    //     return {error:true, message : "Cancel reservation failed."};
+    //   }
+    //   //update message
+    //   message = 'Cancelling reservation successful.';
+    // }
 
-    if(formObject.actionVerb === 'CHECKIN'){
-      c.i('Action is CHECKIN');
-      const response = await fetch(process.env.API_URL + `reservations/${formObject.checkInId}?operation=CHECKIN`, {
-        method: 'PATCH',
-      });
+    // if(formObject.actionVerb === 'CHECKIN'){
+    //   c.i('Action is CHECKIN');
+    //   const response = await fetch(process.env.API_URL + `reservations/${formObject.checkInId}?operation=CHECKIN`, {
+    //     method: 'PATCH',
+    //   });
   
-      //fail
-      if(!response.ok){
-        c.i("Checkin failed. Return response.");
-        return {error:true, message : "Checkin reservation failed."};
-      }
-      //update message
-      message = 'Checking in reservation successful.';
-    }
+    //   //fail
+    //   if(!response.ok){
+    //     c.i("Checkin failed. Return response.");
+    //     return {error:true, message : "Checkin reservation failed."};
+    //   }
+    //   //update message
+    //   message = 'Checking in reservation successful.';
+    // }
 
     // formData is valid, further process
     let queryString = null;
@@ -101,5 +98,24 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.e(error instanceof Error ? error.message : String(error));
     return {error:true, message : "Reservation list retrieval failed."};
   }
+}
+
+
+export async function updateDropOffCarNo(id:string, carNo:string) : Promise<FormState>{
+  c.i('Action > updateDropOffCarNo');
+  c.d(id);
+  c.d(carNo);
+    const response = await fetch(process.env.API_URL + `reservations/${id}/dropoff`, {
+      method: 'PATCH',
+      body: JSON.stringify({carNo: carNo})
+    });
+
+    //fail
+    if(!response.ok){
+      c.i("Car no update failed. Return response.");
+      return {error:true, message : "Car number update failed."};
+    }
+
+    return {error: false, message:'Car number update successful.'};
 }
 

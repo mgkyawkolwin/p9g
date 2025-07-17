@@ -1,15 +1,15 @@
-import { db } from "@/data/orm/drizzle/mysql/db";
-import { userTable } from "@/data/orm/drizzle/mysql/schema";
-import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { NextRequest, NextResponse } from "next/server";
 import { container } from "@/dicontainer";
 import IUserService from "@/domain/services/contracts/IUserService";
 import { TYPES } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import ICustomerService from "@/domain/services/contracts/ICustomerService";
+import { customerValidator } from "@/lib/zodschema";
+import { HttpStatusCode } from "@/lib/constants";
+import Customer from "@/domain/models/Customer";
 
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         c.i("GET /api/customers/[id]");
         c.d(JSON.stringify(await params));
@@ -27,7 +27,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 
-export async function PUT(request: Request, { params }: { params: { id: number } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
     try{
         c.i("PUT api/customers[id]");
         const body = await request.json();
@@ -37,23 +37,30 @@ export async function PUT(request: Request, { params }: { params: { id: number }
         // find existing user
         const user = await service.customerFindById(id);
         if (!user) {
-            return NextResponse.json({ message: "Not found." }, { status: 404 });
+            return NextResponse.json({ message: "Not found." }, { status: HttpStatusCode.NotFound });
         }
+
+        const validatedCustomer = await customerValidator.safeParseAsync(body);
+        
+        if(!validatedCustomer){
+            return NextResponse.json({ message: "Invalid input" }, { status: HttpStatusCode.BadRequest });
+        }
+        c.d(validatedCustomer.data);
         // update user
-        const updatedUser = await service.customerUpdate(id, body);
+        const updatedUser = await service.customerUpdate(id, validatedCustomer.data as unknown as Customer);
         if(!updatedUser){
-            return NextResponse.json({ message: "Update failed." }, { status: 404 });
+            return NextResponse.json({ message: "Update failed." }, { status: HttpStatusCode.ServerError });
         }
-        return NextResponse.json({ message: "Updated" }, { status: 201 });
+        return NextResponse.json({ message: "Updated" }, { status: HttpStatusCode.Ok });
     }catch(error){
         c.e(error instanceof Error ? error.message : String(error));
-        return NextResponse.json({ message: "Unknow error occured." }, { status: 500 });
+        return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }
 
 
 
-export async function DELETE(request: Request, { params }: { params: { id: number } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
     try{
         const {id} = await params;
         const service = container.get<IUserService>(TYPES.IUserService);

@@ -1,15 +1,12 @@
-import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema";
 import IReservationService from "./contracts/IReservationService";
 import { inject, injectable } from "inversify";
 import type IReservationRepository from "@/data/repo/IReservationRepository";
 import { PagerParams, SearchParam, TYPES } from "@/lib/types";
-import { BaseService } from "./BaseService";
 import Reservation from "@/domain/models/Reservation";
-import IRepository from "@/data/repo/IRepository";
-import { getUTCISODateTimeString } from "@/lib/utils";
 import c from "@/lib/core/logger/ConsoleLogger";
 import Room from "../models/Room";
 import { SearchParams } from "@/lib/constants";
+import Bill from "../models/Bill";
 
 @injectable()
 export default class ReservationService implements IReservationService{
@@ -18,7 +15,19 @@ export default class ReservationService implements IReservationService{
     constructor(@inject(TYPES.IReservationRepository) private reservationRepository : IReservationRepository){
         
     }
+
+
+    async billsGet(reservationId: string): Promise<Bill[]> {
+        c.i('ReservationService > billsGet');
+        return this.reservationRepository.billsGet(reservationId);
+    }
     
+
+    async billsSave(reservationId:string, bills: Bill[]): Promise<void> {
+        c.i('ReservationService > billsSave');
+        this.reservationRepository.billsSave(reservationId, bills);
+    }
+
 
     async createReservation(reservation : Reservation): Promise<Reservation> {
         c.i('ReservationService > createReservation');
@@ -32,7 +41,7 @@ export default class ReservationService implements IReservationService{
         c.d(roomNo);
         
         c.i('Returning from ReservationService > moveRoom.');
-        return this.reservationRepository.moveRoom(id, roomNo);
+        this.reservationRepository.moveRoom(id, roomNo);
     }
     
 

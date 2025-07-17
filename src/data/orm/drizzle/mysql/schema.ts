@@ -1,6 +1,24 @@
-import { mysqlTable, primaryKey,unique, int, boolean, char, varchar, serial, timestamp, tinyint, text,date, datetime } from "drizzle-orm/mysql-core";
-import { relations, sql } from "drizzle-orm";
+import { mysqlTable, int, boolean, char, varchar,  tinyint,date, datetime,decimal } from "drizzle-orm/mysql-core";
+import { relations } from "drizzle-orm";
 import {v4 as uuidv4} from 'uuid';
+
+
+export const billTable = mysqlTable("bill", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  dateUTC: datetime("dateUTC"),
+  reservationId: char("reservationId").notNull(),
+  itemName: varchar("itemName", {length: 100}).notNull(),
+  unitPrice: decimal("unitPrice").notNull(),
+  quantity: tinyint("quantity").notNull(),
+  amount: decimal("amount").notNull(),
+  isPaid: boolean("isPaid").notNull().default(false),
+  paidOnUTC: datetime("paidOnUTC"),
+  currency: char("currency", {length:3}),
+  createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", {length: 36}).notNull()
+});
 
 
 export const configTable = mysqlTable("config", {
@@ -110,7 +128,7 @@ export const roomReservationTable = mysqlTable("roomReservation", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
   roomId: char("roomId", {length: 36}).notNull().references(() => roomTable.id),
   reservationId: char("reservationId", {length: 36}).notNull().references(() => reservationTable.id),
-  noOfExtraBed: tinyint(),
+  noOfExtraBed: tinyint().default(0),
   checkInDateUTC: datetime("checkInDateUTC", {mode: 'date', fsp: 3}).notNull(),
   checkOutDateUTC: datetime("checkOutDateUTC", {mode: 'date', fsp: 3}).notNull(), 
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
@@ -245,7 +263,10 @@ export const roomReservationRelations = relations(roomReservationTable, ({ one, 
 // }));
 
 // Export TypeScript types
+export type BillEntity = typeof billTable.$inferSelect;
 export type UserEntity = typeof userTable.$inferSelect;
 export type ConfigEntity = typeof configTable.$inferSelect;
 export type CustomerEntity = typeof customerTable.$inferSelect;
 export type ReservationEntity = typeof reservationTable.$inferSelect;
+export type ReservationCustomerEntity = typeof reservationCustomerTable.$inferSelect;
+export type RoomReservationEntity = typeof roomReservationTable.$inferSelect;

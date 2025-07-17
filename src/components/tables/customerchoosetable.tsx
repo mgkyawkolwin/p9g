@@ -6,37 +6,30 @@ import { ArrowUpDown } from "lucide-react"
 
 import {
   ColumnDef
-} from "@tanstack/react-table"
-
-import DataTable from "./datatable"
-import { CustomerEntity } from "@/data/orm/drizzle/mysql/schema"
-import c from "@/lib/core/logger/ConsoleLogger"
-import { FormState } from "@/lib/types"
-import { useRouter } from "next/router"
+} from "@tanstack/react-table";
+import c from "@/lib/core/logger/ConsoleLogger";
 import SimpleDataTable from "./simpledatatable"
 import { ButtonCustom } from "../uicustom/buttoncustom"
-import Customer from "@/domain/models/Customer"
+import Customer from "@/domain/models/Customer";
 
 
-
-
-interface DataTableProps<TData, TValue> {
+interface DataTableProps {
   data: Customer[];
-  selectedCustomers: any;
+  selectedCustomers: Customer[];
   setSelectedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function CustomerChooseTable<TData, TValue>({
+export default function CustomerChooseTable({
   data,
   selectedCustomers,
   setSelectedCustomers,
   setOpen
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
   c.i('Client GuestInformationTable');
   c.d(JSON.stringify(data));
 
-  const columns: ColumnDef<Customer, any>[] = [
+  const columns: ColumnDef<Customer>[] = [
     {
       accessorKey: "id",
       header: "Guest ID",

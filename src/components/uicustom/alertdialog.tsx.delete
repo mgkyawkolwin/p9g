@@ -8,15 +8,16 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
-  } from "@/components/ui/alert-dialog"
-  import { Button } from "@/components/ui/button"
+  } from "@/components/ui/alert-dialog";
 import { FormState } from "@/lib/types";
   
-  export function AlertDialogDemo({show, title, content, action, params}:{show:boolean, title:string,content:string,action:()=>Promise<FormState>,params:any}) {
+  export function AlertDialogDemo({show, title, content, action, params}:{show:boolean, title:string,content:string,action:()=>Promise<FormState>,params:{}}) {
+    console.log(action);
+    console.log(params);
+
     return (
       <AlertDialog open={show}>
-        <AlertDialogContent>
+        <AlertDialogContent>)
             <form>
                 <AlertDialogHeader>
                 <AlertDialogTitle>{title}</AlertDialogTitle>

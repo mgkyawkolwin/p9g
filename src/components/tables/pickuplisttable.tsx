@@ -1,21 +1,13 @@
 "use client"
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { ArrowUpDown } from "lucide-react"
-
+import * as React from "react";
 import {
   ColumnDef
-} from "@tanstack/react-table"
-
-import DataTable from "./datatable"
-import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema"
+} from "@tanstack/react-table";
+import DataTable from "./datatable";
 import c from "@/lib/core/logger/ConsoleLogger"
 import { FormState } from "@/lib/types"
-import { useRouter } from "next/navigation"
-import Reservation from "@/domain/models/Reservation"
-import Customer from "@/domain/models/Customer"
-import { access } from "fs"
+import Reservation from "@/domain/models/Reservation";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { InputCustom } from "../uicustom/inputcustom"
@@ -25,28 +17,27 @@ import { toast } from "sonner"
 
 
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps{
   formState: FormState
   formAction: (formData: FormData) => void
   formRef: React.RefObject<HTMLFormElement | null>;
 }
 
-export default function PickUpListTable<TData, TValue>({
+export default function PickUpListTable({
   formState,
   formAction,
   formRef
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
   c.i('Client > PickUpListTable');
   c.d(JSON.stringify(formState));
 
-  const router = useRouter();
-  const [carNos, setCarNos] = React.useState<{[key:number]:string|undefined}>({});
+  // const [carNos, setCarNos] = React.useState<{[key:number]:string|undefined}>({});
 
   const columns: ColumnDef<Reservation>[] = [
     {
       accessorKey: "customReservationInfo",
       header: "ID",
-      accessorFn: (row, index) => {
+      accessorFn: (row) => {
         return <span><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />{row.reservationStatusText}<br />{row.reservationTypeText}</span>;
       },
       cell: (row) => row.getValue(),
@@ -62,7 +53,7 @@ export default function PickUpListTable<TData, TValue>({
     },
     {
       accessorKey: "customers",
-      header: ({ column }) => {
+      header: () => {
         return (
           "Customer Info"
         )
@@ -81,7 +72,7 @@ export default function PickUpListTable<TData, TValue>({
     {
       accessorKey: "checkInCheckOut",
       header: "Check-In / Check-Out",
-      accessorFn: (row, index) => {
+      accessorFn: (row) => {
         return <span>
           {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC!).toLocaleDateString('sv-SE')}<br />
           {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
@@ -91,7 +82,7 @@ export default function PickUpListTable<TData, TValue>({
     {
       accessorKey: "arrivalDeparture",
       header: "Arrival / Departure",
-      accessorFn: (row, index) => {
+      accessorFn: (row) => {
         return (
           <span>{ row.arrivalDateTimeUTC ? new Date(row.arrivalDateTimeUTC).toLocaleString('sv-SE') : ''} <br/> 
           {row.pickUpTypeText}<br />
@@ -103,7 +94,7 @@ export default function PickUpListTable<TData, TValue>({
     {
       accessorKey: "depositInfo",
       header: "Deposit",
-      accessorFn: (row, index) => {
+      accessorFn: (row) => {
         return <span>{row.depositAmount > 0 ? row.depositAmount + ' ' + row.depositCurrency : ''} <br /> {row.depositDateUTC ? new Date(row.depositDateUTC).toLocaleDateString('sv-SE') : ""}</span>;
       },
       cell: (row) => row.getValue(),
@@ -121,7 +112,6 @@ export default function PickUpListTable<TData, TValue>({
       cell: ({ row }) => {
         return <div className="flex gap-1">
           <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={async () => {
-          
             const response = await updatePickUpCarNo(row.original.id, (document.getElementById(row.original.id) as HTMLInputElement)?.value);
             if(response.message)
               toast(response.message);

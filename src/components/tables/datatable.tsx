@@ -1,19 +1,16 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
 
 import {
   ColumnDef,
   ColumnFiltersState,
-  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
@@ -55,13 +52,14 @@ export default function DataTable<TData, TValue>({
 
   c.i("DataTable is called.");
   c.d(JSON.stringify(formState));
+  c.d(JSON.stringify(formAction));
 
-  const [data, setData] = React.useState([]);
+  const [data] = React.useState([]);
   const [pageIndex, setPageIndex] = React.useState(1);
   const [pages, setPages] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(10);
-  const [orderBy, setOrderBy] = React.useState("createdAtUTC");
-  const [orderDirection, setOrderDirection] = React.useState("asc");
+  // const [orderBy, setOrderBy] = React.useState("createdAtUTC");
+  // const [orderDirection, setOrderDirection] = React.useState("asc");
   const [records, setRecords] = React.useState(0);
   const [pageIndexList, setPageIndexList] = React.useState(new Map<string, string>([["10", "10"]]));
 
@@ -296,7 +294,7 @@ export default function DataTable<TData, TValue>({
       <input type="hidden" name="pageIndex" value={pageIndex} />
       <input type="hidden" name="pageSize" value={pageSize} />
       <input type="hidden" name="orderBy" value={sorting[0]?.id ?? 'createdAtUTC'} />
-      <input type="hidden" name="orderDirection" value={sorting[0]?.desc ? "desc" : "asc"} />
+      <input type="hidden" name="orderDirection" value={"desc"} />
       </div>
   )
 }

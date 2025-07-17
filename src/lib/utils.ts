@@ -1,7 +1,7 @@
 //ordered import
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { SearchParam, PagerParams } from "./types"
+import { SearchParam, PagerParams, SearchFormFields } from "./types"
 import c from "./core/logger/ConsoleLogger";
 
 /**
@@ -24,7 +24,7 @@ export function cn(...inputs: ClassValue[]) {
  * @param {Object} queryStringObject - Query string object with key/value.
  * @returns {SearchParam[]} - Array of SearchParam.
  */
-export function buildSearchParams(queryStringObject : any) : SearchParam[] {
+export function buildSearchParams(queryStringObject : SearchFormFields) : SearchParam[] {
   const search : SearchParam[]= [];
   if(queryStringObject.searchCheckInDateUTC){
     search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInDateUTC});
@@ -72,10 +72,10 @@ export function buildSearchParams(queryStringObject : any) : SearchParam[] {
     search.push({searchColumn:'reservationType', searchValue: queryStringObject.searchReservationType});
   }
   if(queryStringObject.searchUserName){
-    search.push({searchColumn:'userName', searchValue: queryStringObject.UserName});
+    search.push({searchColumn:'userName', searchValue: queryStringObject.searchUserName});
   }
   if(queryStringObject.searchEmail){
-    search.push({searchColumn:'email', searchValue: queryStringObject.email});
+    search.push({searchColumn:'email', searchValue: queryStringObject.searchEmail});
   }
   return search.filter((s) => s.searchValue !== 'DEFAULT');
 }
@@ -86,10 +86,10 @@ export function buildSearchParams(queryStringObject : any) : SearchParam[] {
  * @param {object} input - Any object with property.
  * @returns {string} Query string.
  */
-export function buildQueryString(input:any): string{
+export function buildQueryString(input : SearchFormFields | PagerParams): string{
   const queryString = new URLSearchParams(
     Object.entries(input)
-      .filter(([_, value]) => value !== undefined && value !== null && value !== '')
+      //.filter(([_, value]) => value !== undefined && value !== null && value !== '')
       .map(([key, value]) => [key, String(value)])
   ).toString();
   return queryString;
@@ -109,13 +109,11 @@ export function getCurrentMonthLastDate(): Date{
 
 
 export function getFirstDate(year: number, month: number): Date{
-  const today = new Date();
   return new Date(year, month, 1);
 }
 
 
 export function getLastDate(year: number, month: number): Date{
-  const today = new Date();
   return new Date(year,month + 1, 0, 23, 59, 59, 999);
 }
 
@@ -174,7 +172,7 @@ export function getLocalDateTimeString(){
  * @param inputObject - Any Object
  * @returns Original object with pager fields default.
  */
-export function pagerWithDefaults(inputObject : any) : PagerParams {
+export function pagerWithDefaults(inputObject : PagerParams) : PagerParams {
   return {
     ...inputObject,
     orderBy : inputObject.orderBy ?? 'id',

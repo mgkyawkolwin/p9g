@@ -2,23 +2,23 @@
 
 import { InputWithLabel } from "@/components/uicustom/inputwithlabel";
 import { Loader } from "@/components/uicustom/loader";
-import { FormState } from "@/lib/types";
-import React, { useActionState, useEffect, useState } from "react";
+import React, { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import ReservationTopList from "@/components/groups/reservationtoplist";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 import CustomerInformationForm from "@/components/forms/customerinformationform";
 import { editReservationAction, searchCustomer } from "./actions";
 import c from "@/lib/core/logger/ConsoleLogger";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import CustomerChooseTable from "@/components/tables/customerchoosetable";
 import ReservationDetailEditForm from "@/components/forms/reservationdetaileditform";
 import Customer from "@/domain/models/Customer";
 import Reservation from "@/domain/models/Reservation";
+import CustomerNewForm from "@/components/forms/customernewform";
 
 export default function ReservationEdit({id}:{id:string}) {
 
-  const [actionVerb, setActionVerb] = React.useState('');
+  // const [actionVerb, setActionVerb] = React.useState('');
   const [customerName, setCustomerName] = React.useState("");
   const [customerList, setCustomerList] = React.useState<Customer[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
@@ -31,6 +31,8 @@ export default function ReservationEdit({id}:{id:string}) {
     message: ""
   });
 
+  const openCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
+
   const formRef = React.useRef<HTMLFormElement>(null);
 
   React.useEffect(() => {
@@ -39,14 +41,14 @@ export default function ReservationEdit({id}:{id:string}) {
     }
   },[]);
 
-  React.useEffect(() => {
-    c.i('useEfect > ActionVerb is changed.');
-    //when setting actionVerb, submit the form
-    //setting in onClick and submitting not working
-    if(actionVerb){
-      formRef?.current?.requestSubmit();
-    }
-  },[actionVerb]);
+  // React.useEffect(() => {
+  //   c.i('useEfect > ActionVerb is changed.');
+  //   //when setting actionVerb, submit the form
+  //   //setting in onClick and submitting not working
+  //   if(actionVerb){
+  //     formRef?.current?.requestSubmit();
+  //   }
+  // },[actionVerb]);
   
 
   useEffect(() => {
@@ -87,6 +89,10 @@ export default function ReservationEdit({id}:{id:string}) {
     }
 
   }, [state, isPending]);
+  
+    const handleSave = (customer: Customer) => {
+      setSelectedCustomerList(prev => [...prev, customer]);
+    };
 
 
   return (
@@ -107,6 +113,9 @@ export default function ReservationEdit({id}:{id:string}) {
               setIsDialogOpen(true);
             }
           }}>Search Customer</ButtonCustom>
+          <ButtonCustom type="button" variant="green" onClick={() => {
+            openCallbackFunc.current?.openDialog(true);
+          }}>New Customer</ButtonCustom>
         </section>
         <section aria-label="Guest List" className="flex w-full h-fit items-center gap-x-4">
           <CustomerInformationForm data={selectedCustomerList} setData={setSelectedCustomerList}/>
@@ -127,6 +136,9 @@ export default function ReservationEdit({id}:{id:string}) {
             </DialogContent>
           </Dialog>
         </section>
+                <section className="flex">
+                  <CustomerNewForm openCallback={(func) => openCallbackFunc.current = func} onSaved={handleSave} />
+                </section>
       </div>
   );
 }

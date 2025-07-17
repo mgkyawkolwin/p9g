@@ -13,7 +13,7 @@ import Reservation from "@/domain/models/Reservation";
 import Customer from "@/domain/models/Customer";
 
 
-export const columns: ColumnDef<Reservation & Customer[], any>[] = [
+export const columns: ColumnDef<Reservation>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -107,13 +107,13 @@ export const columns: ColumnDef<Reservation & Customer[], any>[] = [
   },
 ];
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps {
   data: Reservation[]
 }
 
-export default function ReservationTopTable<TData, TValue>({
+export default function ReservationTopTable({
   data
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
   c.i('Client > ReservationTopTable');
 
   return (

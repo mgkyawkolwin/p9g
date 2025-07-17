@@ -35,16 +35,16 @@ export default class Reservation{
     public promotionPackageText!: string;
     public remark: string = '';
     public roomNo: string = '';
-    public reservationStatus: string = '';
+    public reservationStatus: string = 'NEW';
     public reservationStatusId!: string;
     public reservationStatusText!: string;
-    public reservationType!: string;
+    public reservationType: string = 'GENERAL';
     public reservationTypeId!: string;
     public reservationTypeText!: string;
     public createdAtUTC!: Date;
     public createdBy!: string;
-    public updatedAtUTC!: Date;
-    public updatedBy!: string;
+    public updatedAtUTC?: Date;
+    public updatedBy?: string;
     
 }
 

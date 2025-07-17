@@ -1,9 +1,96 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "b5c2c026-7dad-49c9-bc29-3af85afcd381",
+  "id": "c9d30648-2d23-4fcc-b6c7-e91450f223b3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
+    "bill": {
+      "name": "bill",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reservationId": {
+          "name": "reservationId",
+          "type": "char",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "item": {
+          "name": "item",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "unitPrice": {
+          "name": "unitPrice",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "text": {
+          "name": "text",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "bill_id": {
+          "name": "bill_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "config": {
       "name": "config",
       "columns": {
@@ -35,11 +122,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "createdBy": {
@@ -49,11 +136,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp(3)",
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "updatedBy": {
@@ -143,11 +230,11 @@
           "notNull": false,
           "autoincrement": false
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "createdBy": {
@@ -157,11 +244,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp(3)",
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "updatedBy": {
@@ -228,11 +315,18 @@
           "notNull": true,
           "autoincrement": false
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
+        "days": {
+          "name": "days",
+          "type": "tinyint",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
           "autoincrement": false
         },
         "createdBy": {
@@ -242,11 +336,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp(3)",
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "updatedBy": {
@@ -294,11 +388,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "createdBy": {
@@ -308,11 +402,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp(3)",
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "updatedBy": {
@@ -328,198 +422,6 @@
       "compositePrimaryKeys": {
         "promotion_id": {
           "name": "promotion_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "reservation": {
-      "name": "reservation",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "char(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "reservationTypeId": {
-          "name": "reservationTypeId",
-          "type": "char(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "arrivalDateTime": {
-          "name": "arrivalDateTime",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "arrivalFlight": {
-          "name": "arrivalFlight",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "depertureDateTime": {
-          "name": "depertureDateTime",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "depertureFlight": {
-          "name": "depertureFlight",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "checkInDate": {
-          "name": "checkInDate",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "checkOutDate": {
-          "name": "checkOutDate",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "noOfDays": {
-          "name": "noOfDays",
-          "type": "tinyint",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "depositAmount": {
-          "name": "depositAmount",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "depositCurrency": {
-          "name": "depositCurrency",
-          "type": "char(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "roomNo": {
-          "name": "roomNo",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "pickUpTypeId": {
-          "name": "pickUpTypeId",
-          "type": "char(36)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "pickUpFee": {
-          "name": "pickUpFee",
-          "type": "tinyint",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "pickUpCurrency": {
-          "name": "pickUpCurrency",
-          "type": "char(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "pickUpCarNo": {
-          "name": "pickUpCarNo",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "dropOffFee": {
-          "name": "dropOffFee",
-          "type": "tinyint",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "dropOffFeeCurrency": {
-          "name": "dropOffFeeCurrency",
-          "type": "char(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "dropOffCarNo": {
-          "name": "dropOffCarNo",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "statusId": {
-          "name": "statusId",
-          "type": "char(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "remark": {
-          "name": "remark",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "char(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "char(36)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "reservation_id": {
-          "name": "reservation_id",
           "columns": [
             "id"
           ]
@@ -552,11 +454,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "createdBy": {
@@ -566,11 +468,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp(3)",
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "updatedBy": {
@@ -582,7 +484,34 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "reservationCustomer_reservationId_reservation_id_fk": {
+          "name": "reservationCustomer_reservationId_reservation_id_fk",
+          "tableFrom": "reservationCustomer",
+          "tableTo": "reservation",
+          "columnsFrom": [
+            "reservationId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "reservationCustomer_customerId_customer_id_fk": {
+          "name": "reservationCustomer_customerId_customer_id_fk",
+          "tableFrom": "reservationCustomer",
+          "tableTo": "customer",
+          "columnsFrom": [
+            "customerId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "reservationCustomer_id": {
           "name": "reservationCustomer_id",
@@ -594,8 +523,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "reservationRoom": {
-      "name": "reservationRoom",
+    "reservation": {
+      "name": "reservation",
       "columns": {
         "id": {
           "name": "id",
@@ -604,8 +533,307 @@
           "notNull": true,
           "autoincrement": false
         },
-        "reservationId": {
-          "name": "reservationId",
+        "reservationTypeId": {
+          "name": "reservationTypeId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "arrivalDateTimeUTC": {
+          "name": "arrivalDateTimeUTC",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "arrivalFlight": {
+          "name": "arrivalFlight",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "departureDateTimeUTC": {
+          "name": "departureDateTimeUTC",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "departureFlight": {
+          "name": "departureFlight",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "checkInDateUTC": {
+          "name": "checkInDateUTC",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "checkOutDateUTC": {
+          "name": "checkOutDateUTC",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "noOfDays": {
+          "name": "noOfDays",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "depositAmount": {
+          "name": "depositAmount",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "depositCurrency": {
+          "name": "depositCurrency",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "depositDateUTC": {
+          "name": "depositDateUTC",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "roomNo": {
+          "name": "roomNo",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "noOfGuests": {
+          "name": "noOfGuests",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pickUpTypeId": {
+          "name": "pickUpTypeId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pickUpFee": {
+          "name": "pickUpFee",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pickUpCurrency": {
+          "name": "pickUpCurrency",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pickUpCarNo": {
+          "name": "pickUpCarNo",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "prepaidPackageId": {
+          "name": "prepaidPackageId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "promotionPackageId": {
+          "name": "promotionPackageId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dropOffTypeId": {
+          "name": "dropOffTypeId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dropOffFee": {
+          "name": "dropOffFee",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dropOffFeeCurrency": {
+          "name": "dropOffFeeCurrency",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dropOffCarNo": {
+          "name": "dropOffCarNo",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reservationStatusId": {
+          "name": "reservationStatusId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "remark": {
+          "name": "remark",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "reservation_reservationTypeId_config_id_fk": {
+          "name": "reservation_reservationTypeId_config_id_fk",
+          "tableFrom": "reservation",
+          "tableTo": "config",
+          "columnsFrom": [
+            "reservationTypeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "reservation_pickUpTypeId_config_id_fk": {
+          "name": "reservation_pickUpTypeId_config_id_fk",
+          "tableFrom": "reservation",
+          "tableTo": "config",
+          "columnsFrom": [
+            "pickUpTypeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "reservation_prepaidPackageId_prepaid_id_fk": {
+          "name": "reservation_prepaidPackageId_prepaid_id_fk",
+          "tableFrom": "reservation",
+          "tableTo": "prepaid",
+          "columnsFrom": [
+            "prepaidPackageId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "reservation_promotionPackageId_promotion_id_fk": {
+          "name": "reservation_promotionPackageId_promotion_id_fk",
+          "tableFrom": "reservation",
+          "tableTo": "promotion",
+          "columnsFrom": [
+            "promotionPackageId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "reservation_dropOffTypeId_config_id_fk": {
+          "name": "reservation_dropOffTypeId_config_id_fk",
+          "tableFrom": "reservation",
+          "tableTo": "config",
+          "columnsFrom": [
+            "dropOffTypeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "reservation_reservationStatusId_config_id_fk": {
+          "name": "reservation_reservationStatusId_config_id_fk",
+          "tableFrom": "reservation",
+          "tableTo": "config",
+          "columnsFrom": [
+            "reservationStatusId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "reservation_id": {
+          "name": "reservation_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "roomReservation": {
+      "name": "roomReservation",
+      "columns": {
+        "id": {
+          "name": "id",
           "type": "char(36)",
           "primaryKey": false,
           "notNull": true,
@@ -618,16 +846,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "fromDate": {
-          "name": "fromDate",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "toDate": {
-          "name": "toDate",
-          "type": "date",
+        "reservationId": {
+          "name": "reservationId",
+          "type": "char(36)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -639,11 +860,25 @@
           "notNull": false,
           "autoincrement": false
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
+        "checkInDateUTC": {
+          "name": "checkInDateUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "checkOutDateUTC": {
+          "name": "checkOutDateUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
           "autoincrement": false
         },
         "createdBy": {
@@ -653,11 +888,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp(3)",
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "updatedBy": {
@@ -669,10 +904,37 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "roomReservation_roomId_room_id_fk": {
+          "name": "roomReservation_roomId_room_id_fk",
+          "tableFrom": "roomReservation",
+          "tableTo": "room",
+          "columnsFrom": [
+            "roomId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "roomReservation_reservationId_reservation_id_fk": {
+          "name": "roomReservation_reservationId_reservation_id_fk",
+          "tableFrom": "roomReservation",
+          "tableTo": "reservation",
+          "columnsFrom": [
+            "reservationId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
-        "reservationRoom_id": {
-          "name": "reservationRoom_id",
+        "roomReservation_id": {
+          "name": "roomReservation_id",
           "columns": [
             "id"
           ]
@@ -681,8 +943,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "roomSetUp": {
-      "name": "roomSetUp",
+    "room": {
+      "name": "room",
       "columns": {
         "id": {
           "name": "id",
@@ -721,11 +983,11 @@
           "autoincrement": false,
           "default": true
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "createdBy": {
@@ -735,11 +997,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp(3)",
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "updatedBy": {
@@ -751,10 +1013,24 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "room_roomNo_roomType_id_fk": {
+          "name": "room_roomNo_roomType_id_fk",
+          "tableFrom": "room",
+          "tableTo": "roomType",
+          "columnsFrom": [
+            "roomNo"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
-        "roomSetUp_id": {
-          "name": "roomSetUp_id",
+        "room_id": {
+          "name": "room_id",
           "columns": [
             "id"
           ]
@@ -780,11 +1056,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "createdBy": {
@@ -794,11 +1070,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp(3)",
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "updatedBy": {
@@ -867,11 +1143,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "createdBy": {
@@ -881,11 +1157,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp(3)",
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "updatedBy": {

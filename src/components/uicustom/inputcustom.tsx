@@ -1,7 +1,6 @@
 import * as React from "react"
 
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import { Input } from "@/components/ui/input";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const inputVariants = cva(
@@ -15,7 +14,9 @@ const inputVariants = cva(
       },
       size: {
         default: "h-9",
-        xl: "max-h-7 text-[10pt] max-w-60",
+        full: "w-full max-w-full",
+        xxl: "max-h-7 text-[10pt] w-70 max-w-70",
+        xl: "max-h-7 text-[10pt] w-60 max-w-60",
         lg: "max-h-7 text-[10pt] max-w-50",
         md: "max-h-7 text-[10pt] max-w-40",
         sm: "max-h-7 text-[10pt] max-w-30",

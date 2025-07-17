@@ -1,6 +1,6 @@
 import IRepository from "./IRepository";
-import { CustomerEntity } from "../orm/drizzle/mysql/schema";
+import Customer from "@/domain/models/Customer";
 
-export default interface ICustomerRepository extends IRepository<CustomerEntity>{
+export default interface ICustomerRepository extends IRepository<Customer>{
 
 }

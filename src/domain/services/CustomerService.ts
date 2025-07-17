@@ -3,8 +3,8 @@ import { injectable, inject } from 'inversify';
 import c from '@/lib/core/logger/ConsoleLogger';
 import type ICustomerRepository from '@/data/repo/ICustomerRepository';
 import type ICustomerService from "./contracts/ICustomerService";
-import { CustomerEntity } from "@/data/orm/drizzle/mysql/schema"
 import { PagerParams, SearchParam, TYPES } from '@/lib/types';
+import Customer from '../models/Customer';
 
 
 @injectable()
@@ -15,23 +15,23 @@ export default class CustomerService implements ICustomerService{
     }
 
 
-    async customerCreate(CustomerPosted: CustomerEntity): Promise<CustomerEntity> {
+    async customerCreate(CustomerPosted: Customer): Promise<Customer> {
         c.i('CustomerService > CustomerCreate');
-        const result = await this.CustomerRepository.create(CustomerPosted);
+        const result = this.CustomerRepository.create(CustomerPosted);
         return result;
     }
 
 
     async customerDelete(id: number): Promise<boolean> {
         c.i('CustomerService > CustomerDelete');
-        const result = await this.CustomerRepository.delete(id);
+        const result = this.CustomerRepository.delete(id);
         return result;
     }
 
 
-    async customerFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[CustomerEntity[], PagerParams]> {
+    async customerFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[Customer[], PagerParams]> {
       c.i('CustomerService > CustomerFindMany');
-      const result = await this.CustomerRepository.findMany(searchParams, pagerParams);
+      const result = this.CustomerRepository.findMany(searchParams, pagerParams);
       return result;
     }
 
@@ -43,17 +43,17 @@ export default class CustomerService implements ICustomerService{
     // }
 
 
-    async customerFindById(id: number): Promise<CustomerEntity | null> {
+    async customerFindById(id: number): Promise<Customer | null> {
       c.i('CustomerService > CustomerFindById');
       c.d(String(id));
-      const result = await this.CustomerRepository.findById(id);
+      const result = this.CustomerRepository.findById(id);
       return result;
     }
 
 
-    async customerUpdate(id:number, CustomerPosted: CustomerEntity): Promise<CustomerEntity> {
+    async customerUpdate(id:number, CustomerPosted: Customer): Promise<Customer> {
       c.i('CustomerService > CustomerUpdate');
-      const result = await this.CustomerRepository.update(id, CustomerPosted);
+      const result = this.CustomerRepository.update(id, CustomerPosted);
       return result;
     }
 

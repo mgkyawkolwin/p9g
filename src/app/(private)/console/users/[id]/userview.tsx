@@ -1,20 +1,17 @@
 // app/CustomerList.tsx
 "use client";
 
-import { UserEntity } from "@/data/orm/drizzle/mysql/schema";
-
+import User from "@/domain/models/User";
 import { use, useEffect, useState } from "react";
-
 import { userGet } from "@/app/(private)/console/users/[id]/actions";
 import { toast } from "sonner";
 import { Loader } from "@/components/uicustom/loader";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { InputWithLabel } from "@/components/uicustom/inputwithlabel";
-import { Button } from "@/components/ui/button";
 
 export default function UserView({ params }: { params: Promise<{ id: number }> }) {
   const { id } = use(params);
-  const [user, setUser] = useState<UserEntity | null>(null);
+  const [user, setUser] = useState<User | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
 
