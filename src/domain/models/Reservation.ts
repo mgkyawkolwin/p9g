@@ -41,6 +41,7 @@ export default class Reservation{
     public reservationType: string = 'GENERAL';
     public reservationTypeId!: string;
     public reservationTypeText!: string;
+    public location!: string;
     public createdAtUTC!: Date;
     public createdBy!: string;
     public updatedAtUTC?: Date;

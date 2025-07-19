@@ -2,14 +2,14 @@
 import { NextResponse, NextRequest } from "next/server"
 import {auth} from "@/app/auth";
 import c from "@/lib/core/logger/ConsoleLogger";
+import { HttpStatusCode } from "./lib/constants";
 
 export async function middleware(request : NextRequest) {
   try {
     //check session
     const session = await auth();
     if(session){
-      console.log('middleware');
-      console.log(JSON.stringify(session.user));
+
     }
     else{
       //no session, if accessing authenticated area, redirect to login page
@@ -24,7 +24,7 @@ export async function middleware(request : NextRequest) {
 
       //private api
       if (pathname.startsWith("/api") && !pathname.startsWith("/api/auth")) {
-        //return NextResponse.redirect(`${origin}/auth/signin`)
+        return NextResponse.json({message : 'Unauthorized request.'}, {status: HttpStatusCode.Unauthorized});
       }
     }
     return NextResponse.next();

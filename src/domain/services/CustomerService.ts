@@ -17,22 +17,19 @@ export default class CustomerService implements ICustomerService{
 
     async customerCreate(CustomerPosted: Customer): Promise<Customer> {
         c.i('CustomerService > CustomerCreate');
-        const result = this.CustomerRepository.create(CustomerPosted);
-        return result;
+        return await this.CustomerRepository.create(CustomerPosted);
     }
 
 
     async customerDelete(id: number): Promise<boolean> {
         c.i('CustomerService > CustomerDelete');
-        const result = this.CustomerRepository.delete(id);
-        return result;
+        return await this.CustomerRepository.delete(id);
     }
 
 
     async customerFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[Customer[], PagerParams]> {
       c.i('CustomerService > CustomerFindMany');
-      const result = this.CustomerRepository.findMany(searchParams, pagerParams);
-      return result;
+      return await this.CustomerRepository.findMany(searchParams, pagerParams);
     }
 
     
@@ -46,15 +43,13 @@ export default class CustomerService implements ICustomerService{
     async customerFindById(id: number): Promise<Customer | null> {
       c.i('CustomerService > CustomerFindById');
       c.d(String(id));
-      const result = this.CustomerRepository.findById(id);
-      return result;
+      return await this.CustomerRepository.findById(id);
     }
 
 
     async customerUpdate(id:number, CustomerPosted: Customer): Promise<Customer> {
       c.i('CustomerService > CustomerUpdate');
-      const result = this.CustomerRepository.update(id, CustomerPosted);
-      return result;
+      return await this.CustomerRepository.update(id, CustomerPosted);
     }
 
 }

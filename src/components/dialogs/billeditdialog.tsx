@@ -8,7 +8,7 @@ import {
 import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
-import { getBills, saveBills } from "@/app/(private)/console/reservations/actions"
+import { billsGet, billsSave } from "@/app/(private)/console/reservations/actions"
 import { toast } from "sonner"
 import Bill from "@/domain/models/Bill"
 import { InputCustom } from "../uicustom/inputcustom"
@@ -63,7 +63,7 @@ export default function BillEditDialog({
           index === rowIndex ? { ...bill, [field]: value, amount: bill.unitPrice && bill.quantity ? bill.unitPrice * bill.quantity : 0 } : bill
         )
       );
-    else{c.i('asdf');
+    else{
       c.d(bills);
       setBills(prev => 
         prev.map((bill, index) => 
@@ -87,11 +87,11 @@ export default function BillEditDialog({
         accessorKey: "dateUTC",
         header: 'Bill Date',
         cell: (row) => <DateInputWithLabel type="date" label="" key={`${row.row.original.id}-dateUTC`} 
-        value={row.row.original.dateUTC.toLocaleDateString('sv-SE')} 
+        value={new Date(row.row.original.dateUTC).toLocaleDateString('sv-SE')} 
         onChange={(e) => {
           if(e.target.value){
             c.d(e.target.value);
-            handleInputChange(row.row.index,"dateUTC",new Date(e.target.value));
+            handleInputChange(row.row.index,"dateUTC",new Date(e.target.value).toISOString());
           }
             
         }} />
@@ -152,19 +152,20 @@ export default function BillEditDialog({
         }} />
       },
       {
-        accessorKey: "paidOnUTC",
+        accessorKey: "paidOnUTCx",
         header: 'Paid Date',
-        cell: (row) => <DateInputWithLabel type="date" label="" key={`${row.row.original.id}-paidOnUTC`} 
-        value={row.row.original.paidOnUTC ? row.row.original.paidOnUTC?.toLocaleDateString('sv-SE') : ""} 
+        accessorFn: (row, index) => <DateInputWithLabel type="date" label="" key={`${row.id}-paidOnUTC`} 
+        value={row.paidOnUTC ? new Date(row.paidOnUTC).toLocaleDateString('sv-SE') : ""} 
         onChange={(e) => {
           if(e.target.value){
             c.d(e.target.value);
-            handleInputChange(row.row.index,"paidOnUTC",new Date(e.target.value));
+            handleInputChange(index,"paidOnUTC",new Date(e.target.value).toISOString());
           }else{
-            handleInputChange(row.row.index,"paidOnUTC", undefined);
+            handleInputChange(index,"paidOnUTC", undefined);
           }
             
-        }} />
+        }} />,
+        cell: row => row.getValue()
       },
       {
         accessorKey: "action",
@@ -181,12 +182,12 @@ export default function BillEditDialog({
     ], []);
 
   React.useEffect(() => {
-    if(!reservationId) return;
+    if(!reservationId || reservationId === 'undefined') return;
     //reset
     setBills([]);
     const fetchBills = async () => {
         // setId(reservationId);
-        const response = await getBills(reservationId);
+        const response = await billsGet(reservationId);
         c.d(response.data);
         if(response.message)
             toast(response.message);
@@ -217,9 +218,10 @@ export default function BillEditDialog({
               </div>
             <DialogFooter>
             <ButtonCustom type="submit" onClick={async () => {
-              const response = await saveBills(reservationId, bills);
+              const response = await billsSave(reservationId, bills);
               toast(response.message);
-              setOpen(false);
+              if(!response.error)
+                setOpen(false);
             }}>Save Bill</ButtonCustom>
             <ButtonCustom onClick={() => {
                 setBills(prev => [...prev, {...new Bill(), reservationId}]);

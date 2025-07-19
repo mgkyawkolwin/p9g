@@ -3,6 +3,7 @@ import { searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+import { headers } from 'next/headers';
 
 export async function roomScheduleGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
@@ -27,6 +28,10 @@ export async function roomScheduleGetList(formState : FormState, formData: FormD
     c.i("Retrieve room schedules.");
     const response = await fetch(process.env.API_URL + `roomschedules?${queryString}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //fail

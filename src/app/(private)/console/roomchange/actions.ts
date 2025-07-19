@@ -3,6 +3,7 @@ import { searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+import { headers } from 'next/headers';
 
 
 export async function roomReservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
@@ -32,6 +33,10 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
     c.i("Update successful. Get the updated list based on query string.");
     const response = await fetch(process.env.API_URL + `roomreservation?${queryString}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //fail
@@ -61,6 +66,10 @@ export async function moveRoom(id: string, roomNo:string){
     c.i('Action > roomchange > moveRoom');
     const response = await fetch(process.env.API_URL + `roomreservation?id=${id}&roomNo=${roomNo}`, {
       method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //fail

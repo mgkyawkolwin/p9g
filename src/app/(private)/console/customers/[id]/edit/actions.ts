@@ -5,6 +5,7 @@ import { customerValidator } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import Customer from '@/domain/models/Customer';
+import { headers } from 'next/headers';
 
 
 export async function customerUpdate(customer: Customer) : Promise<FormState>{
@@ -27,6 +28,7 @@ export async function customerUpdate(customer: Customer) : Promise<FormState>{
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       },
       body: JSON.stringify(validatedFields.data),
     });

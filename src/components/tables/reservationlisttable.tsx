@@ -12,6 +12,7 @@ import Reservation from "@/domain/models/Reservation";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import BillEditDialog from "../dialogs/billeditdialog"
+import BillDialog from "../dialogs/billdialog";
 
 
 interface DataTableProps{
@@ -30,7 +31,8 @@ export default function ReservationListTable({
 
   const router = useRouter();
 
-  const callbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
+  const editDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
+  const viewDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
 
   const columns: ColumnDef<Reservation>[] = [
     {
@@ -98,13 +100,20 @@ export default function ReservationListTable({
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => {
-        return <div className="flex gap-1">
-          <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
-            //setBillDialogToggle(!billDialogToggle);
-            callbackFunc.current?.openDialog(true);
+        return <div className="flex flex-col gap-1">
+          <div className="flex gap-1">
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+            editDialogCallbackFunc.current?.openDialog(true);
             setReservationId(row.original.id);
             
-          }}>View Bill</ButtonCustom>
+          }}>Add Bill</ButtonCustom>
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+              viewDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+              
+            }}>View Bill</ButtonCustom>
+          </div>
+          <div className="flex gap-1">
           <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
             router.push(`/console/reservations/${row.original.id}/edit`);
           }} >Edit</ButtonCustom>
@@ -112,6 +121,7 @@ export default function ReservationListTable({
             setCancelId(row.original.id);
             setOpenDialog(true);
           }}>Cancel</ButtonCustom>
+          </div>
         </div>
       }
     },
@@ -120,7 +130,6 @@ export default function ReservationListTable({
   const [openDiallog, setOpenDialog] = React.useState(false);
   const [cancelId, setCancelId] = React.useState<string>('');
   const [reservationId, setReservationId] = React.useState('');
-  const [billDialogToggle, setBillDialogToggle] = React.useState(false);
 
   return (
     <>
@@ -157,7 +166,8 @@ export default function ReservationListTable({
           </DialogContent>
         </Dialog>
       </section>
-      <BillEditDialog reservationId={reservationId} callbackFunctions={(func) => {callbackFunc.current = func}} />
+      <BillEditDialog reservationId={reservationId} callbackFunctions={(func) => {editDialogCallbackFunc.current = func}} />
+      <BillDialog reservationId={reservationId} callbackFunctions={(func) => {viewDialogCallbackFunc.current = func}} />
     </>
   )
 }

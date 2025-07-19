@@ -7,6 +7,8 @@ import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
 import IReservationService from "@/domain/services/contracts/IReservationService";
 import Reservation from "@/domain/models/Reservation";
+import { CustomError } from "@/lib/errors";
+import { auth } from "@/app/auth";
 
 
 export async function GET(request: NextRequest) {
@@ -54,6 +56,9 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         c.d(body);
 
+        const session = await auth();
+        c.d(session ? session.user : null)
+
         c.i("Validating post data.");
         const validatedReservation = await reservationValidator.safeParseAsync(body);
         
@@ -76,6 +81,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: "Created", data: createdReservation }, { status: HttpStatusCode.Created });
     }catch(error){
         c.e(error instanceof Error ? error.message : String(error));
-        return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
+        if(error instanceof CustomError)
+          return NextResponse.json({ message: error.message }, { status: error.statusCode });
+        else
+          return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }

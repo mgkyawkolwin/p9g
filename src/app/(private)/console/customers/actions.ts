@@ -5,6 +5,7 @@ import { customerValidator, pagerSchema, searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+import { headers } from 'next/headers';
 
 export async function customerGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
@@ -19,6 +20,10 @@ export async function customerGetList(formState : FormState, formData: FormData)
       //retrieve users
       const response = await fetch(process.env.API_URL + `customers`, {
         method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'cookie': (await headers()).get('cookie')
+        }
       });
 
       //fail
@@ -93,6 +98,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'cookie': (await headers()).get('cookie')
         },
         body: JSON.stringify(updatefields),
       });
@@ -157,6 +163,7 @@ export async function customerUpdate(formState : FormState, formData: FormData) 
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       },
       body: JSON.stringify({ name }),
     });
@@ -176,5 +183,5 @@ export async function customerUpdate(formState : FormState, formData: FormData) 
     return {error: true, message: 'Failed to update customer.', data: null, formData: null};
   }
   //if your come this far, everything seems good, redirect to update the list
-  redirect('/console/customers');
+  //redirect('/console/customers');
 }

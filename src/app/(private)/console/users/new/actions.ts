@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { userCreateSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
+import { headers } from 'next/headers';
 
 
 export async function userNew(formState : FormState, formData: FormData) : Promise<FormState>{
@@ -28,6 +29,7 @@ export async function userNew(formState : FormState, formData: FormData) : Promi
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       },
       body: JSON.stringify({ userName, email }),
     });

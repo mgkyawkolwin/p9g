@@ -6,7 +6,11 @@ import Bill from "@/domain/models/Bill";
 
 export default interface IReservationRepository extends IRepository<Reservation>{
 
-    billsGet(reservationId:string) : Promise<Bill[]>;
+    billsGetAll(reservationId:string) : Promise<Bill[]>;
+
+    billsGetPaids(reservationId:string) : Promise<Bill[]>;
+
+    billsGetUnpaids(reservationId:string) : Promise<Bill[]>;
 
     billsSave(reservationId:string, bills:Bill[]) : Promise<void>;
     

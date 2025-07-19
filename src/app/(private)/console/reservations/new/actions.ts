@@ -3,6 +3,7 @@ import {  reservationValidator} from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+import { headers } from 'next/headers';
 
 export async function newReservationAction(formState : FormState, formData: FormData): Promise<FormState> {
   try{
@@ -29,9 +30,7 @@ export async function newReservationAction(formState : FormState, formData: Form
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-          'Pragma': 'no-cache', //for old browsers
-          'Cache-Control': 'no-cache', // Forces caches to revalidate with the server
-          //'Cache-Control': 'no-store' 
+        'cookie': (await headers()).get('cookie')
       }
     });
 
@@ -77,7 +76,9 @@ export async function saveReservation(formState : FormState, formData: FormData)
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       },
+      //credentials: 'include',
       body: JSON.stringify(reservationFields.data)
     });
     
@@ -86,7 +87,7 @@ export async function saveReservation(formState : FormState, formData: FormData)
       c.i("Create reservation api response failed. Return response.");
       const errorData = await reservationResponse.json();
       c.e(errorData.message);
-      return { error: true, message: 'Failed to create reservation.', data: null, formData: null};
+      return { error: true, message: 'Failed to create reservation.\n'+errorData.message, data: null, formData: null};
     }
 
     c.i("Create reservation successful.");
@@ -107,6 +108,7 @@ export async function searchCustomer(search:string){
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       }
     });
     

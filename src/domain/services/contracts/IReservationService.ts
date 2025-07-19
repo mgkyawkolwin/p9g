@@ -3,10 +3,12 @@ import IBaseService from "./IBaseService";
 import Reservation from "@/domain/models/Reservation";
 import Room from "@/domain/models/Room";
 import Bill from "@/domain/models/Bill";
+import Invoice from "@/domain/dtos/Invoice";
 
 export default interface IReservationService {
     billsGet(reservationId:string):Promise<Bill[]>;
     billsSave(reservationId:string, bills:Bill[]) : Promise<void>;
+    billsView(reservationId:string):Promise<Invoice>;
     createReservation(reservation : Reservation): Promise<Reservation> ;
     moveRoom(id:string, roomNo:string): Promise<void>;
     patch(id:string, operation : string): Promise<void>;

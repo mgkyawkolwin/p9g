@@ -4,6 +4,7 @@ import { pagerSchema, searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+import { headers } from 'next/headers';
 
 export async function reservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
@@ -12,36 +13,6 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     const formObject = Object.fromEntries(formData?.entries());
     const message = '';
-    
-    // if(formObject.actionVerb === 'CANCEL'){
-    //   c.i('Action is CANCEL');
-    //   const response = await fetch(process.env.API_URL + `reservations/${formObject.cancelId}?operation=CANCEL`, {
-    //     method: 'PATCH',
-    //   });
-  
-    //   //fail
-    //   if(!response.ok){
-    //     c.i("Cancel failed. Return response.");
-    //     return {error:true, message : "Cancel reservation failed."};
-    //   }
-    //   //update message
-    //   message = 'Cancelling reservation successful.';
-    // }
-
-    // if(formObject.actionVerb === 'CHECKIN'){
-    //   c.i('Action is CHECKIN');
-    //   const response = await fetch(process.env.API_URL + `reservations/${formObject.checkInId}?operation=CHECKIN`, {
-    //     method: 'PATCH',
-    //   });
-  
-    //   //fail
-    //   if(!response.ok){
-    //     c.i("Checkin failed. Return response.");
-    //     return {error:true, message : "Checkin reservation failed."};
-    //   }
-    //   //update message
-    //   message = 'Checking in reservation successful.';
-    // }
 
     // formData is valid, further process
     let queryString = null;
@@ -77,6 +48,10 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.i("Update successful. Get the updated list based on query string.");
     const response = await fetch(process.env.API_URL + `reservations?${queryString}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //fail
@@ -107,6 +82,10 @@ export async function updateDropOffCarNo(id:string, carNo:string) : Promise<Form
   c.d(carNo);
     const response = await fetch(process.env.API_URL + `reservations/${id}/dropoff`, {
       method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      },
       body: JSON.stringify({carNo: carNo})
     });
 

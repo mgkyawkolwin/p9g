@@ -47,6 +47,10 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.i("Update successful. Get the updated list based on query string.");
     const response = await fetch(process.env.API_URL + `reservations?${queryString}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //fail
@@ -75,6 +79,10 @@ export async function reservationCancel(id:string): Promise<FormState> {
     c.i('Action > reservationCancel');
     const response = await fetch(process.env.API_URL + `reservations/${id}/cancel`, {
       method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //fail
@@ -90,7 +98,11 @@ export async function reservationCancel(id:string): Promise<FormState> {
 export async function reservationCheckIn(id:string): Promise<FormState> {
     c.i('Action > reservationCheckIn');
     const response = await fetch(process.env.API_URL + `reservations/${id}/checkin`, {
-      method: 'PATCH'
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //fail

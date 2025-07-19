@@ -1,4 +1,4 @@
-import RoomReservation from "../dtos/roomreservation";
+import RoomReservation from "../dtos/RoomReservation";
 import Reservation from "./Reservation";
 
 export default class Room {

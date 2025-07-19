@@ -5,6 +5,7 @@ import c from "@/lib/core/logger/ConsoleLogger";
 import { HttpStatusCode } from "@/lib/constants";
 import IReservationService from "@/domain/services/contracts/IReservationService";
 import Bill from "@/domain/models/Bill";
+import { billValidator } from "@/lib/zodschema";
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -58,12 +59,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         }
         c.d(requestBody);
 
-        const bills = requestBody.map(bill => (
-            {...bill, 
-                dateUTC: new Date(bill.dateUTC), 
-                paidOnUTC: bill.paidOnUTC ? new Date(bill.paidOnUTC) : undefined
-            }
-        ));
+        let bills = [];
+
+        requestBody.map((bill) => {
+            const result =  billValidator.safeParse(bill);
+            if(result.success)
+                bills.push(result.data);
+        });
         //call service to retrieve data
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
         await reservationService.billsSave(id, bills);

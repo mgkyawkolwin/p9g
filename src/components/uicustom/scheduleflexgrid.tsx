@@ -2,7 +2,7 @@
 
 import Room from '@/domain/models/Room';
 import React from 'react';
-import RoomReservation from '@/domain/dtos/roomreservation';
+import RoomReservation from '@/domain/dtos/RoomReservation';
 
 const reservationColors = [
   'bg-red-400', 'bg-blue-400', 'bg-green-400',

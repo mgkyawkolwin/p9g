@@ -4,20 +4,12 @@ import {  pagerSchema, searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+import { headers } from 'next/headers';
 
 export async function reservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
     c.i('Actions > /console/checkin > reservationGetList');
     c.d(Object.fromEntries(formData?.entries()));
-
-    const d = new Date('2025-01-01T23:59:59.000Z');
-    c.d(d);
-    c.d(d.toString());
-    c.d(d.toDateString());
-    c.d(d.toISOString());
-    c.d(d.toUTCString());
-    c.d(d.toLocaleString('sv-SE'));
-    c.d(d.toLocaleDateString('sv-SE'));
 
     const formObject = Object.fromEntries(formData?.entries());
     const message = '';
@@ -56,6 +48,10 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.i("Update successful. Get the updated list based on query string.");
     const response = await fetch(process.env.API_URL + `reservations?${queryString}`, {
       method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'cookie': (await headers()).get('cookie')
+            }
     });
 
     //fail
@@ -84,6 +80,10 @@ export async function reservationCheckOut(id:string): Promise<FormState> {
     c.i('Action > reservationCheckOut');
     const response = await fetch(process.env.API_URL + `reservations/${id}/checkout`, {
       method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'cookie': (await headers()).get('cookie')
+            }
     });
 
     //fail

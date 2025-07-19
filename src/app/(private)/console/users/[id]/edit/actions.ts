@@ -3,6 +3,7 @@
 import { userUpdateSchema } from '@/lib/zodschema';
 import c from "@/lib/core/logger/ConsoleLogger";
 import { FormState } from "@/lib/types";
+import { headers } from 'next/headers';
 
 export async function userGet(id : number): Promise<FormState> {
   try{
@@ -11,6 +12,10 @@ export async function userGet(id : number): Promise<FormState> {
     //retrieve user
     const response = await fetch(process.env.API_URL + `users/${id}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //user retrieval fail
@@ -51,6 +56,7 @@ export async function userUpdate(formState : FormState, formData: FormData) : Pr
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       },
       body: JSON.stringify({ userName, email }),
     });

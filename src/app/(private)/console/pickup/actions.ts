@@ -3,6 +3,7 @@ import { pagerSchema, searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+import { headers } from 'next/headers';
 
 export async function reservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
@@ -16,6 +17,10 @@ export async function reservationGetList(formState : FormState, formData: FormDa
       c.i('Action is CANCEL');
       const response = await fetch(process.env.API_URL + `reservations/${formObject.cancelId}?operation=CANCEL`, {
         method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'cookie': (await headers()).get('cookie')
+        }
       });
   
       //fail
@@ -31,6 +36,10 @@ export async function reservationGetList(formState : FormState, formData: FormDa
       c.i('Action is CHECKIN');
       const response = await fetch(process.env.API_URL + `reservations/${formObject.checkInId}?operation=CHECKIN`, {
         method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'cookie': (await headers()).get('cookie')
+        }
       });
   
       //fail
@@ -76,6 +85,10 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.i("Update successful. Get the updated list based on query string.");
     const response = await fetch(process.env.API_URL + `reservations?${queryString}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //fail
@@ -106,6 +119,10 @@ export async function updatePickUpCarNo(id:string, carNo:string) : Promise<FormS
   c.d(carNo);
     const response = await fetch(process.env.API_URL + `reservations/${id}/pickup`, {
       method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      },
       body: JSON.stringify({carNo: carNo})
     });
 

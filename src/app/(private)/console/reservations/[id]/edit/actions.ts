@@ -3,6 +3,7 @@ import { reservationValidator } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+import { headers } from 'next/headers';
 
 export async function editReservationAction(formState : FormState, formData: FormData): Promise<FormState> {
   try{
@@ -21,6 +22,7 @@ export async function editReservationAction(formState : FormState, formData: For
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       }
     });
     
@@ -49,9 +51,7 @@ export async function editReservationAction(formState : FormState, formData: For
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-          'Pragma': 'no-cache', //for old browsers
-          'Cache-Control': 'no-cache', // Forces caches to revalidate with the server
-          //'Cache-Control': 'no-store' 
+        'cookie': (await headers()).get('cookie')
       }
     });
 
@@ -89,6 +89,7 @@ export async function searchCustomer(search:string){
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       }
     });
     
@@ -114,8 +115,6 @@ export async function updateReservationAction(formState : FormState, formData: F
     c.i('Actions > /console/reservations/[id]/edit > updateReservationAction');
     c.d(Object.fromEntries(formData.entries()));
 
-    
-
     c.i("Finding form action for further processing.");
     const formObj = Object.fromEntries(formData.entries());
     const { id } = formObj;
@@ -135,6 +134,7 @@ export async function updateReservationAction(formState : FormState, formData: F
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       },
       body: JSON.stringify(reservationFields.data)
     });

@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { userSignInSchema } from '@/lib/zodschema';
 
 import c from '@/lib/core/logger/ConsoleLogger';
+import { signIn } from '@/app/auth';
 
 export async function POST(request: NextRequest) {
   try{
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest) {
     if(!user)
       return NextResponse.json({ message: "Invalid credentials."}, { status: HttpStatusCode.NotFound });
     
+    await signIn('credentials',  {redirect : false, name:user.userName, id: user.id, role: user.role});
     //everything is right
     return NextResponse.json(user, { status: HttpStatusCode.Ok });
   }catch(error){
