@@ -7,9 +7,9 @@ export default class Reservation{
     public arrivalDateTimeUTC: string | undefined;
     public arrivalFlight: string = '';
     public checkInDate: string | undefined;
-    public checkInDateUTC: string | undefined;
+    public checkInDateUTC: Date;
     public checkOutDate: string | undefined;
-    public checkOutDateUTC: string | undefined;
+    public checkOutDateUTC: Date;
     public customers: Customer[] = [];
     public departureDateTime: string | undefined;
     public departureDateTimeUTC: string | undefined;

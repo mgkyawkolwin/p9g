@@ -96,6 +96,11 @@ export function buildQueryString(input : SearchFormFields | PagerParams): string
 }
 
 
+export function calculateDayDifference(startDate:Date, endDate: Date){
+  return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+}
+
+
 export function getCurrentMonthFirstDate(): Date{
   const today = new Date();
   return new Date(today.getFullYear(), today.getMonth(), 1);
