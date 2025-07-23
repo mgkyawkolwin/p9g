@@ -60,42 +60,47 @@ export async function newReservationAction(formState : FormState, formData: Form
 
 
 export async function saveReservation(formState : FormState, formData: FormData): Promise<FormState> {
-    c.i("Action is SAVE. Validating search fields.");
-    const formObject = Object.fromEntries(formData.entries());
-    const reservationFields = reservationValidator.safeParse(formObject);
-    c.d(reservationFields);
+    try{
+      c.i("Action > saveReservation");
+      const formObject = Object.fromEntries(formData.entries());
+      c.d(formObject);
+      const reservationFields = reservationValidator.safeParse(formObject);
+      c.d(reservationFields);
 
-    if (!reservationFields.success) {
-      c.i("Reservation fields validation failed. Return response.");
-      return { error: true, message: 'Invalid inputs.', data: null, formData: null};
+      if (!reservationFields.success) {
+        c.i("Reservation fields validation failed. Return response.");
+        return { error: true, message: 'Invalid inputs.'};
+      }
+
+      //update user
+      c.i("Requesting API to creaate reservation.");
+      const reservationResponse = await fetch(process.env.API_URL + `reservations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'cookie': (await headers()).get('cookie')
+        },
+        //credentials: 'include',
+        body: JSON.stringify(reservationFields.data)
+      });
+      
+      //retrieve user failed
+      if (!reservationResponse.ok) {
+        c.i("Create reservation api response failed. Return response.");
+        const errorData = await reservationResponse.json();
+        c.e(errorData.message);
+        return { error: true, message: 'Failed to create reservation.\n'+errorData.message};
+      }
+
+      c.i("Create reservation successful.");
+      const reservationData = await reservationResponse.json();
+      const reservation = reservationData.data;
+      c.d(reservation);
+
+      return {error:false, message:'Save reservation successful.', reload:true};
+    }catch(error){
+      return {error:true, message:'Save reservation failed.', reload:true};
     }
-
-    //update user
-    c.i("Requesting API to creaate reservation.");
-    const reservationResponse = await fetch(process.env.API_URL + `reservations`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'cookie': (await headers()).get('cookie')
-      },
-      //credentials: 'include',
-      body: JSON.stringify(reservationFields.data)
-    });
-    
-    //retrieve user failed
-    if (!reservationResponse.ok) {
-      c.i("Create reservation api response failed. Return response.");
-      const errorData = await reservationResponse.json();
-      c.e(errorData.message);
-      return { error: true, message: 'Failed to create reservation.\n'+errorData.message, data: null, formData: null};
-    }
-
-    c.i("Create reservation successful.");
-    const reservationData = await reservationResponse.json();
-    const reservation = reservationData.data;
-    c.d(reservation);
-
-    return {error:false, message:'Save reservation successful.', reload:true};
 }
 
 

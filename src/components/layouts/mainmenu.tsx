@@ -68,6 +68,12 @@ export function MainMenu() {
       >
         Reports
       </Link>
+      <Link
+        href="/console/reports"
+        className="text-sm font-medium text-white hover:text-blue-600"
+      >
+        Settings
+      </Link>
       <SignOutButton action={signOutAction}/>
     </div>
   );

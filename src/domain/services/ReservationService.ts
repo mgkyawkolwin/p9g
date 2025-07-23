@@ -9,6 +9,8 @@ import { SearchParams } from "@/lib/constants";
 import Bill from "../models/Bill";
 import Invoice from "../dtos/Invoice";
 import CurrencyTotal from "../dtos/CurrencyTotal";
+import Payment from "../models/Payment";
+import RoomCharge from "../models/RoomCharge";
 
 @injectable()
 export default class ReservationService implements IReservationService{
@@ -59,19 +61,19 @@ export default class ReservationService implements IReservationService{
     }
 
 
-    async createReservation(reservation : Reservation): Promise<Reservation> {
+    async reservationCreate(reservation : Reservation): Promise<Reservation> {
         c.i('ReservationService > createReservation');
-        return await this.reservationRepository.createReservation(reservation);
+        return await this.reservationRepository.reservationCreate(reservation);
     }
 
     
-    async moveRoom(id:string, roomNo:string): Promise<void> {
+    async reservationMoveRoom(id:string, roomNo:string): Promise<void> {
         c.i('ReservationService > patch');
         c.d(id);
         c.d(roomNo);
         
         c.i('Returning from ReservationService > moveRoom.');
-        await this.reservationRepository.moveRoom(id, roomNo);
+        await this.reservationRepository.reservationMoveRoom(id, roomNo);
     }
     
 
@@ -81,22 +83,62 @@ export default class ReservationService implements IReservationService{
         c.d(operation);
         if(operation === 'CANCEL'){
             c.i('Cancel operation running.');
-            await this.reservationRepository.cancel(id);
+            await this.reservationRepository.reservationCancel(id);
         }
 
         if(operation === 'CHECKIN'){
             c.i('CheckIn operation running.');
-            await this.reservationRepository.checkIn(id);
+            await this.reservationRepository.reservationCheckIn(id);
         }
 
         c.i('Returning from ReservationService > patch.');
+    }
+    
+    
+    async paymentsGet(reservationId: string): Promise<Payment[]> {
+        c.i('ReservationService > paymentsGet');
+        return await this.reservationRepository.paymentsGetAll(reservationId);
+    }
+    
+
+    async paymentsSave(reservationId:string, payments: Payment[]): Promise<void> {
+        c.i('ReservationService > paymentsSave');
+        await this.reservationRepository.paymentsSave(reservationId, payments);
+        c.i('RETURN ReservationService > paymentsSave');
+    }
+
+
+    async paymentsView(reservationId: string): Promise<Invoice> {
+        c.i('ReservationService > paymentsView');
+        const invoice = new Invoice();
+        const paidBills = await this.reservationRepository.billsGetPaids(reservationId);
+        invoice.PaidBills = paidBills;
+        invoice.PaidTotals = Object.entries(
+            paidBills.reduce((acc, bill) => {
+                const currency = bill.currency;
+                acc[currency] = (Number(acc[currency]) || 0) + Number(bill.amount);
+                return acc;
+            }, {})
+        ).map(([currency, total]) => ({total: total, currency: currency}) as CurrencyTotal);
+
+        const unPaidBills = await this.reservationRepository.billsGetUnpaids(reservationId);
+        invoice.UnPaidBills = unPaidBills;
+        invoice.UnPaidTotals = Object.entries(
+            unPaidBills.reduce((acc, bill) => {
+                const currency = bill.currency;
+                acc[currency] = (Number(acc[currency]) || 0) + Number(bill.amount);
+                return acc;
+            }, {})
+        ).map(([currency, total]) => ({total: total, currency: currency}) as CurrencyTotal);
+
+        return invoice;
     }
 
 
     async reservationCancel(id:string):Promise<void>{
         c.i('ReservationService > reservationCancel');
         c.d(id);
-        await this.reservationRepository.cancel(id);
+        await this.reservationRepository.reservationCancel(id);
 
         c.i('Returning from ReservationService > reservationCancel.');
     }
@@ -105,7 +147,7 @@ export default class ReservationService implements IReservationService{
     async reservationCheckIn(id:string):Promise<void>{
         c.i('ReservationService > reservationCheckIn');
         c.d(id);
-        await this.reservationRepository.checkIn(id);
+        await this.reservationRepository.reservationCheckIn(id);
 
         c.i('Returning from ReservationService > reservationCheckIn.');
     }
@@ -114,7 +156,7 @@ export default class ReservationService implements IReservationService{
     async reservationCheckOut(id:string):Promise<void>{
         c.i('ReservationService > reservationCheckOut');
         c.d(id);
-        await this.reservationRepository.checkOut(id);
+        await this.reservationRepository.reservationCheckOut(id);
 
         c.i('Returning from ReservationService > reservationCheckOut.');
     }
@@ -144,6 +186,12 @@ export default class ReservationService implements IReservationService{
         pagerParams.orderDirection = "desc";
         c.d(pagerParams);
         return await this.reservationRepository.reservationFindMany([], pagerParams);
+    }
+    
+
+    async roomChargesGetAll(reservationId: string): Promise<RoomCharge[]> {
+        c.i('ReservationService > roomChargesGetAll');
+        return await this.reservationRepository.roomChargesGetAll(reservationId);
     }
     
 
@@ -185,7 +233,7 @@ export default class ReservationService implements IReservationService{
     }
 
     
-    async updateReservation(id:string, reservation : Reservation): Promise<Reservation> {
+    async reservationUpdate(id:string, reservation : Reservation): Promise<Reservation> {
         c.i('ReservationService > updateReservation');
 
         if(!id || id === 'undefined') {
@@ -196,7 +244,7 @@ export default class ReservationService implements IReservationService{
             throw new Error('Reservation update failed. Reservation is required.');
         }
 
-        return await this.reservationRepository.updateReservation(id, reservation);
+        return await this.reservationRepository.reservationUpdate(id, reservation);
     }
     
 }

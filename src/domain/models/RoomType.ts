@@ -3,8 +3,8 @@ export default class RoomType {
     public id!: string;
     public roomType!: string;
     public roomTypeText!: number;
-    public roomRate!: number;
-    public singleRate!: number;
+    public maxOccupancy!: number;
+    public isDoubleBed!: boolean;
     public location!: string;
     public createdAtUTC!: Date;
     public createdBy!: string;

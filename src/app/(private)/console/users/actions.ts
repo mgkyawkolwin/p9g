@@ -1,6 +1,6 @@
 'use server';
 
-import { pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';
+import { pagerValidator, searchSchema, userUpdateSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
@@ -14,7 +14,7 @@ export async function userGetList(formState : FormState, formData: FormData): Pr
     let queryString = null;
 
     //validate and parse table input
-    const pagerFields = pagerSchema.safeParse(Object.fromEntries(formData.entries()));
+    const pagerFields = pagerValidator.safeParse(Object.fromEntries(formData.entries()));
     c.d(JSON.stringify(pagerFields));
 
     //table pager field validatd, build query string

@@ -59,7 +59,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         // update user
         c.i("Calling service.");
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-        const createdReservation = await reservationService.updateReservation(id, validatedReservation.data as unknown as Reservation);
+        const createdReservation = await reservationService.reservationUpdate(id, validatedReservation.data as unknown as Reservation);
         if(!createdReservation){
             c.d("Reservaton creation failed. Return result.");
             return NextResponse.json({ message: "Update failed." }, { status: HttpStatusCode.ServerError });

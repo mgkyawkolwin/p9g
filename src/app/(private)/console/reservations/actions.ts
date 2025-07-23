@@ -1,11 +1,12 @@
 'use server';
-import { billValidator, pagerSchema, searchSchema } from '@/lib/zodschema';
+import { billValidator, pagerValidator, paymentValidator, searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
 import Bill from '@/domain/models/Bill';
 import { headers } from 'next/headers';
 import { auth } from '@/app/auth';
+import Payment from '@/domain/models/Payment';
 
 export async function reservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
@@ -36,7 +37,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     //validate and parse paging input
     c.i("Parsing pager fields from form entries.");
-    const pagerFields = pagerSchema.safeParse(Object.fromEntries(formData.entries()));
+    const pagerFields = pagerValidator.safeParse(Object.fromEntries(formData.entries()));
     c.d(pagerFields);
 
     //table pager field validatd, build query string
@@ -201,5 +202,144 @@ export async function billsView(id:string) : Promise<FormState>{
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return {error: true, message: 'Failed to get invoices.', data: null, formData: null};
+  }
+}
+
+
+export async function paymentsGet(id:string) : Promise<FormState>{
+  try {
+    c.i('Actions > /console/reservations/ > paymentsGet');
+    c.d(id);
+
+    //update bills
+    const response = await fetch(process.env.API_URL + `reservations/${id}/payments`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
+    });
+
+    const result = await response.json();
+    
+    //update user failed
+    if (!response.ok) {
+      c.e(result.message);
+      return { error: true, message: `Failed to get bills. ${result.message}`, data: null, formData: null};
+    }
+    c.d(result.bills?.length);
+    //update user success
+    return {error: false, message:"", data: result.payments, formData: null};
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error: true, message: 'Failed to add bills.', data: null, formData: null};
+  }
+}
+
+
+
+
+export async function paymentsSave(id: string, payments: Payment[]) : Promise<FormState>{
+  try {
+    c.i('Actions > /console/reservations/ > paymentsSave');
+    c.d(payments);
+
+    //validate and parse form input
+    payments.forEach(async (payment) => {
+      const validatedFields = await paymentValidator.safeParseAsync(payment);
+      c.d(validatedFields);
+
+      //form validation fail
+      if (!validatedFields.success) {
+        c.d(validatedFields.error.flatten().fieldErrors);
+        return { error: true, message: 'Invalid inputs.', data: null, formData: null};
+      }
+    });
+
+    //update bills
+    const response = await fetch(process.env.API_URL + `reservations/${id}/payments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      },
+      body: JSON.stringify(payments),
+    });
+    
+    //update user failed
+    if (!response.ok) {
+      const errorData = await response.json();
+      c.e(errorData);
+      return { error: true, message: 'Failed to save payments.', data: null, formData: null};
+    }
+
+    //update user success
+    const result = await response.json().then().catch((error) => {
+      c.i('HAHAHA')
+      c.d(error)
+    });
+    
+    return {error: false, message:"Payments saved.", data: result.data, formData: null};
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error: true, message: 'Failed to save payments.', data: null, formData: null};
+  }
+}
+
+
+export async function paymentsView(id:string) : Promise<FormState>{
+  try {
+    c.i('Actions > /console/reservations/ > paymentsView');
+    c.d(id);
+
+    //update bills
+    const response = await fetch(process.env.API_URL + `reservations/${id}/invoices`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
+    });
+
+    const result = await response.json();
+    
+    //update user failed
+    if (!response.ok) {
+      c.e(result.message);
+      return { error: true, message: `Failed to get invoices. ${result.message}`, data: null, formData: null};
+    }
+    //update user success
+    return {error: false, message:"", data: result.invoice, formData: null};
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error: true, message: 'Failed to get invoices.', data: null, formData: null};
+  }
+}
+
+
+export async function roomChargesGet(id:string) : Promise<FormState>{
+  try {
+    c.i('Actions > /console/reservations/ > roomChargesGet');
+    c.d(id);
+
+    const response = await fetch(process.env.API_URL + `reservations/${id}/roomcharges`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
+    });
+
+    const result = await response.json();
+    
+    if (!response.ok) {
+      c.e(result.message);
+      return { error: true, message: `Failed to get room charges. ${result.message}`, data: null, formData: null};
+    }
+    
+    return {error: false, message:"", data: result.roomcharges};
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error: true, message: 'Failed to get room charges.', data: null, formData: null};
   }
 }

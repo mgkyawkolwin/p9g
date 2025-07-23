@@ -10,39 +10,14 @@ import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { Textarea } from "../ui/textarea";
 import React from "react";
 import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
-import { getUTCISODateString } from "@/lib/utils";
+import { calculateDayDifference, getUTCISODateString } from "@/lib/utils";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { SelectList } from "@/lib/constants";
 import Reservation from "@/domain/models/Reservation";
 import { Checkbox } from "../ui/checkbox";
+import { InputCustom } from "../uicustom/inputcustom";
 
 
-// const initialState = {
-//     arrivalDateTime: "01-01-2028",
-//     arrivalDateTimeUTC: "",
-//     arrivalFlight: "",
-//     checkInDate: "",
-//     checkInDateUTC: "",
-//     checkOutDate: "",
-//     checkOutDateUTC: "",
-//     departureDateTime: "",
-//     departureDateTimeUTC: "",
-//     departureFlight: "",
-//     depositAmount: "0",
-//     depositCurrency: CONSTANTS.DEFAULT_CURRENCY,
-//     depositDate: "",
-//     depositDateUTC: "",
-//     dropOffType: "",
-//     noOfDays: "0",
-//     noOfGuests: "0",
-//     pickUpType: "",
-//     prepaidPackage: "",
-//     promotionPackage: "",
-//     roomNo: "",
-//     reservationStatusValue: "NEW",
-//     reservationTypeValue: "GENERAL",
-//     remark: ""
-// };
 
 interface ReservationDetailFormInterface {
     resetForm: () => void;
@@ -70,17 +45,20 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
             <div className="flex flex-col gap-2">
                 <section aria-label="Reservation Detail" className="flex gap-2 flex-col w-full">
                     <RadioGroup value={reservation?.reservationType} onValueChange={(value) => setReservation(prev => ({...prev, reservationType: value}))} name="reservationType">
-                        <div className="flex items-center gap-3">
+                        <div className="flex gap-4">
+                        <div className="flex items-center gap-2">
                             <RadioGroupItem value="GENERAL" id="r1" />
                             <Label htmlFor="r1">General</Label>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                             <RadioGroupItem value="MEMBER" id="r2" />
                             <Label htmlFor="r2">Member</Label>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                             <RadioGroupItem value="TOUR" id="r3" />
                             <Label htmlFor="r3">Tour</Label>
+                            <InputCustom />
+                        </div>
                         </div>
                     </RadioGroup>
                     <div className="flex gap-2">
@@ -93,67 +71,59 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                             onValueChange={value => setReservation(prev => ({ ...prev, reservationStatusValue: value }))} />
                     </div>
                     <div className="flex gap-2">
-                        <DateInputWithLabel label="Check-in*" type="date" size={"sm"} labelPosition="top" value={reservation?.checkInDateUTC ? new Date(reservation?.checkInDateUTC).toLocaleDateString('sv-SE') : ''}
+                        <DateInputWithLabel name="checkInDateUTC" label="Check-in*" type="date" size={"sm"} labelPosition="top" value={reservation?.checkInDateUTC ? new Date(reservation?.checkInDateUTC).toLocaleDateString('sv-SE') : ''}
                             onChange={(e) => {
-                                const newDate = e.target.value;
-                                if(newDate && reservation?.checkOutDate){
-                                    const days = Math.round(Math.abs((new Date(newDate).getTime() - new Date(reservation?.checkOutDate).getTime()) / (1000 * 60 * 60 * 24))) + 1;
+                                const newDate = e.target.value ? new Date(new Date(e.target.value).toISOString()) : undefined;
+                                if(newDate && reservation?.checkOutDateUTC){
+                                    const days = calculateDayDifference(newDate, reservation.checkOutDateUTC);
                                     setReservation(prev => ({...prev, noOfDays: days}));
                                 }
                                 setReservation(prev => ({
                                     ...prev,
-                                    checkInDate: newDate,
-                                    checkInDateUTC: newDate ? getUTCISODateString(newDate) : undefined
+                                    checkInDateUTC: newDate
                                 }));
                             }} />
-                        <input type="hidden" name="checkInDateUTC" defaultValue={reservation?.checkInDateUTC} />
-                        <DateInputWithLabel label="Check-out*" type="date" size={"sm"} labelPosition="top" value={reservation?.checkOutDateUTC ? new Date(reservation?.checkOutDateUTC).toLocaleDateString('sv-SE') : ''}
+                        <DateInputWithLabel name="checkOutDateUTC"  label="Check-out*" type="date" size={"sm"} labelPosition="top" value={reservation?.checkOutDateUTC ? new Date(reservation?.checkOutDateUTC).toLocaleDateString('sv-SE') : ''}
                             onChange={(e) => {
-                                const newDate = e.target.value;
-                                if(newDate && reservation?.checkInDate){
-                                    const days = Math.round(Math.abs((new Date(newDate).getTime() - new Date(reservation?.checkInDate).getTime()) / (1000 * 60 * 60 * 24))) + 1;
+                                const newDate = e.target.value ? new Date(new Date(e.target.value).toISOString()) : undefined;
+                                if(newDate && reservation?.checkInDateUTC){
+                                    const days = calculateDayDifference(reservation.checkInDateUTC, newDate);
                                     setReservation(prev => ({...prev, noOfDays: days}));
                                 }
                                 setReservation(prev => ({
                                     ...prev,
-                                    checkOutDate: newDate,
-                                    checkOutDateUTC: newDate ? getUTCISODateString(newDate) : undefined
+                                    checkOutDateUTC: newDate
                                 }));
                             }} />
-                        <input type="hidden" name="checkOutDateUTC" defaultValue={reservation?.checkOutDateUTC} />
                         <InputWithLabel name="noOfDays" label="No of Days*" size={"xs"} labelPosition="top" value={reservation?.noOfDays} onChange={(e) => setReservation(prev => ({...prev, noOfDays: Number(e.target.value)}))} />
                     </div>
                     <div className="flex gap-2">
-                        <DateInputWithLabel label="Arrival Date" type={"datetime-local"} variant={"datetime"} size={"sm"} labelPosition="top" 
+                        <DateInputWithLabel name="arrivalDateTimeUTC" label="Arrival Date" type={"datetime-local"} variant={"datetime"} size={"sm"} labelPosition="top" 
                         value={reservation?.arrivalDateTimeUTC ? new Date(reservation?.arrivalDateTimeUTC).toLocaleString('sv-SE') : ''}
                             onChange={(e) => {
                                 console.log(e.target.value);
-                                const newDate = e.target.value;
+                                const newDate = e.target.value ? new Date(new Date(e.target.value).toISOString()) : undefined;
                                 setReservation(prev => ({
                                     ...prev,
-                                    arrivalDateTime: newDate,
-                                    arrivalDateTimeUTC: newDate ? getUTCISODateString(newDate) : undefined
+                                    arrivalDateTimeUTC: newDate
                                 }));
                             }} />
-                        <input type="hidden" name="arrivalDateTimeUTC" defaultValue={reservation?.arrivalDateTimeUTC} />
                         <InputWithLabel name="arrivalFlight" label="Arrival Flight" size={"xs"} labelPosition="top"
                             value={reservation?.arrivalFlight} onChange={(e) => setReservation(prev => ({...prev, arrivalFlight: e.target.value}))} />
                         <SelectWithLabel name="pickUpType" label="Pick Up" size={"sm"} labelPosition="top" items={SelectList.TRANSPORTATION} 
                         value={reservation?.pickUpType} onValueChange={value => setReservation(prev => ({...prev, pickUpType: value}))} />
                     </div>
                     <div className="flex gap-2">
-                        <DateInputWithLabel label="Deperture Date" type="datetime-local" variant={"datetime"} size={"sm"} labelPosition="top" 
+                        <DateInputWithLabel name="departureDateTimeUTC" label="Deperture Date" type="datetime-local" variant={"datetime"} size={"sm"} labelPosition="top" 
                         value={reservation?.departureDateTimeUTC ? new Date(reservation?.departureDateTimeUTC).toLocaleString('sv-SE') : ''}
                             onChange={(e) => {
                                 console.log(e.target.value);
-                                const newDate = e.target.value;
+                                const newDate = e.target.value ? new Date(new Date(e.target.value).toISOString()) : undefined;
                                 setReservation(prev => ({
                                     ...prev,
-                                    departureDateTime: newDate,
-                                    departureDateTimeUTC: newDate ? getUTCISODateString(newDate) : undefined
+                                    departureDateTimeUTC: newDate
                                 }));
                             }} />
-                        <input type="hidden" name="departureDateTimeUTC" defaultValue={reservation?.departureDateTimeUTC} />
                         <InputWithLabel name="departureFlight" label="Deperture Flight" size={"xs"} labelPosition="top"
                             value={reservation?.departureFlight} onChange={(e) => setReservation(prev => ({...prev, departureFlight: e.target.value}))} />
                         <SelectWithLabel name="dropOffType" label="Drop Off" size={"sm"} labelPosition="top" items={SelectList.TRANSPORTATION} 
@@ -175,14 +145,48 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         <DateInputWithLabel label="Deposit Date" type="date" size={"sm"} labelPosition="top" 
                         value={reservation?.depositDateUTC ? new Date(reservation?.depositDateUTC).toLocaleDateString('sv-SE') : ''}
                             onChange={(e) => {
-                                const newDate = e.target.value;
+                                const newDate = e.target.value ? new Date(new Date(e.target.value).toISOString()) : undefined;
                                 setReservation(prev => ({
                                     ...prev,
-                                    depositDate: newDate,
-                                    depositDateUTC: newDate ? getUTCISODateString(newDate) : undefined
+                                    depositDateUTC: newDate
                                 }));
                             }} />
-                        <input type="hidden" name="depositDateUTC" defaultValue={reservation?.depositDateUTC ?? ''} />
+                    </div>
+                    <div className="flex gap-2 items-end">
+                        <InputWithLabel name="pickUpFee" label="Pick-Up Fee" size={"sm"} labelPosition="top" 
+                        value={reservation?.pickUpFee} onChange={(e) => setReservation(prev => ({...prev, pickUpFee: Number(e.target.value)}))} />
+                        <SelectWithLabel name="pickUpFeeCurrency" label="Currency" size={"sm"} labelPosition="top" items={SelectList.CURRENCY} 
+                        value={reservation?.pickUpFeeCurrency} onValueChange={(value) => setReservation(prev => ({...prev, pickUpFeeCurrency: value}))} />
+                        <DateInputWithLabel label="Deposit Date" type="date" size={"sm"} labelPosition="top" 
+                        value={reservation?.pickUpFeePaidOnUTC ? reservation?.pickUpFeePaidOnUTC.toLocaleDateString('sv-SE') : ''}
+                            onChange={(e) => {
+                                const newDate = e.target.value ? new Date(new Date(e.target.value).toISOString()) : undefined;
+                                setReservation(prev => ({
+                                    ...prev,
+                                    pickUpFeePaidOnUTC: newDate
+                                }));
+                            }} />
+                    </div>
+                    <div className="flex gap-2 items-end">
+                        <InputWithLabel name="dropOfFee" label="Drop-Off Fee" size={"sm"} labelPosition="top" 
+                        value={reservation?.dropOfFee} onChange={(e) => setReservation(prev => ({...prev, dropOfFee: Number(e.target.value)}))} />
+                        <SelectWithLabel name="dropOffFeeCurrency" label="Currency" size={"sm"} labelPosition="top" items={SelectList.CURRENCY} 
+                        value={reservation?.dropOffFeeCurrency} onValueChange={(value) => setReservation(prev => ({...prev, dropOffFeeCurrency: value}))} />
+                        <DateInputWithLabel label="Deposit Date" type="date" size={"sm"} labelPosition="top" 
+                        value={reservation?.dropOffFeePaidOnUTC ? reservation?.depositDateUTC.toLocaleDateString('sv-SE') : ''}
+                            onChange={(e) => {
+                                const newDate = e.target.value ? new Date(new Date(e.target.value).toISOString()) : undefined;
+                                setReservation(prev => ({
+                                    ...prev,
+                                    dropOffFeePaidOnUTC: newDate
+                                }));
+                            }} />
+                    </div>
+                    <div className="flex gap-2 items-end">
+                        <InputWithLabel name="tax" label="Tax (%)" size={"sm"} labelPosition="top" 
+                        value={reservation?.tax} onChange={(e) => setReservation(prev => ({...prev, tax: Number(e.target.value)}))} />
+                        <InputWithLabel name="discountAmount" label="Discount" size={"sm"} labelPosition="top" 
+                        value={reservation?.discountAmount} onChange={(e) => setReservation(prev => ({...prev, discountAmount: Number(e.target.value)}))} />
                     </div>
                     <div className="flex gap-2">
                         <Textarea name="remark" placeholder="Remarks ..." value={reservation?.remark ?? ''} onChange={(e) => setReservation(prev => ({...prev, remark: e.target.value}))} />

@@ -51,11 +51,23 @@ export const userUpdateSchema = z.object({
 });
 
 
-export const pagerSchema = z.object({
+export const pagerValidator = z.object({
   orderBy: z.string().regex(RegExp('[a-zA-Z]'),'Invalid orderBy column.').optional(),
   orderDirection: z.string().regex(RegExp('asc|desc'),'Invalid search column.').optional(),
   pageIndex: z.coerce.number().optional(),
   pageSize: z.coerce.number().optional(),
+});
+
+
+export const paymentValidator = z.object({
+  id: z.string().length(36).nullish().catch(undefined).optional(),
+  reservationId: z.string().length(36),
+  paymentDateUTC: z.coerce.date(),
+  amount: z.coerce.number(),
+  amountInCurrency: z.coerce.number(),
+  currency: z.string().length(3),
+  paymentMode: z.string().min(1),
+  remark: z.string().nullish().catch(undefined).optional()
 });
 
 

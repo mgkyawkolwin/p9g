@@ -4,20 +4,20 @@ import RoomRateEngine from '@/domain/engines/RoomRateEngine';
 import Reservation from '@/domain/models/Reservation';
 import RoomReservation from '@/domain/dtos/RoomReservation';
 import RoomType from '@/domain/models/RoomType';
-import RoomSeasonRate from '@/domain/models/RoomSeasonRate';
+import RoomRate from '@/domain/models/RoomRate';
 
 describe('RoomRateEngine', () => {
   let engine: RoomRateEngine;
   let reservation : Reservation;
   let roomReservations: RoomReservation[];
   let roomTypes: RoomType[];
-  let seasonRates: RoomSeasonRate[];
+  let roomRates: RoomRate[];
 
   beforeEach(() => {
     vi.clearAllMocks();
     engine = new RoomRateEngine();
     roomTypes = [];
-    seasonRates = [];
+    roomRates = [];
     reservation = new Reservation();
     roomReservations = [];
   });
@@ -29,8 +29,6 @@ describe('RoomRateEngine', () => {
 
         const roomType = new RoomType();
         roomType.id = '1';
-        roomType.roomRate = 100;
-        roomType.singleRate = 50;
         roomTypes.push(roomType);
 
         const roomReservation = new RoomReservation();
@@ -39,19 +37,20 @@ describe('RoomRateEngine', () => {
         roomReservation.roomTypeId = "1";
         roomReservations.push(roomReservation);
 
-        const seasonRate = new RoomSeasonRate();
-        seasonRate.startDateUTC = new Date('2025-02-01T00:00:00.000Z');
-        seasonRate.endDateUTC = new Date('2025-02-28T00:00:00.000Z');
-        seasonRate.roomRate = 200;
-        seasonRate.roomTypeId = '1';
-        seasonRates.push(seasonRate);
+        const roomRate = new RoomRate();
+        roomRate.month = 0;
+        roomRate.roomRate = 200;
+        roomRate.singleRate = 1;
+        roomRate.roomTypeId = '1';
+        roomRates.push(roomRate);
 
-        const roomCharges = engine.calculate(reservation, roomReservations, roomTypes, seasonRates);
-      
+        const roomCharges = engine.calculate(reservation, roomReservations, roomTypes, roomRates);
+        console.log(roomCharges);
+
         expect(roomCharges.length).toEqual(1);
-        expect(roomCharges[0].rate).toEqual(100);
+        expect(roomCharges[0].totalRate).toEqual(200);
         expect(roomCharges[0].noOfDays).toEqual(10);
-        expect(roomCharges[0].total).toEqual(1000);
+        expect(roomCharges[0].totalAmount).toEqual(2000);
     });
 
     it('Engine can calculate single charge rate.', async () => {
@@ -60,8 +59,6 @@ describe('RoomRateEngine', () => {
 
         const roomType = new RoomType();
         roomType.id = '1';
-        roomType.roomRate = 100;
-        roomType.singleRate = 50;
         roomTypes.push(roomType);
 
         const roomReservation = new RoomReservation();
@@ -71,32 +68,71 @@ describe('RoomRateEngine', () => {
         roomReservation.isSingleOccupancy = true;
         roomReservations.push(roomReservation);
 
-        const seasonRate = new RoomSeasonRate();
-        seasonRate.startDateUTC = new Date('2025-02-01T00:00:00.000Z');
-        seasonRate.endDateUTC = new Date('2025-02-28T00:00:00.000Z');
-        seasonRate.roomRate = 200;
-        seasonRate.roomTypeId = '1';
-        seasonRates.push(seasonRate);
+        const roomRate = new RoomRate();
+        roomRate.month = 0;
+        roomRate.roomRate = 200;
+        roomRate.singleRate = 100;
+        roomRate.roomTypeId = '1';
+        roomRates.push(roomRate);
 
-        const roomCharges = engine.calculate(reservation, roomReservations, roomTypes, seasonRates);
+        const roomCharges = engine.calculate(reservation, roomReservations, roomTypes, roomRates);
+        console.log(roomCharges);
       
         expect(roomCharges.length).toEqual(1);
-        expect(roomCharges[0].rate).toEqual(150);
+        expect(roomCharges[0].totalRate).toEqual(200);
+        expect(roomCharges[0].singleRate).toEqual(100);
         expect(roomCharges[0].noOfDays).toEqual(10);
-        expect(roomCharges[0].total).toEqual(1500);
+        expect(roomCharges[0].totalAmount).toEqual(3000);
     });
   });
 
 
-  describe('Seasonal rate calculation', () => {
-    it('Engine can calculate on seasonal room rate.', async () => {
-        reservation.checkInDateUTC = new Date('2025-02-01T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-02-10T00:00:00.000Z');
+
+  describe('Mixed rates calculation', () => {
+    it('Same rate will combine into one room charge.', async () => {
+      reservation.checkInDateUTC = new Date('2025-01-26T00:00:00.000Z');
+      reservation.checkOutDateUTC = new Date('2025-02-05T00:00:00.000Z');
+
+      const roomType = new RoomType();
+      roomType.id = '1';
+      roomTypes.push(roomType);
+
+      const roomReservation = new RoomReservation();
+      roomReservation.checkInDateUTC = reservation.checkInDateUTC;
+      roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+      roomReservation.roomTypeId = "1";
+      roomReservations.push(roomReservation);
+
+      let roomRate = new RoomRate();
+      roomRate.month = 0;
+      roomRate.roomRate = 100;
+      roomRate.singleRate = 1;
+      roomRate.roomTypeId = '1';
+      roomRates.push(roomRate);
+
+      roomRate = new RoomRate();
+      roomRate.month = 1;
+      roomRate.roomRate = 100;
+      roomRate.singleRate = 1;
+      roomRate.roomTypeId = '1';
+      roomRates.push(roomRate);
+
+      const roomCharges = engine.calculate(reservation, roomReservations, roomTypes, roomRates);
+      console.log(roomCharges);
+
+      expect(roomCharges.length).toEqual(1);
+
+      expect(roomCharges[0].totalRate).toEqual(100);
+      expect(roomCharges[0].noOfDays).toEqual(10);
+      expect(roomCharges[0].totalAmount).toEqual(1000);
+  });
+
+    it('Engine can calculate on mixed room rate.', async () => {
+        reservation.checkInDateUTC = new Date('2025-01-26T00:00:00.000Z');
+        reservation.checkOutDateUTC = new Date('2025-02-05T00:00:00.000Z');
 
         const roomType = new RoomType();
         roomType.id = '1';
-        roomType.roomRate = 100;
-        roomType.singleRate = 50;
         roomTypes.push(roomType);
 
         const roomReservation = new RoomReservation();
@@ -105,30 +141,40 @@ describe('RoomRateEngine', () => {
         roomReservation.roomTypeId = "1";
         roomReservations.push(roomReservation);
 
-        const seasonRate = new RoomSeasonRate();
-        seasonRate.startDateUTC = new Date('2025-02-01T00:00:00.000Z');
-        seasonRate.endDateUTC = new Date('2025-02-28T00:00:00.000Z');
-        seasonRate.roomRate = 200;
-        seasonRate.singleRate = 100;
-        seasonRate.roomTypeId = '1';
-        seasonRates.push(seasonRate);
+        let roomRate = new RoomRate();
+        roomRate.month = 0;
+        roomRate.roomRate = 100;
+        roomRate.singleRate = 1;
+        roomRate.roomTypeId = '1';
+        roomRates.push(roomRate);
 
-        const roomCharges = engine.calculate(reservation, roomReservations, roomTypes, seasonRates);
+        roomRate = new RoomRate();
+        roomRate.month = 1;
+        roomRate.roomRate = 200;
+        roomRate.singleRate = 1;
+        roomRate.roomTypeId = '1';
+        roomRates.push(roomRate);
+
+        const roomCharges = engine.calculate(reservation, roomReservations, roomTypes, roomRates);
         console.log(roomCharges);
-        expect(roomCharges.length).toEqual(1);
-        expect(roomCharges[0].rate).toEqual(200);
-        expect(roomCharges[0].noOfDays).toEqual(10);
-        expect(roomCharges[0].total).toEqual(2000);
+
+        expect(roomCharges.length).toEqual(2);
+
+        expect(roomCharges[0].totalRate).toEqual(100);
+        expect(roomCharges[0].noOfDays).toEqual(5);
+        expect(roomCharges[0].totalAmount).toEqual(500);
+
+        expect(roomCharges[1].totalRate).toEqual(200);
+        expect(roomCharges[1].noOfDays).toEqual(5);
+        expect(roomCharges[1].totalAmount).toEqual(1000);
     });
 
-    it('Engine can calculate single charge rate.', async () => {
-        reservation.checkInDateUTC = new Date('2025-02-01T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-02-10T00:00:00.000Z');
+    it('Engine can calculate single charge mixed rate.', async () => {
+        reservation.checkInDateUTC = new Date('2025-01-26T00:00:00.000Z');
+        reservation.checkOutDateUTC = new Date('2025-02-05T00:00:00.000Z');
 
         const roomType = new RoomType();
         roomType.id = '1';
-        roomType.roomRate = 100;
-        roomType.singleRate = 50;
         roomTypes.push(roomType);
 
         const roomReservation = new RoomReservation();
@@ -138,20 +184,34 @@ describe('RoomRateEngine', () => {
         roomReservation.isSingleOccupancy = true;
         roomReservations.push(roomReservation);
 
-        const seasonRate = new RoomSeasonRate();
-        seasonRate.startDateUTC = new Date('2025-02-01T00:00:00.000Z');
-        seasonRate.endDateUTC = new Date('2025-02-28T00:00:00.000Z');
-        seasonRate.roomRate = 200;
-        seasonRate.singleRate = 100;
-        seasonRate.roomTypeId = '1';
-        seasonRates.push(seasonRate);
+        let roomRate = new RoomRate();
+        roomRate.month = 0;
+        roomRate.roomRate = 100;
+        roomRate.singleRate = 50;
+        roomRate.roomTypeId = '1';
+        roomRates.push(roomRate);
 
-        const roomCharges = engine.calculate(reservation, roomReservations, roomTypes, seasonRates);
-      
-        expect(roomCharges.length).toEqual(1);
-        expect(roomCharges[0].rate).toEqual(300);
-        expect(roomCharges[0].noOfDays).toEqual(10);
-        expect(roomCharges[0].total).toEqual(3000);
+        roomRate = new RoomRate();
+        roomRate.month = 1;
+        roomRate.roomRate = 200;
+        roomRate.singleRate = 100;
+        roomRate.roomTypeId = '1';
+        roomRates.push(roomRate);
+
+        const roomCharges = engine.calculate(reservation, roomReservations, roomTypes, roomRates);
+        console.log(roomCharges);
+
+        expect(roomCharges.length).toEqual(2);
+
+        expect(roomCharges[0].totalRate).toEqual(100);
+        expect(roomCharges[0].singleRate).toEqual(50);
+        expect(roomCharges[0].noOfDays).toEqual(5);
+        expect(roomCharges[0].totalAmount).toEqual(750);
+
+        expect(roomCharges[1].totalRate).toEqual(200);
+        expect(roomCharges[1].singleRate).toEqual(100);
+        expect(roomCharges[1].noOfDays).toEqual(5);
+        expect(roomCharges[1].totalAmount).toEqual(1500);
     });
   });
 

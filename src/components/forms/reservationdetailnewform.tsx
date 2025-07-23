@@ -20,9 +20,11 @@ export default function ReservationDetailNewForm({customers}: ReservationDetailN
     const [state, formAction, isPending] = React.useActionState(saveReservation,
         {
             error:false,
-            message:''
+            message:'',
+            reload: false
         });
 
+    const formRef = React.useRef(undefined);
     const detailFormRef = React.useRef<{ resetForm: () => void }>(null);
 
     function clearForm(){
@@ -39,7 +41,7 @@ export default function ReservationDetailNewForm({customers}: ReservationDetailN
     },[state]);
 
     return (
-        <form action={formAction}>
+        <form ref={formRef} action={formAction}>
             <div className="flex flex-col">
             <Group className="flex h-full">
                 <GroupTitle>
@@ -49,7 +51,7 @@ export default function ReservationDetailNewForm({customers}: ReservationDetailN
                     <div className="flex flex-col gap-4">
                     <ReservationDetailForm ref={detailFormRef} initialReservation={new Reservation()} />
                     <div className="flex gap-4">
-                        <ButtonCustom type="submit" variant={"green"} disabled={isPending} >Create Reservation</ButtonCustom>
+                        <ButtonCustom type="button" variant={"green"} disabled={isPending} onClick={() => formRef.current?.requestSubmit()} >Create Reservation</ButtonCustom>
                         <ButtonCustom type="button" variant={"red"} disabled={isPending} onClick={() => clearForm()}>Clear Form</ButtonCustom>
                     </div>
                     </div>

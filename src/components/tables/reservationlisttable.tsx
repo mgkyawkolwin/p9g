@@ -13,6 +13,8 @@ import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import BillEditDialog from "../dialogs/billeditdialog"
 import BillDialog from "../dialogs/billdialog";
+import PaymentDialog from "../dialogs/paymentdialog";
+import ReceiptDialog from "../dialogs/receiptdialog";
 
 
 interface DataTableProps{
@@ -31,6 +33,8 @@ export default function ReservationListTable({
 
   const router = useRouter();
 
+  const receiptDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
+  const paymentDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
   const editDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
   const viewDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
 
@@ -103,6 +107,18 @@ export default function ReservationListTable({
         return <div className="flex flex-col gap-1">
           <div className="flex gap-1">
             <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+            receiptDialogCallbackFunc.current?.openDialog(true);
+            setReservationId(row.original.id);
+            
+          }}>Receipt</ButtonCustom>
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+              paymentDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+              
+            }}>Payment</ButtonCustom>
+          </div>
+          <div className="flex gap-1">
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
             editDialogCallbackFunc.current?.openDialog(true);
             setReservationId(row.original.id);
             
@@ -166,6 +182,8 @@ export default function ReservationListTable({
           </DialogContent>
         </Dialog>
       </section>
+      <ReceiptDialog reservationId={reservationId} callbackFunctions={(func) => {receiptDialogCallbackFunc.current = func}} />
+      <PaymentDialog reservationId={reservationId} callbackFunctions={(func) => {paymentDialogCallbackFunc.current = func}} />
       <BillEditDialog reservationId={reservationId} callbackFunctions={(func) => {editDialogCallbackFunc.current = func}} />
       <BillDialog reservationId={reservationId} callbackFunctions={(func) => {viewDialogCallbackFunc.current = func}} />
     </>

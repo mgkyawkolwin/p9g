@@ -80,6 +80,36 @@ export async function editReservationAction(formState : FormState, formData: For
 }
 
 
+export async function getReservation(reservationId:string){
+    c.i("Action is SEARCH. Validating search fields.");
+
+    //update user
+    c.i("Requesting API to retrieve customers.");
+    const response = await fetch(process.env.API_URL + `reservations/${reservationId}/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
+    });
+    
+    //retrieve user failed
+    if (!response.ok) {
+      c.i("Retrieve reservation api response failed. Return response.");
+      const errorData = await response.json();
+      c.e(errorData.message);
+      return { error: true, message: 'Failed to retrieve reservation.'};
+    }
+
+    c.i("Retrieve reservation successful.");
+    const responseData = await response.json();
+    c.d(responseData);
+    const reservation = responseData.data;
+    
+    return {error:false, data:reservation};
+}
+
+
 export async function searchCustomer(search:string){
     c.i("Action is SEARCH. Validating search fields.");
 

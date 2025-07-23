@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
 import { TYPES, SearchParam } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
-import { pagerSchema, reservationValidator, searchSchema } from "@/lib/zodschema";
+import { pagerValidator, reservationValidator, searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
 import IReservationService from "@/domain/services/contracts/IReservationService";
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     //no need to validate pager params, if not valid, will use defaults
-    const pagerValidatedFields = await pagerSchema.safeParseAsync(searchParams);
+    const pagerValidatedFields = await pagerValidator.safeParseAsync(searchParams);
     c.d(JSON.stringify(pagerValidatedFields));
     const pager = pagerWithDefaults(pagerValidatedFields.data);
     c.d(JSON.stringify(pager));
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
         // update user
         c.i("Calling service.");
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-        const createdReservation = await reservationService.createReservation(validatedReservation.data as unknown as Reservation);
+        const createdReservation = await reservationService.reservationCreate(validatedReservation.data as unknown as Reservation);
         if(!createdReservation){
             c.d("Reservaton creation failed. Return result.");
             return NextResponse.json({ message: "Create failed." }, { status: HttpStatusCode.ServerError });

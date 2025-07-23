@@ -1,4 +1,4 @@
-import { mysqlTable, int, boolean, char, varchar,  tinyint,date, datetime,decimal } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, boolean, char, varchar,  tinyint,date, datetime,decimal, binary, mediumint } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import {v4 as uuidv4} from 'uuid';
 
@@ -48,6 +48,21 @@ export const customerTable = mysqlTable("customer", {
   updatedBy: char("updatedBy", {length: 36}).notNull()
 });
 
+export const paymentTable = mysqlTable("payment", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  reservationId: char("reservationId", {length: 36}).notNull(),
+  paymentDateUTC: datetime("paymentDateUTC").notNull(),
+  amount: decimal("amount").notNull(),
+  amountInCurrency: decimal("amountInCurrency").notNull(),
+  currency: char("currency", {length: 3}).notNull(),
+  paymentMode: varchar("paymentMode", {length: 10}).notNull(),
+  remark: varchar("remark", {length: 200}),
+  createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", {length: 36}).notNull()
+});
+
 export const prepaidTable = mysqlTable("prepaid", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
   value: varchar("value", {length: 50}).notNull(),
@@ -86,16 +101,24 @@ export const reservationTable = mysqlTable("reservation", {
   noOfGuests: tinyint("noOfGuests"),
   pickUpTypeId: char("pickUpTypeId", {length: 36}).references(() => configTable.id),
   pickUpFee: tinyint("pickUpFee"),
-  pickUpCurrency: char("pickUpCurrency", {length: 3}),
+  pickUpFeeCurrency: char("pickUpFeeCurrency", {length: 3}),
+  pickUpFeePaidOnUTC: datetime("pickUpFeePaidOnUTC"),
   pickUpCarNo: varchar("pickUpCarNo", {length: 10}),
   prepaidPackageId: char("prepaidPackageId", {length: 36}).references(() => prepaidTable.id),
   promotionPackageId: char("promotionPackageId", {length: 36}).references(() => promotionTable.id),
   dropOffTypeId: char("dropOffTypeId", {length: 36}).references(() => configTable.id),
   dropOffFee: tinyint("dropOffFee"),
   dropOffFeeCurrency: char("dropOffFeeCurrency", {length: 3}),
+  dropOffFeePaidOnUTC: datetime("dropOffFeePaidOnUTC"),
   dropOffCarNo: varchar("dropOffCarNo", {length: 10}),
   reservationStatusId: char("reservationStatusId", {length: 36}).notNull().references(() => configTable.id),
   remark: varchar("remark", {length: 255}),
+  totalAmount: decimal("totalAmount"),
+  paidAmount: decimal("paidAmount"),
+  discountAmount: decimal("discountAmount"),
+  tax: decimal("tax"),
+  taxAmount: decimal("taxAmount"),
+  balance: decimal("balance"),
   location: varchar("location", {length: 10}).notNull(),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
@@ -118,7 +141,26 @@ export const roomTable = mysqlTable("room", {
   roomNo: varchar("roomNo", { length: 50 }).notNull().references(() => roomTypeTable.id),
   roomTypeId: char("roomTypeId", {length: 36}).notNull(),
   isAvailable: boolean("isAvailable").default(true).notNull(),
-  isDoubleBed: boolean("isDoubleBed").default(true).notNull(),
+  createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", {length: 36}).notNull()
+});
+
+export const roomChargeTable = mysqlTable("roomCharge", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  reservationId: char("reservationId", {length: 36}),
+  startDateUTC: datetime("startDateUTC"),
+  endDateUTC: datetime("endDateUTC"),
+  roomTypeId: char("roomTypeId", { length: 36 }).notNull(),
+  roomRate: decimal("roomRate").notNull(),
+  roomSurcharge: decimal("roomSurcharge").notNull(),
+  singleRate: decimal("singleRate").notNull(),
+  seasonSurcharge: decimal("seasonSurcharge").notNull(),
+  extraBedRate: decimal("extraBedRate").notNull(),
+  totalRate: decimal("totalRate").notNull(),
+  noOfDays: tinyint("noOfDays").notNull(),
+  totalAmount: decimal("totalAmount").notNull(),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
@@ -132,6 +174,22 @@ export const roomReservationTable = mysqlTable("roomReservation", {
   noOfExtraBed: tinyint().default(0),
   checkInDateUTC: datetime("checkInDateUTC", {mode: 'date', fsp: 3}).notNull(),
   checkOutDateUTC: datetime("checkOutDateUTC", {mode: 'date', fsp: 3}).notNull(), 
+  isSingleOccupancy: binary("isSingleOccupancy"),
+  createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", {length: 36}).notNull()
+});
+
+export const roomRateTable = mysqlTable("roomRate", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  roomTypeId: char("roomTypeId", { length: 36 }).notNull(),
+  roomRate: decimal("roomRate").notNull(),
+  singleRate: decimal("singleRate").notNull(),
+  extraRate: decimal("extraRate").notNull(),
+  extraBedRate: decimal("extraBedRate").notNull(),
+  month: tinyint("month").notNull(),
+  location: varchar("location", {length: 10}).notNull(),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
@@ -141,6 +199,10 @@ export const roomReservationTable = mysqlTable("roomReservation", {
 export const roomTypeTable = mysqlTable("roomType", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
   roomType: varchar("roomType", { length: 50 }).notNull(),
+  roomTypeText: varchar("roomTypeText", { length: 50 }).notNull(),
+  maxOccupancy: tinyint("maxOccupancy"),
+  isDoubleBed: binary("isDoubleBed"),
+  location: varchar("location", {length: 10}),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
@@ -228,47 +290,13 @@ export const roomReservationRelations = relations(roomReservationTable, ({ one, 
   })
 }));
 
-// export const reservationConfigReservationStatusRelations = relations(reservationTable, ({ one }) => ({
-//   reservationStatus: one(configTable, {
-//     fields: [reservationTable.reservationStatusId],
-//     references: [configTable.id],
-//   }),
-// }));
-
-// export const reservationConfigReservationTypeRelations = relations(reservationTable, ({ one }) => ({
-//   reservationType: one(configTable, {
-//     fields: [reservationTable.reservationTypeId],
-//     references: [configTable.id],
-//   }),
-// }));
-
-// export const reservationReservationCusomterRelations = relations(reservationTable, ({ many }) => ({
-//   reservationCustomers: many(reservationCustomerTable),
-// }));
-
-// export const reservationCusomterCustomerRelations = relations(reservationCustomerTable, ({ many }) => ({
-//   customers: many(customer),
-// }));
-
-
-// export const reservationRelations = relations(reservation, ({ one, many }) => ({
-//   reservationType: one(config, {
-//     fields: [reservation.reservationTypeId],
-//     references: [config.id],
-//   }),
-//   status: one(config, {
-//     fields: [reservation.statusId],
-//     references: [config.id],
-//   }),
-//   customers: many(reservationCustomer),
-//   rooms: many(reservationRoom)
-// }));
 
 // Export TypeScript types
 export type BillEntity = typeof billTable.$inferSelect;
 export type UserEntity = typeof userTable.$inferSelect;
 export type ConfigEntity = typeof configTable.$inferSelect;
 export type CustomerEntity = typeof customerTable.$inferSelect;
+export type PaymentEntity = typeof paymentTable.$inferSelect;
 export type ReservationEntity = typeof reservationTable.$inferSelect;
 export type ReservationCustomerEntity = typeof reservationCustomerTable.$inferSelect;
 export type RoomReservationEntity = typeof roomReservationTable.$inferSelect;

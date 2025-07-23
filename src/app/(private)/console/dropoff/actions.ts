@@ -1,6 +1,6 @@
 'use server';
 
-import { pagerSchema, searchSchema } from '@/lib/zodschema';
+import { pagerValidator, searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
@@ -19,7 +19,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     //validate and parse paging input
     c.i("Parsing pager fields from form entries.");
-    const pagerFields = pagerSchema.safeParse(Object.fromEntries(formData.entries()));
+    const pagerFields = pagerValidator.safeParse(Object.fromEntries(formData.entries()));
     c.d(pagerFields);
 
     //table pager field validatd, build query string

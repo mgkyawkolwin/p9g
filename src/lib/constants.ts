@@ -44,6 +44,13 @@ export const SelectList = {
         ["11","DEC"]
     ]),
 
+    PAYMENT_MODE: new Map<string, string>([
+        ["CASH","Cash"],
+        ["BANK","Bank"],
+        ["ONLINE","Online"],
+        ["OTHER","Other"]
+    ]),
+
     PREPAID_PACKAGES: new Map<string,string>([
         ["NINETY_DAYS", "90 Days"]
     ]),

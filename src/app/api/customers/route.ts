@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
 import { TYPES, SearchParam } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
-import { customerValidator, pagerSchema, searchSchema } from "@/lib/zodschema";
+import { customerValidator, pagerValidator, searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
 import ICustomerService from "@/domain/services/contracts/ICustomerService";
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     //no need to validate pager params, if not valid, will use defaults
-    const pagerValidatedFields = await pagerSchema.safeParseAsync(searchParams);
+    const pagerValidatedFields = await pagerValidator.safeParseAsync(searchParams);
     c.d(JSON.stringify(pagerValidatedFields));
     const pager = pagerWithDefaults(pagerValidatedFields.data);
     c.d(JSON.stringify(pager));

@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { customerValidator, pagerSchema, searchSchema } from '@/lib/zodschema';
+import { customerValidator, pagerValidator, searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
@@ -47,7 +47,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
 
     //validate and parse paging input
     c.i("Parsing pager fields from form entries.");
-    const pagerFields = pagerSchema.safeParse(Object.fromEntries(formData.entries()));
+    const pagerFields = pagerValidator.safeParse(Object.fromEntries(formData.entries()));
     c.d(pagerFields);
 
     //table pager field validatd, build query string
