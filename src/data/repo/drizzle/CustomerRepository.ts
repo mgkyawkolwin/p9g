@@ -4,7 +4,7 @@ import { customerTable } from "@/data/orm/drizzle/mysql/schema";
 import { Repository } from "./Repository";
 import { TYPES } from "@/lib/types";
 import { type IDatabase } from "@/data/db/IDatabase";
-import ICustomerRepository from "../ICustomerRepository";
+import ICustomerRepository from "../contracts/ICustomerRepository";
 import Customer from "@/domain/models/Customer";
 
 

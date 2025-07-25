@@ -237,6 +237,33 @@ export async function paymentsGet(id:string) : Promise<FormState>{
 }
 
 
+export async function paymentsDelete(reservationId:string, paymentId: string) : Promise<FormState>{
+  try {
+    c.i('Actions > /console/reservations/ > paymentsDelete');
+    c.d(paymentId);
+
+    //delete payment
+    const response = await fetch(process.env.API_URL + `reservations/${reservationId}/payments/${paymentId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      },
+    });
+    
+    //update user failed
+    if (!response.ok) {
+      const errorData = await response.json();
+      c.e(errorData);
+      return { error: true, message: 'Failed to delete payments. ' + errorData.message};
+    }
+    
+    return {error: false, message:"Payments deleted."};
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error: true, message: 'Failed to delete payments.', data: null, formData: null};
+  }
+}
 
 
 export async function paymentsSave(id: string, payments: Payment[]) : Promise<FormState>{
@@ -337,7 +364,7 @@ export async function roomChargesGet(id:string) : Promise<FormState>{
       return { error: true, message: `Failed to get room charges. ${result.message}`, data: null, formData: null};
     }
     
-    return {error: false, message:"", data: result.roomcharges};
+    return {error: false, message:"", data: result.roomCharges};
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return {error: true, message: 'Failed to get room charges.', data: null, formData: null};

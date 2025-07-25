@@ -137,7 +137,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         <Checkbox /> Single Occupancy
                         {/* <Button size={"sm"}>Search Available Rooms</Button> */}
                     </div>
-                    <div className="flex gap-2 items-end">
+                    {/* <div className="flex gap-2 items-end">
                         <InputWithLabel name="depositAmount" label="Deposit" size={"sm"} labelPosition="top" 
                         value={reservation?.depositAmount} onChange={(e) => setReservation(prev => ({...prev, depositAmount: Number(e.target.value)}))} />
                         <SelectWithLabel name="depositCurrency" label="Currency" size={"sm"} labelPosition="top" items={SelectList.CURRENCY} 
@@ -151,8 +151,8 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                     depositDateUTC: newDate
                                 }));
                             }} />
-                    </div>
-                    <div className="flex gap-2 items-end">
+                    </div> */}
+                    {/* <div className="flex gap-2 items-end">
                         <InputWithLabel name="pickUpFee" label="Pick-Up Fee" size={"sm"} labelPosition="top" 
                         value={reservation?.pickUpFee} onChange={(e) => setReservation(prev => ({...prev, pickUpFee: Number(e.target.value)}))} />
                         <SelectWithLabel name="pickUpFeeCurrency" label="Currency" size={"sm"} labelPosition="top" items={SelectList.CURRENCY} 
@@ -166,8 +166,8 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                     pickUpFeePaidOnUTC: newDate
                                 }));
                             }} />
-                    </div>
-                    <div className="flex gap-2 items-end">
+                    </div> */}
+                    {/* <div className="flex gap-2 items-end">
                         <InputWithLabel name="dropOfFee" label="Drop-Off Fee" size={"sm"} labelPosition="top" 
                         value={reservation?.dropOfFee} onChange={(e) => setReservation(prev => ({...prev, dropOfFee: Number(e.target.value)}))} />
                         <SelectWithLabel name="dropOffFeeCurrency" label="Currency" size={"sm"} labelPosition="top" items={SelectList.CURRENCY} 
@@ -181,7 +181,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                     dropOffFeePaidOnUTC: newDate
                                 }));
                             }} />
-                    </div>
+                    </div> */}
                     <div className="flex gap-2 items-end">
                         <InputWithLabel name="tax" label="Tax (%)" size={"sm"} labelPosition="top" 
                         value={reservation?.tax} onChange={(e) => setReservation(prev => ({...prev, tax: Number(e.target.value)}))} />

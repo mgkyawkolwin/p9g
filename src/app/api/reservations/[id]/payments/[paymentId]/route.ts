@@ -5,31 +5,35 @@ import c from "@/lib/core/logger/ConsoleLogger";
 import { HttpStatusCode } from "@/lib/constants";
 import IReservationService from "@/domain/services/contracts/IReservationService";
 import Bill from "@/domain/models/Bill";
-import { billValidator } from "@/lib/zodschema";
+import { billValidator, paymentValidator } from "@/lib/zodschema";
 import { CustomError } from "@/lib/errors";
 
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id:string, paymentId:string }> }) {
     try {
-        c.i("GET /api/reservations/[id]/invoices");
+        c.i("POST /api/reservations/[id]/payments/[paymentId]");
         c.d(JSON.stringify(request));
 
         //retrieve search params from request
         const p = await params;
         c.d(p);
-        const { id } = p;
+        const { id, paymentId } = p;
 
         if (!id) {
             c.i('No reservationId. Return invalid response.');
             return NextResponse.json({ status: HttpStatusCode.BadRequest });
         }
 
+        if (!paymentId) {
+            c.i('No payment id. Return invalid response.');
+            return NextResponse.json({ status: HttpStatusCode.BadRequest });
+        }
+
         //call service to retrieve data
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-        const result = await reservationService.billsView(id);
+        await reservationService.paymentsDelete(id, paymentId);
 
-        c.i('Return GET /api/reservations/[id]/invoice');
-        return NextResponse.json({invoice:result}, { status: HttpStatusCode.Ok });
+        return NextResponse.json({ status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
         if(error instanceof CustomError)

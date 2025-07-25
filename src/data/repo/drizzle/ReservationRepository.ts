@@ -1,5 +1,5 @@
-import { configTable, ReservationEntity, reservationTable, reservationCustomerTable, prepaidTable, promotionTable, customerTable, ConfigEntity, roomTable, roomReservationTable, RoomReservationEntity, ReservationCustomerEntity, billTable, BillEntity, userTable, paymentTable, PaymentEntity, roomChargeTable } from "@/data/orm/drizzle/mysql/schema";
-import IReservationRepository from "../IReservationRepository";
+import { configTable, ReservationEntity, reservationTable, reservationCustomerTable, prepaidTable, promotionTable, customerTable, ConfigEntity, roomTable, roomReservationTable, RoomReservationEntity, ReservationCustomerEntity, billTable, BillEntity, userTable, paymentTable, PaymentEntity, roomChargeTable, roomRateTable, roomTypeTable, RoomChargeEntity } from "@/data/orm/drizzle/mysql/schema";
+import IReservationRepository from "../contracts/IReservationRepository";
 import { inject, injectable } from "inversify";
 import type { IDatabase } from "@/data/db/IDatabase";
 import { PagerParams, SearchParam, TYPES } from "@/lib/types";
@@ -16,9 +16,10 @@ import { auth } from "@/app/auth";
 import Bill from "@/domain/models/Bill";
 import { CustomError } from "@/lib/errors";
 import { HttpStatusCode } from "@/lib/constants";
-import { Session } from "next-auth";
 import Payment from "@/domain/models/Payment";
 import RoomCharge from "@/domain/models/RoomCharge";
+import RoomRate from "@/domain/models/RoomRate";
+import RoomType from "@/domain/models/RoomType";
 
 
 @injectable()
@@ -61,9 +62,10 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     async billsSave(reservationId: string, bills: Bill[]): Promise<void> {
         c.i('ReservationRepository > billsSave');
         c.d(bills);
+        const session = await auth();
         bills.forEach(bill => {
-            bill.createdBy = 'xxx';
-            bill.updatedBy = 'xxx';
+            bill.createdBy = session.user.id;
+            bill.updatedBy = session.user.id;
         });
 
         await this.dbClient.db.transaction(async (tx: TransactionType) => {
@@ -76,6 +78,20 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             }
         });
         c.i('Return > ReservationRepository > billsSave');
+    }
+
+
+    async paymentsDelete(reservationId: string, paymentId: string): Promise<void> {
+        if(!reservationId) throw new CustomError('Reservation id is required.');
+        if(!paymentId) throw new CustomError('Reservation id is required.');
+
+        const session = await auth();
+
+        await this.dbClient.db.delete(paymentTable)
+        .where(and(
+            eq(paymentTable.reservationId, reservationId),
+            eq(paymentTable.id, paymentId)
+        ));
     }
 
 
@@ -134,7 +150,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             const balance = Number(reservation.totalAmount) - Number(totalPaid) - Number(reservation.discountAmount) - Number(reservation.taxAmount);
             c.d(balance);
             
-            await this.dbClient.db.update(reservationTable).set({paidAmount: totalPaid, balance: balance})
+            await this.dbClient.db.update(reservationTable).set({paidAmount: totalPaid, dueAmount: balance})
             .where(eq(reservationTable.id, reservationId));
 
 
@@ -165,7 +181,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         c.d(reservationStatus);
 
         await this.dbClient.db.update(reservationTable)
-            .set({ reservationStatusId: reservationStatus.id, updatedBy: '00000000-0000-0000-0000-000000000000' })
+            .set({ reservationStatusId: reservationStatus.id, updatedBy: session.user.id })
             .where(eq(reservationTable.id, id));
         c.i('Return from ReservationRepository > cancel');
     }
@@ -186,7 +202,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         c.d(reservationStatus);
 
         await this.dbClient.db.update(reservationTable)
-            .set({ reservationStatusId: reservationStatus.id, updatedBy: '00000000-0000-0000-0000-000000000000' })
+            .set({ reservationStatusId: reservationStatus.id, updatedBy: session.user.id })
             .where(eq(reservationTable.id, id));
         c.i('Return from ReservationRepository > checkIn');
     }
@@ -206,7 +222,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         c.d(reservationStatus);
 
         await this.dbClient.db.update(reservationTable)
-            .set({ reservationStatusId: reservationStatus.id, updatedBy: '00000000-0000-0000-0000-000000000000' })
+            .set({ reservationStatusId: reservationStatus.id, updatedBy: session.user.id })
             .where(eq(reservationTable.id, id));
         c.i('Return from ReservationRepository > checkOut');
     }
@@ -225,8 +241,13 @@ export default class ReservationRepository extends Repository<Reservation, typeo
 
 
         reservation = await this.reservationPrepare(reservation);
-        reservation.createdBy = '00000000-0000-0000-0000-000000000000';
-        reservation.updatedBy = '00000000-0000-0000-0000-000000000000';
+        reservation.createdBy = session.user.id;
+        reservation.updatedBy = session.user.id;
+        reservation.totalAmount = 0;
+        reservation.paidAmount = 0;
+        reservation.taxAmount = 0;
+        reservation.netAmount = 0;
+        reservation.dueAmount = 0;
         reservation.location = user.location;
 
         // Use transaction
@@ -247,8 +268,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     return {
                         reservationId: createdId.id,
                         customerId: c.id,
-                        createdBy: '00000000-0000-0000-0000-000000000000',
-                        updatedBy: '00000000-0000-0000-0000-000000000000'
+                        createdBy: session.user.id,
+                        updatedBy: session.user.id
                     };
                 });
                 c.d(newReservationCustomers?.length);
@@ -270,8 +291,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 roomReservation.reservationId = reservation.id;
                 roomReservation.checkInDateUTC = reservation.checkInDateUTC;
                 roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
-                roomReservation.createdBy = '00000000-0000-0000-0000-000000000000';
-                roomReservation.updatedBy = '00000000-0000-0000-0000-000000000000';
+                roomReservation.createdBy = session.user.id;
+                roomReservation.updatedBy = session.user.id;
                 await tx.insert(roomReservationTable).values(roomReservation as unknown as RoomReservationEntity);
             }
 
@@ -494,7 +515,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             const date = new Date(new Date().toISOString());
             c.i('Update current roomReservation record');
             await tx.update(roomReservationTable)
-                .set({ checkOutDateUTC: date, updatedBy: '00000000-0000-0000-0000-000000000000' })
+                .set({ checkOutDateUTC: date, updatedBy: session.user.id })
                 .where(eq(roomReservationTable.reservationId, id));
 
             c.i('Create new roomReservation record');
@@ -505,8 +526,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         roomId: room.id,
                         checkInDateUTC: date,
                         checkOutDateUTC: reservation.checkOutDateUTC,
-                        createdBy: '00000000-0000-0000-0000-000000000000',
-                        updatedBy: '00000000-0000-0000-0000-000000000000'
+                        createdBy: session.user.id,
+                        updatedBy: session.user.id
                     });
 
             c.i('Update reservation table.');
@@ -605,7 +626,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             c.i('Starting transaction.');
 
             c.i('Updating reservation.');
-            reservation.updatedBy = '00000000-0000-0000-0000-000000000000';
+            reservation.updatedBy = session.user.id;
             const [createdId] = await tx.update(reservationTable).set(reservation as unknown as ReservationEntity)
                 .where(eq(reservationTable.id, id));
 
@@ -618,8 +639,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     return {
                         reservationId: id,
                         customerId: c.id,
-                        createdBy: '00000000-0000-0000-0000-000000000000',
-                        updatedBy: '00000000-0000-0000-0000-000000000000'
+                        createdBy: session.user.id,
+                        updatedBy: session.user.id
                     };
                 });
                 c.d(newReservationCustomers?.length);
@@ -646,7 +667,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     if (existingRoomReservation) {
                         c.i('Existing room reservation. Move room.');
                         existingRoomReservation.checkOutDateUTC = new Date().toISOString();
-                        existingRoomReservation.updatedBy = '00000000-0000-0000-0000-000000000000';
+                        existingRoomReservation.updatedBy = session.user.id;
                         await tx.update(roomReservationTable).set(existingRoomReservation);
 
                         const roomReservation = new RoomReservation();
@@ -655,8 +676,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         roomReservation.noOfExtraBed = 0;
                         roomReservation.checkInDateUTC = new Date(new Date().toISOString());
                         roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
-                        roomReservation.createdBy = '00000000-0000-0000-0000-000000000000';
-                        roomReservation.updatedBy = '00000000-0000-0000-0000-000000000000';
+                        roomReservation.createdBy = session.user.id;
+                        roomReservation.updatedBy = session.user.id;
                         await tx.insert(roomReservationTable).values(roomReservation as unknown as RoomReservationEntity);
                     }
 
@@ -668,8 +689,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         roomReservation.noOfExtraBed = 0;
                         roomReservation.checkInDateUTC = reservation.checkInDateUTC;
                         roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
-                        roomReservation.createdBy = '00000000-0000-0000-0000-000000000000';
-                        roomReservation.updatedBy = '00000000-0000-0000-0000-000000000000';
+                        roomReservation.createdBy = session.user.id;
+                        roomReservation.updatedBy = session.user.id;
                         await tx.insert(roomReservationTable).values(roomReservation as unknown as RoomReservationEntity);
                     }
                 }
@@ -681,7 +702,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         existingRoomReservation.roomId = room.id;
                         existingRoomReservation.checkInDateUTC = reservation.checkInDateUTC;
                         existingRoomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
-                        existingRoomReservation.updatedBy = '00000000-0000-0000-0000-000000000000';
+                        existingRoomReservation.updatedBy = session.user.id;
                         await tx.update(roomReservationTable).set(existingRoomReservation)
                             .where(eq(roomReservationTable.id, existingRoomReservation.id));
                     }
@@ -694,8 +715,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         roomReservation.noOfExtraBed = 0;
                         roomReservation.checkInDateUTC = reservation.checkInDateUTC;
                         roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
-                        roomReservation.createdBy = '00000000-0000-0000-0000-000000000000';
-                        roomReservation.updatedBy = '00000000-0000-0000-0000-000000000000';
+                        roomReservation.createdBy = session.user.id;
+                        roomReservation.updatedBy = session.user.id;
                         await tx.insert(roomReservationTable).values(roomReservation as unknown as RoomReservationEntity);
                     }
                 }
@@ -708,8 +729,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     roomReservation.noOfExtraBed = 0;
                     roomReservation.checkInDateUTC = reservation.checkInDateUTC;
                     roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
-                    roomReservation.createdBy = '00000000-0000-0000-0000-000000000000';
-                    roomReservation.updatedBy = '00000000-0000-0000-0000-000000000000';
+                    roomReservation.createdBy = session.user.id;
+                    roomReservation.updatedBy = session.user.id;
                     await tx.insert(roomReservationTable).values(roomReservation as unknown as RoomReservationEntity);
                 }
             }
@@ -730,7 +751,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
 
                 existingRoomReservation.checkInDateUTC = reservation.checkInDateUTC;
                 existingRoomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
-                existingRoomReservation.updatedBy = '00000000-0000-0000-0000-000000000000';
+                existingRoomReservation.updatedBy = session.user.id;
                 await tx.update(roomReservationTable).set(existingRoomReservation)
                     .where(eq(roomReservationTable.id, existingRoomReservation.id));
             }
@@ -747,15 +768,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
-    async roomChargesGetAll(reservationId: string): Promise<RoomCharge[]> {
-        const result = await this.dbClient.db.select()
-        .from(roomChargeTable).where(eq(roomChargeTable.reservationId, reservationId));
-        return result;   
-    }
-
-
-    async roomReservationList(searchParams: SearchParam[]): Promise<Room[]> {
-        c.i('ReservationRepository > roomReservationList');
+    async roomAndReservationList(searchParams: SearchParam[]): Promise<Room[]> {
+        c.i('ReservationRepository > roomAndReservationList');
         c.d(searchParams);
 
 
@@ -800,6 +814,99 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         }, [] as Room[]);
 
         return rooms;
+    }
+
+
+    async roomChargesGetAll(reservationId: string): Promise<RoomCharge[]> {
+        const result = await this.dbClient.db.select()
+        .from(roomChargeTable)
+        .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomChargeTable.roomTypeId))
+        .innerJoin(roomTable, eq(roomTable.id, roomChargeTable.roomId))
+        .where(eq(roomChargeTable.reservationId, reservationId));
+
+        const roomCharges = result?.map((row: {roomCharge:RoomCharge, roomType:RoomType, room:Room}) => {
+            const rc = new RoomCharge();
+            rc.id = row.roomCharge.id;
+            rc.endDateUTC = row.roomCharge.endDateUTC;
+            rc.extraBedRate = row.roomCharge.extraBedRate;
+            rc.noOfDays = row.roomCharge.noOfDays;
+            rc.reservationId = row.roomCharge.reservationId;
+            rc.roomId = row.roomCharge.roomId;
+            rc.roomNo = row.room.roomNo;
+            rc.roomRate = row.roomCharge.roomRate;
+            rc.roomSurcharge = row.roomCharge.roomSurcharge;
+            rc.roomType = row.roomCharge.roomType;
+            rc.roomTypeId = row.roomCharge.roomTypeId;
+            rc.roomTypeText = row.roomType.roomTypeText;
+            rc.seasonSurcharge = row.roomCharge.seasonSurcharge;
+            rc.singleRate = row.roomCharge.singleRate;
+            rc.startDateUTC = row.roomCharge.startDateUTC;
+            rc.totalAmount = row.roomCharge.totalAmount;
+            rc.totalRate = row.roomCharge.totalRate;
+            return rc;
+        });
+
+        return roomCharges;   
+    }
+
+
+    async roomChargesSave(reservationId: string, roomCharges: RoomCharge[]): Promise<boolean> {
+        c.i('ReservationRepository > roomChargesSave');
+        const session = await auth();
+        roomCharges.forEach(rc => {
+            rc.createdBy = session.user.id;
+            rc.updatedBy = session.user.id
+        })
+        const result = await this.dbClient.db.transaction(async (tx:TransactionType) => {
+            await tx.delete(roomChargeTable).where(eq(roomChargeTable.reservationId, reservationId));
+            await tx.insert(roomChargeTable).values(roomCharges as unknown as RoomChargeEntity[]);
+            return true;
+        });
+        return result;
+    }
+
+
+    async roomRateGetAll(location: string) : Promise<RoomRate[]> {
+        c.i('ReservationRepository > roomRateGetAll');
+        const result = await this.dbClient.db.select()
+        .from(roomRateTable).where(eq(roomRateTable.location, location));
+        return result;
+    }
+
+
+    async roomReservationGetAllById(reservationId: string): Promise<RoomReservation[]> {
+        c.i('ReservationRepository > roomReservationGetAllById');
+        c.d(reservationId);
+
+
+        const result = await this.dbClient.db
+            .select()
+            .from(roomReservationTable)
+            .innerJoin(roomTable, eq(roomTable.id, roomReservationTable.roomId))
+            .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomTable.roomTypeId))
+            .where(eq(roomReservationTable.reservationId, reservationId));
+
+        const roomReservations = result?.map((row : {roomReservation:RoomReservation, roomType: RoomType, room: Room}) => {
+            const r = new RoomReservation();
+            r.id = row.roomReservation.id;
+            r.checkInDateUTC = row.roomReservation.checkInDateUTC;
+            r.checkOutDateUTC = row.roomReservation.checkOutDateUTC;
+            r.createdAtUTC = row.roomReservation.createdAtUTC;
+            r.createdBy = row.roomReservation.createdBy;
+            r.isSingleOccupancy = row.roomReservation.isSingleOccupancy;
+            r.noOfExtraBed = row.roomReservation.noOfExtraBed;
+            r.reservationId = row.roomReservation.reservationId;
+            r.roomId = row.roomReservation.roomId;
+            r.roomNo = row.room.roomNo;
+            r.roomType = row.roomType.roomTypeText;
+            r.roomTypeId = row.roomType.id;
+            r.updatedAtUTC = row.roomReservation.updatedAtUTC;
+            r.updatedBy = row.roomReservation.updatedBy;
+            return r;
+        });
+        
+
+        return roomReservations;
     }
 
 
@@ -894,6 +1001,14 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
+    async roomTypeGetAll(location: string) : Promise<RoomType[]> {
+        c.i('ReservationRepository > roomTypeGetAll');
+        const result = await this.dbClient.db.select()
+        .from(roomTypeTable).where(eq(roomTypeTable.location, location));
+        return result;
+    }
+
+
     async updateDropOffCarNo(id: string, carNo: string): Promise<void> {
         c.i('ReservationRepository > updateDropOffCarNo');
         if (!id || id === 'undefined')
@@ -912,11 +1027,12 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             throw new Error('Cannot find reservation.');
 
         c.i('Update reservation');
-        await this.dbClient.db.update(reservationTable).set({ dropOffCarNo: carNo, updatedBy: '00000000-0000-0000-0000-000000000000' })
+        await this.dbClient.db.update(reservationTable).set({ dropOffCarNo: carNo, updatedBy: session.user.id })
             .where(eq(reservationTable.id, id));
 
         c.i('Return ReservationRepository > updateDropOffCarNo');
     }
+
 
     async updatePickUpCarNo(id: string, carNo: string): Promise<void> {
         c.i('ReservationRepository > updatePickUpCarNo');
@@ -936,7 +1052,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             throw new Error('Cannot find reservation.');
 
         c.i('Update reservation');
-        await this.dbClient.db.update(reservationTable).set({ pickUpCarNo: carNo, updatedBy: '00000000-0000-0000-0000-000000000000' })
+        await this.dbClient.db.update(reservationTable).set({ pickUpCarNo: carNo, updatedBy: session.user.id })
             .where(eq(reservationTable.id, id));
 
         c.i('Return ReservationRepository > updatePickUpCarNo');

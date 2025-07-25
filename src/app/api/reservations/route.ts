@@ -44,7 +44,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({data : result}, {status: 200});
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
-    return NextResponse.json(error, { status: HttpStatusCode.ServerError });
+    if(error instanceof CustomError)
+      return NextResponse.json({ message: error.message }, { status: error.statusCode });
+    else
+      return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
   }
 }
 

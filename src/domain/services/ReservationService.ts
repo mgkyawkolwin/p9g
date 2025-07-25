@@ -1,6 +1,6 @@
 import IReservationService from "./contracts/IReservationService";
 import { inject, injectable } from "inversify";
-import type IReservationRepository from "@/data/repo/IReservationRepository";
+import type IReservationRepository from "@/data/repo/contracts/IReservationRepository";
 import { PagerParams, SearchParam, TYPES } from "@/lib/types";
 import Reservation from "@/domain/models/Reservation";
 import c from "@/lib/core/logger/ConsoleLogger";
@@ -11,6 +11,9 @@ import Invoice from "../dtos/Invoice";
 import CurrencyTotal from "../dtos/CurrencyTotal";
 import Payment from "../models/Payment";
 import RoomCharge from "../models/RoomCharge";
+import { timeStamp } from "console";
+import RoomRateEngine from "../engines/RoomRateEngine";
+import { CustomError } from "@/lib/errors";
 
 @injectable()
 export default class ReservationService implements IReservationService{
@@ -63,7 +66,29 @@ export default class ReservationService implements IReservationService{
 
     async reservationCreate(reservation : Reservation): Promise<Reservation> {
         c.i('ReservationService > createReservation');
-        return await this.reservationRepository.reservationCreate(reservation);
+        const createdReservation = await this.reservationRepository.reservationCreate(reservation);
+
+        if(reservation.roomNo && reservation.roomNo.trim() !== ''){
+            const roomReservations = await this.reservationRepository.roomReservationGetAllById(reservation.id);
+            const roomTypes = await this.reservationRepository.roomTypeGetAll(reservation.location);
+            const roomRates = await this.reservationRepository.roomRateGetAll(reservation.location);
+            const roomCharges = await RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
+            if(!roomCharges || roomCharges.length === 0)
+                throw new Error('Invalid room charge calculation.');
+            const result = await this.reservationRepository.roomChargesSave(reservation.id, roomCharges);
+            if(!result)
+                throw new Error('Room charges saved failed.');
+            const totalRoomCharges = roomCharges.reduce((accu,rc) => accu += rc.totalAmount,0);
+            reservation.totalAmount = totalRoomCharges;
+            reservation.taxAmount = totalRoomCharges * reservation.tax / 100;
+            reservation.netAmount = reservation.totalAmount - reservation.taxAmount - reservation.discountAmount;
+            reservation.dueAmount = reservation.netAmount;
+            const updateResult = await this.reservationRepository.reservationUpdate(reservation.id, reservation);
+            if(!updateResult)
+                throw new Error('Reservation updated failed.');
+        }   
+
+        return createdReservation;
     }
 
     
@@ -92,6 +117,13 @@ export default class ReservationService implements IReservationService{
         }
 
         c.i('Returning from ReservationService > patch.');
+    }
+
+
+    async paymentsDelete(reservationId: string, paymentId: string): Promise<void> {
+        if(!reservationId) throw new CustomError('Service: Reservation id is required.');
+        if(!paymentId) throw new CustomError('Service: Reservation id is required.');
+        return await this.reservationRepository.paymentsDelete(reservationId, paymentId);
     }
     
     
@@ -199,7 +231,7 @@ export default class ReservationService implements IReservationService{
         c.i('ReservationService > roomReservationList');
         if(searchParams[0].searchColumn != SearchParams.date && !searchParams[0].searchValue)
             throw new Error('Invalid search field.');
-        return await this.reservationRepository.roomReservationList(searchParams);
+        return await this.reservationRepository.roomAndReservationList(searchParams);
     }
     
 
@@ -244,7 +276,31 @@ export default class ReservationService implements IReservationService{
             throw new Error('Reservation update failed. Reservation is required.');
         }
 
-        return await this.reservationRepository.reservationUpdate(id, reservation);
+        const updateResult = await this.reservationRepository.reservationUpdate(id, reservation);
+        if(!updateResult)
+            throw new Error('Reservation update failed.');
+
+        if(reservation.roomNo && reservation.roomNo.trim() !== ''){
+            const roomReservations = await this.reservationRepository.roomReservationGetAllById(reservation.id);
+            const roomTypes = await this.reservationRepository.roomTypeGetAll(reservation.location);
+            const roomRates = await this.reservationRepository.roomRateGetAll(reservation.location);
+            const roomCharges = await RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
+            if(!roomCharges || roomCharges.length === 0)
+                throw new Error('Invalid room charge calculation.');
+            const result = await this.reservationRepository.roomChargesSave(reservation.id, roomCharges);
+            if(!result)
+                throw new Error('Room charges saved failed.');
+            const totalRoomCharges = roomCharges.reduce((accu,rc) => accu += rc.totalAmount,0);
+            reservation.totalAmount = totalRoomCharges;
+            reservation.taxAmount = totalRoomCharges * reservation.tax / 100;
+            reservation.netAmount = reservation.totalAmount - reservation.taxAmount - reservation.discountAmount;
+            reservation.dueAmount = reservation.netAmount - reservation.paidAmount;
+            const updateResult = await this.reservationRepository.reservationUpdate(reservation.id, reservation);
+            if(!updateResult)
+                throw new Error('Reservation updated failed.');
+        } 
+
+        return updateResult;
     }
     
 }

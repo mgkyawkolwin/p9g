@@ -1,5 +1,5 @@
 import IRepository from "./IRepository";
-import { UserEntity } from "../orm/drizzle/mysql/schema";
+import { UserEntity } from "../../orm/drizzle/mysql/schema";
 
 export default interface IUserRepository extends IRepository<UserEntity>{
 

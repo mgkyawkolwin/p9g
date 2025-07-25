@@ -8,7 +8,7 @@ import {
 import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
-import { paymentsGet, paymentsSave } from "@/app/(private)/console/reservations/actions"
+import { paymentsDelete, paymentsGet, paymentsSave } from "@/app/(private)/console/reservations/actions"
 import { toast } from "sonner";
 import { InputCustom } from "../uicustom/inputcustom"
 import { SelectCustom } from "../uicustom/selectcustom"
@@ -41,6 +41,7 @@ export default function PaymentDialog({
   const [open, setOpen] = React.useState(false);
   // const [id, setId] = React.useState<string>(reservationId);
   const [payments, setPayments] = React.useState<Payment[]>([]);
+  const [reloadDataToggle, setReloadDataToggle] = React.useState(false);
 
   const openDialog = (open: boolean) => {
     setOpen(open);
@@ -147,10 +148,7 @@ export default function PaymentDialog({
         header: "Action",
         cell: (row) => {
           return <div>
-            <ButtonCustom type="button" variant={"red"} size={"sm"}
-            onClick={() => {
-              setPayments(prev => prev.filter((bill, index) => index !== row.row.index));
-            }}>Remove</ButtonCustom>
+            {getActionButton(row.row.original.id, row.row.original.reservationId, row.row.index)}
           </div>
         }
       },
@@ -179,7 +177,23 @@ export default function PaymentDialog({
     };
     fetchPayments();
 
-  },[reservationId, open]);
+  },[reservationId, open, reloadDataToggle]);
+
+  function getActionButton(id:string|undefined, reservationId: string, rowIndex: number){
+    if(id && id.trim().length != 0){
+        return <ButtonCustom type="button" variant={"red"} size={"sm"}
+    onClick={async () => {
+      const result = await paymentsDelete(reservationId,id);
+      if(result.message) toast(result.message);
+      if(!result.error) setPayments(prev => prev.filter((bill, index) => index !== rowIndex));
+    }}>Delete</ButtonCustom>;
+  }else{
+      return <ButtonCustom type="button" variant={"black"} size={"sm"}
+    onClick={() => {
+      setPayments(prev => prev.filter((bill, index) => index !== rowIndex));
+    }}>Remove</ButtonCustom>;
+  }
+  }
 
   return (
       <Dialog open={open} onOpenChange={setOpen} >

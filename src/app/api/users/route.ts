@@ -6,6 +6,7 @@ import c from "@/lib/core/logger/ConsoleLogger";
 import { pagerValidator, searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
+import { CustomError } from "@/lib/errors";
 
 
 export async function GET(request: NextRequest) {
@@ -39,10 +40,13 @@ export async function GET(request: NextRequest) {
     const result = await userService.userFindMany(searchFields, pager);
     c.d(JSON.stringify(result));
 
-    return NextResponse.json({data : result}, {status: 200});
+    return NextResponse.json({data : result}, {status: HttpStatusCode.Ok});
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
-    return NextResponse.json(error, { status: HttpStatusCode.ServerError });
+    if(error instanceof CustomError)
+      return NextResponse.json({ message: error.message }, { status: error.statusCode });
+    else
+      return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
   }
 }
 
@@ -55,9 +59,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     const userService = container.get<IUserService>(TYPES.IUserService);
     await userService.userCreate(body);
-    return NextResponse.json({ message: "Inserted"}, { status: 201 });
+    return NextResponse.json({ message: "Inserted"}, { status: HttpStatusCode.Ok });
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
-    return NextResponse.json({ message: "Unknown error occured."}, { status: 500 });
+    if(error instanceof CustomError)
+      return NextResponse.json({ message: error.message }, { status: error.statusCode });
+    else
+      return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
   }
 }

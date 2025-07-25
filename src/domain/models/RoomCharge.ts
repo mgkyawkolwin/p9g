@@ -3,8 +3,11 @@ export default class RoomCharge{
     public reservationId!: string;
     public startDateUTC!:Date;
     public endDateUTC!:Date;
+    public roomId!:string;
+    public roomNo!:string;
     public roomTypeId!:string;
     public roomType!:string;
+    public roomTypeText!:string;
     public roomRate: number = 0;
     public totalRate:number = 0;
     public singleRate:number = 0;

@@ -7,6 +7,7 @@ import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
 import ICustomerService from "@/domain/services/contracts/ICustomerService";
 import Customer from "@/domain/models/Customer";
+import { CustomError } from "@/lib/errors";
 
 
 export async function GET(request: NextRequest) {
@@ -40,10 +41,13 @@ export async function GET(request: NextRequest) {
     const result = await customerService.customerFindMany(searchFields, pager);
     c.d(JSON.stringify(result));
 
-    return NextResponse.json({data : result}, {status: 200});
+    return NextResponse.json({data : result}, {status: HttpStatusCode.Ok});
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
-    return NextResponse.json(error, { status: HttpStatusCode.ServerError });
+    if(error instanceof CustomError)
+      return NextResponse.json({ message: error.message }, { status: error.statusCode });
+    else
+      return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
   }
 }
 
@@ -77,6 +81,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: "Created", data: createdCustomer }, { status: HttpStatusCode.Created });
     }catch(error){
         c.e(error instanceof Error ? error.message : String(error));
-        return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
+        if(error instanceof CustomError)
+          return NextResponse.json({ message: error.message }, { status: error.statusCode });
+        else
+          return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }

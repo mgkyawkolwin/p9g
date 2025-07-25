@@ -7,6 +7,7 @@ import { userSignInSchema } from '@/lib/zodschema';
 
 import c from '@/lib/core/logger/ConsoleLogger';
 import { signIn } from '@/app/auth';
+import { CustomError } from '@/lib/errors';
 
 export async function POST(request: NextRequest) {
   try{
@@ -36,6 +37,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(user, { status: HttpStatusCode.Ok });
   }catch(error){
     c.e(error instanceof Error ? error.message : JSON.stringify(error));
-    return NextResponse.json({ message: "Unknown error occured."}, { status: HttpStatusCode.ServerError });
+    if(error instanceof CustomError)
+      return NextResponse.json({ message: error.message }, { status: error.statusCode });
+    else
+      return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
   }
 }

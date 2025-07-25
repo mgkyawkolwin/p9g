@@ -6,6 +6,7 @@ import { searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams } from "@/lib/utils";
 import IReservationService from "@/domain/services/contracts/IReservationService";
+import { CustomError } from "@/lib/errors";
 
 
 export async function GET(request: NextRequest) {
@@ -32,9 +33,12 @@ export async function GET(request: NextRequest) {
     const result = await reservationService.roomScheduleList(searchParams);
     c.d(JSON.stringify(result));
 
-    return NextResponse.json({data : result}, {status: 200});
+    return NextResponse.json({data : result}, {status: HttpStatusCode.Ok});
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
-    return NextResponse.json(error, { status: HttpStatusCode.ServerError });
+    if(error instanceof CustomError)
+      return NextResponse.json({ message: error.message }, { status: error.statusCode });
+    else
+      return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
   }
 }

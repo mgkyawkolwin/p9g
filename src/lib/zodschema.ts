@@ -110,6 +110,8 @@ export const reservationValidator = z.object({
   reservationStatus: z.string().optional(),
   reservationType: z.string().optional(),
   roomNo: z.coerce.string().optional(),
+  tax: z.coerce.number(),
+  discountAmount: z.coerce.number()
 });
 
 

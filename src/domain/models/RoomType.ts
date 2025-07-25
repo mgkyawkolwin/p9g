@@ -2,7 +2,7 @@
 export default class RoomType {
     public id!: string;
     public roomType!: string;
-    public roomTypeText!: number;
+    public roomTypeText!: string;
     public maxOccupancy!: number;
     public isDoubleBed!: boolean;
     public location!: string;

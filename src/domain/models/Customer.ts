@@ -1,4 +1,4 @@
-import IEntity from "@/data/repo/IEntity";
+import IEntity from "@/data/repo/contracts/IEntity";
 
 export default class Customer implements IEntity {
     public id!: string;

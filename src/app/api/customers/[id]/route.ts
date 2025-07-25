@@ -7,6 +7,7 @@ import ICustomerService from "@/domain/services/contracts/ICustomerService";
 import { customerValidator } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
 import Customer from "@/domain/models/Customer";
+import { CustomError } from "@/lib/errors";
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -17,12 +18,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         const service = container.get<ICustomerService>(TYPES.ICustomerService);
         const result = await service.customerFindById(parseInt(id));
         if (!result) {
-            return NextResponse.json({ message: "Not found." }, { status: 404 });
+            return NextResponse.json({ message: "Not found." }, { status: HttpStatusCode.NotFound });
         }
         return NextResponse.json({ data: result }, { status: 200 });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
-        return NextResponse.json({ message: "Unknow error occured." }, { status: 500 });
+        if(error instanceof CustomError)
+            return NextResponse.json({ message: error.message }, { status: error.statusCode });
+          else
+            return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }
 
@@ -54,7 +58,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         return NextResponse.json({ message: "Updated" }, { status: HttpStatusCode.Ok });
     }catch(error){
         c.e(error instanceof Error ? error.message : String(error));
-        return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
+        if(error instanceof CustomError)
+            return NextResponse.json({ message: error.message }, { status: error.statusCode });
+          else
+            return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }
 
@@ -66,11 +73,14 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
         const service = container.get<IUserService>(TYPES.IUserService);
         const result = await service.userDelete(id);
         if (!result) {
-            return NextResponse.json({ message: "Fail delete." }, { status: 404 });
+            return NextResponse.json({ message: "Fail delete." }, { status: HttpStatusCode.ServerError });
         }
-        return NextResponse.json({ message: "Deleted" }, { status: 200 });
+        return NextResponse.json({ message: "Deleted" }, { status: HttpStatusCode.Ok });
     }catch(error){
         c.e(error instanceof Error ? error.message : String(error));
-        return NextResponse.json({ message: "Unknow error occured." }, { status: 500 });
+        if(error instanceof CustomError)
+                  return NextResponse.json({ message: error.message }, { status: error.statusCode });
+                else
+                  return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }

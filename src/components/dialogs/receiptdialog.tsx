@@ -21,6 +21,7 @@ import ReceiptTable from "../tables/receipttable";
 import RoomCharge from "@/domain/models/RoomCharge";
 import Reservation from "@/domain/models/Reservation";
 import { getReservation } from "@/app/(private)/console/reservations/[id]/edit/actions";
+import { useReactToPrint } from 'react-to-print';
 
 
 interface DataTableProps{
@@ -41,6 +42,8 @@ export default function ReceiptDialog({
 //     error: false,
 //     message: ''
 //   });
+
+  const receiptRef = React.useRef(undefined);
 
   const [open, setOpen] = React.useState(false);
   const [reservation, setReservation] = React.useState<Reservation>(undefined);
@@ -90,22 +93,29 @@ export default function ReceiptDialog({
 
   },[reservationId, open]);
 
+  const handlePrint = useReactToPrint({
+    bodyClass: "p-8 m-8",
+    contentRef: receiptRef,
+  });
+
+  if(!reservation) return;
+  if(!roomCharges) return;
+
   return (
       <Dialog open={open} onOpenChange={setOpen} >
           <DialogContent className="flex flex-col min-h-[80vh] min-w-[90vw] ">
             <DialogHeader>
               <DialogTitle>Payments</DialogTitle>
             </DialogHeader>
-              <div className="flex flex-1">
-              <ReceiptTable reservation={reservation} roomCharges={[]}/>
+              <div ref={receiptRef} id="printable-receipt" className="flex w-auto">
+              <ReceiptTable reservation={reservation} roomCharges={roomCharges}/>
               </div>
             <DialogFooter>
-            <ButtonCustom type="button" onClick={async () => {
-              
-            }}>Save Payment</ButtonCustom>
+            <ButtonCustom type="button" onClick={handlePrint}>Print Receipt</ButtonCustom>
               <DialogClose asChild>
                 <ButtonCustom type="button" variant="black" onClick={() => {
                   
+                  setOpen(false); // Close the dialog after printing
                 }}>Close</ButtonCustom>
               </DialogClose>
             </DialogFooter>

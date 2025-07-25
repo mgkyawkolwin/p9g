@@ -4,7 +4,7 @@ import "reflect-metadata";
 
 import { UserEntity, userTable } from "@/data/orm/drizzle/mysql/schema";
 import { Repository } from "./Repository";
-import IUserRepository from "../IUserRepository";
+import IUserRepository from "../contracts/IUserRepository";
 
 import { TYPES } from "@/lib/types";
 import { type IDatabase } from "@/data/db/IDatabase";

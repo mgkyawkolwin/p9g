@@ -6,6 +6,7 @@ import { reservationValidator } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
 import IReservationService from "@/domain/services/contracts/IReservationService";
 import Reservation from "@/domain/models/Reservation";
+import { CustomError } from "@/lib/errors";
 
 
 export async function GET(request: NextRequest,{ params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +34,10 @@ export async function GET(request: NextRequest,{ params }: { params: Promise<{ i
     return NextResponse.json({data : result}, {status: HttpStatusCode.Ok});
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
-    return NextResponse.json(error, { status: HttpStatusCode.ServerError });
+    if(error instanceof CustomError)
+      return NextResponse.json({ message: error.message }, { status: error.statusCode });
+    else
+      return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
   }
 }
 
@@ -69,6 +73,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         return NextResponse.json({ message: "Updated" }, { status: HttpStatusCode.Ok });
     }catch(error){
         c.e(error instanceof Error ? error.message : String(error));
-        return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
+        if(error instanceof CustomError)
+          return NextResponse.json({ message: error.message }, { status: error.statusCode });
+        else
+          return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }

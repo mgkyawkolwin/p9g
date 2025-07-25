@@ -118,7 +118,8 @@ export const reservationTable = mysqlTable("reservation", {
   discountAmount: decimal("discountAmount"),
   tax: decimal("tax"),
   taxAmount: decimal("taxAmount"),
-  balance: decimal("balance"),
+  netAmount: decimal("netAmount"),
+  dueAmount: decimal("dueAmount"),
   location: varchar("location", {length: 10}).notNull(),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
@@ -152,6 +153,7 @@ export const roomChargeTable = mysqlTable("roomCharge", {
   reservationId: char("reservationId", {length: 36}),
   startDateUTC: datetime("startDateUTC"),
   endDateUTC: datetime("endDateUTC"),
+  roomId: char("roomId"),
   roomTypeId: char("roomTypeId", { length: 36 }).notNull(),
   roomRate: decimal("roomRate").notNull(),
   roomSurcharge: decimal("roomSurcharge").notNull(),
@@ -186,7 +188,8 @@ export const roomRateTable = mysqlTable("roomRate", {
   roomTypeId: char("roomTypeId", { length: 36 }).notNull(),
   roomRate: decimal("roomRate").notNull(),
   singleRate: decimal("singleRate").notNull(),
-  extraRate: decimal("extraRate").notNull(),
+  roomSurcharge: decimal("roomSurcharge").notNull(),
+  seasonSurcharge: decimal("seasonSurcharge").notNull(),
   extraBedRate: decimal("extraBedRate").notNull(),
   month: tinyint("month").notNull(),
   location: varchar("location", {length: 10}).notNull(),
@@ -299,4 +302,5 @@ export type CustomerEntity = typeof customerTable.$inferSelect;
 export type PaymentEntity = typeof paymentTable.$inferSelect;
 export type ReservationEntity = typeof reservationTable.$inferSelect;
 export type ReservationCustomerEntity = typeof reservationCustomerTable.$inferSelect;
+export type RoomChargeEntity = typeof roomChargeTable.$inferSelect;
 export type RoomReservationEntity = typeof roomReservationTable.$inferSelect;

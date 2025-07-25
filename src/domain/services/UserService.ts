@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 
 import c from '@/lib/core/logger/ConsoleLogger';
-import type IUserRepository from '@/data/repo/IUserRepository';
+import type IUserRepository from '@/data/repo/contracts/IUserRepository';
 import type IUserService from "./contracts/IUserService";
 import { UserEntity } from "@/data/orm/drizzle/mysql/schema"
 import { PagerParams, SearchParam, TYPES } from '@/lib/types';

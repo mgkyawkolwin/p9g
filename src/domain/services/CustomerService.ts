@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 
 import c from '@/lib/core/logger/ConsoleLogger';
-import type ICustomerRepository from '@/data/repo/ICustomerRepository';
+import type ICustomerRepository from '@/data/repo/contracts/ICustomerRepository';
 import type ICustomerService from "./contracts/ICustomerService";
 import { PagerParams, SearchParam, TYPES } from '@/lib/types';
 import Customer from '../models/Customer';

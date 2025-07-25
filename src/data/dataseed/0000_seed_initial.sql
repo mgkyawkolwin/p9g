@@ -26,8 +26,9 @@ INSERT INTO `config`(`id`,`group`, `value`, `text`, `createdBy`, createdAtUTC, `
 TRUNCATE TABLE 'roomType';
 --> statement-breakpoint
 
-INSERT INTO `roomType`(`id`, `roomType`, `createdBy`, `createdAtUTC`, `updatedBy`, `updatedAtUTC`) VALUES
-('842d7b86-5c9e-11f0-9097-b88d122a4ff4','Standard','00000000-0000-0000-0000-000000000000', UTC_TIMESTAMP(3),'00000000-0000-0000-0000-000000000000', UTC_TIMESTAMP(3))
+INSERT INTO `roomType`(`id`, `roomType`, `roomTypeText`, `location`, `createdBy`, `createdAtUTC`, `updatedBy`, `updatedAtUTC`) VALUES
+('842d7b86-5c9e-11f0-9097-b88d122a4ff4', 'STANDARD','Standard', 'MIDA','00000000-0000-0000-0000-000000000000', UTC_TIMESTAMP(3),'00000000-0000-0000-0000-000000000000', UTC_TIMESTAMP(3)),
+('7ea5128a-685f-11f0-9a03-b88d122a4ff4', 'MODERN','Modern', 'MIDA','00000000-0000-0000-0000-000000000000', UTC_TIMESTAMP(3),'00000000-0000-0000-0000-000000000000', UTC_TIMESTAMP(3))
 --> statement-breakpoint
 
 TRUNCATE TABLE `room`;

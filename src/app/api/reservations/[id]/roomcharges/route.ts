@@ -6,6 +6,7 @@ import { HttpStatusCode } from "@/lib/constants";
 import IReservationService from "@/domain/services/contracts/IReservationService";
 import Bill from "@/domain/models/Bill";
 import { billValidator } from "@/lib/zodschema";
+import { CustomError } from "@/lib/errors";
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -28,9 +29,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         const result = await reservationService.roomChargesGetAll(id);
 
         c.i('Return GET /api/reservations/[id]/roomcharges');
-        return NextResponse.json({bills:result}, { status: HttpStatusCode.Ok });
+        return NextResponse.json({roomCharges:result}, { status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
-        return NextResponse.json(error, { status: HttpStatusCode.ServerError });
+        if(error instanceof CustomError)
+            return NextResponse.json({ message: error.message }, { status: error.statusCode });
+          else
+            return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }

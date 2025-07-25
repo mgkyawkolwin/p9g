@@ -1,6 +1,8 @@
 export default class RoomReservation{
     public id!: string;
     public roomId!: string;
+    public roomNo!: string;
+    public roomType!:string;
     public roomTypeId!: string;
     public reservationId!: string;
     public checkInDateUTC!: Date;

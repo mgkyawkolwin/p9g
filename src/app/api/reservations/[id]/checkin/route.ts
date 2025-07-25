@@ -4,6 +4,7 @@ import { TYPES } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { HttpStatusCode } from "@/lib/constants";
 import IReservationService from "@/domain/services/contracts/IReservationService";
+import { CustomError } from "@/lib/errors";
 
 export async function PATCH(request: NextRequest,{ params }: { params: Promise<{ id: string }> }) {
     try{
@@ -32,6 +33,9 @@ export async function PATCH(request: NextRequest,{ params }: { params: Promise<{
       return NextResponse.json({status: HttpStatusCode.Ok});
     }catch(error){
       c.e(error instanceof Error ? error.message : String(error));
-      return NextResponse.json(error, { status: HttpStatusCode.ServerError });
+      if(error instanceof CustomError)
+        return NextResponse.json({ message: error.message }, { status: error.statusCode });
+      else
+        return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
   }

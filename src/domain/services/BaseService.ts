@@ -4,7 +4,7 @@ import { injectable } from "inversify";
 import "reflect-metadata";
 import { PagerParams, SearchParam } from "@/lib/types";
 import IBaseService from "./contracts/IBaseService";
-import type IRepository from "@/data/repo/IRepository";
+import type IRepository from "@/data/repo/contracts/IRepository";
 
 
 @injectable()
