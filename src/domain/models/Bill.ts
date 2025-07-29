@@ -1,6 +1,6 @@
 export default class Bill{
     public id!: string;
-    public dateUTC: string | undefined;
+    public dateUTC: Date = new Date();
     public reservationId!: string;
     public purchaseDateUTC!: string;
     public itemName: string = "";
@@ -8,7 +8,8 @@ export default class Bill{
     public unitPrice: number = 0;
     public amount : number = 0;
     public isPaid: boolean = false;
-    public paidOnUTC: string | undefined;
+    public paidOnUTC: Date | undefined;
+    public paymentType: string = "OTHER";
     public currency: string = "KWR";
     public createdAtUTC!: Date;
     public createdBy!: string;

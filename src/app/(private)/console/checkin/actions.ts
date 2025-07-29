@@ -10,7 +10,9 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.i('Actions > /console/checkin > reservationGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
-    const formObject = Object.fromEntries(formData?.entries());
+    const formObject = Object.fromEntries(
+      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
+    );
     const message = '';
 
     // formData is valid, further process
@@ -33,7 +35,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     //validate and parse search input
     c.i("Parsing search fields from from entries.");
-    const searchFields = searchSchema.safeParse(Object.fromEntries(formData.entries()));
+    const searchFields = searchSchema.safeParse(formObject);
     c.d(searchFields);
 
     //table pager field validatd, build query string
@@ -45,7 +47,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     //retrieve users
     c.i("Update successful. Get the updated list based on query string.");
-    const response = await fetch(process.env.API_URL + `reservations?${queryString}`, {
+    const response = await fetch(process.env.API_URL + `reservations?${queryString}&list=checkin`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -53,15 +55,16 @@ export async function reservationGetList(formState : FormState, formData: FormDa
       }
     });
 
+    const responseData = await response.json();
+
     //fail
     if(!response.ok){
       c.i("Updated list retrieval failed. Return response.");
-      return {error:true, message : "Reservation list retrieval failed."};
+      return {error:true, message : `Reservation list retrieval failed. ${responseData.message}`};
     }
 
     //success
     c.i("Updated list retrieval successful.");
-    const responseData = await response.json();
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
@@ -85,10 +88,12 @@ export async function reservationCancel(id:string): Promise<FormState> {
       }
     });
 
+    const responseData = await response.json();
+
     //fail
     if(!response.ok){
       c.i("Cancel failed. Return response.");
-      return {error:true, message : "Cancel reservation failed."};
+      return {error:true, message : `Cancel reservation failed. ${responseData.message}`};
     }
 
     return {error: false, message:'Cancel reservation successful.'};
@@ -105,10 +110,12 @@ export async function reservationCheckIn(id:string): Promise<FormState> {
       }
     });
 
+    const responseData = await response.json();
+
     //fail
     if(!response.ok){
       c.i("Check in failed. Return response.");
-      return {error:true, message : "Check in reservation failed."};
+      return {error:true, message : `Check in reservation failed. ${responseData.message}`};
     }
 
     return {error: false, message:'Check in reservation successful.'};

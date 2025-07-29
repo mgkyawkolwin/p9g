@@ -11,7 +11,9 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.i('Actions > /console/pickup > reservationGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
-    const formObject = Object.fromEntries(formData?.entries());
+    const formObject = Object.fromEntries(
+      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
+    );
     const message = '';
 
     // formData is valid, further process
@@ -19,7 +21,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     //validate and parse paging input
     c.i("Parsing pager fields from form entries.");
-    const pagerFields = pagerValidator.safeParse(Object.fromEntries(formData.entries()));
+    const pagerFields = pagerValidator.safeParse(formObject);
     c.d(pagerFields);
 
     //table pager field validatd, build query string
@@ -34,7 +36,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     //validate and parse search input
     c.i("Parsing search fields from from entries.");
-    const searchFields = searchSchema.safeParse(Object.fromEntries(formData.entries()));
+    const searchFields = searchSchema.safeParse(formObject);
     c.d(searchFields);
 
     //table pager field validatd, build query string
@@ -54,15 +56,16 @@ export async function reservationGetList(formState : FormState, formData: FormDa
       }
     });
 
+    const responseData = await response.json();
+
     //fail
     if(!response.ok){
       c.i("Updated list retrieval failed. Return response.");
-      return {error:true, message : "Reservation list retrieval failed."};
+      return {error:true, message : `Reservation list retrieval failed. ${responseData.message}`};
     }
 
     //success
     c.i("Updated list retrieval successful.");
-    const responseData = await response.json();
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
@@ -76,7 +79,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 }
 
 
-export async function updateDropOffCarNo(id:string, carNo:string) : Promise<FormState>{
+export async function updateDropOffInfo(id:string, carNo:string, driver:string) : Promise<FormState>{
   c.i('Action > updateDropOffCarNo');
   c.d(id);
   c.d(carNo);
@@ -86,15 +89,17 @@ export async function updateDropOffCarNo(id:string, carNo:string) : Promise<Form
         'Content-Type': 'application/json',
         'cookie': (await headers()).get('cookie')
       },
-      body: JSON.stringify({carNo: carNo})
+      body: JSON.stringify({carNo:carNo, driver:driver})
     });
+
+    const responseData = await response.json();
 
     //fail
     if(!response.ok){
-      c.i("Car no update failed. Return response.");
-      return {error:true, message : "Car number update failed."};
+      c.i("Dropoff info update failed. Return response.");
+      return {error:true, message : `Dropoff info update failed. ${responseData.message}`};
     }
 
-    return {error: false, message:'Car number update successful.'};
+    return {error: false, message:'Dropoff info update successful.'};
 }
 

@@ -10,53 +10,55 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.i('Actions > /console/pickup > reservationGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
-    const formObject = Object.fromEntries(formData?.entries());
+    const formObject = Object.fromEntries(
+      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
+    );
     let message = '';
     
-    if(formObject.actionVerb === 'CANCEL'){
-      c.i('Action is CANCEL');
-      const response = await fetch(process.env.API_URL + `reservations/${formObject.cancelId}?operation=CANCEL`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'cookie': (await headers()).get('cookie')
-        }
-      });
+    // if(formObject.actionVerb === 'CANCEL'){
+    //   c.i('Action is CANCEL');
+    //   const response = await fetch(process.env.API_URL + `reservations/${formObject.cancelId}?operation=CANCEL`, {
+    //     method: 'PATCH',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'cookie': (await headers()).get('cookie')
+    //     }
+    //   });
   
-      //fail
-      if(!response.ok){
-        c.i("Cancel failed. Return response.");
-        return {error:true, message : "Cancel reservation failed."};
-      }
-      //update message
-      message = 'Cancelling reservation successful.';
-    }
+    //   //fail
+    //   if(!response.ok){
+    //     c.i("Cancel failed. Return response.");
+    //     return {error:true, message : "Cancel reservation failed."};
+    //   }
+    //   //update message
+    //   message = 'Cancelling reservation successful.';
+    // }
 
-    if(formObject.actionVerb === 'CHECKIN'){
-      c.i('Action is CHECKIN');
-      const response = await fetch(process.env.API_URL + `reservations/${formObject.checkInId}?operation=CHECKIN`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'cookie': (await headers()).get('cookie')
-        }
-      });
+    // if(formObject.actionVerb === 'CHECKIN'){
+    //   c.i('Action is CHECKIN');
+    //   const response = await fetch(process.env.API_URL + `reservations/${formObject.checkInId}?operation=CHECKIN`, {
+    //     method: 'PATCH',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'cookie': (await headers()).get('cookie')
+    //     }
+    //   });
   
-      //fail
-      if(!response.ok){
-        c.i("Checkin failed. Return response.");
-        return {error:true, message : "Checkin reservation failed."};
-      }
-      //update message
-      message = 'Checking in reservation successful.';
-    }
+    //   //fail
+    //   if(!response.ok){
+    //     c.i("Checkin failed. Return response.");
+    //     return {error:true, message : "Checkin reservation failed."};
+    //   }
+    //   //update message
+    //   message = 'Checking in reservation successful.';
+    // }
 
     // formData is valid, further process
     let queryString = null;
 
     //validate and parse paging input
     c.i("Parsing pager fields from form entries.");
-    const pagerFields = pagerValidator.safeParse(Object.fromEntries(formData.entries()));
+    const pagerFields = pagerValidator.safeParse(formObject);
     c.d(pagerFields);
 
     //table pager field validatd, build query string
@@ -71,7 +73,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     //validate and parse search input
     c.i("Parsing search fields from from entries.");
-    const searchFields = searchSchema.safeParse(Object.fromEntries(formData.entries()));
+    const searchFields = searchSchema.safeParse(formObject);
     c.d(searchFields);
 
     //table pager field validatd, build query string
@@ -90,16 +92,16 @@ export async function reservationGetList(formState : FormState, formData: FormDa
         'cookie': (await headers()).get('cookie')
       }
     });
+    const responseData = await response.json();
 
     //fail
     if(!response.ok){
       c.i("Updated list retrieval failed. Return response.");
-      return {error:true, message : "Reservation list retrieval failed."};
+      return {error:true, message : `Reservation list retrieval failed. ${responseData.message}`};
     }
 
     //success
     c.i("Updated list retrieval successful.");
-    const responseData = await response.json();
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
@@ -113,24 +115,27 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 }
 
 
-export async function updatePickUpCarNo(id:string, carNo:string) : Promise<FormState>{
-  c.i('Action > updatePickUpCarNo');
+export async function updatePickUpInfo(id:string, carNo:string, driver:string) : Promise<FormState>{
+  c.i('Action > updatePickUpInfo');
   c.d(id);
   c.d(carNo);
+  c.d(driver);
     const response = await fetch(process.env.API_URL + `reservations/${id}/pickup`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'cookie': (await headers()).get('cookie')
       },
-      body: JSON.stringify({carNo: carNo})
+      body: JSON.stringify({carNo: carNo, driver:driver})
     });
+
+    const responseData = await response.json();
 
     //fail
     if(!response.ok){
-      c.i("Car no update failed. Return response.");
-      return {error:true, message : "Car number update failed."};
+      c.i("Pickup info update failed. Return response.");
+      return {error:true, message : `Pickup info update failed. ${responseData.message}`};
     }
 
-    return {error: false, message:'Car number update successful.'};
+    return {error: false, message:'Pickup info update successful.'};
 }

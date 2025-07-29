@@ -7,6 +7,7 @@ import IReservationService from "@/domain/services/contracts/IReservationService
 import Bill from "@/domain/models/Bill";
 import { billValidator, paymentValidator } from "@/lib/zodschema";
 import { CustomError } from "@/lib/errors";
+import ILogService from "@/domain/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -29,12 +30,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         const result = await reservationService.paymentsGet(id);
 
         c.i('Return GET /api/reservations/[id]/payments');
-        return NextResponse.json({payments:result}, { status: HttpStatusCode.Ok });
+        return NextResponse.json({ payments: result }, { status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
-        if(error instanceof CustomError)
+        const logService = container.get<ILogService>(TYPES.ILogService);
+        await logService.logError(error);
+        if (error instanceof CustomError)
             return NextResponse.json({ message: error.message }, { status: error.statusCode });
-          else
+        else
             return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }
@@ -66,8 +69,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         let payments = [];
 
         requestBody.map((payment) => {
-            const result =  paymentValidator.safeParse(payment);
-            if(result.success)
+            const result = paymentValidator.safeParse(payment);
+            if (result.success)
                 payments.push(result.data);
         });
         c.i('Validated payment');
@@ -81,9 +84,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         return NextResponse.json({ status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
-        if(error instanceof CustomError)
+        const logService = container.get<ILogService>(TYPES.ILogService);
+        await logService.logError(error);
+        if (error instanceof CustomError)
             return NextResponse.json({ message: error.message }, { status: error.statusCode });
-          else
+        else
             return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }

@@ -10,7 +10,9 @@ export async function roomScheduleGetList(formState : FormState, formData: FormD
     c.i('Actions > /console/roomschedule > roomScheduleGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
-    const formObject = Object.fromEntries(formData?.entries());
+    const formObject = Object.fromEntries(
+      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
+    );
 
     c.i('Validating search fields.');
     const validatedSearchFields = await searchSchema.safeParseAsync(formObject);
@@ -33,16 +35,16 @@ export async function roomScheduleGetList(formState : FormState, formData: FormD
         'cookie': (await headers()).get('cookie')
       }
     });
+    const responseData = await response.json();
 
     //fail
     if(!response.ok){
       c.i("Room schedule list retrieval failed. Return response.");
-      return {error:true, message : "Room schedule list retrieval failed."};
+      return {error:true, message : `Room schedule list retrieval failed. ${responseData.message}`};
     }
 
     //success
     c.i("Room schedule list retrieval successful.");
-    const responseData = await response.json();
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple

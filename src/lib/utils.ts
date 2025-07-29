@@ -3,6 +3,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { SearchParam, PagerParams, SearchFormFields } from "./types"
 import c from "./core/logger/ConsoleLogger";
+import { CustomError } from "./errors";
 
 /**
  * Merge two or more className into one.
@@ -26,29 +27,35 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function buildSearchParams(queryStringObject : SearchFormFields) : SearchParam[] {
   const search : SearchParam[]= [];
-  if(queryStringObject.searchCheckInDateUTC){
-    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInDateUTC});
+  if(queryStringObject.searchArrivalDateTime){
+    search.push({searchColumn:'arrivalDateTimeUTC', searchValue: queryStringObject.searchArrivalDateTime});
   }
-  if(queryStringObject.searchCheckInDateUTCFrom){
-    search.push({searchColumn:'checkInDateUTCFrom', searchValue: queryStringObject.searchCheckInDateUTCFrom});
+  if(queryStringObject.searchCheckInDate){
+    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInDate});
   }
-  if(queryStringObject.searchCheckInDateUTCTo){
-    search.push({searchColumn:'checkInDateUTCTo', searchValue: queryStringObject.searchCheckInDateUTCTo});
+  if(queryStringObject.searchCheckInDateFrom){
+    search.push({searchColumn:'checkInDateFrom', searchValue: queryStringObject.searchCheckInDateFrom});
   }
-  if(queryStringObject.searchCheckOutDateUTC){
-    search.push({searchColumn:'checkOutDateUTC', searchValue: queryStringObject.searchCheckOutDateUTC});
+  if(queryStringObject.searchCheckInDateUntil){
+    search.push({searchColumn:'checkInDateUntil', searchValue: queryStringObject.searchCheckInDateUntil});
   }
-  if(queryStringObject.searchCreatedFrom){
-    search.push({searchColumn:'createdFrom', searchValue: queryStringObject.searchCreatedFrom});
+  if(queryStringObject.searchCheckOutDate){
+    search.push({searchColumn:'checkOutDateUTC', searchValue: queryStringObject.searchCheckOutDate});
   }
-  if(queryStringObject.searchCreatedUntil){
-    search.push({searchColumn:'createdUntil', searchValue: queryStringObject.searchCreatedUntil});
+  if(queryStringObject.searchCreatedDateFrom){
+    search.push({searchColumn:'createdFrom', searchValue: queryStringObject.searchCreatedDateFrom});
+  }
+  if(queryStringObject.searchCreatedDateUntil){
+    search.push({searchColumn:'createdUntil', searchValue: queryStringObject.searchCreatedDateUntil});
   }
   if(queryStringObject.date){
     search.push({searchColumn:'date', searchValue: queryStringObject.date});
   }
   if(queryStringObject.searchDate){
     search.push({searchColumn:'date', searchValue: queryStringObject.searchDate});
+  }
+  if(queryStringObject.searchDepartureDateTime){
+    search.push({searchColumn:'departureDateTimeUTC', searchValue: queryStringObject.searchDepartureDateTime});
   }
   if(queryStringObject.searchId){
     search.push({searchColumn:'id', searchValue: queryStringObject.searchId});
@@ -64,6 +71,15 @@ export function buildSearchParams(queryStringObject : SearchFormFields) : Search
   }
   if(queryStringObject.searchPhone){
     search.push({searchColumn:'phone', searchValue: queryStringObject.searchPhone});
+  }
+  if(queryStringObject.searchPrepaidPackage){
+    search.push({searchColumn:'prepaidPackage', searchValue: queryStringObject.searchPrepaidPackage});
+  }
+  if(queryStringObject.searchPromotionPackage){
+    search.push({searchColumn:'promotionPackage', searchValue: queryStringObject.searchPromotionPackage});
+  }
+  if(queryStringObject.searchRemark){
+    search.push({searchColumn:'remark', searchValue: queryStringObject.searchRemark});
   }
   if(queryStringObject.searchReservationStatus){
     search.push({searchColumn:'reservationStatus', searchValue: queryStringObject.searchReservationStatus});
@@ -110,6 +126,31 @@ export function getCurrentMonthFirstDate(): Date{
 export function getCurrentMonthLastDate(): Date{
   const today = new Date();
   return new Date(today.getFullYear(), today.getMonth() + 1, 0,23,59,59,999);
+}
+
+export function getDateRange(startDate: string, endDate: string): Date[] {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  // Validate the dates
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      throw new CustomError('Invalid date format. Please use ISO format (YYYY-MM-DD)');
+  }
+  
+  if (start > end) {
+      throw new CustomError('Start date must be before or equal to end date');
+  }
+  
+  const dateArray: Date[] = [];
+  let currentDate = new Date(start);
+  
+  // Loop through each day in the range
+  while (currentDate <= end) {
+      dateArray.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+  }
+  
+  return dateArray;
 }
 
 

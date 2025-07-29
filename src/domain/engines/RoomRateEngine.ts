@@ -19,13 +19,17 @@ export default class RoomRateEngine{
 
     public static calculate(reservation: Reservation, roomReservations: RoomReservation[], roomTypes: RoomType[], roomRates: RoomRate[]) : RoomCharge[]{
         if(!reservation)
-            throw new CustomError('Reservation in invalid.');
+            throw new CustomError('Reservation in required to calculate room charge.');
         if(!roomReservations || roomReservations.length == 0)
             throw new CustomError('Room Charge Calculation: room reservation list is empty.');
         if(!roomTypes || roomTypes.length === 0)
             throw new CustomError('Room Charge Calculation: room type list is empty');
         if(!roomRates || roomRates.length === 0)
             throw new CustomError('Room Charge Calculation: room rate list is empty.');
+        if(!reservation.noOfDays || reservation.noOfDays === 0)
+            throw new CustomError('No of days is required to calculate room charge.');
+        if(!reservation.noOfGuests || reservation.noOfGuests === 0)
+            throw new CustomError('No of guest is requred to calculate room charge.');
 
         const roomCharges : RoomCharge[] = [];
 
@@ -49,7 +53,7 @@ export default class RoomRateEngine{
                 roomCharge.seasonSurcharge = reservation.prepaidPackageId ? Number(rate.seasonSurcharge) : 0;
                 roomCharge.roomSurcharge = reservation.prepaidPackageId ? Number(rate.roomSurcharge) : 0;
                 roomCharge.noOfDays = Number(md.noOfDays);
-                if(rr.isSingleOccupancy){
+                if(rr.isSingleOccupancy === true){
                     roomCharge.singleRate = Number(rate.singleRate);
                 }
 
@@ -62,12 +66,14 @@ export default class RoomRateEngine{
                     roomCharge.totalRate = Number(roomCharge.roomRate) + Number(roomCharge.singleRate);
                 }
                 
-                roomCharge.totalAmount = roomCharge.totalRate * roomCharge.noOfDays;
+                roomCharge.totalAmount = roomCharge.totalRate * roomCharge.noOfDays * reservation.noOfGuests;
                 if(prvRoomCharge && prvRoomCharge.totalRate == roomCharge.totalRate){
+                    //just modify charge for the same rate rate periods
                     prvRoomCharge.noOfDays = Number(prvRoomCharge.noOfDays) + Number(roomCharge.noOfDays);
                     prvRoomCharge.endDateUTC = roomCharge.endDateUTC;
-                    prvRoomCharge.totalAmount = (prvRoomCharge.totalRate * prvRoomCharge.noOfDays) + (prvRoomCharge.singleRate * prvRoomCharge.noOfDays);
+                    prvRoomCharge.totalAmount = (prvRoomCharge.totalRate * prvRoomCharge.noOfDays * reservation.noOfGuests) + (prvRoomCharge.singleRate * prvRoomCharge.noOfDays);
                 }else{
+                    //insert new charge for different rates
                     prvRoomCharge = roomCharge;
                     roomCharges.push(roomCharge);
                 }

@@ -48,6 +48,7 @@ export default function BillDialog({
 
   const columns = React.useMemo<ColumnDef<Bill>[]>(() =>  [
       {
+        key: `key${Math.random()}`,
         accessorKey: "index",
         header: "#",
         accessorFn: (row, index) => {
@@ -56,30 +57,41 @@ export default function BillDialog({
         cell: row => (row.getValue())
       },
       {
+        key: `key${Math.random()}`,
         accessorKey: "dateUTC",
         header: 'Bill Date',
         cell: (row) => row.getValue() ? (row.getValue() as Date).toLocaleDateString('sv-SE') : ""
       },
       {
+        key: `key${Math.random()}`,
+        accessorKey: "paymentType",
+        header: 'Payment Type'
+      },
+      {
+        key: `key${Math.random()}`,
         accessorKey: "itemName",
         header: 'Name',
         cell: (row) => row.getValue()
       },
       {
+        key: `key${Math.random()}`,
         accessorKey: "unitPrice",
         header: 'Unit Price',
         cell: (row) => row.getValue()
       },
       {
+        key: `key${Math.random()}`,
         accessorKey: "quantity",
         header: 'Quantity',
         cell: (row) => row.getValue()
       },
       {
+        key: `key${Math.random()}`,
         accessorKey: "amount",
         header: 'Amount',
       },
       {
+        key: `key${Math.random()}`,
         accessorKey: "currency",
         header: 'Currency',
         cell: row => {
@@ -87,6 +99,7 @@ export default function BillDialog({
         }
       },
       {
+        key: `key${Math.random()}`,
         accessorKey: "paidOnUTC",
         header: 'Paid Date',
         cell: row => row.getValue() ? (row.getValue() as Date).toLocaleDateString('sv-SE') : ""

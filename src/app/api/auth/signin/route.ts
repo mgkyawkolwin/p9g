@@ -6,8 +6,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { userSignInSchema } from '@/lib/zodschema';
 
 import c from '@/lib/core/logger/ConsoleLogger';
-import { signIn } from '@/app/auth';
+import { auth, signIn } from '@/app/auth';
 import { CustomError } from '@/lib/errors';
+import LogError from '@/domain/models/LogError';
+import ILogService from '@/domain/services/contracts/ILogService';
 
 export async function POST(request: NextRequest) {
   try{
@@ -37,6 +39,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(user, { status: HttpStatusCode.Ok });
   }catch(error){
     c.e(error instanceof Error ? error.message : JSON.stringify(error));
+    const logService = container.get<ILogService>(TYPES.ILogService);
+    await logService.logError(error);
     if(error instanceof CustomError)
       return NextResponse.json({ message: error.message }, { status: error.statusCode });
     else

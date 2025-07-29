@@ -32,7 +32,17 @@ export abstract class Repository<TEntity extends IEntity, TTable extends  IDrizz
   applyCondition<T extends MySqlSelectQueryBuilder>(query: T, searchParams: SearchParam[]) : T{
     if (searchParams && searchParams.length > 0) {
       searchParams.forEach((searchParam : SearchParam) => {
-        const condition = like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`);
+        let condition 
+        if(searchParam.searchColumn === 'name'){
+          condition = or(
+            like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`),
+            like(getTableColumns(this.table)['englishName'], `%${searchParam.searchValue}%`)
+          )
+        }else{
+          condition = like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`)
+        }
+
+        like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`);
         return query.where(condition);
       });
     }
@@ -181,7 +191,7 @@ export abstract class Repository<TEntity extends IEntity, TTable extends  IDrizz
       .set(data as any)
       .where(eq(this.table.id as Column, id));
     c.d(query.toSQL());
-    await query;
+    await query.execute();
     return data as TEntity;
   }
 

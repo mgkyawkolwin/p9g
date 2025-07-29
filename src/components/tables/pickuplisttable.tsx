@@ -11,7 +11,7 @@ import Reservation from "@/domain/models/Reservation";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { InputCustom } from "../uicustom/inputcustom"
-import { updatePickUpCarNo } from "@/app/(private)/console/pickup/actions"
+import { updatePickUpInfo } from "@/app/(private)/console/pickup/actions"
 import { toast } from "sonner"
 
 
@@ -38,18 +38,25 @@ export default function PickUpListTable({
       accessorKey: "customReservationInfo",
       header: "ID",
       accessorFn: (row) => {
-        return <span><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />{row.reservationStatusText}<br />{row.reservationTypeText}</span>;
+        return <span>
+          <a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />
+          {row.reservationStatusText}<br />
+          {row.reservationTypeText} 
+          {row.prepaidPackageText ? <><br/>{row.prepaidPackageText}</> : ''}
+          {row.promotionPackageText ? <><br/>{row.promotionPackageText}</> : ''}
+          </span>;
       },
       cell: (row) => row.getValue(),
     },
     {
       accessorKey: "pickUpCarNo",
       header: "Vehicle No",
-      // accessorFn: (row, index) => {
-      //   setCarNos(prev => ({...prev, [index]: row.pickUpCarNo}));
-      //   return row.pickUpCarNo;
-      // },
-      cell: ({row}) => <InputCustom id={row.original.id} defaultValue={String(row.original.pickUpCarNo ?? '')} />,
+      cell: ({row}) => <InputCustom variant="table" size="xs" id={`car${row.original.id}`} defaultValue={String(row.original.pickUpCarNo ?? '')} />,
+    },
+    {
+      accessorKey: "pickUpDriver",
+      header: "Driver",
+      cell: ({row}) => <InputCustom variant="table" size="md" id={`driver${row.original.id}`} defaultValue={String(row.original.pickUpDriver ?? '')} />,
     },
     {
       accessorKey: "customers",
@@ -112,7 +119,9 @@ export default function PickUpListTable({
       cell: ({ row }) => {
         return <div className="flex gap-1">
           <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={async () => {
-            const response = await updatePickUpCarNo(row.original.id, (document.getElementById(row.original.id) as HTMLInputElement)?.value);
+            const response = await updatePickUpInfo(row.original.id, 
+              (document.getElementById(`car${row.original.id}`) as HTMLInputElement)?.value, 
+              (document.getElementById(`driver${row.original.id}`) as HTMLInputElement)?.value);
             if(response.message)
               toast(response.message);
           }} >Save Car No</ButtonCustom>

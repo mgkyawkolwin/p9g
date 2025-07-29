@@ -8,7 +8,7 @@ export default class RoomReservation{
     public checkInDateUTC!: Date;
     public checkOutDateUTC!: Date;
     public noOfExtraBed: number = 0;
-    public isSingleOccupancy: boolean;
+    public isSingleOccupancy: boolean = false;
     public createdAtUTC!: Date;
     public createdBy!: string;
     public updatedAtUTC!: Date;

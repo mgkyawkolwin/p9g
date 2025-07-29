@@ -18,6 +18,7 @@ export default function ReceiptTable({reservation, roomCharges} : {reservation: 
                             <th className="p-2">No</th>
                             <th>Description</th>
                             <th className="text-right">Rate</th>
+                            <th className="w-[100px]">Pax</th>
                             <th className="w-[100px]">Days</th>
                             <th className="w-[150px]">Amount</th>
                         </tr>
@@ -48,6 +49,7 @@ export default function ReceiptTable({reservation, roomCharges} : {reservation: 
                                 <td className="p-2">{index+1}</td>
                                 <td className="p-2">{description}</td>
                                 <td className="text-right">{formatter.format(charge.totalRate)}</td>
+                                <td className="p-2 text-center">{reservation.noOfGuests}</td>
                                 <td className="text-center">{charge.noOfDays}</td>
                                 <td className="text-right p-1 p-2">{formatter.format(charge.totalAmount)}</td>
                             </tr>;
@@ -58,10 +60,12 @@ export default function ReceiptTable({reservation, roomCharges} : {reservation: 
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
                             <td className="text-right p-2">Total</td>
                             <td className="border-1 border-[#999] text-right p-2">{formatter.format(reservation.totalAmount)}</td>
                         </tr>
                         <tr>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -72,10 +76,12 @@ export default function ReceiptTable({reservation, roomCharges} : {reservation: 
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
                             <td className="text-right p-2">Tax ({reservation.tax})%</td>
                             <td className="border-1 border-[#999] text-right p-2">{formatter.format(reservation.taxAmount)}</td>
                         </tr>
                         <tr>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -86,10 +92,12 @@ export default function ReceiptTable({reservation, roomCharges} : {reservation: 
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
                             <td className="text-right p-2">Paid</td>
                             <td className="border-1 border-[#999] text-right p-2">{formatter.format(reservation.paidAmount)}</td>
                         </tr>
                         <tr>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td></td>

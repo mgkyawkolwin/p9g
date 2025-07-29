@@ -32,17 +32,17 @@ export async function customerUpdate(customer: Customer) : Promise<FormState>{
       },
       body: JSON.stringify(validatedFields.data),
     });
+
+    const responseData = await response.json();
     
     //update user failed
     if (!response.ok) {
-      const errorData = await response.json();
-      c.e(errorData.message);
-      return { error: true, message: 'Failed to update customer.', data: null, formData: null};
+      c.e(responseData.message);
+      return { error: true, message: `Failed to update customer. ${responseData.message}`};
     }
 
     //update user success
-    const result = await response.json();
-    return {error: false, message:"Customer update successful", data: result.data, formData: null};
+    return {error: false, message:"Customer update successful", data: responseData.data, formData: null};
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return {error: true, message: 'Failed to update customer.', data: null, formData: null};

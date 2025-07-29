@@ -40,6 +40,8 @@ export default function CustomerDetailForm({ customer, resetDataToggle, onDataCh
         <div className="flex flex-col gap-4">
             <InputWithLabel name="name" label="Name" variant="default" size={"full"} labelPosition="top"
                 value={localCustomer?.name ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, name: e.target.value }))} />
+                <InputWithLabel name="englishName" label="English Name" variant="default" size={"full"} labelPosition="top"
+                value={localCustomer?.englishName ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, englishName: e.target.value }))} />
             <DateInputWithLabel label="Date of birth" labelPosition="top" type="date" variant={"date"} size={"sm"}
                 value={localCustomer?.dob ? new Date(localCustomer?.dob).toLocaleDateString('sv-SE') : ''}
                 onChange={(e) => { setLocalCustomer(prev => ({ ...prev, dob: new Date(e.target.value).toLocaleDateString('sv-SE') })); }} />

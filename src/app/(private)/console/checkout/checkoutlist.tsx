@@ -38,7 +38,6 @@ export default function CheckOutList() {
             <form ref={formRef} action={formAction} className="flex flex-col gap-4">
               <CheckOutListSearch formRef={formRef} />
               <CheckOutListTable formState={state} formAction={formAction} formRef={formRef} />
-              <input type="hidden" name="searchReservationStatus" value={"CIN"} />
             </form>
           </div>
         </GroupContent>

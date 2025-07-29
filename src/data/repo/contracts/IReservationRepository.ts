@@ -11,16 +11,19 @@ import RoomType from "@/domain/models/RoomType";
 
 export default interface IReservationRepository extends IRepository<Reservation>{
 
+    billDelete(reservationId: string, billId: string): Promise<void>;
     billsGetAll(reservationId:string) : Promise<Bill[]>;
     billsGetPaids(reservationId:string) : Promise<Bill[]>;
     billsGetUnpaids(reservationId:string) : Promise<Bill[]>;
     billsSave(reservationId:string, bills:Bill[]) : Promise<void>;
-    paymentsDelete(reservationId: string, paymentId: string): Promise<void>;
+    paymentDelete(reservationId: string, paymentId: string): Promise<void>;
     paymentsGetAll(reservationId:string) : Promise<Payment[]>;
     paymentsSave(reservationId:string, payments:Payment[]) : Promise<void>;
     reservationCancel(id: string) : Promise<void>;
     reservationCheckIn(id: string) : Promise<void>;
+    reservationCheckInList(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]>;
     reservationCheckOut(id: string) : Promise<void>;
+    reservationCheckOutList(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]>;
     reservationCreate(reservation: Reservation) : Promise<Reservation>;
     reservationFindById(id: string): Promise<Reservation|undefined>;
     reservationFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]>;
@@ -33,7 +36,7 @@ export default interface IReservationRepository extends IRepository<Reservation>
     roomReservationGetAllById(reservationId:string):Promise<RoomReservation[]>;
     roomScheduleList(searchParams:SearchParam[]) : Promise<Room[]>;
     roomTypeGetAll(location:string):Promise<RoomType[]>;
-    updateDropOffCarNo(id:string, carNo:string) : Promise<void>;
-    updatePickUpCarNo(id:string, carNo:string) : Promise<void>;
+    updateDropOffInfo(id:string, carNo:string, driver:string) : Promise<void>;
+    updatePickUpInfo(id:string, carNo:string, driver:string) : Promise<void>;
     
 }

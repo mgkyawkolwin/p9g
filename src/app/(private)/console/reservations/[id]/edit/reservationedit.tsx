@@ -15,6 +15,8 @@ import ReservationDetailEditForm from "@/components/forms/reservationdetaileditf
 import Customer from "@/domain/models/Customer";
 import Reservation from "@/domain/models/Reservation";
 import CustomerNewForm from "@/components/forms/customernewform";
+import { Label } from "@/components/ui/label";
+import { InputCustom } from "@/components/uicustom/inputcustom";
 
 export default function ReservationEdit({id}:{id:string}) {
 
@@ -102,7 +104,8 @@ export default function ReservationEdit({id}:{id:string}) {
       </form>
         <Loader isLoading={isPending} />
         <section aria-label="Search" className="flex flex-row h-fit items-center gap-x-4">
-          <InputWithLabel label="Search" defaultValue={customerName} onBlur={(e) => setCustomerName(e.target.value)}></InputWithLabel>
+        <Label>Search</Label>
+        <InputCustom size="lg" defaultValue={customerName} onBlur={(e) => setCustomerName(e.target.value)}></InputCustom>
           <input type="hidden" name="searchName" value={customerName} />
           <ButtonCustom type="button" variant={"black"} onClick={ async () => {
             const response = await searchCustomer(customerName);

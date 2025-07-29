@@ -7,13 +7,14 @@ import { HttpStatusCode } from "@/lib/constants";
 import { buildSearchParams } from "@/lib/utils";
 import IReservationService from "@/domain/services/contracts/IReservationService";
 import { CustomError } from "@/lib/errors";
+import ILogService from "@/domain/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest) {
-  try{
+  try {
     c.i("GET /api/roomreservation");
     c.d(JSON.stringify(request));
-    let searchParams : SearchParam[];
+    let searchParams: SearchParam[];
 
     c.i('Converting url search params into form object.')
     const searchFormData = Object.fromEntries(request.nextUrl.searchParams);
@@ -21,11 +22,11 @@ export async function GET(request: NextRequest) {
 
     c.i('Validating search form object.');
     const validatedSearchFields = await searchSchema.safeParseAsync(searchFormData);
-    if(!validatedSearchFields.success){
-        c.i('Search param validation failed.');
-        c.d(validatedSearchFields.error.flatten());
+    if (!validatedSearchFields.success) {
+      c.i('Search param validation failed.');
+      c.d(validatedSearchFields.error.flatten());
     }
-    if(validatedSearchFields.success){
+    if (validatedSearchFields.success) {
       c.i('Search param validation successful. Build search params.');
       searchParams = buildSearchParams(validatedSearchFields.data);
       c.d(searchParams);
@@ -37,10 +38,12 @@ export async function GET(request: NextRequest) {
     const result = await reservationService.roomReservationList(searchParams);
     c.d(JSON.stringify(result));
 
-    return NextResponse.json({data : result}, {status: HttpStatusCode.Ok});
-  }catch(error){
+    return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });
+  } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
-    if(error instanceof CustomError)
+    const logService = container.get<ILogService>(TYPES.ILogService);
+    await logService.logError(error);
+    if (error instanceof CustomError)
       return NextResponse.json({ message: error.message }, { status: error.statusCode });
     else
       return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
@@ -49,7 +52,7 @@ export async function GET(request: NextRequest) {
 
 
 export async function PATCH(request: NextRequest) {
-  try{
+  try {
     c.i("PATCH /api/roomreservation");
     c.d(JSON.stringify(request));
     //const searchParams : SearchParam[] = [];
@@ -64,10 +67,12 @@ export async function PATCH(request: NextRequest) {
     const result = await reservationService.reservationMoveRoom(queryStringObject.id, queryStringObject.roomNo);
     c.d(JSON.stringify(result));
 
-    return NextResponse.json({data : result}, {status: HttpStatusCode.Ok});
-  }catch(error){
+    return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });
+  } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
-    if(error instanceof CustomError)
+    const logService = container.get<ILogService>(TYPES.ILogService);
+    await logService.logError(error);
+    if (error instanceof CustomError)
       return NextResponse.json({ message: error.message }, { status: error.statusCode });
     else
       return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });

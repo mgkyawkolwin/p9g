@@ -66,6 +66,18 @@ export default function CustomerTable({
     }
   },
   {
+    accessorKey: "englishName",
+    header: "English Name",
+    cell: ({ row }) => {
+      return <div>
+        {/* <InputCustom variant={'table'} size={'sm'} className="w-50" defaultValue={row.getValue('name')} 
+          ref={(el : any) => (nameRefs.current[String(row.getValue('id'))] = el)}
+        /> */}
+        {row.getValue('englishName')}
+      </div>
+    }
+  },
+  {
     accessorKey: "dob",
     header: "DOB",
     cell: ({ row }) => {

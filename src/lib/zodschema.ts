@@ -11,13 +11,15 @@ export const billValidator = z.object({
   amount: z.coerce.number().nullish().catch(undefined),
   currency: z.string(),
   isPaid: z.boolean(),
-  paidOnUTC: z.coerce.date().nullish().catch(undefined).optional()
+  paidOnUTC: z.coerce.date().nullish().catch(undefined).optional(),
+  paymentType: z.string().min(1)
 });
 
 
 export const customerValidator = z.object({
   id: z.string().nullish().catch(undefined).optional(),
   name: z.string().nullish().catch(undefined).optional(),
+  englishName: z.string().nullish().catch(undefined).optional(),
   nationalId: z.string().nullish().catch(undefined).optional(),
   passport: z.string().nullish().catch(undefined).optional(),
   phone: z.string().nullish().catch(undefined).optional(),
@@ -67,6 +69,7 @@ export const paymentValidator = z.object({
   amountInCurrency: z.coerce.number(),
   currency: z.string().length(3),
   paymentMode: z.string().min(1),
+  paymentType: z.string().min(1),
   remark: z.string().nullish().catch(undefined).optional()
 });
 
@@ -76,8 +79,8 @@ export const reservationValidator = z.object({
   id: z.string().min(1,"Id is required").optional(),
   arrivalDateTimeUTC: z.coerce.date().nullish().catch(undefined).optional(),
   arrivalFlight: z.coerce.string().optional(),
-  checkInDateUTC: z.coerce.date(),
-  checkOutDateUTC: z.coerce.date(),
+  checkInDateUTC: z.coerce.date({message:"Check-in date is either missing or incorrect format."}),
+  checkOutDateUTC: z.coerce.date({message:"Check-out date is either missing or incorrect format."}),
   customers: z.preprocess(
     (val) => {
       if (typeof val === "string") {
@@ -100,9 +103,12 @@ export const reservationValidator = z.object({
   depositAmount: z.coerce.number().optional(),
   depositCurrency: z.coerce.string().nullish().catch(undefined).optional(),
   depositDateUTC: z.coerce.date().nullish().catch(undefined).optional(),
+  discountAmount: z.coerce.number(),
   dropOffType: z.string().optional(),
-  noOfDays: z.coerce.number(),
-  noOfGuests: z.coerce.number().optional(),
+  isSingleOccupancy: z.coerce.boolean(),
+  location: z.coerce.string(),
+  noOfDays: z.coerce.number().gt(0, { message: "Number of days must be greater than 0" }),
+  noOfGuests: z.coerce.number().gt(0, { message: "Number of guests must be greater than 0" }),
   pickUpType: z.string().optional(),
   prepaidPackage: z.string().optional(),
   promotionPackage: z.string().optional(),
@@ -111,28 +117,31 @@ export const reservationValidator = z.object({
   reservationType: z.string().optional(),
   roomNo: z.coerce.string().optional(),
   tax: z.coerce.number(),
-  discountAmount: z.coerce.number()
+  tourCompany: z.coerce.string().optional(),
 });
 
 
 export const searchSchema = z.object({
-  searchId: z.string().optional(),
-  searchRoomNo: z.string().optional(),
-  searchCreatedFrom: z.string().optional(),
-  searchCreatedUntil: z.string().optional(),
-  searchCheckInDateUTC: z.string().optional(),
-  searchCheckInDateUTCFrom: z.string().optional(),
-  searchCheckInDateUTCTo: z.string().optional(),
-  searchCheckOutDateUTC: z.string().optional(),
-  searchDate: z.string().regex(RegExp('\d{4}-\d{2}-\d{2}')).optional().or(z.literal('')),
-  date: z.string().optional(),
-  searchEmail: z.string().regex(RegExp('[a-zA-Z0-9@ ]'),'Invalid search column.').optional().or(z.literal('')),
-  searchName: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
-  searchNationalId: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
-  searchPassport: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
-  searchPhone: z.string().regex(RegExp('[a-zA-Z0-9]'),'Invalid search column.').optional().or(z.literal('')),
+  searchId: z.string().nullish().catch(undefined).optional(),
+  searchRoomNo: z.string().nullish().catch(undefined).optional(),
+  searchArrivalDateTime: z.string().nullish().catch(undefined).optional(),
+  searchCreatedDateFrom: z.string().nullish().catch(undefined).optional(),
+  searchCreatedDateUntil: z.string().nullish().catch(undefined).optional(),
+  searchCheckInDate: z.string().nullish().catch(undefined).optional(),
+  searchCheckInDateFrom: z.string().nullish().catch(undefined).optional(),
+  searchCheckInDateUntil: z.string().nullish().catch(undefined).optional(),
+  searchCheckOutDate: z.string().nullish().catch(undefined).optional(),
+  searchDate: z.string().nullish().catch(undefined).optional(),
+  date: z.string().nullish().catch(undefined).optional(),
+  searchDepartureDateTimeUTC: z.string().nullish().catch(undefined).optional(),
+  searchEmail: z.string().nullish().catch(undefined).optional(),
+  searchName: z.string().nullish().catch(undefined).optional(),
+  searchNationalId: z.string().nullish().catch(undefined).optional(),
+  searchPassport: z.string().nullish().catch(undefined).optional(),
+  searchPhone: z.string().nullish().catch(undefined).optional(),
   searchPrepaidPackage: z.string().optional(),
   searchPromotionPackage: z.string().optional(),
+  searchRemark: z.string().optional(),
   searchReservationStatus: z.string().optional(),
   searchReservationType: z.string().optional(),
   searchUserName: z.string().optional(),

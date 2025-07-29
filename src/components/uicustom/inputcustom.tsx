@@ -8,20 +8,20 @@ const inputVariants = cva(
   {
     variants: {
       variant: {
-        default: "min-h-4",
-        form: "min-h-3",
-        table: "bg-[#eaeaea] text-[#333333] border-[#bbbbbb]"
+        default: "min-h-8",
+        form: "h-7 max-h-7 text-[10pt]",
+        table: "h-6 max-h-6 text-[10pt] bg-[#eaeaea] text-[#333333] border-[#bbbbbb]"
       },
       size: {
-        default: "h-9",
+        default: "",
         full: "w-full max-w-full",
-        xxl: "max-h-7 text-[10pt] w-70 max-w-70",
-        xl: "max-h-7 text-[10pt] w-60 max-w-60",
-        lg: "max-h-7 text-[10pt] max-w-50",
-        md: "max-h-7 text-[10pt] max-w-40",
-        sm: "max-h-7 text-[10pt] max-w-30",
-        xs: "max-h-7 text-[10pt] max-w-20",
-        xxs: "max-h-7 text-[10pt] max-w-10"
+        xxl: "w-55 max-w-55",
+        xl: "w-50 max-w-50",
+        lg: "w-45 max-w-45",
+        md: "w-35 max-w-35",
+        sm: "w-30 max-w-30",
+        xs: "w-20 max-w-20",
+        xxs: "w-10 max-w-10"
       },
     },
     defaultVariants: {

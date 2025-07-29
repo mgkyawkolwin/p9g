@@ -13,31 +13,33 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.i('Actions > /console/reservation > reservationGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
-    const formObject = Object.fromEntries(formData?.entries());
+    const formObject = Object.fromEntries(
+      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
+    );
     
-    if(formObject.actionVerb === 'CANCEL'){
-      c.i('Action is CANCEL');
-      const response = await fetch(process.env.API_URL + `reservations/${formObject.cancelId}?operation=CANCEL`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'cookie': (await headers()).get('cookie')
-        }
-      });
+    // if(formObject.actionVerb === 'CANCEL'){
+    //   c.i('Action is CANCEL');
+    //   const response = await fetch(process.env.API_URL + `reservations/${formObject.cancelId}?operation=CANCEL`, {
+    //     method: 'PATCH',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'cookie': (await headers()).get('cookie')
+    //     }
+    //   });
   
-      //fail
-      if(!response.ok){
-        c.i("Cancel failed. Return response.");
-        return {error:true, message : "Cancel reservation failed."};
-      }
-    }
+    //   //fail
+    //   if(!response.ok){
+    //     c.i("Cancel failed. Return response.");
+    //     return {error:true, message : "Cancel reservation failed."};
+    //   }
+    // }
 
     // formData is valid, further process
     let queryString = null;
 
     //validate and parse paging input
     c.i("Parsing pager fields from form entries.");
-    const pagerFields = pagerValidator.safeParse(Object.fromEntries(formData.entries()));
+    const pagerFields = pagerValidator.safeParse(formObject);
     c.d(pagerFields);
 
     //table pager field validatd, build query string
@@ -52,7 +54,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     //validate and parse search input
     c.i("Parsing search fields from from entries.");
-    const searchFields = searchSchema.safeParse(Object.fromEntries(formData.entries()));
+    const searchFields = searchSchema.safeParse(formObject);
     c.d(searchFields);
 
     //table pager field validatd, build query string
@@ -72,16 +74,16 @@ export async function reservationGetList(formState : FormState, formData: FormDa
       },
       credentials: 'include'
     });
+    const responseData = await response.json();
 
     //fail
     if(!response.ok){
       c.i("Updated list retrieval failed. Return response.");
-      return {error:true, message : "Reservation list retrieval failed."};
+      return {error:true, message : `Reservation list retrieval failed. ${responseData.message}`};
     }
 
     //success
     c.i("Updated list retrieval successful.");
-    const responseData = await response.json();
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
@@ -91,6 +93,34 @@ export async function reservationGetList(formState : FormState, formData: FormDa
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
     return {error:true, message : "Reservation list retrieval failed."};
+  }
+}
+
+
+export async function billDelete(reservationId:string, billId: string) : Promise<FormState>{
+  try {
+    c.i('Actions > /console/reservations/ > billDelete');
+
+    //delete payment
+    const response = await fetch(process.env.API_URL + `reservations/${reservationId}/bills/${billId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      },
+    });
+    
+    //update user failed
+    if (!response.ok) {
+      const errorData = await response.json();
+      c.e(errorData);
+      return { error: true, message: 'Failed to delete bill. ' + errorData.message};
+    }
+    
+    return {error: false, message:"Bill deleted."};
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error: true, message: 'Failed to delete bill.', data: null, formData: null};
   }
 }
 

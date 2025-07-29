@@ -43,7 +43,13 @@ export default function ReservationListTable({
       accessorKey: "customReservationInfo",
       header: "ID",
       accessorFn: (row) => {
-        return <span><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />{row.reservationStatusText}<br />{row.reservationTypeText}</span>;
+        return <span>
+          <a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />
+          {row.reservationStatusText}<br />
+          {row.reservationTypeText} 
+          {row.prepaidPackageText ? <><br/>{row.prepaidPackageText}</> : ''}
+          {row.promotionPackageText ? <><br/>{row.promotionPackageText}</> : ''}
+          </span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -119,15 +125,15 @@ export default function ReservationListTable({
           </div>
           <div className="flex gap-1">
             <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
-            editDialogCallbackFunc.current?.openDialog(true);
-            setReservationId(row.original.id);
-            
-          }}>Add Bill</ButtonCustom>
-            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
               viewDialogCallbackFunc.current?.openDialog(true);
               setReservationId(row.original.id);
               
             }}>View Bill</ButtonCustom>
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+            editDialogCallbackFunc.current?.openDialog(true);
+            setReservationId(row.original.id);
+            
+          }}>Add Bill</ButtonCustom>
           </div>
           <div className="flex gap-1">
           <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {

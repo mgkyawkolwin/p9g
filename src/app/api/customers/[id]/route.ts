@@ -8,6 +8,7 @@ import { customerValidator } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
 import Customer from "@/domain/models/Customer";
 import { CustomError } from "@/lib/errors";
+import ILogService from "@/domain/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -23,16 +24,16 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         return NextResponse.json({ data: result }, { status: 200 });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
-        if(error instanceof CustomError)
+        if (error instanceof CustomError)
             return NextResponse.json({ message: error.message }, { status: error.statusCode });
-          else
+        else
             return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }
 
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
-    try{
+    try {
         c.i("PUT api/customers[id]");
         const body = await request.json();
         c.d(body);
@@ -45,22 +46,22 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         }
 
         const validatedCustomer = await customerValidator.safeParseAsync(body);
-        
-        if(!validatedCustomer){
+
+        if (!validatedCustomer) {
             return NextResponse.json({ message: "Invalid input" }, { status: HttpStatusCode.BadRequest });
         }
         c.d(validatedCustomer.data);
         // update user
         const updatedUser = await service.customerUpdate(id, validatedCustomer.data as unknown as Customer);
-        if(!updatedUser){
+        if (!updatedUser) {
             return NextResponse.json({ message: "Update failed." }, { status: HttpStatusCode.ServerError });
         }
         return NextResponse.json({ message: "Updated" }, { status: HttpStatusCode.Ok });
-    }catch(error){
+    } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
-        if(error instanceof CustomError)
+        if (error instanceof CustomError)
             return NextResponse.json({ message: error.message }, { status: error.statusCode });
-          else
+        else
             return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }
@@ -68,19 +69,21 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: number }> }) {
-    try{
-        const {id} = await params;
+    try {
+        const { id } = await params;
         const service = container.get<IUserService>(TYPES.IUserService);
         const result = await service.userDelete(id);
         if (!result) {
             return NextResponse.json({ message: "Fail delete." }, { status: HttpStatusCode.ServerError });
         }
         return NextResponse.json({ message: "Deleted" }, { status: HttpStatusCode.Ok });
-    }catch(error){
+    } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
-        if(error instanceof CustomError)
-                  return NextResponse.json({ message: error.message }, { status: error.statusCode });
-                else
-                  return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
+        const logService = container.get<ILogService>(TYPES.ILogService);
+        await logService.logError(error);
+        if (error instanceof CustomError)
+            return NextResponse.json({ message: error.message }, { status: error.statusCode });
+        else
+            return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }

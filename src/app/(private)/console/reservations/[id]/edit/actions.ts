@@ -14,8 +14,10 @@ export async function editReservationAction(formState : FormState, formData: For
     const message = "";
 
     c.i("Finding form action for further processing.");
-    const formObj = Object.fromEntries(formData.entries());
-    const { id } = formObj;
+    const formObject = Object.fromEntries(
+      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
+    );
+    const { id } = formObject;
 
     //first retrieve reservation to edit
     const getReservationResponse = await fetch(process.env.API_URL + `reservations/${id}`, {
@@ -47,26 +49,26 @@ export async function editReservationAction(formState : FormState, formData: For
     c.d(queryString);
     
     c.i("Request api to retrieve latest 10 reservations");
-    const getReservationsResponse = await fetch(process.env.API_URL + `reservations?${queryString}`, {
+    const response = await fetch(process.env.API_URL + `reservations?${queryString}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'cookie': (await headers()).get('cookie')
       }
     });
+    const responseData = await response.json();
 
     //fail
-    if(!getReservationsResponse.ok){
+    if(!response.ok){
       c.i("Reservaton retrieval failed. Return response.");
-      return {error:true, message : "Reservation list retrieval failed."};
+      return {error:true, message : `Reservation list retrieval failed. ${responseData.message}`};
     }
       
     c.i("Reservation retrieval success.");
-    const reservationsData = await getReservationsResponse.json();
-    c.d(reservationsData);
+    c.d(responseData);
 
     //retrieve data from tuple
-    const [reservations] = reservationsData.data;
+    const [reservations] = responseData.data;
     c.d(reservations?.length);
 
     c.i("Returning final response.");
@@ -92,17 +94,16 @@ export async function getReservation(reservationId:string){
         'cookie': (await headers()).get('cookie')
       }
     });
+    const responseData = await response.json();
     
     //retrieve user failed
     if (!response.ok) {
       c.i("Retrieve reservation api response failed. Return response.");
-      const errorData = await response.json();
-      c.e(errorData.message);
-      return { error: true, message: 'Failed to retrieve reservation.'};
+      c.e(responseData.message);
+      return { error: true, message: `Failed to retrieve reservation. ${responseData.message}`};
     }
 
     c.i("Retrieve reservation successful.");
-    const responseData = await response.json();
     c.d(responseData);
     const reservation = responseData.data;
     
@@ -115,24 +116,23 @@ export async function searchCustomer(search:string){
 
     //update user
     c.i("Requesting API to retrieve customers.");
-    const customersResponse = await fetch(process.env.API_URL + `customers?searchName=${search}`, {
+    const response = await fetch(process.env.API_URL + `customers?searchName=${search}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'cookie': (await headers()).get('cookie')
       }
     });
+    const responseData = await response.json();
     
     //retrieve user failed
-    if (!customersResponse.ok) {
+    if (!response.ok) {
       c.i("Retrieve customers api response failed. Return response.");
-      const errorData = await customersResponse.json();
-      c.e(errorData.message);
-      return { error: true, message: 'Failed to retrieve customer.', data: null, formData: null};
+      c.e(responseData.message);
+      return { error: true, message: `Failed to retrieve customer. ${responseData.message}`, data: null, formData: null};
     }
 
     c.i("Retrieve users successful.");
-    const responseData = await customersResponse.json();
     c.d(responseData);
     const [customers] = responseData.data;
     
@@ -146,11 +146,13 @@ export async function updateReservationAction(formState : FormState, formData: F
     c.d(Object.fromEntries(formData.entries()));
 
     c.i("Finding form action for further processing.");
-    const formObj = Object.fromEntries(formData.entries());
-    const { id } = formObj;
+    const formObject = Object.fromEntries(
+      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
+    );
+    const { id } = formObject;
 
     c.i("Action is SAVE. Validating input fields.");
-    const reservationFields = reservationValidator.safeParse(formObj);
+    const reservationFields = reservationValidator.safeParse(formObject);
     c.d(reservationFields);
 
     if (!reservationFields.success) {
@@ -160,7 +162,7 @@ export async function updateReservationAction(formState : FormState, formData: F
 
     //update user
     c.i("Requesting API to update reservation.");
-    const reservationResponse = await fetch(process.env.API_URL + `reservations/${id}`, {
+    const response = await fetch(process.env.API_URL + `reservations/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -168,18 +170,17 @@ export async function updateReservationAction(formState : FormState, formData: F
       },
       body: JSON.stringify(reservationFields.data)
     });
+    const responseData = await response.json();
     
     //retrieve user failed
-    if (!reservationResponse.ok) {
+    if (!response.ok) {
       c.i("Upate reservation api response failed. Return response.");
-      const errorData = await reservationResponse.json();
-      c.e(errorData.message);
-      return { error: true, message: 'Failed to update reservation.', data: null, formData: null};
+      c.e(responseData.message);
+      return { error: true, message: `Failed to update reservation. ${responseData.message}`, data: null, formData: null};
     }
 
     c.i("Update reservation successful.");
-    const reservationData = await reservationResponse.json();
-    const reservation = reservationData.data;
+    const reservation = responseData.data;
     c.d(reservation);
 
     c.i("Returning final response.");

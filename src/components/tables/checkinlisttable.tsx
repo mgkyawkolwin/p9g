@@ -5,8 +5,7 @@ import {
   ColumnDef
 } from "@tanstack/react-table";
 import DataTable from "./datatable";
-import c from "@/lib/core/logger/ConsoleLogger"
-import { FormState } from "@/lib/types"
+import { FormState } from "@/lib/types";
 import Reservation from "@/domain/models/Reservation";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
@@ -14,49 +13,52 @@ import { reservationCancel, reservationCheckIn } from "@/app/(private)/console/c
 import { toast } from "sonner"
 
 
-
-
-interface DataTableProps{
+interface DataTableProps {
   formState: FormState
   formAction: (formData: FormData) => void
   formRef: React.RefObject<HTMLFormElement | null>;
 }
+
 
 export default function CheckInListTable({
   formState,
   formAction,
   formRef
 }: DataTableProps) {
-  c.i('Client > CheckInListTable');
-  c.d(JSON.stringify(formState));
 
   const columns: ColumnDef<Reservation>[] = [
     {
       accessorKey: "customReservationInfo",
       header: "ID",
       accessorFn: (row) => {
-        return <span><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />{row.reservationStatusText}<br />{row.reservationTypeText}</span>;
+        return <span>
+          <a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />
+          {row.reservationStatusText}<br />
+          {row.reservationTypeText} 
+          {row.prepaidPackageText ? <><br/>{row.prepaidPackageText}</> : ''}
+          {row.promotionPackageText ? <><br/>{row.promotionPackageText}</> : ''}
+          </span>;
       },
       cell: (row) => row.getValue(),
     },
-        {
-          accessorKey: "customers",
-          header: () => {
-            return (
-              "Customer Info"
-            )
-          },
-          cell: ({ row }) => (
-            <div>
-              {row.original.customers?.map((customer, i) => (
-                <React.Fragment key={i}>
-                  {i > 0 && <br />}
-                  {customer.name}<br/> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
-                </React.Fragment>
-              ))}
-            </div>
-          ),
-        },
+    {
+      accessorKey: "customers",
+      header: () => {
+        return (
+          "Customer Info"
+        )
+      },
+      cell: ({ row }) => (
+        <div>
+          {row.original.customers?.map((customer, i) => (
+            <React.Fragment key={i}>
+              {i > 0 && <br />}
+              {customer.name}<br /> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
+            </React.Fragment>
+          ))}
+        </div>
+      ),
+    },
     {
       accessorKey: "checkInCheckOut",
       header: "Check-In / Check-Out",
@@ -100,14 +102,12 @@ export default function CheckInListTable({
           <ButtonCustom type="button" variant={"black"} size={"sm"}>View Bill</ButtonCustom>
           <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={() => {
             setCheckInId(row.original.id);
-            setActionVerb('CHECKIN');
             setOpenCheckInDialog(true);
           }} >Check-In</ButtonCustom>
           <ButtonCustom type="button" variant={"red"} size={"sm"} onClick={() => {
             setCancelId(row.original.id);
-            setActionVerb('CANCEL');
             setOpenCancelDialog(true);
-            }}>Cancel</ButtonCustom>
+          }}>Cancel</ButtonCustom>
         </div>
       }
     },
@@ -118,14 +118,6 @@ export default function CheckInListTable({
   const [openCheckInDialog, setOpenCheckInDialog] = React.useState(false);
   const [cancelId, setCancelId] = React.useState<string>('');
   const [checkInId, setCheckInId] = React.useState('');
-  const [actionVerb, setActionVerb] = React.useState('');
-
-  React.useEffect(() => {
-    //reset IDs and actionVerb
-    setCancelId('');
-    setCheckInId('');
-    setActionVerb('');
-  },[formState]);
 
   return (
     <>
@@ -182,9 +174,6 @@ export default function CheckInListTable({
           </DialogContent>
         </Dialog>
       </section>
-      <input type="hidden" name="cancelId" value={cancelId} />
-      <input type="hidden" name="checkInId" value={checkInId} />
-      <input type="hidden" name="actionVerb" value={actionVerb} />
     </>
   )
 }

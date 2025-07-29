@@ -11,7 +11,9 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
     c.i('Actions > /console/checkin > roomReservationGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
-    const formObject = Object.fromEntries(formData?.entries());
+    const formObject = Object.fromEntries(
+      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
+    );
     const message = '';
 
     // formData is valid, further process
@@ -38,16 +40,16 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
         'cookie': (await headers()).get('cookie')
       }
     });
+    const responseData = await response.json();
 
     //fail
     if(!response.ok){
       c.i("Room reservation list retrieval failed. Return response.");
-      return {error:true, message : "Room reservation list retrieval failed."};
+      return {error:true, message : `Room reservation list retrieval failed. ${responseData.message}`};
     }
 
     //success
     c.i("Room reservation list retrieval successful.");
-    const responseData = await response.json();
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
@@ -72,10 +74,12 @@ export async function moveRoom(id: string, roomNo:string){
       }
     });
 
+    const responseData = await response.json();
+
     //fail
     if(!response.ok){
       c.i("Room move failed. Return response.");
-      return {error:true, message : "Room move failed."};
+      return {error:true, message : `Room move failed. ${responseData.message}`};
     }
 
     c.i('Return > moveRoom');

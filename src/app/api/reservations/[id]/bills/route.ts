@@ -7,6 +7,7 @@ import IReservationService from "@/domain/services/contracts/IReservationService
 import Bill from "@/domain/models/Bill";
 import { billValidator } from "@/lib/zodschema";
 import { CustomError } from "@/lib/errors";
+import ILogService from "@/domain/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -29,12 +30,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         const result = await reservationService.billsGet(id);
 
         c.i('Return GET /api/reservations/[id]/bills');
-        return NextResponse.json({bills:result}, { status: HttpStatusCode.Ok });
+        return NextResponse.json({ bills: result }, { status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
-        if(error instanceof CustomError)
+        if (error instanceof CustomError)
             return NextResponse.json({ message: error.message }, { status: error.statusCode });
-          else
+        else
             return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }
@@ -66,8 +67,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         let bills = [];
 
         requestBody.map((bill) => {
-            const result =  billValidator.safeParse(bill);
-            if(result.success)
+            const result = billValidator.safeParse(bill);
+            if (result.success)
                 bills.push(result.data);
         });
         //call service to retrieve data
@@ -79,9 +80,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         return NextResponse.json({ status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
-        if(error instanceof CustomError)
+        const logService = container.get<ILogService>(TYPES.ILogService);
+        await logService.logError(error);
+        if (error instanceof CustomError)
             return NextResponse.json({ message: error.message }, { status: error.statusCode });
-          else
+        else
             return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }

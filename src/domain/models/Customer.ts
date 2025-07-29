@@ -6,6 +6,7 @@ export default class Customer implements IEntity {
     public country?: string | undefined;
     public dob?: string | undefined;
     public email?: string | undefined;
+    public englishName: string | undefined;
     public name!: string | undefined;
     public nationalId?: string | undefined;
     public passport?: string | undefined;

@@ -12,7 +12,7 @@ import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { InputCustom } from "../uicustom/inputcustom"
 import { toast } from "sonner"
-import { updateDropOffCarNo } from "@/app/(private)/console/dropoff/actions";
+import { updateDropOffInfo } from "@/app/(private)/console/dropoff/actions";
 
 
 
@@ -38,19 +38,26 @@ export default function DropOffListTable({
       accessorKey: "customReservationInfo",
       header: "ID",
       accessorFn: (row) => {
-        return <span><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />{row.reservationStatusText}<br />{row.reservationTypeText}</span>;
+        return <span>
+          <a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />
+          {row.reservationStatusText}<br />
+          {row.reservationTypeText} 
+          {row.prepaidPackageText ? <><br/>{row.prepaidPackageText}</> : ''}
+          {row.promotionPackageText ? <><br/>{row.promotionPackageText}</> : ''}
+          </span>;
       },
       cell: (row) => row.getValue(),
     },
-    {
-      accessorKey: "dropOffCarNo",
-      header: "Vehicle No",
-      // accessorFn: (row, index) => {
-      //   setCarNos(prev => ({...prev, [index]: row.pickUpCarNo}));
-      //   return row.pickUpCarNo;
-      // },
-      cell: ({row}) => <InputCustom id={row.original.id} defaultValue={String(row.original.dropOffCarNo ?? '')} />,
-    },
+        {
+          accessorKey: "dropOffCarNo",
+          header: "Vehicle No",
+          cell: ({row}) => <InputCustom variant="table" size="xs" id={`car${row.original.id}`} defaultValue={String(row.original.dropOffCarNo ?? '')} />,
+        },
+        {
+          accessorKey: "dropOffDriver",
+          header: "Driver",
+          cell: ({row}) => <InputCustom variant="table" size="md" id={`driver${row.original.id}`} defaultValue={String(row.original.dropOffDriver ?? '')} />,
+        },
     {
       accessorKey: "customers",
       header: () => {
@@ -106,19 +113,21 @@ export default function DropOffListTable({
         return <div className="flex max-w-[150px] whitespace-normal" >{String(row.getValue())}</div>
       }
     },
-    {
-      accessorKey: "action",
-      header: "Action",
-      cell: ({ row }) => {
-        return <div className="flex gap-1">
-          <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={async () => {
-            const response = await updateDropOffCarNo(row.original.id, (document.getElementById(row.original.id) as HTMLInputElement)?.value);
-            if(response.message)
-              toast(response.message);
-          }} >Save Car No</ButtonCustom>
-        </div>
-      }
-    },
+        {
+          accessorKey: "action",
+          header: "Action",
+          cell: ({ row }) => {
+            return <div className="flex gap-1">
+              <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={async () => {
+                const response = await updateDropOffInfo(row.original.id, 
+                  (document.getElementById(`car${row.original.id}`) as HTMLInputElement)?.value, 
+                  (document.getElementById(`driver${row.original.id}`) as HTMLInputElement)?.value);
+                if(response.message)
+                  toast(response.message);
+              }} >Save Car No</ButtonCustom>
+            </div>
+          }
+        },
   ];
 
   const [openDropOffDialog, setOpenDropOffDialog] = React.useState(false);

@@ -7,9 +7,10 @@ import IReservationService from "@/domain/services/contracts/IReservationService
 import Bill from "@/domain/models/Bill";
 import { billValidator, paymentValidator } from "@/lib/zodschema";
 import { CustomError } from "@/lib/errors";
+import ILogService from "@/domain/services/contracts/ILogService";
 
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id:string, paymentId:string }> }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string, paymentId: string }> }) {
     try {
         c.i("POST /api/reservations/[id]/payments/[paymentId]");
         c.d(JSON.stringify(request));
@@ -36,9 +37,11 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
         return NextResponse.json({ status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
-        if(error instanceof CustomError)
+        const logService = container.get<ILogService>(TYPES.ILogService);
+        await logService.logError(error);
+        if (error instanceof CustomError)
             return NextResponse.json({ message: error.message }, { status: error.statusCode });
-          else
+        else
             return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
     }
 }

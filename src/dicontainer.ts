@@ -19,6 +19,14 @@ import IReservationRepository from './data/repo/contracts/IReservationRepository
 import ReservationRepository from './data/repo/drizzle/ReservationRepository';
 import ReservationService from './domain/services/ReservationService';
 import IReservationService from './domain/services/contracts/IReservationService';
+import ILogRepository from './data/repo/contracts/ILogRepository';
+import LogRepository from './data/repo/drizzle/LogRepository';
+import IReportRepository from './data/repo/contracts/IReportRepository';
+import ReportRepository from './data/repo/drizzle/ReportRepository';
+import IReportService from './domain/services/contracts/IReportService';
+import ReportService from './domain/services/ReportService';
+import ILogService from './domain/services/contracts/ILogService';
+import LogService from './domain/services/LogService';
 
 // create a DI container
 const container = new Container();
@@ -29,12 +37,16 @@ container.bind<IDatabase<MySqlDbType>>(TYPES.IDatabase).to(MySqlDatabase).inSing
 // Bind Services
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService);
 container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService);
+container.bind<ILogService>(TYPES.ILogService).to(LogService);
+container.bind<IReportService>(TYPES.IReportService).to(ReportService);
 container.bind<IReservationService>(TYPES.IReservationService).to(ReservationService);
 container.bind<IUserService>(TYPES.IUserService).to(UserService);
 
 // Bind Repositories
-container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
 container.bind<ICustomerRepository>(TYPES.ICustomerRepository).to(CustomerRepository);
-container.bind<IReservationRepository>(TYPES.IReservationRepository).to(ReservationRepository)
+container.bind<ILogRepository>(TYPES.ILogRepository).to(LogRepository);
+container.bind<IReportRepository>(TYPES.IReportRepository).to(ReportRepository);
+container.bind<IReservationRepository>(TYPES.IReservationRepository).to(ReservationRepository);
+container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
 
 export { container };

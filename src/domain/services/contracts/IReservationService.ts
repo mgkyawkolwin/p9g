@@ -8,6 +8,7 @@ import Payment from "@/domain/models/Payment";
 import RoomCharge from "@/domain/models/RoomCharge";
 
 export default interface IReservationService {
+    billDelete(reservationId: string, billId: string): Promise<void>;
     billsGet(reservationId:string):Promise<Bill[]>;
     billsSave(reservationId:string, bills:Bill[]) : Promise<void>;
     billsView(reservationId:string):Promise<Invoice>;
@@ -21,13 +22,15 @@ export default interface IReservationService {
     reservationCheckOut(id:string):Promise<void>;
     reservationCreate(reservation : Reservation): Promise<Reservation> ;
     reservationFindById(id:string): Promise<Reservation|undefined>;
-    reservationFindMany(searchParams: SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]>;
+    reservationCheckInList(searchParams: SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]>;
+    reservationCheckOutList(searchParams: SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]>;
+    reservationFindMany(searchParams:SearchParam[], pagerParams:PagerParams, list:string): Promise<[Reservation[], PagerParams]>;
     reservationMoveRoom(id:string, roomNo:string): Promise<void>;
     reservationTopList(pagerParams : PagerParams): Promise<[Reservation[], PagerParams]>;
     reservationUpdate(id: string, reservation: Reservation) : Promise<Reservation>;
     roomChargesGetAll(reservationId:string) : Promise<RoomCharge[]>;
     roomReservationList(searchParam:SearchParam[]) : Promise<Room[]>;
     roomScheduleList(searchParam:SearchParam[]) : Promise<Room[]>;
-    updateDropOffCarNo(id:string, carNo:string) : Promise<void>;
-    updatePickUpCarNo(id:string, carNo:string) : Promise<void>;
+    updateDropOffInfo(id:string, carNo:string, driver:string) : Promise<void>;
+    updatePickUpInfo(id:string, carNo:string, driver:string) : Promise<void>;
 }

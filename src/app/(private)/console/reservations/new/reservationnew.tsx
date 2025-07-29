@@ -15,6 +15,8 @@ import CustomerChooseTable from "@/components/tables/customerchoosetable";
 import Customer from "@/domain/models/Customer";
 import Reservation from "@/domain/models/Reservation";
 import CustomerNewForm from "@/components/forms/customernewform";
+import { InputCustom } from "@/components/uicustom/inputcustom";
+import { Label } from "@/components/ui/label";
 
 export default function ReservationNew() {
 
@@ -83,7 +85,8 @@ export default function ReservationNew() {
         </form>
         <Loader isLoading={isPending} />
         <section aria-label="Search" className="flex flex-row h-fit items-center gap-x-4">
-          <InputWithLabel label="Search" defaultValue={customerName} onBlur={(e) => setCustomerName(e.target.value)}></InputWithLabel>
+          <Label>Search</Label>
+          <InputCustom size="lg" defaultValue={customerName} onBlur={(e) => setCustomerName(e.target.value)}></InputCustom>
           <input type="hidden" name="searchName" value={customerName} />
           <ButtonCustom type="button" variant={"black"} onClick={async () => {
             // setActionVerb('SEARCH');
@@ -114,7 +117,7 @@ export default function ReservationNew() {
         <section className="flex">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTitle></DialogTitle>
-            <DialogContent className="flex min-w-[90vw]">
+            <DialogContent className="flex min-w-[90vw] p-8">
             <CustomerChooseTable data={customerList} selectedCustomers={selectedCustomerList} setSelectedCustomers={setSelectedCustomerList} setOpen={setIsDialogOpen}/>
             </DialogContent>
           </Dialog>

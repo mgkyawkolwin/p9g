@@ -1,4 +1,4 @@
-import { mysqlTable, int, boolean, char, varchar,  tinyint,date, datetime,decimal, binary, mediumint } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, boolean, char, varchar,  tinyint,date, datetime,decimal, binary, mediumint, smallint } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import {v4 as uuidv4} from 'uuid';
 
@@ -6,6 +6,7 @@ import {v4 as uuidv4} from 'uuid';
 export const billTable = mysqlTable("bill", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
   dateUTC: datetime("dateUTC"),
+  paymentType: varchar("paymentType", {length: 10}).notNull(),
   reservationId: char("reservationId").notNull(),
   itemName: varchar("itemName", {length: 100}).notNull(),
   unitPrice: decimal("unitPrice").notNull(),
@@ -34,7 +35,8 @@ export const configTable = mysqlTable("config", {
 
 export const customerTable = mysqlTable("customer", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
+  name: varchar("name", { length: 255 }),
+  englishName: varchar("englishName", { length: 255 }).notNull(),
   dob: date("dob"),
   passport: varchar("passport", { length: 50 }).unique(),
   nationalId: varchar("nationalId", { length: 50 }).unique(),
@@ -48,10 +50,18 @@ export const customerTable = mysqlTable("customer", {
   updatedBy: char("updatedBy", {length: 36}).notNull()
 });
 
+export const logErrorTable = mysqlTable("logError", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  userId: char("userId", {length: 36}),
+  datetime: datetime("datetime").notNull(),
+  detail: decimal("detail").notNull()
+});
+
 export const paymentTable = mysqlTable("payment", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
   reservationId: char("reservationId", {length: 36}).notNull(),
   paymentDateUTC: datetime("paymentDateUTC").notNull(),
+  paymentType: varchar("paymentType", {length: 10}).notNull(),
   amount: decimal("amount").notNull(),
   amountInCurrency: decimal("amountInCurrency").notNull(),
   currency: char("currency", {length: 3}).notNull(),
@@ -87,23 +97,26 @@ export const promotionTable = mysqlTable("promotion", {
 export const reservationTable = mysqlTable("reservation", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
   reservationTypeId: char("reservationTypeId", {length: 36}).references(() => configTable.id),
+  tourCompany: varchar("tourCompany", {length:100}),
   arrivalDateTimeUTC: datetime("arrivalDateTimeUTC"),
   arrivalFlight: varchar("arrivalFlight", { length: 50 }),
   departureDateTimeUTC: datetime("departureDateTimeUTC"),
   departureFlight: varchar("departureFlight", { length: 50 }),
   checkInDateUTC: datetime("checkInDateUTC"),
   checkOutDateUTC: datetime("checkOutDateUTC"),
-  noOfDays: tinyint("noOfDays"),
+  noOfDays: smallint("noOfDays"),
   depositAmount: int("depositAmount"),
   depositCurrency: char("depositCurrency", {length: 3}),
   depositDateUTC: date("depositDateUTC"),
   roomNo: varchar("roomNo", {length: 10}),
+  isSingleOccupancy: boolean("isSingleOccupancy"),
   noOfGuests: tinyint("noOfGuests"),
   pickUpTypeId: char("pickUpTypeId", {length: 36}).references(() => configTable.id),
   pickUpFee: tinyint("pickUpFee"),
   pickUpFeeCurrency: char("pickUpFeeCurrency", {length: 3}),
   pickUpFeePaidOnUTC: datetime("pickUpFeePaidOnUTC"),
   pickUpCarNo: varchar("pickUpCarNo", {length: 10}),
+  pickUpDriver: varchar("pickUpDriver", {length:50}),
   prepaidPackageId: char("prepaidPackageId", {length: 36}).references(() => prepaidTable.id),
   promotionPackageId: char("promotionPackageId", {length: 36}).references(() => promotionTable.id),
   dropOffTypeId: char("dropOffTypeId", {length: 36}).references(() => configTable.id),
@@ -111,6 +124,7 @@ export const reservationTable = mysqlTable("reservation", {
   dropOffFeeCurrency: char("dropOffFeeCurrency", {length: 3}),
   dropOffFeePaidOnUTC: datetime("dropOffFeePaidOnUTC"),
   dropOffCarNo: varchar("dropOffCarNo", {length: 10}),
+  dropOffDriver: varchar("dropOffDriver", {length: 50}),
   reservationStatusId: char("reservationStatusId", {length: 36}).notNull().references(() => configTable.id),
   remark: varchar("remark", {length: 255}),
   totalAmount: decimal("totalAmount"),
@@ -142,6 +156,7 @@ export const roomTable = mysqlTable("room", {
   roomNo: varchar("roomNo", { length: 50 }).notNull().references(() => roomTypeTable.id),
   roomTypeId: char("roomTypeId", {length: 36}).notNull(),
   isAvailable: boolean("isAvailable").default(true).notNull(),
+  location: varchar("location", {length:10}),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
@@ -299,6 +314,7 @@ export type BillEntity = typeof billTable.$inferSelect;
 export type UserEntity = typeof userTable.$inferSelect;
 export type ConfigEntity = typeof configTable.$inferSelect;
 export type CustomerEntity = typeof customerTable.$inferSelect;
+export type LogErrorEntity = typeof logErrorTable.$inferSelect;
 export type PaymentEntity = typeof paymentTable.$inferSelect;
 export type ReservationEntity = typeof reservationTable.$inferSelect;
 export type ReservationCustomerEntity = typeof reservationCustomerTable.$inferSelect;
