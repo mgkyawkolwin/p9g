@@ -1196,14 +1196,12 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         ).limit(1);
         if (prepaidPackage)
             reservation.prepaidPackageId = prepaidPackage.id;
-
         //retrieve and assign promotionPackageId
         const [promotionPackage] = await this.dbClient.db.select().from(promotionTable).where(
             eq(promotionTable.value, reservation.promotionPackage)
         ).limit(1);
         if (promotionPackage)
             reservation.promotionPackageId = promotionPackage.id;
-
         //retrieve and assign reservationTypeId
         const [reservationType] = await this.dbClient.db.select().from(configTable).where(
             and(
@@ -1213,7 +1211,6 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         ).limit(1);
         if (reservationType)
             reservation.reservationTypeId = reservationType.id;
-
         //retrieve and assign reservationStatusId
         const [reservationStatus] = await this.dbClient.db.select().from(configTable).where(
             and(
@@ -1223,7 +1220,6 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         ).limit(1);
         if (reservationStatus)
             reservation.reservationStatusId = reservationStatus.id;
-
         //retrieve and assign reservationTypeId
         const [pickUpType] = await this.dbClient.db.select().from(configTable).where(
             and(
@@ -1233,7 +1229,6 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         ).limit(1);
         if (pickUpType)
             reservation.pickUpTypeId = pickUpType.id;
-
         //retrieve and assign reservationTypeId
         const [dropOffType] = await this.dbClient.db.select().from(configTable).where(
             and(

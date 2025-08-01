@@ -27,5 +27,6 @@ export async function middleware(request : NextRequest) {
     return NextResponse.next();
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
+    c.e(error instanceof Error ? error.message : String(error));
   }
 }

@@ -4,6 +4,8 @@ import "reflect-metadata";
 
 import IUserService from '@/domain/services/contracts/IUserService';
 import UserService from '@/domain/services/UserService';
+import IUserService from '@/domain/services/contracts/IUserService';
+import UserService from '@/domain/services/UserService';
 import { IDatabase } from '@/data/db/IDatabase';
 import { MySqlDatabase, MySqlDbType } from '@/data/db/mysql/MySqlDatabase';
 import { TYPES } from './lib/types';
@@ -48,5 +50,7 @@ container.bind<ILogRepository>(TYPES.ILogRepository).to(LogRepository);
 container.bind<IReportRepository>(TYPES.IReportRepository).to(ReportRepository);
 container.bind<IReservationRepository>(TYPES.IReservationRepository).to(ReservationRepository);
 container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
+container.bind<ICustomerRepository>(TYPES.ICustomerRepository).to(CustomerRepository);
+container.bind<IReservationRepository>(TYPES.IReservationRepository).to(ReservationRepository)
 
 export { container };
