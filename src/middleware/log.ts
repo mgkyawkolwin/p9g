@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { WinstonLoger } from "@/app/logger/winston/WinstonLogger";
 
 export const config = {

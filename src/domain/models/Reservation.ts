@@ -1,0 +1,72 @@
+import Bill from "./Bill";
+import Customer from "./Customer";
+
+
+export default class Reservation{
+    public id: string = '';
+    // public arrivalDateTime: string | undefined;
+    public arrivalDateTimeUTC: Date | undefined;
+    public arrivalFlight: string = '';
+    public bills: Bill[] = [];
+    // public checkInDate: string | undefined;
+    public checkInDateUTC: Date;
+    // public checkOutDate: string | undefined;
+    public checkOutDateUTC: Date;
+    public customers: Customer[] = [];
+    // public departureDateTime: string | undefined;
+    public departureDateTimeUTC: Date | undefined;
+    public departureFlight: string = '';
+    public depositAmount: number = 0;
+    public depositAmountInCurrency: number = 0;
+    public depositCurrency: string = 'KWR';
+    public depositPaymentMode: string = 'BANK';
+    // public depositDate: string | undefined;
+    public depositDateUTC: Date | undefined;
+    public dropOffCarNo: string | undefined;
+    public dropOffDriver: string|undefined;
+    public dropOfFee: number = 0;
+    public dropOffFeeCurrency: string = 'KWR';
+    public dropOffFeePaidOnUTC: Date | undefined;
+    public dropOffType: string = 'NOT_REQUIRED';
+    public dropOffTypeId!: string;
+    public dropOffTypeText!: string;
+    public isSingleOccupancy: boolean = false;
+    public noOfDays: number = 0;
+    public noOfGuests: number = 0;
+    public pickUpCarNo: string | undefined;
+    public pickUpDriver: string|undefined;
+    public pickUpFee: number = 0;
+    public pickUpFeeCurrency: string = 'KWR';
+    public pickUpFeePaidOnUTC: Date | undefined;
+    public pickUpType: string = 'NOT_REQUIRED';
+    public pickUpTypeId!: string;
+    public pickUpTypeText!: string;
+    public prepaidPackage: string = 'DEFAULT';
+    public prepaidPackageId!: string;
+    public prepaidPackageText!: string;
+    public promotionPackage: string = 'DEFAULT';
+    public promotionPackageId!: string;
+    public promotionPackageText!: string;
+    public remark: string = '';
+    public roomNo: string = '';
+    public reservationStatus: string = 'NEW';
+    public reservationStatusId!: string;
+    public reservationStatusText!: string;
+    public reservationType: string = 'GENERAL';
+    public reservationTypeId!: string;
+    public reservationTypeText!: string; 
+    public totalAmount: number = 0;
+    public paidAmount: number = 0;
+    public discountAmount: number = 0;
+    public netAmount: number = 0;
+    public dueAmount: number = 0;
+    public tax: number = 0;
+    public taxAmount: number = 0;
+    public location!: string;
+    public createdAtUTC!: Date;
+    public createdBy!: string;
+    public updatedAtUTC?: Date;
+    public updatedBy?: string;
+    
+}
+

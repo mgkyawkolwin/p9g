@@ -1,14 +1,15 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { signIn } from "@/app/auth";
-import consoleLogger from '@/lib/core/logger/ConsoleLogger';
+import c from '@/lib/core/logger/ConsoleLogger';
 import { AppUrl } from '@/lib/constants';
+import { FormState } from '@/lib/types';
 
 
-export async function signInAction(state : {error:boolean, message:string}, formData:FormData){
+export async function signInAction(state : FormState, formData:FormData){
     try {
-        consoleLogger.logInfo("singInAction");
-        consoleLogger.logDebug(JSON.stringify(formData));
+        c.i("singInAction");
+        c.d(JSON.stringify(formData));
         //retreive 
         const formObject = Object.fromEntries(formData.entries());
         const { userName, password } = formObject;
@@ -29,9 +30,9 @@ export async function signInAction(state : {error:boolean, message:string}, form
         const user = await response.json();
 
         // valid credentials, sign the user in
-        await signIn('credentials',  {redirect : false, userName:user.userName, role: user.role});
+        await signIn('credentials',  {redirect : false, name:user.userName, id: user.id, role: user.role});
     } catch (error) {
-        consoleLogger.logError(error instanceof Error ? error.message : String(error));
+        c.e(error instanceof Error ? error.message : String(error));
         return {error: true,  message: "Unknown error.", formData: formData};
     }
     //if we come this far, we are ok with sign in process, safely redirect now

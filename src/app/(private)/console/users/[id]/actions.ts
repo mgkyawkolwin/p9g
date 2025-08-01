@@ -1,23 +1,22 @@
 'use server';
-//Ordered Imports
 
-//Local Imports
-import { User } from "@/data/orm/drizzle/mysql/schema"
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { userUpdateSchema } from '@/lib/zodschema';
-import { APIResponse } from "@/lib/types";
-import consoleLogger from "@/lib/core/logger/ConsoleLogger";
+import c from "@/lib/core/logger/ConsoleLogger";
 import { FormState } from "@/lib/types";
 import { HttpStatusCode } from "@/lib/constants";
+import { headers } from 'next/headers';
 
 export async function userGet(id : number): Promise<FormState> {
   try{
-    consoleLogger.logInfo('Actions > /admin/users/[id] > userGet');
+    c.i('Actions > /admin/users/[id] > userGet');
 
     //retrieve user
     const response = await fetch(process.env.API_URL + `users/${id}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //user retrieval fail
@@ -28,7 +27,7 @@ export async function userGet(id : number): Promise<FormState> {
       return {error: true, message: "Internal server error.", data: null, formData: null};
     }
     if(!response.ok){
-      consoleLogger.logDebug(JSON.stringify(await response.json()));
+      c.d(JSON.stringify(await response.json()));
       return {error: true, message: "Failed to retrieve user.", data: null, formData: null};
     }
       
@@ -36,7 +35,7 @@ export async function userGet(id : number): Promise<FormState> {
     const responseData = await response.json();
     return {error:false, message : "", data: responseData.data, formData: null};
   }catch(error){
-    consoleLogger.logError(String(error));
+    c.e(String(error));
     return {error: true, message: "Failed to retrieve user.", data: null, formData: null};
   }
 
@@ -46,33 +45,34 @@ export async function userGet(id : number): Promise<FormState> {
 
 export async function userUpdate(formState : FormState, formData: FormData) : Promise<FormState>{
   try {
-    consoleLogger.logInfo('Actions > /admin/users/[id]/edit > userUpdate');
+    c.i('Actions > /admin/users/[id]/edit > userUpdate');
 
     //validate and parse form input
     const validatedFields = userUpdateSchema.safeParse(Object.fromEntries(formData.entries()));
     
     //form validation fail
     if (!validatedFields.success) {
-      consoleLogger.logError(JSON.stringify(validatedFields.error.flatten().fieldErrors));
+      c.e(JSON.stringify(validatedFields.error.flatten().fieldErrors));
       return { error: true, message: 'Invalid inputs.', data: null, formData: null};
     }
 
     //form validation pass
-    const { id, name, email, password } = validatedFields.data;
+    const { id, userName, email, password } = validatedFields.data;
 
     //update user
     const response = await fetch(process.env.API_URL + `users/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ userName, email, password }),
     });
     
     //update user failed
     if (!response.ok) {
       const errorData = await response.json();
-      consoleLogger.logError(errorData.message);
+      c.e(errorData.message);
       return { error: true, message: 'Failed to update user.', data: null, formData: null};
     }
 
@@ -80,7 +80,7 @@ export async function userUpdate(formState : FormState, formData: FormData) : Pr
     const data = await response.json();
     return {error: false, message:"", data: data, formData: null};
   } catch (error) {
-    consoleLogger.logError(error instanceof Error ? error.message : String(error));
+    c.e(error instanceof Error ? error.message : String(error));
     return {error: true, message: 'Failed to update user.', data: null, formData: null};
   }
 }

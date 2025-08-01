@@ -8,11 +8,10 @@ import {
   ColumnDef
 } from "@tanstack/react-table"
 
-import DataTable from "./datatable"
-import { User } from "@/data/orm/drizzle/mysql/schema"
-import consoleLogger from "@/lib/core/logger/ConsoleLogger"
-import { FormState } from "@/lib/types"
-import { useRouter } from "next/router"
+import DataTable from "./datatable";
+import c from "@/lib/core/logger/ConsoleLogger"
+import { FormState } from "@/lib/types";
+import User from "@/domain/models/User"
 
 
 export const columns: ColumnDef<User>[] = [
@@ -51,7 +50,7 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "action",
     header: "Action",
-    cell: ({ row }) => {
+    cell: () => {
       return <div>
         <Button>Save</Button>
       </div>
@@ -59,21 +58,24 @@ export const columns: ColumnDef<User>[] = [
   },
 ];
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps{
   formState: FormState
   formAction: (formData: FormData) => void
   isPending: boolean
+  formRef: React.RefObject<HTMLFormElement | null>;
 }
 
-export default function UserListTable<TData, TValue>({
+export default function UserListTable({
   formState,
   formAction,
-  isPending
-}: DataTableProps<TData, TValue>) {
-  consoleLogger.logInfo('Client UserListTable');
-  consoleLogger.logDebug(JSON.stringify(formState));
+  isPending,
+  formRef
+}: DataTableProps) {
+  c.i('Client UserListTable');
+  c.d(JSON.stringify(formState));
+  c.d(isPending);
 
   return (
-    <DataTable columns={columns} data={formState.data ?? []} formState={formState} formAction={formAction} isPending={isPending} />
+    <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
   )
 }

@@ -1,0 +1,336 @@
+import IReservationService from "./contracts/IReservationService";
+import { inject, injectable } from "inversify";
+import type IReservationRepository from "@/data/repo/contracts/IReservationRepository";
+import { PagerParams, SearchParam, TYPES } from "@/lib/types";
+import Reservation from "@/domain/models/Reservation";
+import c from "@/lib/core/logger/ConsoleLogger";
+import Room from "../models/Room";
+import { SearchParams } from "@/lib/constants";
+import Bill from "../models/Bill";
+import Invoice from "../dtos/Invoice";
+import CurrencyTotal from "../dtos/CurrencyTotal";
+import Payment from "../models/Payment";
+import RoomCharge from "../models/RoomCharge";
+import { timeStamp } from "console";
+import RoomRateEngine from "../engines/RoomRateEngine";
+import { CustomError } from "@/lib/errors";
+
+@injectable()
+export default class ReservationService implements IReservationService{
+
+
+    constructor(@inject(TYPES.IReservationRepository) private reservationRepository : IReservationRepository){
+        
+    }
+
+
+    async billDelete(reservationId: string, billId: string): Promise<void> {
+        if(!reservationId) throw new CustomError('Service: Reservation id is required.');
+        if(!billId) throw new CustomError('Service: Reservation id is required.');
+        return await this.reservationRepository.billDelete(reservationId, billId);
+    }
+
+
+    async billsGet(reservationId: string): Promise<Bill[]> {
+        c.i('ReservationService > billsGet');
+        return await this.reservationRepository.billsGetAll(reservationId);
+    }
+    
+
+    async billsSave(reservationId:string, bills: Bill[]): Promise<void> {
+        c.i('ReservationService > billsSave');
+        await this.reservationRepository.billsSave(reservationId, bills);
+        c.i('RETURN ReservationService > billsSave');
+    }
+
+
+    async billsView(reservationId: string): Promise<Invoice> {
+        c.i('ReservationService > billsView');
+        const invoice = new Invoice();
+        const paidBills = await this.reservationRepository.billsGetPaids(reservationId);
+        invoice.PaidBills = paidBills;
+        invoice.PaidTotals = Object.entries(
+            paidBills.reduce((acc, bill) => {
+                const currency = bill.currency;
+                acc[currency] = (Number(acc[currency]) || 0) + Number(bill.amount);
+                return acc;
+            }, {})
+        ).map(([currency, total]) => ({total: total, currency: currency}) as CurrencyTotal);
+
+        const unPaidBills = await this.reservationRepository.billsGetUnpaids(reservationId);
+        invoice.UnPaidBills = unPaidBills;
+        invoice.UnPaidTotals = Object.entries(
+            unPaidBills.reduce((acc, bill) => {
+                const currency = bill.currency;
+                acc[currency] = (Number(acc[currency]) || 0) + Number(bill.amount);
+                return acc;
+            }, {})
+        ).map(([currency, total]) => ({total: total, currency: currency}) as CurrencyTotal);
+
+        return invoice;
+    }
+    
+
+    async patch(id:string, operation : string): Promise<void> {
+        c.i('ReservationService > patch');
+        c.d(id);
+        c.d(operation);
+        if(operation === 'CANCEL'){
+            c.i('Cancel operation running.');
+            await this.reservationRepository.reservationCancel(id);
+        }
+
+        if(operation === 'CHECKIN'){
+            c.i('CheckIn operation running.');
+            await this.reservationRepository.reservationCheckIn(id);
+        }
+
+        c.i('Returning from ReservationService > patch.');
+    }
+
+
+    async paymentsDelete(reservationId: string, paymentId: string): Promise<void> {
+        if(!reservationId) throw new CustomError('Service: Reservation id is required.');
+        if(!paymentId) throw new CustomError('Service: Reservation id is required.');
+        return await this.reservationRepository.paymentDelete(reservationId, paymentId);
+    }
+    
+    
+    async paymentsGet(reservationId: string): Promise<Payment[]> {
+        c.i('ReservationService > paymentsGet');
+        return await this.reservationRepository.paymentsGetAll(reservationId);
+    }
+    
+
+    async paymentsSave(reservationId:string, payments: Payment[]): Promise<void> {
+        c.i('ReservationService > paymentsSave');
+        await this.reservationRepository.paymentsSave(reservationId, payments);
+        c.i('RETURN ReservationService > paymentsSave');
+    }
+
+
+    async paymentsView(reservationId: string): Promise<Invoice> {
+        c.i('ReservationService > paymentsView');
+        const invoice = new Invoice();
+        const paidBills = await this.reservationRepository.billsGetPaids(reservationId);
+        invoice.PaidBills = paidBills;
+        invoice.PaidTotals = Object.entries(
+            paidBills.reduce((acc, bill) => {
+                const currency = bill.currency;
+                acc[currency] = (Number(acc[currency]) || 0) + Number(bill.amount);
+                return acc;
+            }, {})
+        ).map(([currency, total]) => ({total: total, currency: currency}) as CurrencyTotal);
+
+        const unPaidBills = await this.reservationRepository.billsGetUnpaids(reservationId);
+        invoice.UnPaidBills = unPaidBills;
+        invoice.UnPaidTotals = Object.entries(
+            unPaidBills.reduce((acc, bill) => {
+                const currency = bill.currency;
+                acc[currency] = (Number(acc[currency]) || 0) + Number(bill.amount);
+                return acc;
+            }, {})
+        ).map(([currency, total]) => ({total: total, currency: currency}) as CurrencyTotal);
+
+        return invoice;
+    }
+
+
+    async reservationCancel(id:string):Promise<void>{
+        c.i('ReservationService > reservationCancel');
+        c.d(id);
+        await this.reservationRepository.reservationCancel(id);
+
+        c.i('Returning from ReservationService > reservationCancel.');
+    }
+
+
+    async reservationCheckIn(id:string):Promise<void>{
+        c.i('ReservationService > reservationCheckIn');
+        c.d(id);
+        await this.reservationRepository.reservationCheckIn(id);
+
+        c.i('Returning from ReservationService > reservationCheckIn.');
+    }
+    
+
+    async reservationCheckInList(searchParams: SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
+        c.i('ReservationService > reservationCheckInList');
+        c.d(searchParams);
+        c.d(pagerParams);
+        pagerParams.orderBy = "createdAtUTC";
+        pagerParams.orderDirection = "desc";
+        
+        return await this.reservationRepository.reservationCheckInList(searchParams, pagerParams);
+    }
+    
+
+    async reservationCheckOutList(searchParams: SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
+        c.i('ReservationService > reservationCheckInList');
+        c.d(searchParams);
+        c.d(pagerParams);
+        pagerParams.orderBy = "createdAtUTC";
+        pagerParams.orderDirection = "desc";
+        
+        return await this.reservationRepository.reservationCheckOutList(searchParams, pagerParams);
+    }
+
+
+    async reservationCheckOut(id:string):Promise<void>{
+        c.i('ReservationService > reservationCheckOut');
+        c.d(id);
+        await this.reservationRepository.reservationCheckOut(id);
+
+        c.i('Returning from ReservationService > reservationCheckOut.');
+    }
+
+
+    async reservationCreate(reservation : Reservation): Promise<Reservation> {
+        c.i('ReservationService > createReservation');
+        const createdReservation = await this.reservationRepository.reservationCreate(reservation);
+
+        if(reservation.roomNo && reservation.roomNo.trim() !== ''){
+            const roomReservations = await this.reservationRepository.roomReservationGetAllById(reservation.id);
+            const roomTypes = await this.reservationRepository.roomTypeGetAll(reservation.location);
+            const roomRates = await this.reservationRepository.roomRateGetAll(reservation.location);
+            const roomCharges = await RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
+            if(!roomCharges || roomCharges.length === 0)
+                throw new Error('Invalid room charge calculation.');
+            const result = await this.reservationRepository.roomChargesSave(reservation.id, roomCharges);
+            if(!result)
+                throw new Error('Room charges saved failed.');
+            const totalRoomCharges = roomCharges.reduce((accu,rc) => accu += rc.totalAmount,0);
+            reservation.totalAmount = totalRoomCharges;
+            reservation.taxAmount = totalRoomCharges * Number(reservation.tax) / 100;
+            reservation.netAmount = reservation.totalAmount - reservation.depositAmount - reservation.taxAmount - reservation.discountAmount;
+            reservation.dueAmount = reservation.netAmount;
+            const updateResult = await this.reservationRepository.reservationUpdate(reservation.id, reservation);
+            if(!updateResult)
+                throw new Error('Reservation updated failed.');
+        }   
+
+        return createdReservation;
+    }
+
+
+    async reservationFindById(id:string): Promise<Reservation|undefined> {
+        c.i('ReservationService > reservationFindById');
+        return this.reservationRepository.reservationFindById(id);
+    }
+    
+
+    async reservationFindMany(searchParams: SearchParam[], pagerParams:PagerParams, list:string): Promise<[Reservation[], PagerParams]> {
+        c.i('ReservationService > reservationFindMany');
+        c.d(searchParams);
+        c.d(pagerParams);
+        pagerParams.orderBy = "createdAtUTC";
+        pagerParams.orderDirection = "desc";
+        c.d(pagerParams);
+        if(list === 'checkin')
+            return await this.reservationRepository.reservationCheckInList(searchParams, pagerParams);
+        else if(list === 'checkout')
+            return await this.reservationRepository.reservationCheckOutList(searchParams, pagerParams);
+        else
+            return await this.reservationRepository.reservationFindMany(searchParams, pagerParams);
+    }
+
+    
+    async reservationMoveRoom(id:string, roomNo:string): Promise<void> {
+        c.i('ReservationService > patch');
+        c.d(id);
+        c.d(roomNo);
+        
+        c.i('Returning from ReservationService > moveRoom.');
+        await this.reservationRepository.reservationMoveRoom(id, roomNo);
+    }
+    
+
+    async reservationTopList(pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
+        c.i('ReservationService > reservationTopList');
+        c.d(pagerParams);
+        pagerParams.orderBy = "createdAtUTC";
+        pagerParams.orderDirection = "desc";
+        c.d(pagerParams);
+        return await this.reservationRepository.reservationFindMany([], pagerParams);
+    }
+    
+
+    async roomChargesGetAll(reservationId: string): Promise<RoomCharge[]> {
+        c.i('ReservationService > roomChargesGetAll');
+        return await this.reservationRepository.roomChargesGetAll(reservationId);
+    }
+    
+
+    async roomReservationList(searchParams: SearchParam[]): Promise<Room[]> {
+        c.i('ReservationService > roomReservationList');
+        if(searchParams[0].searchColumn != SearchParams.date && !searchParams[0].searchValue)
+            throw new Error('Invalid search field.');
+        return await this.reservationRepository.roomAndReservationList(searchParams);
+    }
+    
+
+    async roomScheduleList(searchParams: SearchParam[]): Promise<Room[]> {
+        c.i('ReservationService > roomScheduleList');
+        return await this.reservationRepository.roomScheduleList(searchParams);
+    }
+
+
+    async updateDropOffInfo(id:string, carNo:string, driver:string) : Promise<void>{
+        c.i('ReservationRepository > updateDropOffCarNo');
+        if(!id || id === 'undefined')
+            throw new Error('Car number update failed. Id is required.');
+
+        c.i('Return ReservationService> updatePickUpCarNo');
+        return await this.reservationRepository.updateDropOffInfo(id, carNo, driver);
+    }
+
+
+    async updatePickUpInfo(id:string, carNo:string,  driver:string) : Promise<void>{
+        c.i('ReservationRepository > updatePickUpCarNo');
+        if(!id || id === 'undefined')
+            throw new Error('Car number update failed. Id is required.');
+
+        c.i('Return ReservationService> updatePickUpCarNo');
+        return await this.reservationRepository.updatePickUpInfo(id, carNo,driver);
+    }
+
+    
+    async reservationUpdate(id:string, reservation : Reservation): Promise<Reservation> {
+        c.i('ReservationService > updateReservation');
+
+        if(!id || id === 'undefined') {
+            throw new Error('Reservation update failed. Id is required.');
+        }
+
+        if(!reservation) {
+            throw new Error('Reservation update failed. Reservation is required.');
+        }
+
+        const updatedReservation = await this.reservationRepository.reservationUpdate(id, reservation);
+        if(!updatedReservation)
+            throw new Error('Reservation update failed.');
+
+        if(reservation.roomNo && reservation.roomNo.trim() !== ''){
+            const roomReservations = await this.reservationRepository.roomReservationGetAllById(updatedReservation.id);
+            const roomTypes = await this.reservationRepository.roomTypeGetAll(updatedReservation.location);
+            const roomRates = await this.reservationRepository.roomRateGetAll(updatedReservation.location);
+            const roomCharges = await RoomRateEngine.calculate(updatedReservation, roomReservations, roomTypes, roomRates);
+            if(!roomCharges || roomCharges.length === 0)
+                throw new Error('Invalid room charge calculation.');
+            const result = await this.reservationRepository.roomChargesSave(updatedReservation.id, roomCharges);
+            if(!result)
+                throw new Error('Room charges saved failed.');
+            const totalRoomCharges = roomCharges.reduce((accu,rc) => accu += rc.totalAmount,0);
+            updatedReservation.totalAmount = totalRoomCharges;
+            updatedReservation.taxAmount = totalRoomCharges * updatedReservation.tax / 100;
+            updatedReservation.netAmount = updatedReservation.totalAmount - reservation.depositAmount - updatedReservation.taxAmount - updatedReservation.discountAmount;
+            updatedReservation.dueAmount = updatedReservation.netAmount - updatedReservation.paidAmount;
+            const updateResult = await this.reservationRepository.reservationUpdate(reservation.id, updatedReservation);
+            if(!updateResult)
+                throw new Error('Reservation updated failed.');
+        } 
+
+        return updatedReservation;
+    }
+    
+}

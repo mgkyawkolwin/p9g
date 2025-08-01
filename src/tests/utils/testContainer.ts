@@ -4,8 +4,8 @@ import { MySqlDatabase, MySqlDbType } from '@/data/db/mysql/MySqlDatabase';
 import UserRepository from '@/data/repo/drizzle/UserRepository';
 import { TYPES } from '@/lib/types';
 import { vi } from 'vitest';
-import UserService from '@/services/UserService';
-import IUserService from '@/services/contracts/IUserService';
+import UserService from '@/domain/services/UserService';
+import IUserService from '@/domain/services/contracts/IUserService';
 
 // Mock database implementation
 const mockDb = {
@@ -24,7 +24,7 @@ const mockDb = {
     container.bind<IDatabase<MySqlDbType>>(TYPES.IDatabase).to(MySqlDatabase).inSingletonScope();
 
 
-    container.bind<IUserService>(TYPES.IUserServce).to(UserService);
+    container.bind<IUserService>(TYPES.IUserService).to(UserService);
     
     container.bind<UserRepository>(TYPES.IUserRepository).to(UserRepository);
     

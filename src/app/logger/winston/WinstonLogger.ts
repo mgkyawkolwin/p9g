@@ -33,10 +33,10 @@ export class WinstonLoger implements ILogger{
         this.logger.log({level:"ERROR", message:log});
     }
     logInfo(log: string): void {
-        throw new Error('Method not implemented.');
+      this.logger.log({level:"INFO", message:log});
     }
     logWarning(log: string): void {
-        throw new Error('Method not implemented.');
+      this.logger.log({level:"WARNING", message:log});
     }
 
 }

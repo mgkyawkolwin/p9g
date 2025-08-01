@@ -4,15 +4,18 @@ import { useActionState, useEffect } from "react";
 import { userGetList } from "@/app/(private)/console/users/actions";
 import { toast } from "sonner";
 import UserListTable from "@/components/tables/userlisttable";
-import consoleLogger from "@/lib/core/logger/ConsoleLogger";
+import c from "@/lib/core/logger/ConsoleLogger";
+import React from "react";
 
 export default function UserList() {
-  consoleLogger.logInfo("Client > UserList");
+  c.i("Client > UserList");
 
   const [state, formAction, isPending] = useActionState(userGetList, {
     error: false,
     message: ""
   });
+
+  const formRef = React.useRef(null);
 
   useEffect(() => {
     if(state.error){
@@ -21,6 +24,9 @@ export default function UserList() {
   },[state]);
 
   return (
-    <UserListTable formState={state} formAction={formAction} isPending={isPending} />
+    <>
+    <form ref={formRef}></form>
+    <UserListTable formState={state} formAction={formAction} isPending={isPending} formRef={formRef} />
+    </>
   );
 }

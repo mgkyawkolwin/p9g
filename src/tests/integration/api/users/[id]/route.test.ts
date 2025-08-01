@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GET } from '@/app/api/users/[id]/route';
 import { createMocks } from 'node-mocks-http';
-import consoleLogger from '@/lib/core/logger/ConsoleLogger';
+import c from '@/lib/core/logger/ConsoleLogger';
 import { Container } from 'inversify';
 import { createTestContainer } from '@/tests/utils/testContainer';
 
@@ -11,9 +11,9 @@ describe('GET /api/users/:id', () => {
   beforeAll(() => {
     container = createTestContainer();
     // Enable logs just for these tests
-    vi.spyOn(consoleLogger, 'logInfo').mockImplementation(console.log)
-    vi.spyOn(consoleLogger, 'logDebug').mockImplementation(console.log)
-    vi.spyOn(consoleLogger, 'logError').mockImplementation(console.log)
+    vi.spyOn(c, 'logInfo').mockImplementation(console.log)
+    vi.spyOn(c, 'logDebug').mockImplementation(console.log)
+    vi.spyOn(c, 'logError').mockImplementation(console.log)
   })
 
   afterAll(() => {

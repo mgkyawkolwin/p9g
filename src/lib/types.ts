@@ -1,25 +1,28 @@
+import Reservation from "@/domain/models/Reservation";
 
 
 export type APIResponse = {
   status : number, 
   message : string,
-  data : any
+  data? : undefined | null | any//| Reservation | Reservation[] | {reservation: Reservation} | {reservations: Reservation[]}
 };
 
 export type FormState = {
   error : boolean,
   message : string,
-  data? : any,
+  data? : any, //Reservation | Reservation[] | {reservations: Reservation[]},
   formData? : FormData | null,
-  pager?: PagerParams
+  pager?: PagerParams,
+  reload?: boolean
 };
 
 export type PagerParams = {
-  orderBy: string, 
-  orderDirection: string, 
-  pageIndex: number, 
-  pageSize: number,
-  pages: number
+  orderBy?: string, 
+  orderDirection?: string, 
+  pageIndex?: number, 
+  pageSize?: number,
+  pages?: number,
+  records?: number
 }
 
 export type SearchParam = {
@@ -27,11 +30,45 @@ export type SearchParam = {
   searchValue : string
 }
 
+export type SearchFormFields = {
+  searchArrivalDateTime? : string | undefined,
+  searchCheckInDate? : string | undefined,
+  searchCheckInDateFrom? : string | undefined,
+  searchCheckInDateUntil? : string | undefined,
+  searchCheckOutDate? : string | undefined,
+  searchCreatedDateFrom? : string | undefined,
+  searchCreatedDateUntil? : string | undefined,
+  searchDepartureDateTime? : string | undefined,
+  date? : string | undefined,
+  searchDate? : string | undefined,
+  searchEmail?: string | undefined,
+  searchId? : string | undefined,
+  searchName? : string | undefined,
+  searchNationalId? : string | undefined,
+  searchPassport? : string | undefined,
+  searchPhone? : string | undefined,
+  searchPrepaidPackage? : string | undefined,
+  searchPromotionPackage? : string | undefined,
+  searchRemark? : string | undefined,
+  searchReservationStatus? : string | undefined,
+  searchReservationType? : string | undefined,
+  searchUserName? : string | undefined,
+};
+
 export const TYPES = {
+  IAuthService : Symbol.for('IAuthService'),
+  ICustomerRepository : Symbol.for('ICustomerRepository'),
+  ICustomerService : Symbol.for('ICustomerService'),
   IDatabase : Symbol.for('IDatabase'),
   IDbType : Symbol.for('IDbType'),
+  ILogRepository : Symbol.for('ILogRepository'),
+  ILogService : Symbol.for('ILogService'),
+  IReportRepository : Symbol.for('IReportRepository'),
+  IReportService : Symbol.for('IReportService'),
   IRepository : Symbol.for('IRepository'),
-  IRepositoryFactory : Symbol.for('IRepositoryFactory'),
+  IReservationRepository: Symbol.for('IReservationRepository'),
+  IReservationService: Symbol.for('IReservationService'),
   IUserRepository : Symbol.for('IUserRepository'),
-  IUserServce : Symbol.for('IUserService'),
+  IUserService : Symbol.for('IUserService'),
 }
+

@@ -2,24 +2,24 @@ import { and, eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
 
-import { User, user } from "@/data/orm/drizzle/mysql/schema";
+import { UserEntity, userTable } from "@/data/orm/drizzle/mysql/schema";
 import { Repository } from "./Repository";
-import IUserRepository from "../IUserRepository";
+import IUserRepository from "../contracts/IUserRepository";
 
 import { TYPES } from "@/lib/types";
 import { type IDatabase } from "@/data/db/IDatabase";
 
 
 @injectable()
-export default class UserRepository extends Repository<User, typeof user> implements IUserRepository {
+export default class UserRepository extends Repository<UserEntity, typeof userTable> implements IUserRepository {
 
     constructor(
         @inject(TYPES.IDatabase) protected readonly dbClient: IDatabase<any>
     ) {
-        super(dbClient, user);
+        super(dbClient, userTable);
     }
 
-    async findByEmailAndPassword(email: string, password: string): Promise<User> {
+    async findByEmailAndPassword(email: string, password: string): Promise<UserEntity> {
         const [user] = await this.dbClient.db
             .select()
             .from(this.table)
@@ -31,10 +31,22 @@ export default class UserRepository extends Repository<User, typeof user> implem
             )
             .limit(1);
 
-        return user as User;
+        return user as UserEntity;
     }
 
-    async findByUserNameAndPassword(userName: string, password: string): Promise<User> {
+    async findByUserName(userName: string): Promise<UserEntity> {
+        const [user] = await this.dbClient.db
+            .select()
+            .from(userTable)
+            .where(
+                eq(userTable.userName, userName)
+            )
+            .limit(1);
+
+        return user as UserEntity;
+    }
+
+    async findByUserNameAndPassword(userName: string, password: string): Promise<UserEntity> {
         const [user] = await this.dbClient.db
             .select()
             .from(this.table)
@@ -46,7 +58,7 @@ export default class UserRepository extends Repository<User, typeof user> implem
             )
             .limit(1);
 
-        return user as User;
+        return user as UserEntity;
     }
 
 }

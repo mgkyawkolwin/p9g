@@ -1,0 +1,9 @@
+@END_POINT=http://localhost:3000/api/
+@id=d058ca0b-04c1-4d73-95f5-a16f7eb507e9
+
+
+# /api/reservations/top - get latest 10 reservation list
+curl --request GET \
+  --url {{END_POINT}}reservations/{{id}}/invoices \
+  --header 'Content-Type: application/json'
+###
