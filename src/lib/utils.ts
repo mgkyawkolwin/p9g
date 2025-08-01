@@ -142,7 +142,7 @@ export function getDateRange(startDate: string, endDate: string): Date[] {
   }
   
   const dateArray: Date[] = [];
-  let currentDate = new Date(start);
+  const currentDate = new Date(start);
   
   // Loop through each day in the range
   while (currentDate <= end) {

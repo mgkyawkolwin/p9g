@@ -6,6 +6,7 @@ import {v4 as uuidv4} from 'uuid';
 export const billTable = mysqlTable("bill", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
   dateUTC: datetime("dateUTC"),
+  paymentMode: varchar("paymentMode", {length: 10}).notNull(),
   paymentType: varchar("paymentType", {length: 10}).notNull(),
   reservationId: char("reservationId").notNull(),
   itemName: varchar("itemName", {length: 100}).notNull(),
@@ -106,6 +107,7 @@ export const reservationTable = mysqlTable("reservation", {
   checkOutDateUTC: datetime("checkOutDateUTC"),
   noOfDays: smallint("noOfDays"),
   depositAmount: int("depositAmount"),
+  depositAmountInCurrency: int("depositAmountInCurrency"),
   depositCurrency: char("depositCurrency", {length: 3}),
   depositDateUTC: date("depositDateUTC"),
   roomNo: varchar("roomNo", {length: 10}),
@@ -318,5 +320,8 @@ export type LogErrorEntity = typeof logErrorTable.$inferSelect;
 export type PaymentEntity = typeof paymentTable.$inferSelect;
 export type ReservationEntity = typeof reservationTable.$inferSelect;
 export type ReservationCustomerEntity = typeof reservationCustomerTable.$inferSelect;
+export type RoomEntity = typeof roomTable.$inferSelect;
 export type RoomChargeEntity = typeof roomChargeTable.$inferSelect;
+export type RoomRateEntity = typeof roomRateTable.$inferSelect;
+export type RoomTypeEntity = typeof roomTypeTable.$inferSelect;
 export type RoomReservationEntity = typeof roomReservationTable.$inferSelect;

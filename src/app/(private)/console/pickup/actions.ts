@@ -13,7 +13,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     const formObject = Object.fromEntries(
       Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
     );
-    let message = '';
+    const message = '';
     
     // if(formObject.actionVerb === 'CANCEL'){
     //   c.i('Action is CANCEL');

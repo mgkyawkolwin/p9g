@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     //call service to retrieve data
     const reportService = container.get<IReportService>(TYPES.IReportService);
-    const result = await reportService.getDailySummaryReport(searchParams.startDate, searchParams.endDate);
+    const result = await reportService.getDailySummaryGuestsRoomsReport(searchParams.startDate, searchParams.endDate);
     c.d(JSON.stringify(result));
 
     return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });

@@ -1,8 +1,10 @@
-import DailySummaryReportRow from "@/domain/dtos/reports/dailysummaryreportrow";
+import DailySummaryGuestsRoomsReportRow from "@/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
 import IRepository from "./IRepository";
 import Customer from "@/domain/models/Customer";
+import DailySummaryIncomeReportRow from "@/domain/dtos/reports/DailySummaryIncomeReportRow";
 
 export default interface IReportRepository extends IRepository<Customer>{
 
-    getDailySummaryReport(startDate:string, endDate:string) : Promise<DailySummaryReportRow[]>;
+    getDailySummaryGuestsRoomsReport(startDate:string, endDate:string) : Promise<DailySummaryGuestsRoomsReportRow[]>;
+    getDailySummaryIncomeReport(startDate:string, endDate:string) : Promise<DailySummaryIncomeReportRow[]>;
 }

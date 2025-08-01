@@ -68,15 +68,14 @@ export function MainMenu() {
       <li className="relative">
         <div className="group inline-block">
         <Link
-        href="/console/reports/dailysummary"
+        href="#"
         className="text-sm font-medium text-white hover:text-blue-600"
       >
         Reports
       </Link>
           <ul className="absolute left-0 mt-0 w-48 text-white bg-[#333] shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-            <li><a href="#" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium">Laptops</a></li>
-            <li><a href="#" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium">Phones</a></li>
-            <li><a href="#" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium">Accessories</a></li>
+            <li><a href="/console/reports/dailysummaryguestsrooms" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium">Daily Summary (Guests & Rooms)</a></li>
+            <li><a href="/console/reports/dailysummaryincome" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium">Daily Summary (Income)</a></li>
           </ul>
         </div>
       </li>

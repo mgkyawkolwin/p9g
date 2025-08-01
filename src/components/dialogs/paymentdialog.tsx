@@ -96,16 +96,16 @@ export default function PaymentDialog({
 
         }} />
     },
-    {
-      accessorKey: "paymentType",
-      header: 'Payment Type',
-      cell: row => {
-        return <SelectCustom name={`paymentType[${row.row.index}]`} key={`${row.row.original.id}-paymentType`} // Crucial for maintaining focus
-          size={"sm"} items={SelectList.ROOM_PAYMENT_TYPE}
-          value={row.row.original.paymentType}
-          onValueChange={value => handleInputChange(row.row.index, "paymentType", value)} />
-      }
-    },
+    // {
+    //   accessorKey: "paymentType",
+    //   header: 'Payment Type',
+    //   cell: row => {
+    //     return <SelectCustom name={`paymentType[${row.row.index}]`} key={`${row.row.original.id}-paymentType`} // Crucial for maintaining focus
+    //       size={"sm"} items={SelectList.ROOM_PAYMENT_TYPE}
+    //       value={row.row.original.paymentType}
+    //       onValueChange={value => handleInputChange(row.row.index, "paymentType", value)} />
+    //   }
+    // },
     {
       accessorKey: "amount",
       header: 'Amount',

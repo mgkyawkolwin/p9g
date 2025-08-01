@@ -1,6 +1,6 @@
-import DailySummaryReportRow from "@/domain/dtos/reports/dailysummaryreportrow";
+import DailySummaryGuestsRoomsReportRow from "@/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
 
-export default function DailySummaryReport({reportRows} : {reportRows: DailySummaryReportRow[]}){
+export default function DailySummaryGuestsRoomsReport({reportRows} : {reportRows: DailySummaryGuestsRoomsReportRow[]}){
     const formatter = new Intl.NumberFormat('en-US',{
         style:"decimal"
     });
@@ -19,6 +19,7 @@ export default function DailySummaryReport({reportRows} : {reportRows: DailySumm
                             <th className="">Guests Check-In</th>
                             <th className="">Guests Check-Out</th>
                             <th className="">Guests Existing</th>
+                            <th className="">Guests Total</th>
                             <th className="">Rooms Total</th>
                             <th className="">Rooms Check-In</th>
                             <th className="">Rooms Check-Out</th>
@@ -35,6 +36,7 @@ export default function DailySummaryReport({reportRows} : {reportRows: DailySumm
                                 <td className="text-right">{rp.guestsCheckIn}</td>
                                 <td className="p-2 text-center">{rp.guestsCheckOut}</td>
                                 <td className="text-center">{rp.guestsExisting}</td>
+                                <td className="text-center">{rp.guestsTotal}</td>
                                 <td className="p-1 p-2">{rp.roomsTotal}</td>
                                 <td className="p-1 p-2">{rp.roomsCheckIn}</td>
                                 <td className="p-1 p-2">{rp.roomsCheckOut}</td>

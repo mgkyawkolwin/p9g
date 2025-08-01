@@ -103,7 +103,7 @@ export default function CheckOutListTable({
       header: "Action",
       cell: ({ row }) => {
         return <div className="flex gap-1">
-          <ButtonCustom type="button" variant={"black"} size={"sm"}>View Bill</ButtonCustom>
+          {/* <ButtonCustom type="button" variant={"black"} size={"sm"}>View Bill</ButtonCustom> */}
           <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={() => {
             setCheckOutId(row.original.id);
             setOpenCheckOutDialog(true);

@@ -64,8 +64,8 @@ export default function RoomScheduleList() {
                   setSubmit(!submit);
                 }}>View</ButtonCustom>
               </div>
-              <input type="hidden" name="searchCheckInDateUTCFrom" value={dateFrom} />
-              <input type="hidden" name="searchCheckInDateUTCTo" value={dateTo} />
+              <input type="hidden" name="searchCheckInDateFrom" value={dateFrom} />
+              <input type="hidden" name="searchCheckInDateUntil" value={dateTo} />
              </form>
             <ScheduleFlexGrid rooms={state.data?.rooms} month={state.data?.date ? new Date(state.data.date) : undefined} />
           </div>

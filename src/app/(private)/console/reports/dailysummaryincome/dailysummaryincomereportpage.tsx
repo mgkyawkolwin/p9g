@@ -2,18 +2,20 @@
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import { getDailySummaryReport } from "./actions";
+import { getDailySummaryIncomeReport } from "./actions";
 import React from "react";
 import { Loader } from "@/components/uicustom/loader";
-import DailySummaryReportRow from "@/domain/dtos/reports/dailysummaryreportrow";
-import DailySummaryReport from "@/components/reports/dailysummaryreport";
+import DailySummaryGuestsRoomsReportRow from "@/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
+import DailySummaryGuestsRoomsReport from "@/components/reports/dailysummaryguestsroomsreport";
 import { DateInputWithLabel } from "@/components/uicustom/dateinputwithlabel";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
+import DailySummaryIncomeReport from "@/components/reports/dailysummaryincomereport";
+import DailySummaryIncomeReportRow from "@/domain/dtos/reports/DailySummaryIncomeReportRow";
 
-export default function DailySummaryReportPage() {
+export default function DailySummaryIncomeReportPage() {
   
   const [isLoading, setIsLoading] = React.useState(false);
-  const [reportRows, setReportRows] = React.useState<DailySummaryReportRow[]>([]);
+  const [reportRows, setReportRows] = React.useState<DailySummaryIncomeReportRow[]>([]);
   const [fromDate, setFromDate] = React.useState("");
   const [toDate, setToDate] = React.useState("");
 
@@ -35,7 +37,7 @@ export default function DailySummaryReportPage() {
               <DateInputWithLabel type="date" label="Until" value={toDate} onChange={(e) => setToDate(e.target.value)}/>
               <ButtonCustom onClick={async () => {
                 setIsLoading(true);
-                const response = await getDailySummaryReport(fromDate, toDate);
+                const response = await getDailySummaryIncomeReport(fromDate, toDate);
                 setIsLoading(false);
                 if(response.message)
                   toast(response.message);
@@ -44,7 +46,7 @@ export default function DailySummaryReportPage() {
               }}>Search</ButtonCustom>
               </div>
             </section>
-          <DailySummaryReport reportRows={reportRows}  />
+          <DailySummaryIncomeReport reportRows={reportRows}  />
           </div>
         </GroupContent>
       </Group>

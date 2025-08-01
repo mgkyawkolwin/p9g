@@ -16,7 +16,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
       Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
     );
 
-    let message = '';
+    const message = '';
 
     //form data is blank, get the list by default pager
     // if (!formData || !(formData instanceof FormData)){

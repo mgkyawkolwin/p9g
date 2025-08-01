@@ -17,7 +17,7 @@ export default function TotalTable({items}:{items:CurrencyTotal[]}) {
                 <TableRow key={`headerrow-${Math.random()}`} className="bg-[#eee]">
                     {
                         items?.map(item => {
-                            return <TableHead>{item.currency}</TableHead>
+                            return <TableHead key={`tablehead-${Math.random()}`}>{item.currency}</TableHead>
                         })
                     }
                 </TableRow>
@@ -26,7 +26,7 @@ export default function TotalTable({items}:{items:CurrencyTotal[]}) {
                 <TableRow key={`bodyrow-${Math.random()}`}>
                     {
                         items?.map(item => {
-                            return <TableCell>{item.total}</TableCell>
+                            return <TableCell key={`tablecell-${Math.random()}`}>{item.total}</TableCell>
                         })
                     }
                 </TableRow>

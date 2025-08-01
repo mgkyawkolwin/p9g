@@ -37,6 +37,10 @@ export default function RoomChangeListTable({
       header: "Room",
     },
     {
+      accessorKey: "roomTypeText",
+      header: "Room Type",
+    },
+    {
       accessorKey: "reservations[0].id",
       header: "Reservation Id",
       accessorFn: (row) => {return  row.reservations.length > 0 ? row.reservations[0].id : ''}

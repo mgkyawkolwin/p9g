@@ -3,7 +3,13 @@
 
 # /api/reservations/top - get latest 10 reservation list
 curl --request GET \
-  --url {{END_POINT}}reports/dailysummaryreport?startDate=2025-01-01&endDate=2025-01-30 \
+  --url {{END_POINT}}reports/dailysummaryguestsroomsreport?startDate=2025-01-01&endDate=2025-01-30 \
+  --header 'Content-Type: application/json'
+  --header 'cookie: authjs.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiYjZGd1lJMXpQN3hnby1QU3RzanRhdDZTRFBYaEp3dlE2TEJqSHFZNXI4NWxacUdTV2V6Tm5vTU5WMV81NVBBNjJhYVJ3VS1lNWxZS2xEQXhTbG9LZ1EifQ..ZeFyQGqBnKyYOl1ghRIgMw.NiRDZlZ2PV5m5Jhwvji0FbBNReHEvpd6EF4wGEvvVWr6NCzFjbosnLsT0eBrJ7ITCnNon-rClvWCL29LK0i47MqBR223iFwDIkoUSsC3z22bWdMDnOOLAiEzpSb9wnsH_qaQZrEawmulG9zrspvQQGNwVOuiRwhbkdbwvalz9eUUWoiwd7p8CEmduDm9GI_Q-iznSUGa4rJuSOHnelFhbs1msf4esHkjBldx5sHDFwE0T10MjNRuMvgMX9aJtL3I.E6Uyj3Rh3RB2j5LUv8AgFrXnBhIBRoV2sIvqmIGmo4I'
+###
+
+curl --request GET \
+  --url {{END_POINT}}reports/dailysummaryincomereport?startDate=2025-01-01&endDate=2025-01-30 \
   --header 'Content-Type: application/json'
   --header 'cookie: authjs.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiYjZGd1lJMXpQN3hnby1QU3RzanRhdDZTRFBYaEp3dlE2TEJqSHFZNXI4NWxacUdTV2V6Tm5vTU5WMV81NVBBNjJhYVJ3VS1lNWxZS2xEQXhTbG9LZ1EifQ..ZeFyQGqBnKyYOl1ghRIgMw.NiRDZlZ2PV5m5Jhwvji0FbBNReHEvpd6EF4wGEvvVWr6NCzFjbosnLsT0eBrJ7ITCnNon-rClvWCL29LK0i47MqBR223iFwDIkoUSsC3z22bWdMDnOOLAiEzpSb9wnsH_qaQZrEawmulG9zrspvQQGNwVOuiRwhbkdbwvalz9eUUWoiwd7p8CEmduDm9GI_Q-iznSUGa4rJuSOHnelFhbs1msf4esHkjBldx5sHDFwE0T10MjNRuMvgMX9aJtL3I.E6Uyj3Rh3RB2j5LUv8AgFrXnBhIBRoV2sIvqmIGmo4I'
 ###

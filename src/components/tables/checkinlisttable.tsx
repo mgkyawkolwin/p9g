@@ -99,7 +99,7 @@ export default function CheckInListTable({
       header: "Action",
       cell: ({ row }) => {
         return <div className="flex gap-1">
-          <ButtonCustom type="button" variant={"black"} size={"sm"}>View Bill</ButtonCustom>
+          {/* <ButtonCustom type="button" variant={"black"} size={"sm"}>View Bill</ButtonCustom> */}
           <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={() => {
             setCheckInId(row.original.id);
             setOpenCheckInDialog(true);

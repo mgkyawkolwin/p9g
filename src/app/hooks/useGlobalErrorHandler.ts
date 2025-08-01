@@ -8,7 +8,8 @@ export const useGlobalErrorHandler = () => {
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
       c.d(event.error);
-      toast('Unhandled client error occured. Error:' + (event.error instanceof Error) ? event.error.message : '');
+      if(event.error)
+        toast('Unhandled client error occured. Error:' + (event.error instanceof Error) ? event.error?.message : '');
     };
 
     window.addEventListener("error", handleError);

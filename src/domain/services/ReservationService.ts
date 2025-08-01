@@ -201,8 +201,8 @@ export default class ReservationService implements IReservationService{
                 throw new Error('Room charges saved failed.');
             const totalRoomCharges = roomCharges.reduce((accu,rc) => accu += rc.totalAmount,0);
             reservation.totalAmount = totalRoomCharges;
-            reservation.taxAmount = totalRoomCharges * reservation.tax / 100;
-            reservation.netAmount = reservation.totalAmount - reservation.taxAmount - reservation.discountAmount;
+            reservation.taxAmount = totalRoomCharges * Number(reservation.tax) / 100;
+            reservation.netAmount = reservation.totalAmount - reservation.depositAmount - reservation.taxAmount - reservation.discountAmount;
             reservation.dueAmount = reservation.netAmount;
             const updateResult = await this.reservationRepository.reservationUpdate(reservation.id, reservation);
             if(!updateResult)
@@ -323,7 +323,7 @@ export default class ReservationService implements IReservationService{
             const totalRoomCharges = roomCharges.reduce((accu,rc) => accu += rc.totalAmount,0);
             updatedReservation.totalAmount = totalRoomCharges;
             updatedReservation.taxAmount = totalRoomCharges * updatedReservation.tax / 100;
-            updatedReservation.netAmount = updatedReservation.totalAmount - updatedReservation.taxAmount - updatedReservation.discountAmount;
+            updatedReservation.netAmount = updatedReservation.totalAmount - reservation.depositAmount - updatedReservation.taxAmount - updatedReservation.discountAmount;
             updatedReservation.dueAmount = updatedReservation.netAmount - updatedReservation.paidAmount;
             const updateResult = await this.reservationRepository.reservationUpdate(reservation.id, updatedReservation);
             if(!updateResult)

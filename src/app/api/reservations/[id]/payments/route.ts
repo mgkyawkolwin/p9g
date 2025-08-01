@@ -66,7 +66,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         }
         c.d(requestBody);
 
-        let payments = [];
+        const payments = [];
 
         requestBody.map((payment) => {
             const result = paymentValidator.safeParse(payment);

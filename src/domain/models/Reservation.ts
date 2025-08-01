@@ -1,3 +1,4 @@
+import Bill from "./Bill";
 import Customer from "./Customer";
 
 
@@ -6,6 +7,7 @@ export default class Reservation{
     // public arrivalDateTime: string | undefined;
     public arrivalDateTimeUTC: Date | undefined;
     public arrivalFlight: string = '';
+    public bills: Bill[] = [];
     // public checkInDate: string | undefined;
     public checkInDateUTC: Date;
     // public checkOutDate: string | undefined;
@@ -15,7 +17,9 @@ export default class Reservation{
     public departureDateTimeUTC: Date | undefined;
     public departureFlight: string = '';
     public depositAmount: number = 0;
+    public depositAmountInCurrency: number = 0;
     public depositCurrency: string = 'KWR';
+    public depositPaymentMode: string = 'BANK';
     // public depositDate: string | undefined;
     public depositDateUTC: Date | undefined;
     public dropOffCarNo: string | undefined;

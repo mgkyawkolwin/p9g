@@ -6,7 +6,7 @@ import { ButtonCustom } from "../uicustom/buttoncustom";
 
 
 const initialData = {
-    checkInDate: new Date().toLocaleDateString('sv-SE'),//use locale date to set today date
+    checkInDate: new Date(new Date().toDateString()),
     id: "",
     name: "",
     nationalId: "",
@@ -29,7 +29,8 @@ export default function CheckInListSearch({
     return (
         <section aria-label="Reservatoin List Search" className="flex w-full flex-col gap-4">
             <div className="flex gap-4 items-center">
-                <DateInputWithLabel type="date" name="searchCheckInDate" label="Check-In Date" defaultValue={formData.checkInDate} onChange={(e) => setFormData({...formData, checkInDate: e.target.value})} />
+                <DateInputWithLabel type="date" name="" label="Check-In Date" defaultValue={formData.checkInDate.toLocaleDateString('sv-SE')} onChange={(e) => setFormData({...formData, checkInDate: new Date(new Date(e.target.value).toDateString())})} />
+                <input type="hidden" name="searchCheckInDate" defaultValue={formData.checkInDate.toISOString()} />
                 <InputWithLabel size="md" name="searchId" label="Reservation ID" defaultValue={formData.id} onChange={(e) => setFormData({...formData, id: e.target.value})}/>
                 <InputWithLabel size="md" name="searchRemark" label="Remark" defaultValue={formData.remark} onChange={(e) => setFormData({...formData, remark: e.target.value})}/>
             </div>

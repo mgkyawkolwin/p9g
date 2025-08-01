@@ -5,6 +5,7 @@ import RoomCharge from "../models/RoomCharge";
 import RoomRate from "../models/RoomRate";
 import RoomType from "../models/RoomType";
 import { CustomError } from "@/lib/errors";
+import c from "@/lib/core/logger/ConsoleLogger";
 
 export interface MonthDetail {
     month: number;          // 0-11 (0 = January)
@@ -18,6 +19,7 @@ export interface MonthDetail {
 export default class RoomRateEngine{
 
     public static calculate(reservation: Reservation, roomReservations: RoomReservation[], roomTypes: RoomType[], roomRates: RoomRate[]) : RoomCharge[]{
+        c.i('Room rate calculation engine.');
         if(!reservation)
             throw new CustomError('Reservation in required to calculate room charge.');
         if(!roomReservations || roomReservations.length == 0)
@@ -26,10 +28,12 @@ export default class RoomRateEngine{
             throw new CustomError('Room Charge Calculation: room type list is empty');
         if(!roomRates || roomRates.length === 0)
             throw new CustomError('Room Charge Calculation: room rate list is empty.');
-        if(!reservation.noOfDays || reservation.noOfDays === 0)
-            throw new CustomError('No of days is required to calculate room charge.');
         if(!reservation.noOfGuests || reservation.noOfGuests === 0)
             throw new CustomError('No of guest is requred to calculate room charge.');
+        c.d(reservation);
+        c.d(roomTypes[0]);
+        c.d(roomRates[0]);
+        c.d(roomReservations[0]);
 
         const roomCharges : RoomCharge[] = [];
 
@@ -37,41 +41,49 @@ export default class RoomRateEngine{
         roomReservations.sort((a,b) => a.checkInDateUTC.getTime() - b.checkInDateUTC.getTime());
         roomRates.sort((a,b) => a.month - b.month);
 
-        roomReservations.forEach(rr => {
-            const monthDays = this.getMonthlyDateSegments(rr.checkInDateUTC, rr.checkOutDateUTC);
+        roomReservations.forEach(rrsv => {
+            const monthDays = this.getMonthlyDateSegments(rrsv.checkInDateUTC, rrsv.checkOutDateUTC);
             let prvRoomCharge : RoomCharge;
 
             monthDays.forEach(md => {
-                const rate = roomRates.find(rate => rate.month == md.month && rate.roomTypeId == rr.roomTypeId);
+                const rate = roomRates.find(rrate => rrate.month == md.month && rrate.roomTypeId == rrsv.roomTypeId);
                 if(!rate) throw new CustomError('Cannot find room rate');
                 const roomCharge = new RoomCharge();
                 roomCharge.reservationId = reservation.id;
-                roomCharge.roomTypeId = rr.roomTypeId;
-                roomCharge.roomId = rr.roomId;
+                roomCharge.roomTypeId = rrsv.roomTypeId;
+                roomCharge.roomId = rrsv.roomId;
                 roomCharge.startDateUTC = md.periodStart;
                 roomCharge.endDateUTC = md.periodEnd;
-                roomCharge.seasonSurcharge = reservation.prepaidPackageId ? Number(rate.seasonSurcharge) : 0;
-                roomCharge.roomSurcharge = reservation.prepaidPackageId ? Number(rate.roomSurcharge) : 0;
                 roomCharge.noOfDays = Number(md.noOfDays);
-                if(rr.isSingleOccupancy === true){
+                if(reservation.prepaidPackageId && reservation.prepaidPackageId.trim() !== ''){
+                    roomCharge.roomRate = 0;
+                    roomCharge.roomSurcharge = Number(rate.roomSurcharge);
+                    roomCharge.seasonSurcharge = Number(rate.seasonSurcharge);
+                }else{
+                    roomCharge.roomRate = Number(rate.roomRate);
+                }
+                if(rrsv.isSingleOccupancy === true){
                     roomCharge.singleRate = Number(rate.singleRate);
                 }
 
                 //do not charge base room rate for prepaid packages
                 if(reservation.prepaidPackageId && reservation.prepaidPackageId.trim() !== ''){
-                    roomCharge.roomRate = 0;
-                    roomCharge.totalRate = Number(roomCharge.roomSurcharge) + Number(roomCharge.seasonSurcharge )+ Number(roomCharge.singleRate);
+                    // roomCharge.roomRate = 0;
+                    // roomCharge.roomSurcharge = Number(rate.roomSurcharge);
+                    //roomCharge.totalRate = Number(roomCharge.roomSurcharge) + Number(roomCharge.seasonSurcharge )+ Number(roomCharge.singleRate);
                 }else{
-                    roomCharge.roomRate = Number(rate.roomRate);
-                    roomCharge.totalRate = Number(roomCharge.roomRate) + Number(roomCharge.singleRate);
+                    // roomCharge.roomRate = Number(rate.roomRate);
+                    //roomCharge.totalRate = Number(roomCharge.roomRate) + Number(roomCharge.singleRate);
                 }
                 
+                roomCharge.totalRate = Number(roomCharge.roomRate) + Number(roomCharge.roomSurcharge) + Number(roomCharge.seasonSurcharge )+ Number(roomCharge.singleRate);
                 roomCharge.totalAmount = roomCharge.totalRate * roomCharge.noOfDays * reservation.noOfGuests;
                 if(prvRoomCharge && prvRoomCharge.totalRate == roomCharge.totalRate){
                     //just modify charge for the same rate rate periods
                     prvRoomCharge.noOfDays = Number(prvRoomCharge.noOfDays) + Number(roomCharge.noOfDays);
                     prvRoomCharge.endDateUTC = roomCharge.endDateUTC;
-                    prvRoomCharge.totalAmount = (prvRoomCharge.totalRate * prvRoomCharge.noOfDays * reservation.noOfGuests) + (prvRoomCharge.singleRate * prvRoomCharge.noOfDays);
+                    //prvRoomCharge.totalAmount = (prvRoomCharge.totalRate * prvRoomCharge.noOfDays * reservation.noOfGuests) + (prvRoomCharge.singleRate * prvRoomCharge.noOfDays);
+                    prvRoomCharge.totalAmount = prvRoomCharge.totalAmount + roomCharge.totalAmount;
                 }else{
                     //insert new charge for different rates
                     prvRoomCharge = roomCharge;

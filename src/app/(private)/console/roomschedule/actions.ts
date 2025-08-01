@@ -50,7 +50,7 @@ export async function roomScheduleGetList(formState : FormState, formData: FormD
     //retrieve data from tuple
     c.i("Everything is alright. Return response.");
     const rooms = responseData.data;
-    return {error:false, message : '', data: {rooms: rooms, date: formObject.searchCheckInDateUTCTo}};
+    return {error:false, message : '', data: {rooms: rooms, date: formObject.searchCheckInDateUntil}};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
     return {error:true, message : "Room schedule list retrieval failed."};

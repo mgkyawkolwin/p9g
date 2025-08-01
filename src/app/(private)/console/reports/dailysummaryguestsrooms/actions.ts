@@ -5,13 +5,13 @@ import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
 import { headers } from 'next/headers';
 
-export async function getDailySummaryReport(startDate:string, endDate:string): Promise<FormState> {
+export async function getDailySummaryGuestsRoomsReport(startDate:string, endDate:string): Promise<FormState> {
   try{
     c.i('Actions > /console/checkin > getDailySummaryReport');
 
     //retrieve users
     c.i("Update successful. Get the updated list based on query string.");
-    const response = await fetch(process.env.API_URL + `reports/dailysummaryreport?startDate=${startDate}&endDate=${endDate}`, {
+    const response = await fetch(process.env.API_URL + `reports/dailysummaryguestsroomsreport?startDate=${startDate}&endDate=${endDate}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
