@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "c9d30648-2d23-4fcc-b6c7-e91450f223b3",
+  "id": "d7df0596-4787-4593-acb1-04e8952d7cdc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "bill": {
@@ -14,6 +14,27 @@
           "notNull": true,
           "autoincrement": false
         },
+        "dateUTC": {
+          "name": "dateUTC",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "paymentMode": {
+          "name": "paymentMode",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paymentType": {
+          "name": "paymentType",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "reservationId": {
           "name": "reservationId",
           "type": "char",
@@ -21,8 +42,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "item": {
-          "name": "item",
+        "itemName": {
+          "name": "itemName",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true,
@@ -35,8 +56,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "text": {
-          "name": "text",
+        "quantity": {
+          "name": "quantity",
           "type": "tinyint",
           "primaryKey": false,
           "notNull": true,
@@ -47,6 +68,28 @@
           "type": "decimal",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "isPaid": {
+          "name": "isPaid",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "paidOnUTC": {
+          "name": "paidOnUTC",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "createdAtUTC": {
@@ -178,6 +221,13 @@
           "name": "name",
           "type": "varchar(255)",
           "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "englishName": {
+          "name": "englishName",
+          "type": "varchar(255)",
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -289,6 +339,159 @@
           ]
         }
       },
+      "checkConstraint": {}
+    },
+    "logError": {
+      "name": "logError",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "datetime": {
+          "name": "datetime",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "detail": {
+          "name": "detail",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "logError_id": {
+          "name": "logError_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "payment": {
+      "name": "payment",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reservationId": {
+          "name": "reservationId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paymentDateUTC": {
+          "name": "paymentDateUTC",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paymentType": {
+          "name": "paymentType",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amountInCurrency": {
+          "name": "amountInCurrency",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paymentMode": {
+          "name": "paymentMode",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "remark": {
+          "name": "remark",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "payment_id": {
+          "name": "payment_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
       "checkConstraint": {}
     },
     "prepaid": {
@@ -540,6 +743,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "tourCompany": {
+          "name": "tourCompany",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "arrivalDateTimeUTC": {
           "name": "arrivalDateTimeUTC",
           "type": "datetime",
@@ -584,13 +794,20 @@
         },
         "noOfDays": {
           "name": "noOfDays",
-          "type": "tinyint",
+          "type": "smallint",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "depositAmount": {
           "name": "depositAmount",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "depositAmountInCurrency": {
+          "name": "depositAmountInCurrency",
           "type": "int",
           "primaryKey": false,
           "notNull": false,
@@ -617,6 +834,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "isSingleOccupancy": {
+          "name": "isSingleOccupancy",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "noOfGuests": {
           "name": "noOfGuests",
           "type": "tinyint",
@@ -638,9 +862,16 @@
           "notNull": false,
           "autoincrement": false
         },
-        "pickUpCurrency": {
-          "name": "pickUpCurrency",
+        "pickUpFeeCurrency": {
+          "name": "pickUpFeeCurrency",
           "type": "char(3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pickUpFeePaidOnUTC": {
+          "name": "pickUpFeePaidOnUTC",
+          "type": "datetime",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -648,6 +879,13 @@
         "pickUpCarNo": {
           "name": "pickUpCarNo",
           "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pickUpDriver": {
+          "name": "pickUpDriver",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -687,9 +925,23 @@
           "notNull": false,
           "autoincrement": false
         },
+        "dropOffFeePaidOnUTC": {
+          "name": "dropOffFeePaidOnUTC",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "dropOffCarNo": {
           "name": "dropOffCarNo",
           "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dropOffDriver": {
+          "name": "dropOffDriver",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -706,6 +958,62 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false
+        },
+        "totalAmount": {
+          "name": "totalAmount",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "paidAmount": {
+          "name": "paidAmount",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "discountAmount": {
+          "name": "discountAmount",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "tax": {
+          "name": "tax",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "taxAmount": {
+          "name": "taxAmount",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "netAmount": {
+          "name": "netAmount",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dueAmount": {
+          "name": "dueAmount",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
           "autoincrement": false
         },
         "createdAtUTC": {
@@ -829,6 +1137,257 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "roomCharge": {
+      "name": "roomCharge",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reservationId": {
+          "name": "reservationId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "startDateUTC": {
+          "name": "startDateUTC",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "endDateUTC": {
+          "name": "endDateUTC",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "roomId": {
+          "name": "roomId",
+          "type": "char",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "roomTypeId": {
+          "name": "roomTypeId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "roomRate": {
+          "name": "roomRate",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "roomSurcharge": {
+          "name": "roomSurcharge",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "singleRate": {
+          "name": "singleRate",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "seasonSurcharge": {
+          "name": "seasonSurcharge",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "extraBedRate": {
+          "name": "extraBedRate",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "totalRate": {
+          "name": "totalRate",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "noOfDays": {
+          "name": "noOfDays",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "totalAmount": {
+          "name": "totalAmount",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "roomCharge_id": {
+          "name": "roomCharge_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "roomRate": {
+      "name": "roomRate",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "roomTypeId": {
+          "name": "roomTypeId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "roomRate": {
+          "name": "roomRate",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "singleRate": {
+          "name": "singleRate",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "roomSurcharge": {
+          "name": "roomSurcharge",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "seasonSurcharge": {
+          "name": "seasonSurcharge",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "extraBedRate": {
+          "name": "extraBedRate",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "month": {
+          "name": "month",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "roomRate_id": {
+          "name": "roomRate_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "roomReservation": {
       "name": "roomReservation",
       "columns": {
@@ -858,7 +1417,8 @@
           "type": "tinyint",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": 0
         },
         "checkInDateUTC": {
           "name": "checkInDateUTC",
@@ -872,6 +1432,13 @@
           "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "isSingleOccupancy": {
+          "name": "isSingleOccupancy",
+          "type": "binary",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "createdAtUTC": {
@@ -975,13 +1542,12 @@
           "autoincrement": false,
           "default": true
         },
-        "isDoubleBed": {
-          "name": "isDoubleBed",
-          "type": "boolean",
+        "location": {
+          "name": "location",
+          "type": "varchar(10)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": true
+          "notNull": false,
+          "autoincrement": false
         },
         "createdAtUTC": {
           "name": "createdAtUTC",
@@ -1054,6 +1620,34 @@
           "type": "varchar(50)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "roomTypeText": {
+          "name": "roomTypeText",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "maxOccupancy": {
+          "name": "maxOccupancy",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "isDoubleBed": {
+          "name": "isDoubleBed",
+          "type": "binary",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "createdAtUTC": {
@@ -1139,6 +1733,13 @@
         "role": {
           "name": "role",
           "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
