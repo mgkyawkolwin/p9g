@@ -1,11 +1,10 @@
 "use server";
 
-import RoomChange from "./roomchange";
+import RoomChangeList from "./roomchangelist";
 
-export default async function RoomChangePage() {
-  const allowedRoles = ['ADMIN', 'STAFF', 'AUTHENTICATED'];
+export default async function RoomReservatoinListPage() {
 
   return (
-    <RoomChange />
+    <RoomChangeList />
   );
 }

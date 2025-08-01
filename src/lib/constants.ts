@@ -1,6 +1,6 @@
 export const AppUrl = {
     signin : '/auth/signin',
-    main : '/console/users'
+    main : '/console/reservations'
 } as const;
 
 export const CurrencyList = ['KWR', 'MMK', 'THB', 'USD'] as const;
@@ -21,8 +21,47 @@ export const HttpStatusCode = {
 } as const;
 
 
+export const SearchParams = {
+    date: "date"
+}
+
+
 export const SelectList = {
+
+    BILL_PAYMENT_TYPE: new Map<string, string>([
+        ["DROPOFF","DROPOFF"],
+        ["PICKUP","PICKUP"],
+        ["OTHER","OTHER"]
+    ]),
+
     CURRENCY: new Map<string,string>(CurrencyList.map(cl => [cl, cl])),
+
+    MONTH: new Map<string, string>([
+        ["0","JAN"],
+        ["1","FEB"],
+        ["2","MAR"],
+        ["3","APR"],
+        ["4","MAY"],
+        ["5","JUN"],
+        ["6","JUL"],
+        ["7","AUG"],
+        ["8","SEP"],
+        ["9","OCT"],
+        ["10","NOV"],
+        ["11","DEC"]
+    ]),
+
+    PAYMENT_MODE: new Map<string, string>([
+        ["CASH","Cash"],
+        ["BANK","Bank"],
+        ["ONLINE","Online"],
+        ["OTHER","Other"]
+    ]),
+
+    ROOM_PAYMENT_TYPE: new Map<string, string>([
+        ["NORMAL","NORMAL"],
+        ["DEPOSIT","DEPOSIT"]
+    ]),
 
     PREPAID_PACKAGES: new Map<string,string>([
         ["NINETY_DAYS", "90 Days"]
@@ -41,7 +80,7 @@ export const SelectList = {
     ]),
 
     RESERVATION_TYPE: new Map<string, string>([
-        ["NORMAL", "Normal"],
+        ["GENERAL", "General"],
         ["MEMBER", "Member"],
         ["TOUR", "Tour"]
     ]),
@@ -54,6 +93,10 @@ export const SelectList = {
 } as const;
 
 export const SelectListForm = {
+    BILL_PAYMENT_TYPE: new Map<string,string>([
+        ...SelectList.BILL_PAYMENT_TYPE.entries()
+    ]),
+
     CURRENCY: new Map<string,string>([
         ["DEFAULT", "Choose"], 
         ...SelectList.CURRENCY.entries()
@@ -70,13 +113,15 @@ export const SelectListForm = {
     ]),
 
     RESERVATION_STATUS: new Map<string, string>([
-        ["DEFAULT", "Choose"], 
         ...SelectList.RESERVATION_STATUS.entries()
     ]),
 
     RESERVATION_TYPE: new Map<string, string>([
-        ["DEFAULT", "Choose"], 
         ...SelectList.RESERVATION_TYPE.entries()
+    ]),
+
+    ROOM_PAYMENT_TYPE: new Map<string,string>([
+        ...SelectList.ROOM_PAYMENT_TYPE.entries()
     ]),
 
     TRANSPORTATION: new Map<string, string>([
@@ -86,6 +131,12 @@ export const SelectListForm = {
 } as const;
 
 export const SelectListSearch = {
+
+    BILL_PAYMENT_TYPE: new Map<string,string>([
+        ["DEFAULT", "Show All"], 
+        ...SelectList.BILL_PAYMENT_TYPE.entries()
+    ]),
+
     CURRENCY: new Map<string,string>([
         ["DEFAULT", "Show All"], 
         ...SelectList.CURRENCY.entries()
@@ -109,6 +160,11 @@ export const SelectListSearch = {
     RESERVATION_TYPE: new Map<string, string>([
         ["DEFAULT", "Show All"], 
         ...SelectList.RESERVATION_TYPE.entries()
+    ]),
+
+    ROOM_PAYMENT_TYPE: new Map<string,string>([
+        ["DEFAULT", "Choose"], 
+        ...SelectList.ROOM_PAYMENT_TYPE.entries()
     ]),
 
     TRANSPORTATION: new Map<string, string>([

@@ -1,0 +1,10 @@
+import DailySummaryGuestsRoomsReportRow from "@/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
+import DailySummaryIncomeReportRow from "@/domain/dtos/reports/DailySummaryIncomeReportRow";
+
+
+export default interface IReportService {
+
+    getDailySummaryGuestsRoomsReport(startDate:string, endDate:string) : Promise<DailySummaryGuestsRoomsReportRow[]>;
+    getDailySummaryIncomeReport(startDate:string, endDate:string) : Promise<DailySummaryIncomeReportRow[]>;
+    
+}

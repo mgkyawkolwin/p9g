@@ -1,7 +1,7 @@
 "use client";
 import { useActionState, useEffect, useState } from "react";
 //Local Imports
-import { User } from "@/data/orm/drizzle/mysql/schema";
+import { UserEntity } from "@/data/orm/drizzle/mysql/schema";
 import { FormState } from "@/lib/types";
 import { Loader } from "@/components/uicustom/loader";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function UserEdit({ params }:{ params:{ id:number, getFunc:(id:number) => Promise<FormState>, updateFunc:(formState:FormState, formData:FormData) => Promise<FormState> } }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserEntity | null>(null);
 
   const [state, formAction, isPending] = useActionState(params.updateFunc, {
     error: false,

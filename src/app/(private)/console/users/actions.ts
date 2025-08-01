@@ -1,12 +1,10 @@
 'use server';
-import { User } from "@/data/orm/drizzle/mysql/schema"
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';
+
+import { pagerValidator, searchSchema, userUpdateSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
-import { signOut } from "@/app/auth";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+import { headers } from 'next/headers';
 
 export async function userGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
@@ -16,7 +14,7 @@ export async function userGetList(formState : FormState, formData: FormData): Pr
     let queryString = null;
 
     //validate and parse table input
-    const pagerFields = pagerSchema.safeParse(Object.fromEntries(formData.entries()));
+    const pagerFields = pagerValidator.safeParse(Object.fromEntries(formData.entries()));
     c.d(JSON.stringify(pagerFields));
 
     //table pager field validatd, build query string
@@ -36,6 +34,10 @@ export async function userGetList(formState : FormState, formData: FormData): Pr
     //retrieve users
     const response = await fetch(process.env.API_URL + `users?${queryString}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //fail
@@ -77,6 +79,7 @@ export async function userUpdate(formState : FormState, formData: FormData) : Pr
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       },
       body: JSON.stringify({ email }),
     });

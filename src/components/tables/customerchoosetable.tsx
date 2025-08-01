@@ -6,39 +6,34 @@ import { ArrowUpDown } from "lucide-react"
 
 import {
   ColumnDef
-} from "@tanstack/react-table"
-
-import DataTable from "./datatable"
-import { CustomerEntity } from "@/data/orm/drizzle/mysql/schema"
-import c from "@/lib/core/logger/ConsoleLogger"
-import { FormState } from "@/lib/types"
-import { useRouter } from "next/router"
+} from "@tanstack/react-table";
+import c from "@/lib/core/logger/ConsoleLogger";
 import SimpleDataTable from "./simpledatatable"
 import { ButtonCustom } from "../uicustom/buttoncustom"
+import Customer from "@/domain/models/Customer";
 
 
-
-
-interface DataTableProps<TData, TValue> {
-  data: CustomerEntity[];
-  selectedCustomers: any;
-  setSelectedCustomers: React.Dispatch<React.SetStateAction<CustomerEntity[]>>;
+interface DataTableProps {
+  data: Customer[];
+  selectedCustomers: Customer[];
+  setSelectedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function CustomerChooseTable<TData, TValue>({
+export default function CustomerChooseTable({
   data,
   selectedCustomers,
   setSelectedCustomers,
   setOpen
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
   c.i('Client GuestInformationTable');
   c.d(JSON.stringify(data));
 
-  const columns: ColumnDef<CustomerEntity, any>[] = [
+  const columns: ColumnDef<Customer>[] = [
     {
       accessorKey: "id",
       header: "Guest ID",
+      cell: row => row.getValue()?.toString().substring(0,8)
     },
     {
       accessorKey: "name",
@@ -55,88 +50,32 @@ export default function CustomerChooseTable<TData, TValue>({
       },
     },
     {
+      accessorKey: "englishName",
+      header: 'English Name',
+    },
+    {
       accessorKey: "dob",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            DOB
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: 'DOB',
     },
     {
       accessorKey: "nationlId",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            National ID
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: 'National ID',
     },
     {
       accessorKey: "passport",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Passport
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: 'Passport',
     },
     {
       accessorKey: "phone",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Phone
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: 'Phone',
     },
     {
       accessorKey: "email",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Email
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: 'Email',
     },
     {
       accessorKey: "country",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Country
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: 'Country',
     },
     {
       accessorKey: "action",

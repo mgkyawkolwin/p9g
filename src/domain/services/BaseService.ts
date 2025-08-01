@@ -1,15 +1,14 @@
 //Ordered Imports
-import { SQL, and, count, asc, desc, eq, gt, gte, inArray, lt, lte, or, like, Table, Column, getTableColumns, getTableName } from "drizzle-orm";
-import { inject, injectable } from "inversify";
+import { SQL } from "drizzle-orm";
+import { injectable } from "inversify";
 import "reflect-metadata";
-import { PagerParams, SearchParam, TYPES } from "@/lib/types";
+import { PagerParams, SearchParam } from "@/lib/types";
 import IBaseService from "./contracts/IBaseService";
-import type IRepository from "@/data/repo/IRepository";
-import c from "@/lib/core/logger/ConsoleLogger";
+import type IRepository from "@/data/repo/contracts/IRepository";
 
 
 @injectable()
-export abstract class BaseService<TDomainModel, TEntity> implements IBaseService<TDomainModel, TEntity> {
+export abstract class BaseService<TEntity> implements IBaseService<TEntity> {
     protected readonly repository;
 
     constructor(
@@ -19,35 +18,32 @@ export abstract class BaseService<TDomainModel, TEntity> implements IBaseService
     }
 
 
-    create(entity: TDomainModel): Promise<TDomainModel> {
-        c.i("BaseService > Create");
-        const newEntity = this.repository.create(entity as unknown as TEntity);
-        const newDomainModel = newEntity as unknown as TDomainModel;
-        return newDomainModel;
-    }
-
-
-    findAll(pagerParams: PagerParams): Promise<TDomainModel[]> {
+    create(entity: TEntity): Promise<TEntity> {
         throw new Error("Method not implemented.");
     }
 
 
-    findById(id: number): Promise<TDomainModel | null> {
+    findAll(pagerParams: PagerParams): Promise<TEntity[]> {
         throw new Error("Method not implemented.");
     }
 
 
-    findOne(where?: SQL | undefined): Promise<TDomainModel | null> {
+    findById(id: number): Promise<TEntity | null> {
         throw new Error("Method not implemented.");
     }
 
 
-    findMany(searchParams: SearchParam[], pagerParams: PagerParams): Promise<[TDomainModel[], PagerParams]> {
+    findOne(where?: SQL | undefined): Promise<TEntity | null> {
         throw new Error("Method not implemented.");
     }
 
 
-    update(id: string | number, data: Partial<Omit<TDomainModel, "id" | "createdAt" | "updatedAt">>): Promise<TDomainModel> {
+    findMany(searchParams: SearchParam[], pagerParams: PagerParams): Promise<[TEntity[], PagerParams]> {
+        throw new Error("Method not implemented.");
+    }
+
+
+    update(id: string | number, data: Partial<Omit<TEntity, "id" | "createdAt" | "updatedAt">>): Promise<TEntity> {
         throw new Error("Method not implemented.");
     }
 

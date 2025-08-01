@@ -1,24 +1,19 @@
 "use client"
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { ArrowUpDown } from "lucide-react"
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowUpDown } from "lucide-react";
 
 import {
   ColumnDef
-} from "@tanstack/react-table"
-
-import DataTable from "./datatable"
-import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema"
-import c from "@/lib/core/logger/ConsoleLogger"
-import { FormState } from "@/lib/types"
-import { useRouter } from "next/router"
-import SimpleDataTable from "./simpledatatable"
-import Reservation from "@/domain/models/Reservation"
-import Customer from "@/domain/models/Customer"
+} from "@tanstack/react-table";
+import c from "@/lib/core/logger/ConsoleLogger";
+import SimpleDataTable from "./simpledatatable";
+import Reservation from "@/domain/models/Reservation";
+import Customer from "@/domain/models/Customer";
 
 
-export const columns: ColumnDef<Reservation & Customer[], any>[] = [
+export const columns: ColumnDef<Reservation>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -28,45 +23,22 @@ export const columns: ColumnDef<Reservation & Customer[], any>[] = [
   },
   {
     accessorKey: "reservationStatusText",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Type
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: 'Status',
   },
   {
     accessorKey: "reservationTypeText",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Type
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: 'Type',
+  },
+  {
+    accessorKey: "remark",
+    header: 'Remark',
+    cell: (row) => {
+      return <div className="flex max-w-[150px] whitespace-normal" >{String(row.getValue())}</div>
+    }
   },
   {
     accessorKey: "customers",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Customer Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: 'Customer Name',
     cell: ({row}) => {
       return (
         <div className="flex flex-col">
@@ -81,30 +53,20 @@ export const columns: ColumnDef<Reservation & Customer[], any>[] = [
     accessorFn: (row) => {
       return <span>{new Date(String(row.checkInDateUTC)).toLocaleDateString('sv-SE')} <br/> {new Date(String(row.checkOutDateUTC)).toLocaleDateString('sv-SE')}</span>;
     },
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Check-In / Check-Out
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: 'Check-In / Check-Out',
     cell: (row) => {
       return row.getValue();
     }
   },
 ];
 
-interface DataTableProps<TData, TValue> {
-  data: ReservationEntity[]
+interface DataTableProps {
+  data: Reservation[]
 }
 
-export default function ReservationTopTable<TData, TValue>({
+export default function ReservationTopTable({
   data
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
   c.i('Client > ReservationTopTable');
 
   return (

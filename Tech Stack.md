@@ -38,3 +38,10 @@ Sub-query must be used to achieve desired result.
 
 ### MySql Database
 - date/time are stored as UTC/GMT and datetime data type is used. timestamp is only valid till 2038, datetime can be used till 9999, timestamp has db conversion between locale <> UTC/GMT.
+
+
+## Notes
+### Date/Time
+- use locale date/time in UI
+- use ISO date/time in server side, api, service, repo, db, etc.
+- Javascrpt date object assumes as Local Date/Time if pass as numbers and assumes as ISO/GMT/UTC time if pass as string (ISO Format). For example new Date(2025-01-01) and new Date('2025-01-01') will give different result. But in other string format will assume as local date/time e.g. 'Jan 1, 2025'.

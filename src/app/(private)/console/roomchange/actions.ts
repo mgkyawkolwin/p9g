@@ -1,98 +1,91 @@
 'use server';
-import { User } from "@/data/orm/drizzle/mysql/schema"
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { pagerSchema, searchSchema, userUpdateSchema } from '@/lib/zodschema';
+import { searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
-import { signOut } from "@/app/auth";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
+import { headers } from 'next/headers';
 
-export async function userGetList(formState : FormState, formData: FormData): Promise<FormState> {
+
+export async function roomReservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
-    c.i('Actions > /admin/users > userGetAll');
-    c.d(JSON.stringify(formData.entries()));
+    c.i('Actions > /console/checkin > roomReservationGetList');
+    c.d(Object.fromEntries(formData?.entries()));
 
+    const formObject = Object.fromEntries(
+      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
+    );
+    const message = '';
+
+    // formData is valid, further process
     let queryString = null;
 
-    //validate and parse table input
-    const pagerFields = pagerSchema.safeParse(Object.fromEntries(formData.entries()));
-    c.d(JSON.stringify(pagerFields));
-
-    //table pager field validatd, build query string
-    if(pagerFields.success){
-      queryString = buildQueryString(pagerFields.data);
-      c.d(queryString);
-    }
     //validate and parse search input
-    const searchFields = searchSchema.safeParse(Object.fromEntries(formData.entries()));
-    c.d(JSON.stringify(searchFields));
+    c.i("Parsing search fields from from entries.");
+    const searchFields = searchSchema.safeParse(formObject);
+    c.d(searchFields);
 
     //table pager field validatd, build query string
     if(searchFields.success){
+      c.i("Search fields validation successful. Building query string.");
       queryString = queryString ? queryString + '&' + buildQueryString(searchFields.data) : buildQueryString(searchFields.data);
       c.d(queryString);
     }
+
     //retrieve users
-    const response = await fetch(process.env.API_URL + `users?${queryString}`, {
+    c.i("Update successful. Get the updated list based on query string.");
+    const response = await fetch(process.env.API_URL + `roomreservation?${queryString}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
+    const responseData = await response.json();
 
     //fail
-    if(!response.ok)
-      return {error:true, message : "User list retrieval failed."};
+    if(!response.ok){
+      c.i("Room reservation list retrieval failed. Return response.");
+      return {error:true, message : `Room reservation list retrieval failed. ${responseData.message}`};
+    }
 
     //success
-    const responseData = await response.json();
+    c.i("Room reservation list retrieval successful.");
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
-    const [users, pager] = responseData.data;
-    return {error:false, message : "", data: users, pager: pager};
+    c.i("Everything is alright. Return response.");
+    const roomReservations = responseData.data;
+    return {error:false, message : message, data: roomReservations, pager: undefined};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
-    return {error:true, message : "User list retrieval failed."};
+    return {error:true, message : "Reservation list retrieval failed."};
   }
 }
 
 
-export async function userUpdate(formState : FormState, formData: FormData) : Promise<FormState>{
-  try {
-    c.i('Actions > /admin/users/[id]/edit > userUpdate');
-
-    //validate and parse form input
-    const validatedFields = userUpdateSchema.safeParse(Object.fromEntries(formData.entries()));
-    
-    //form validation fail
-    if (!validatedFields.success) {
-      c.e(JSON.stringify(validatedFields.error.flatten().fieldErrors));
-      return { error: true, message: 'Invalid inputs.', data: null, formData: null};
-    }
-
-    //form validation pass
-    const { id, email } = validatedFields.data;
-
-    //update user
-    const response = await fetch(process.env.API_URL + `users/${id}`, {
-      method: 'PUT',
+export async function moveRoom(id: string, roomNo:string){
+  try{
+    c.i('Action > roomchange > moveRoom');
+    const response = await fetch(process.env.API_URL + `roomreservation?id=${id}&roomNo=${roomNo}`, {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
+        'cookie': (await headers()).get('cookie')
+      }
     });
-    
-    //update user failed
-    if (!response.ok) {
-      const errorData = await response.json();
-      c.e(errorData.message);
-      return { error: true, message: 'Failed to update user.', data: null, formData: null};
+
+    const responseData = await response.json();
+
+    //fail
+    if(!response.ok){
+      c.i("Room move failed. Return response.");
+      return {error:true, message : `Room move failed. ${responseData.message}`};
     }
 
-    //update user success
-    const data = await response.json();
-    return {error: false, message:"", data: data, formData: null};
-  } catch (error) {
+    c.i('Return > moveRoom');
+    return {error:false, message:'Room moved.'};
+  }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
-    return {error: true, message: 'Failed to update user.', data: null, formData: null};
+    return {error:true, message : "Room move failed."};
   }
 }

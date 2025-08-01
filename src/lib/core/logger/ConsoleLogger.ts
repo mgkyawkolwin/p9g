@@ -15,13 +15,11 @@ class ConsoleLogger {
     private logLevel = 0;
 
     constructor(){
-        if(process.env.NODE_ENV === 'development'){
-            if(process.env.CONSOLE_LOG_LEVEL){
-                this.logLevel = parseInt(process.env.CONSOLE_LOG_LEVEL);
-            }
-            if(process.env.NEXT_PUBLIC_CONSOLE_LOG_LEVEL){
-                this.logLevel = parseInt(process.env.NEXT_PUBLIC_CONSOLE_LOG_LEVEL);
-            }
+        if(process.env.CONSOLE_LOG_LEVEL){
+            this.logLevel = parseInt(process.env.CONSOLE_LOG_LEVEL);
+        }
+        if(process.env.NEXT_PUBLIC_CONSOLE_LOG_LEVEL){
+            this.logLevel = parseInt(process.env.NEXT_PUBLIC_CONSOLE_LOG_LEVEL);
         }
     }
 

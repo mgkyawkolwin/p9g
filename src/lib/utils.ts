@@ -1,8 +1,9 @@
 //ordered import
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { SearchParam, PagerParams } from "./types"
+import { SearchParam, PagerParams, SearchFormFields } from "./types"
 import c from "./core/logger/ConsoleLogger";
+import { CustomError } from "./errors";
 
 /**
  * Merge two or more className into one.
@@ -24,19 +25,37 @@ export function cn(...inputs: ClassValue[]) {
  * @param {Object} queryStringObject - Query string object with key/value.
  * @returns {SearchParam[]} - Array of SearchParam.
  */
-export function buildSearchParams(queryStringObject : any) : SearchParam[] {
+export function buildSearchParams(queryStringObject : SearchFormFields) : SearchParam[] {
   const search : SearchParam[]= [];
-  if(queryStringObject.searchCheckInFrom){
-    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInFrom});
+  if(queryStringObject.searchArrivalDateTime){
+    search.push({searchColumn:'arrivalDateTimeUTC', searchValue: queryStringObject.searchArrivalDateTime});
   }
-  if(queryStringObject.searchCheckInUntil){
-    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInUntil});
+  if(queryStringObject.searchCheckInDate){
+    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInDate});
   }
-  if(queryStringObject.searchCreatedFrom){
-    search.push({searchColumn:'createdFrom', searchValue: queryStringObject.searchCreatedFrom});
+  if(queryStringObject.searchCheckInDateFrom){
+    search.push({searchColumn:'checkInDateFrom', searchValue: queryStringObject.searchCheckInDateFrom});
   }
-  if(queryStringObject.searchCreatedUntil){
-    search.push({searchColumn:'createdUntil', searchValue: queryStringObject.searchCreatedUntil});
+  if(queryStringObject.searchCheckInDateUntil){
+    search.push({searchColumn:'checkInDateUntil', searchValue: queryStringObject.searchCheckInDateUntil});
+  }
+  if(queryStringObject.searchCheckOutDate){
+    search.push({searchColumn:'checkOutDateUTC', searchValue: queryStringObject.searchCheckOutDate});
+  }
+  if(queryStringObject.searchCreatedDateFrom){
+    search.push({searchColumn:'createdFrom', searchValue: queryStringObject.searchCreatedDateFrom});
+  }
+  if(queryStringObject.searchCreatedDateUntil){
+    search.push({searchColumn:'createdUntil', searchValue: queryStringObject.searchCreatedDateUntil});
+  }
+  if(queryStringObject.date){
+    search.push({searchColumn:'date', searchValue: queryStringObject.date});
+  }
+  if(queryStringObject.searchDate){
+    search.push({searchColumn:'date', searchValue: queryStringObject.searchDate});
+  }
+  if(queryStringObject.searchDepartureDateTime){
+    search.push({searchColumn:'departureDateTimeUTC', searchValue: queryStringObject.searchDepartureDateTime});
   }
   if(queryStringObject.searchId){
     search.push({searchColumn:'id', searchValue: queryStringObject.searchId});
@@ -53,6 +72,15 @@ export function buildSearchParams(queryStringObject : any) : SearchParam[] {
   if(queryStringObject.searchPhone){
     search.push({searchColumn:'phone', searchValue: queryStringObject.searchPhone});
   }
+  if(queryStringObject.searchPrepaidPackage){
+    search.push({searchColumn:'prepaidPackage', searchValue: queryStringObject.searchPrepaidPackage});
+  }
+  if(queryStringObject.searchPromotionPackage){
+    search.push({searchColumn:'promotionPackage', searchValue: queryStringObject.searchPromotionPackage});
+  }
+  if(queryStringObject.searchRemark){
+    search.push({searchColumn:'remark', searchValue: queryStringObject.searchRemark});
+  }
   if(queryStringObject.searchReservationStatus){
     search.push({searchColumn:'reservationStatus', searchValue: queryStringObject.searchReservationStatus});
   }
@@ -60,10 +88,10 @@ export function buildSearchParams(queryStringObject : any) : SearchParam[] {
     search.push({searchColumn:'reservationType', searchValue: queryStringObject.searchReservationType});
   }
   if(queryStringObject.searchUserName){
-    search.push({searchColumn:'userName', searchValue: queryStringObject.UserName});
+    search.push({searchColumn:'userName', searchValue: queryStringObject.searchUserName});
   }
   if(queryStringObject.searchEmail){
-    search.push({searchColumn:'email', searchValue: queryStringObject.email});
+    search.push({searchColumn:'email', searchValue: queryStringObject.searchEmail});
   }
   return search.filter((s) => s.searchValue !== 'DEFAULT');
 }
@@ -74,15 +102,66 @@ export function buildSearchParams(queryStringObject : any) : SearchParam[] {
  * @param {object} input - Any object with property.
  * @returns {string} Query string.
  */
-export function buildQueryString(input:any): string{
+export function buildQueryString(input : SearchFormFields | PagerParams): string{
   const queryString = new URLSearchParams(
     Object.entries(input)
-      .filter(([_, value]) => value !== undefined && value !== null && value !== '')
+      //.filter(([_, value]) => value !== undefined && value !== null && value !== '')
       .map(([key, value]) => [key, String(value)])
   ).toString();
   return queryString;
 }
 
+
+export function calculateDayDifference(startDate:Date, endDate: Date){
+  return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+}
+
+
+export function getCurrentMonthFirstDate(): Date{
+  const today = new Date();
+  return new Date(today.getFullYear(), today.getMonth(), 1);
+}
+
+
+export function getCurrentMonthLastDate(): Date{
+  const today = new Date();
+  return new Date(today.getFullYear(), today.getMonth() + 1, 0,23,59,59,999);
+}
+
+export function getDateRange(startDate: string, endDate: string): Date[] {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  // Validate the dates
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      throw new CustomError('Invalid date format. Please use ISO format (YYYY-MM-DD)');
+  }
+  
+  if (start > end) {
+      throw new CustomError('Start date must be before or equal to end date');
+  }
+  
+  const dateArray: Date[] = [];
+  const currentDate = new Date(start);
+  
+  // Loop through each day in the range
+  while (currentDate <= end) {
+      dateArray.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+  }
+  
+  return dateArray;
+}
+
+
+export function getFirstDate(year: number, month: number): Date{
+  return new Date(year, month, 1);
+}
+
+
+export function getLastDate(year: number, month: number): Date{
+  return new Date(year,month + 1, 0, 23, 59, 59, 999);
+}
 
 /**
  * Get local date string to display in client browser.
@@ -139,7 +218,7 @@ export function getLocalDateTimeString(){
  * @param inputObject - Any Object
  * @returns Original object with pager fields default.
  */
-export function pagerWithDefaults(inputObject : any) : PagerParams {
+export function pagerWithDefaults(inputObject : PagerParams) : PagerParams {
   return {
     ...inputObject,
     orderBy : inputObject.orderBy ?? 'id',

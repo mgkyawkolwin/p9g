@@ -6,34 +6,30 @@ import { ArrowUpDown } from "lucide-react"
 
 import {
   ColumnDef
-} from "@tanstack/react-table"
-
-import DataTable from "./datatable"
-import { CustomerEntity } from "@/data/orm/drizzle/mysql/schema"
+} from "@tanstack/react-table";
 import c from "@/lib/core/logger/ConsoleLogger"
-import { FormState } from "@/lib/types"
-import { useRouter } from "next/router"
 import SimpleDataTable from "./simpledatatable"
 import { ButtonCustom } from "../uicustom/buttoncustom"
+import Customer from "@/domain/models/Customer";
 
 
-interface DataTableProps<TData, TValue> {
-  data: CustomerEntity[];
-  setData: React.Dispatch<React.SetStateAction<CustomerEntity[]>>;
+interface DataTableProps {
+  data: Customer[];
+  setData: React.Dispatch<React.SetStateAction<Customer[]>>;
 }
 
-export default function CustomerInformationTable<TData, TValue>({
+export default function CustomerInformationTable({
   data,
   setData
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
   c.i('Client GuestInformationTable');
   c.d(JSON.stringify(data));
 
-  const columns: ColumnDef<CustomerEntity, any>[] = [
+  const columns: ColumnDef<Customer>[] = [
     {
       accessorKey: "id",
       header: "Guest ID",
-      cell: ({row, table}) => {
+      cell: ({row}) => {
         return (
           <div>
             {row.getValue('id')}

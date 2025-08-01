@@ -1,144 +1,197 @@
 "use client"
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { ArrowUpDown } from "lucide-react"
-
+import * as React from "react";
 import {
   ColumnDef
-} from "@tanstack/react-table"
-
-import DataTable from "./datatable"
-import { ReservationEntity } from "@/data/orm/drizzle/mysql/schema"
+} from "@tanstack/react-table";
+import DataTable from "./datatable";
 import c from "@/lib/core/logger/ConsoleLogger"
 import { FormState } from "@/lib/types"
-import { useRouter } from "next/router"
-import Reservation from "@/domain/models/Reservation"
-import Customer from "@/domain/models/Customer"
+import { useRouter } from "next/navigation"
+import Reservation from "@/domain/models/Reservation";
+import { ButtonCustom } from "../uicustom/buttoncustom"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import BillEditDialog from "../dialogs/billeditdialog"
+import BillDialog from "../dialogs/billdialog";
+import PaymentDialog from "../dialogs/paymentdialog";
+import ReceiptDialog from "../dialogs/receiptdialog";
 
 
-
-
-interface DataTableProps<TData, TValue> {
+interface DataTableProps{
   formState: FormState
   formAction: (formData: FormData) => void
-  formRef: React.RefObject<HTMLFormElement|null>;
+  formRef: React.RefObject<HTMLFormElement | null>;
 }
 
-export default function ReservationListTable<TData, TValue>({
+export default function ReservationListTable({
   formState,
   formAction,
   formRef
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
   c.i('Client > ReservationListTable');
   c.d(JSON.stringify(formState));
 
+  const router = useRouter();
+
+  const receiptDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
+  const paymentDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
+  const editDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
+  const viewDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
+
   const columns: ColumnDef<Reservation>[] = [
     {
-      accessorKey: "id",
+      accessorKey: "customReservationInfo",
       header: "ID",
-      cell: ({ row }) => {
-        return <div>
-          {String(row.getValue("id")).substring(0,8)}
+      accessorFn: (row) => {
+        return <span>
+          <a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />
+          {row.reservationStatusText}<br />
+          {row.reservationTypeText} 
+          {row.prepaidPackageText ? <><br/>{row.prepaidPackageText}</> : ''}
+          {row.promotionPackageText ? <><br/>{row.promotionPackageText}</> : ''}
+          </span>;
+      },
+      cell: (row) => row.getValue(),
+    },
+    {
+      accessorKey: "customers",
+      header: () => {
+        return (
+          "Customer Info"
+        )
+      },
+      cell: ({ row }) => (
+        <div>
+          {row.original.customers?.map((customer, i) => (
+            <React.Fragment key={i}>
+              {i > 0 && <br />}
+              {customer.name}<br /> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
+            </React.Fragment>
+          ))}
         </div>
-      }
+      ),
     },
     {
-      accessorKey: "reservationType",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Type
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
+      accessorKey: "checkInCheckOut",
+      header: "Check-In / Check-Out",
+      accessorFn: (row) => {
+        return <span>
+          {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC!).toLocaleDateString('sv-SE')}<br />
+          {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
+      cell: (row) => row.getValue(),
     },
     {
-      accessorKey: "reservationStatus",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Status
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
+      accessorKey: "arrivalDeparture",
+      header: "Arrival / Departure",
+      accessorFn: (row) => {
+        return <span>
+          {row.arrivalDateTimeUTC ? new Date(row.arrivalDateTimeUTC).toLocaleString('sv-SE') : ''} {row.pickUpTypeText}<br />
+          {row.departureDateTimeUTC ? new Date(row.departureDateTimeUTC).toLocaleString('sv-SE') : ''} {row.dropOffTypeText}</span>;
       },
+      cell: (row) => row.getValue(),
     },
     {
-      accessorKey: "name",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Customer Name
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
+      accessorKey: "depositInfo",
+      header: "Deposit",
+      accessorFn: (row) => {
+        return <span>{row.depositAmount > 0 ? row.depositAmount + ' ' + row.depositCurrency : ''} <br /> {row.depositDateUTC ? new Date(row.depositDateUTC).toLocaleDateString('sv-SE') : ""}</span>;
       },
-    },
-    {
-      accessorKey: "phone",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Phone
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
-    },
-    {
-      accessorKey: "email",
-      header: ({ column }) => {
-        return (
-          <Button className="p-0 m-0 w-fit"
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Emailx
-            <ArrowUpDown className="ml-1 h-4" />
-          </Button>
-        )
-      },
+      cell: (row) => row.getValue(),
     },
     {
       accessorKey: "remark",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Remark
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      header: 'Remark',
+      cell: (row) => {
+        return <div className="flex max-w-[150px] whitespace-normal" >{String(row.getValue())}</div>
+      }
     },
     {
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => {
-        return <div>
-          <Button>Edit</Button>
+        return <div className="flex flex-col gap-1">
+          <div className="flex gap-1">
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+            receiptDialogCallbackFunc.current?.openDialog(true);
+            setReservationId(row.original.id);
+            
+          }}>Receipt</ButtonCustom>
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+              paymentDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+              
+            }}>Payment</ButtonCustom>
+          </div>
+          <div className="flex gap-1">
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+              viewDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+              
+            }}>View Bill</ButtonCustom>
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+            editDialogCallbackFunc.current?.openDialog(true);
+            setReservationId(row.original.id);
+            
+          }}>Add Bill</ButtonCustom>
+          </div>
+          <div className="flex gap-1">
+          <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+            router.push(`/console/reservations/${row.original.id}/edit`);
+          }} >Edit</ButtonCustom>
+          <ButtonCustom type="button" variant={"red"} size={"sm"} onClick={() => {
+            setCancelId(row.original.id);
+            setOpenDialog(true);
+          }}>Cancel</ButtonCustom>
+          </div>
         </div>
       }
     },
   ];
 
+  const [openDiallog, setOpenDialog] = React.useState(false);
+  const [cancelId, setCancelId] = React.useState<string>('');
+  const [reservationId, setReservationId] = React.useState('');
+
   return (
-    <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
+    <>
+      <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
+      <section className="flex">
+        <Dialog open={openDiallog} onOpenChange={setOpenDialog}>
+          <DialogContent className="">
+            <DialogHeader>
+              <DialogTitle>Confirm!</DialogTitle>
+              <DialogDescription>Are you sure you want to cancel the reservation?</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <ButtonCustom variant={"red"} type="button" onClick={async () => {
+                setOpenDialog(false);
+                const action = document.createElement('input');
+                action.type = 'hidden';
+                action.name = 'actionVerb';
+                action.value = 'CANCEL';
+                formRef?.current?.appendChild(action);
+                const cancelIdInput = document.createElement('input');
+                cancelIdInput.type = 'hidden';
+                cancelIdInput.name = 'cancelId';
+                cancelIdInput.value = cancelId;
+                formRef?.current?.appendChild(cancelIdInput);
+                await formRef.current?.requestSubmit();
+              }}>Yes</ButtonCustom>
+              <DialogClose asChild>
+                <ButtonCustom variant="black" onClick={() => {
+                  setCancelId('');
+                  setOpenDialog(false);
+                }}>No</ButtonCustom>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </section>
+      <ReceiptDialog reservationId={reservationId} callbackFunctions={(func) => {receiptDialogCallbackFunc.current = func}} />
+      <PaymentDialog reservationId={reservationId} callbackFunctions={(func) => {paymentDialogCallbackFunc.current = func}} />
+      <BillEditDialog reservationId={reservationId} callbackFunctions={(func) => {editDialogCallbackFunc.current = func}} />
+      <BillDialog reservationId={reservationId} callbackFunctions={(func) => {viewDialogCallbackFunc.current = func}} />
+    </>
   )
 }

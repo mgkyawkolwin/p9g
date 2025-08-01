@@ -1,18 +1,15 @@
 "use client";
-import { RefObject, useActionState, useEffect } from "react";
+import { useActionState, useEffect } from "react";
 
-import { userGetList } from "@/app/(private)/console/users/actions";
 import { toast } from "sonner";
-import UserListTable from "@/components/tables/userlisttable";
 import c from "@/lib/core/logger/ConsoleLogger";
-import ReservationListTable from "@/components/tables/reservationlisttable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import CheckInTable from "@/components/tables/checkintable";
 import CustomerSearch from "@/components/searchs/customersearch";
-import CustomerTable from "@/components/tables/customertable";
-import { customerGetList, customerUpdate } from "./actions";
+// import CustomerTable from "@/components/tables/customertable";
+import { customerGetList } from "./actions";
 import React from "react";
 import { Loader } from "@/components/uicustom/loader";
+import CustomerTable from "@/components/tables/customertable";
 
 export default function CustomerList() {
   c.i("Client > CustomerList");
@@ -24,13 +21,8 @@ export default function CustomerList() {
     message: ""
   });
 
-  const [rowFromState, rowFormAction, rowFormIsPending] = useActionState(customerUpdate, {
-    error: false,
-    message: ""
-  });
-
   useEffect(() => {
-    if (state.error) {
+    if (state.message) {
       toast(state.message);
     }
   }, [state]);

@@ -1,6 +1,6 @@
 'use client';
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import { InputWithLabel } from "@/components/uicustom/inputwithlabel";
 import { Button } from "@/components/ui/button";
@@ -36,8 +36,8 @@ export default function SignIn({action} : { action: (state : FormState, formData
       action={formAction}
     >
         <div className="flex flex-col gap-4">
-          <InputWithLabel label="User Name"  name="userName" defaultValue={state.formData.get("userName")?.toString() ?? ""} />
-          <InputWithLabel label="Password" type="password" name="password" />
+          <InputWithLabel size="full" label="User Name"  name="userName" defaultValue={state.formData?.get("userName")?.toString() ?? ""} />
+          <InputWithLabel size="full" label="Password" type="password" name="password" />
           <Button disabled={isPending}>Sign In</Button>
         </div>
     </form>

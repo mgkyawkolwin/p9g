@@ -5,6 +5,7 @@ import { userGetList } from "@/app/(private)/console/users/actions";
 import { toast } from "sonner";
 import UserListTable from "@/components/tables/userlisttable";
 import c from "@/lib/core/logger/ConsoleLogger";
+import React from "react";
 
 export default function UserList() {
   c.i("Client > UserList");
@@ -14,6 +15,8 @@ export default function UserList() {
     message: ""
   });
 
+  const formRef = React.useRef(null);
+
   useEffect(() => {
     if(state.error){
       toast(state.message);
@@ -21,6 +24,9 @@ export default function UserList() {
   },[state]);
 
   return (
-    <UserListTable formState={state} formAction={formAction} isPending={isPending} />
+    <>
+    <form ref={formRef}></form>
+    <UserListTable formState={state} formAction={formAction} isPending={isPending} formRef={formRef} />
+    </>
   );
 }

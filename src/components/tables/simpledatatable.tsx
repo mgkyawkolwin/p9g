@@ -1,19 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-
+import { Button } from "@/components/ui/button";
 import {
   ColumnDef,
   ColumnFiltersState,
-  PaginationState,
-  SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
@@ -32,15 +27,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import c from "@/lib/core/logger/ConsoleLogger"
-import { SelectWithLabel } from "../uicustom/selectwithlabel"
-import { FormState } from "@/lib/types"
-
+} from "@/components/ui/table";
+import c from "@/lib/core/logger/ConsoleLogger";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: any;
+  data: TData[];
   showColVisibilityControl?:boolean;
 }
 
@@ -116,8 +108,8 @@ export default function SimpleDataTable<TData, TValue>({
       </DropdownMenu>
     </div>
     <div className="flex max-w-full">
-      <Table className="bg-[#e0e0e0] rounded-xl w-full border-[#333333]">
-        <TableHeader className="border-b-2 border-b-[#cccccc]">
+      <Table className="bg-[#e3e3e3] rounded-xl w-full">
+        <TableHeader className="bg-[#dddddd] rounded-t-xl border-b-2 border-b-[#aaaaaa]">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
@@ -143,7 +135,7 @@ export default function SimpleDataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-[#333333]">
+                    <TableCell key={cell.id} className="text-[#444444]">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

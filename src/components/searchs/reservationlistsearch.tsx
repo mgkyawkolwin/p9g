@@ -1,28 +1,25 @@
 
 import * as React from "react";
-import { SelectReservationStatus } from "../selects/selectreservationstatus";
-import { SelectReservationType } from "../selects/selectreservationtype";
-import { SelectPromotion } from "../selects/selectpromotion";
-import { InputDateRange } from "../uicustom/inputdaterange";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { SelectWithLabel } from "../uicustom/selectwithlabel";
-import { SelectList, SelectListSearch } from "@/lib/constants";
+import { SelectListSearch } from "@/lib/constants";
 import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
-import { Button } from "../ui/button";
 import { ButtonCustom } from "../uicustom/buttoncustom";
-import { Checkbox } from "../ui/checkbox";
-import { FormState } from "@/lib/types";
 
 
 const initialData = {
-    createdDateFrom: new Date().toLocaleDateString('sv-SE'),
-    createdDateUntil: new Date().toLocaleDateString('sv-SE'),
+    checkInDateUTC: undefined,
+    createdDateFrom: '',
+    createdDateUntil: '',
+    checkInDateFrom: '',
+    checkInDateUntil: '',
     id: "",
     name: "",
     prepaidPackage: "DEFAULT",
     promotionPackage: "DEFAULT",
     reservationStatus: "DEFAULT",
     reservationType: "DEFAULT",
+    remark:""
 };
 
 interface DataTableProps {
@@ -49,10 +46,11 @@ export default function ReservationListSearch({
                 <input type="hidden" name="searchPrepaidPackage" value={formData.prepaidPackage} />
             </div>
             <div className="flex gap-4 items-center">
-                <DateInputWithLabel type="date" name="searchCreatedFrom" label="Created From" defaultValue={formData.createdDateFrom} onChange={(e) => setFormData({...formData, createdDateFrom: e.target.value})} />
-                <DateInputWithLabel type="date" name="searchCreatedUntil" label="Until" defaultValue={formData.createdDateUntil} onChange={(e) => setFormData({...formData, createdDateUntil: e.target.value})}/>
-                <InputWithLabel name="searchId" label="Reservation ID" defaultValue={formData.id} onChange={(e) => setFormData({...formData, id: e.target.value})}/>
-                <InputWithLabel name="searchName" label="Customer Name" defaultValue={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}/>
+                <DateInputWithLabel type="date" name="searchCheckInDateFrom" label="Check-In From" defaultValue={formData.checkInDateFrom} onChange={(e) => setFormData({...formData, checkInDateFrom: e.target.value})} />
+                <DateInputWithLabel type="date" name="searchCheckInDateUntil" label="Until" defaultValue={formData.checkInDateUntil} onChange={(e) => setFormData({...formData, checkInDateUntil: e.target.value})}/>
+                <InputWithLabel size="md" name="searchId" label="Reservation ID" defaultValue={formData.id} onChange={(e) => setFormData({...formData, id: e.target.value})}/>
+                <InputWithLabel size="md" name="searchName" label="Customer Name" defaultValue={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}/>
+                <InputWithLabel size="md" name="searchRemark" label="Remark" defaultValue={formData.remark} onChange={(e) => setFormData({...formData, remark: e.target.value})}/>
                 <ButtonCustom onClick={() => formRef?.current?.requestSubmit()}>Search</ButtonCustom>
             </div>
         </section>

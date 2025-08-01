@@ -1,15 +1,10 @@
 'use server';
-//Ordered Imports
 
-//Local Imports
-import { User } from "@/data/orm/drizzle/mysql/schema"
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { userUpdateSchema } from '@/lib/zodschema';
-import { APIResponse } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { FormState } from "@/lib/types";
 import { HttpStatusCode } from "@/lib/constants";
+import { headers } from 'next/headers';
 
 export async function userGet(id : number): Promise<FormState> {
   try{
@@ -18,6 +13,10 @@ export async function userGet(id : number): Promise<FormState> {
     //retrieve user
     const response = await fetch(process.env.API_URL + `users/${id}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
     });
 
     //user retrieval fail
@@ -58,15 +57,16 @@ export async function userUpdate(formState : FormState, formData: FormData) : Pr
     }
 
     //form validation pass
-    const { id, name, email, password } = validatedFields.data;
+    const { id, userName, email, password } = validatedFields.data;
 
     //update user
     const response = await fetch(process.env.API_URL + `users/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
       },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ userName, email, password }),
     });
     
     //update user failed

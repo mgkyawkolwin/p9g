@@ -1,11 +1,11 @@
-import { CustomerEntity } from "@/data/orm/drizzle/mysql/schema";
+import Customer from "@/domain/models/Customer";
 import CustomerInformationTable from "../tables/customerinformationtable";
 import { Group, GroupContent, GroupTitle } from "../uicustom/group";
 
 
 interface GuestInformationFormProps {
-    data: CustomerEntity[];
-    setData: React.Dispatch<React.SetStateAction<CustomerEntity[]>>;
+    data: Customer[];
+    setData: React.Dispatch<React.SetStateAction<Customer[]>>;
 }
 
 export default function CustomerInformationForm({

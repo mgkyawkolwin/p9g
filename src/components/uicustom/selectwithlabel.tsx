@@ -5,14 +5,13 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 import { cva, type VariantProps } from "class-variance-authority";
+import { Label } from "../ui/label";
 
 const selectVariants = cva(
   "w-auto border-gray-300",

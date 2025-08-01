@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1751080329204,
-      "tag": "0001_Initial",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 17510803292045,
-      "tag": "0000_seed_test_data",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1751428493199,
-      "tag": "0002_chief_texas_twister",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1751428493200,
-      "tag": "0002_chief_texas_twister",
+      "when": 1754016679192,
+      "tag": "0000_version-1.0.0",
       "breakpoints": true
     }
   ]
