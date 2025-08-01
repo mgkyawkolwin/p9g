@@ -12,7 +12,7 @@ export const billTable = mysqlTable("bill", {
   itemName: varchar("itemName", {length: 100}).notNull(),
   unitPrice: decimal("unitPrice").notNull(),
   quantity: tinyint("quantity").notNull(),
-  amount: decimal("amountx").notNull(),
+  amount: decimal("amount").notNull(),
   isPaid: boolean("isPaid").notNull().default(false),
   paidOnUTC: datetime("paidOnUTC"),
   currency: char("currency", {length:3}),

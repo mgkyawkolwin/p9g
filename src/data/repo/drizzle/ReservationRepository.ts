@@ -8,7 +8,6 @@ import c from "@/lib/core/logger/ConsoleLogger";
 import { SQL, and, count, asc, desc, eq, ne, gte, between, lte, or, like, isNull, sum } from "drizzle-orm";
 import Reservation from "@/domain/models/Reservation";
 import { TransactionType } from "@/data/orm/drizzle/mysql/db";
-import { customer } from "@/drizzle/migrations/schema";
 import { alias } from "drizzle-orm/mysql-core";
 import Room from "@/domain/models/Room";
 import RoomReservation from "@/domain/dtos/RoomReservation";
@@ -357,7 +356,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id));
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id));
 
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
@@ -383,7 +382,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id))
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
             .offset(offset)
             .limit(pagerParams.pageSize);
 
@@ -539,7 +538,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id));
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id));
 
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
@@ -565,7 +564,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id))
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
             .offset(offset)
             .limit(pagerParams.pageSize);
 
@@ -786,7 +785,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id))
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
             .leftJoin(billTable, eq(billTable.reservationId, reservationTable.id))
             .where(eq(reservationTable.id, id));
 
@@ -865,7 +864,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id));
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id));
 
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
@@ -891,7 +890,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id))
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
             .offset(offset)
             .limit(pagerParams.pageSize);
 
@@ -1127,7 +1126,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customer.id))
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
             ;
         return query;
     }
@@ -1196,12 +1195,14 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         ).limit(1);
         if (prepaidPackage)
             reservation.prepaidPackageId = prepaidPackage.id;
+
         //retrieve and assign promotionPackageId
         const [promotionPackage] = await this.dbClient.db.select().from(promotionTable).where(
             eq(promotionTable.value, reservation.promotionPackage)
         ).limit(1);
         if (promotionPackage)
             reservation.promotionPackageId = promotionPackage.id;
+
         //retrieve and assign reservationTypeId
         const [reservationType] = await this.dbClient.db.select().from(configTable).where(
             and(
@@ -1211,6 +1212,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         ).limit(1);
         if (reservationType)
             reservation.reservationTypeId = reservationType.id;
+
         //retrieve and assign reservationStatusId
         const [reservationStatus] = await this.dbClient.db.select().from(configTable).where(
             and(
@@ -1220,6 +1222,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         ).limit(1);
         if (reservationStatus)
             reservation.reservationStatusId = reservationStatus.id;
+
         //retrieve and assign reservationTypeId
         const [pickUpType] = await this.dbClient.db.select().from(configTable).where(
             and(
@@ -1229,6 +1232,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         ).limit(1);
         if (pickUpType)
             reservation.pickUpTypeId = pickUpType.id;
+
         //retrieve and assign reservationTypeId
         const [dropOffType] = await this.dbClient.db.select().from(configTable).where(
             and(
