@@ -65,21 +65,23 @@ export default function CheckOutListTable({
       ),
     },
     {
-      accessorKey: "checkInCheckOut",
-      header: "Check-In / Check-Out",
+      accessorKey: "arrivalDeparture",
+      header: "Arrival / Departure",
       accessorFn: (row) => {
         return <span>
-          { new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')} - {new Date(row.checkOutDateUTC!).toLocaleDateString('sv-SE')}<br />
-          {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
+          {row.arrivalDateTimeUTC ? new Date(row.arrivalDateTimeUTC).toLocaleString('sv-SE') : ''} {row.arrivalFlight} {row.pickUpTypeText}<br />
+          {row.departureDateTimeUTC ? new Date(row.departureDateTimeUTC).toLocaleString('sv-SE') : ''} {row.departureFlight} {row.dropOffTypeText}</span>;
       },
       cell: (row) => row.getValue(),
     },
     {
-      accessorKey: "arrivalDeparture",
-      header: "Arrival / Departure",
+      accessorKey: "checkInCheckOut",
+      header: "Check-In / Check-Out",
       accessorFn: (row) => {
-        return <span>{row.arrivalDateTimeUTC ? new Date(row.arrivalDateTimeUTC).toLocaleString('sv-SE') : ''} {row.pickUpTypeText}<br />
-          {row.departureDateTimeUTC ? new Date(row.departureDateTimeUTC).toLocaleString('sv-SE') : ''} {row.dropOffTypeText}</span>;
+        return <span>
+          {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')}<br/>
+          {new Date(row.checkOutDateUTC!).toLocaleDateString('sv-SE')}<br />
+          {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
       cell: (row) => row.getValue(),
     },

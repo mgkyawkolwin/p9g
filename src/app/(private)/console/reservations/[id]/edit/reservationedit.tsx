@@ -67,7 +67,16 @@ export default function ReservationEdit({id}:{id:string}) {
       return;
 
     if(state.data.reservation){
-      setReservation(state.data.reservation);
+      //transform data first
+      const statersv = state.data.reservation;
+      const r = new Reservation();
+      Object.assign(r, statersv);
+      r.checkInDateUTC = statersv.checkInDateUTC ? new Date(statersv.checkInDateUTC) : undefined;
+      r.checkOutDateUTC = statersv.checkOutDateUTC ? new Date(statersv.checkOutDateUTC) : undefined;
+      r.arrivalDateTimeUTC = statersv.arrivalDateTimeUTC ? new Date(statersv.arrivalDateTimeUTC) : undefined;
+      r.departureDateTimeUTC = statersv.departureDateTimeUTC ? new Date(statersv.departureDateTimeUTC) : undefined;
+      r.depositDateUTC = statersv.depositDateUTC ? new Date(statersv.depositDateUTC) : undefined;
+      setReservation(r);
     }
       
 

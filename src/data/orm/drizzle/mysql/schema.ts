@@ -193,7 +193,7 @@ export const roomReservationTable = mysqlTable("roomReservation", {
   noOfExtraBed: tinyint().default(0),
   checkInDateUTC: datetime("checkInDateUTC", {mode: 'date', fsp: 3}).notNull(),
   checkOutDateUTC: datetime("checkOutDateUTC", {mode: 'date', fsp: 3}).notNull(), 
-  isSingleOccupancy: binary("isSingleOccupancy"),
+  isSingleOccupancy: boolean("isSingleOccupancy"),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
