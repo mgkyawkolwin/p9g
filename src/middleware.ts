@@ -8,7 +8,7 @@ export async function middleware(request : NextRequest) {
   try {
     //check session
     const session = await auth();
-    if(session){
+    if(session && session.user && session.user.id){
 
     }
     else{

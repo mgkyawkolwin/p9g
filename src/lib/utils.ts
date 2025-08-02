@@ -117,6 +117,24 @@ export function calculateDayDifference(startDate:Date, endDate: Date){
 }
 
 
+export function getCheckInDate(arrivalDate: Date){
+  if(arrivalDate.getHours() > 0 && arrivalDate.getHours() < 6){
+    return new Date(arrivalDate.getFullYear(), arrivalDate.getMonth(), arrivalDate.getDate(), 0, 0, 0, 0);
+  }else{
+    return new Date(arrivalDate.getFullYear(), arrivalDate.getMonth(), arrivalDate.getDate() + 1, 0, 0, 0, 0);
+  }
+}
+
+
+export function getCheckOutDate(departureDate: Date){
+  if(departureDate.getHours() > 0 && departureDate.getHours() < 6){
+    return new Date(departureDate.getFullYear(), departureDate.getMonth(), departureDate.getDate() - 1, 0, 0, 0, 0);
+  }else{
+    return new Date(departureDate.getFullYear(), departureDate.getMonth(), departureDate.getDate(), 0, 0, 0, 0);
+  }
+}
+
+
 export function getCurrentMonthFirstDate(): Date{
   const today = new Date();
   return new Date(today.getFullYear(), today.getMonth(), 1);

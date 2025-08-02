@@ -38,7 +38,6 @@ export default function CustomerEditForm({ onSaved, openCallback }: CustomerEdit
     };
 
     const setEditCustomer = (customer: Customer) => {
-        c.d('XXXXXXXXXXXXXXXXXXXXXX');c.d(customer);
         setCustomer(customer);
     };
 
