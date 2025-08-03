@@ -87,7 +87,6 @@ export function MainMenu() {
       >
         Settings
       </Link>
-      <SignOutButton action={signOutAction}/>
     </div>
   );
 }
