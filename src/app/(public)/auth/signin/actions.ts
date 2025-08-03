@@ -30,7 +30,7 @@ export async function signInAction(state : FormState, formData:FormData){
         const user = await response.json();
 
         // valid credentials, sign the user in
-        await signIn('credentials',  {redirect : false, name:user.userName, id: user.id, role: user.role});
+        await signIn('credentials',  {redirect : false, name:user.userName, id: user.id, role: user.role, location: user.location});
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
         return {error: true,  message: "Unknown error.", formData: formData};
