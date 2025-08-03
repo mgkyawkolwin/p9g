@@ -9,6 +9,7 @@ import Customer from "@/domain/models/Customer";
 import Reservation from "@/domain/models/Reservation";
 import { updateReservationAction } from "@/app/(private)/console/reservations/[id]/edit/actions";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface ReservationDetailEditFormProps {
     customers?: Customer[];
@@ -22,6 +23,7 @@ export default function ReservationDetailEditForm({
     c.i('Client > ReservationDetailEditForm');
 
     const detailFormRef = React.useRef<{ resetForm: () => void }>(null);
+    const router = useRouter();
 
     const [state, formAction, isPending] = React.useActionState(updateReservationAction, {
         error: false,
@@ -53,9 +55,9 @@ export default function ReservationDetailEditForm({
                         <ButtonCustom variant={"green"} disabled={isPending} onClick={() => {
                             
                         }}>Update Reservation</ButtonCustom>
-                        <ButtonCustom variant={"red"} disabled={isPending} onClick={() => {
-                            
-                        }}>Cancel</ButtonCustom>
+                        <ButtonCustom type="button" variant={"red"} disabled={isPending} onClick={() => {
+                            window.location.reload();
+                        }}>Cancel Update</ButtonCustom>
                     </div>
                     </div>
                 </GroupContent>
