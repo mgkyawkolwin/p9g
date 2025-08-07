@@ -11,8 +11,9 @@ const reservationColors = [
 ];
 
 const getColorForUUID = (uuid: string) => {
-  const hash = uuid.split('-').reduce((acc, segment) => 
-    acc + parseInt(segment.slice(0, 2), 16), 0);
+  // const hash = uuid.split('-').reduce((acc, segment) => 
+  //   acc + parseInt(segment.slice(0, 2), 16), 0);
+  const hash = parseInt(uuid.slice(0, 8), 16);
   return reservationColors[hash % reservationColors.length];
 };
 
