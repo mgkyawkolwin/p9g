@@ -3,6 +3,10 @@ import * as React from "react";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
 import { ButtonCustom } from "../uicustom/buttoncustom";
+import { Label } from "../ui/label";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { InputCustom } from "../uicustom/inputcustom";
 
 
 const initialData = {
@@ -22,23 +26,35 @@ interface DataTableProps {
 
 export default function CheckInListSearch({
     formRef
-  }: DataTableProps){
+}: DataTableProps) {
 
     const [formData, setFormData] = React.useState(initialData);
 
     return (
         <section aria-label="Reservatoin List Search" className="flex w-full flex-col gap-4">
             <div className="flex gap-4 items-center">
-                <DateInputWithLabel type="date" name="" label="Check-In Date" defaultValue={formData.checkInDate.toLocaleDateString('sv-SE')} onChange={(e) => setFormData({...formData, checkInDate: new Date(new Date(e.target.value).toDateString())})} />
-                <input type="hidden" name="searchCheckInDate" defaultValue={formData.checkInDate.toISOString()} />
-                <InputWithLabel size="md" name="searchId" label="Reservation ID" defaultValue={formData.id} onChange={(e) => setFormData({...formData, id: e.target.value})}/>
-                <InputWithLabel size="md" name="searchRemark" label="Remark" defaultValue={formData.remark} onChange={(e) => setFormData({...formData, remark: e.target.value})}/>
+                {/* <DateInputWithLabel type="date" name="" label="Check-In Date" defaultValue={formData.checkInDate.toLocaleDateString('sv-SE')} onChange={(e) => setFormData({ ...formData, checkInDate: new Date(new Date(e.target.value).toDateString()) })} /> */}
+                <Label>Check-In Date</Label>
+                <DatePicker
+                    selected={formData.checkInDate}
+                    onChange={(date: Date | null) => {
+                        setFormData(prev => ({ ...prev, checkInDate: date }))
+                    }}
+                    dateFormat="yyyy-MM-dd"
+                    customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
+                    placeholderText="yyyy-mm-dd"
+                    isClearable={true}
+                    showIcon
+                />
+                <input type="hidden" name="searchCheckInDate" defaultValue={formData.checkInDate ? formData.checkInDate.toISOString() : ''} />
+                <InputWithLabel size="md" name="searchId" label="Reservation ID" defaultValue={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} />
+                <InputWithLabel size="md" name="searchRemark" label="Remark" defaultValue={formData.remark} onChange={(e) => setFormData({ ...formData, remark: e.target.value })} />
             </div>
             <div className="flex gap-4 items-center">
-                <InputWithLabel size="md" name="searchName" label="Customer Name" defaultValue={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}/>
-                <InputWithLabel size="md" name="searchNationalId" label="National ID" defaultValue={formData.nationalId} onChange={(e) => setFormData({...formData, nationalId: e.target.value})}/>
-                <InputWithLabel size="md" name="searchPassport" label="Passport" defaultValue={formData.passport} onChange={(e) => setFormData({...formData, passport: e.target.value})}/>
-                <InputWithLabel size="md" name="searchPhone" label="Phone" defaultValue={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}/>
+                <InputWithLabel size="md" name="searchName" label="Customer Name" defaultValue={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                <InputWithLabel size="md" name="searchNationalId" label="National ID" defaultValue={formData.nationalId} onChange={(e) => setFormData({ ...formData, nationalId: e.target.value })} />
+                <InputWithLabel size="md" name="searchPassport" label="Passport" defaultValue={formData.passport} onChange={(e) => setFormData({ ...formData, passport: e.target.value })} />
+                <InputWithLabel size="md" name="searchPhone" label="Phone" defaultValue={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
                 <ButtonCustom onClick={() => formRef?.current?.requestSubmit()}>Search</ButtonCustom>
             </div>
         </section>

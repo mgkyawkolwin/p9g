@@ -112,7 +112,7 @@ export abstract class Repository<TEntity extends IEntity, TTable extends  IDrizz
   }
 
 
-  async findById(id: number): Promise<TEntity | null> {
+  async findById(id: string): Promise<TEntity | null> {
     const [record] = await this.dbClient.db
       .select()
       .from(this.table)
@@ -196,7 +196,7 @@ export abstract class Repository<TEntity extends IEntity, TTable extends  IDrizz
   }
 
 
-  async delete(id: string | number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     await this.dbClient.db.delete(this.table).where(eq(this.table._.columns.id as MySqlColumn, id));
     const [record] = await this.dbClient.db
       .select()

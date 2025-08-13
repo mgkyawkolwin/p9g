@@ -110,7 +110,7 @@ describe('RoomRateEngine', () => {
         reservation.checkOutDateUTC = new Date('2025-01-10T00:00:00.000Z');
 
         const roomCharges : MonthDetail[] = RoomRateEngine.getMonthlyDateSegments(reservation.checkInDateUTC, reservation.checkOutDateUTC);
-        console.log(roomCharges);
+        // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(1);
         expect(roomCharges[0].noOfDays).toEqual(10);
@@ -123,7 +123,7 @@ describe('RoomRateEngine', () => {
         reservation.checkOutDateUTC = new Date('2025-03-05T00:00:00.000Z');
 
         const roomCharges = RoomRateEngine.getMonthlyDateSegments(reservation.checkInDateUTC, reservation.checkOutDateUTC);
-        console.log(roomCharges);
+        // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(2);
         expect(roomCharges[0].noOfDays).toEqual(5);
@@ -147,7 +147,7 @@ describe('RoomRateEngine', () => {
         roomReservations.push(roomReservation);
 
         const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-        console.log(roomCharges);
+        // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(1);
         expect(roomCharges[0].totalRate).toEqual(65000);
@@ -174,7 +174,7 @@ describe('RoomRateEngine', () => {
       roomReservations.push(roomReservation);
 
       const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-      console.log(roomCharges);
+      // console.log(roomCharges);
 
       expect(roomCharges.length).toEqual(1);
       expect(roomCharges[0].totalRate).toEqual(85000);
@@ -201,7 +201,7 @@ describe('RoomRateEngine', () => {
       roomReservations.push(roomReservation);
 
       const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-      console.log(roomCharges);
+      // console.log(roomCharges);
 
       expect(roomCharges.length).toEqual(1);
       expect(roomCharges[0].totalRate).toEqual(75000);
@@ -228,7 +228,7 @@ describe('RoomRateEngine', () => {
       roomReservations.push(roomReservation);
 
       const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-      console.log(roomCharges);
+      // console.log(roomCharges);
 
       expect(roomCharges.length).toEqual(1);
       expect(roomCharges[0].totalRate).toEqual(95000);
@@ -255,7 +255,7 @@ describe('RoomRateEngine', () => {
         roomReservations.push(roomReservation);
 
         const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-        console.log(roomCharges);
+        // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(1);
         expect(roomCharges[0].totalRate).toEqual(65000);
@@ -282,7 +282,7 @@ describe('RoomRateEngine', () => {
         roomReservations.push(roomReservation);
 
         const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-        console.log(roomCharges);
+        // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(2);
 
@@ -323,7 +323,7 @@ describe('RoomRateEngine', () => {
         roomReservations.push(roomReservation);
 
         const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-        console.log(roomCharges);
+        // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(1);
         expect(roomCharges[0].totalRate).toEqual(0);
@@ -351,7 +351,7 @@ describe('RoomRateEngine', () => {
       roomReservations.push(roomReservation);
 
       const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-      console.log(roomCharges);
+      // console.log(roomCharges);
 
       expect(roomCharges.length).toEqual(1);
       expect(roomCharges[0].totalRate).toEqual(20000);
@@ -379,7 +379,7 @@ describe('RoomRateEngine', () => {
       roomReservations.push(roomReservation);
 
       const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-      console.log(roomCharges);
+      // console.log(roomCharges);
 
       expect(roomCharges.length).toEqual(1);
       expect(roomCharges[0].totalRate).toEqual(5000);
@@ -407,7 +407,7 @@ describe('RoomRateEngine', () => {
       roomReservations.push(roomReservation);
 
       const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-      console.log(roomCharges);
+      // console.log(roomCharges);
 
       expect(roomCharges.length).toEqual(1);
       expect(roomCharges[0].totalRate).toEqual(25000);
@@ -435,7 +435,7 @@ describe('RoomRateEngine', () => {
         roomReservations.push(roomReservation);
 
         const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-        console.log(roomCharges);
+        // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(1);
         expect(roomCharges[0].totalRate).toEqual(0);
@@ -463,8 +463,8 @@ describe('RoomRateEngine', () => {
         roomReservations.push(roomReservation);
 
         const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-        console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx')
-        console.log(roomCharges);
+        // console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx')
+        // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(2);
 
@@ -501,7 +501,7 @@ describe('RoomRateEngine', () => {
         roomReservations.push(roomReservation);
 
         const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-        console.log(roomCharges);
+        // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(2);
 
@@ -538,7 +538,7 @@ describe('RoomRateEngine', () => {
         roomReservations.push(roomReservation);
 
         const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-        console.log(roomCharges);
+        // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(2);
 
@@ -575,9 +575,9 @@ describe('RoomRateEngine', () => {
         roomReservations.push(roomReservation);
 
         const roomCharges = RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
-        console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO')
-        console.log(roomReservations)
-        console.log(roomCharges);
+        // console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO')
+        // console.log(roomReservations)
+        // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(2);
 

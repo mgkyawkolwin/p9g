@@ -14,18 +14,18 @@ export default interface IRepository<TEntity> {
 
   findAll(pagerParams : PagerParams): Promise<TEntity[]>;
 
-  findById(id: number): Promise<TEntity | null>;
+  findById(id: string): Promise<TEntity | null>;
 
   findOne(where?: SQL | undefined): Promise<TEntity | null>;
 
   findMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[TEntity[], PagerParams]>;
 
   update(
-    id: string | number,
+    id: string,
     data: Partial<Omit<TEntity, "id" | "createdAt" | "updatedAt">>
   ): Promise<TEntity>;
 
-  delete(id: string | number): Promise<boolean>;
+  delete(id: string): Promise<boolean>;
   
   exists(where?: SQL | undefined): Promise<boolean>;
 

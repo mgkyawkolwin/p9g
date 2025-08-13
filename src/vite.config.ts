@@ -20,10 +20,11 @@ export default defineConfig({
     },
     globals: true,
     environment: 'jsdom',
-    //setupFiles: './src/tests/setup.ts', // optional setup file
+    setupFiles: 'vitest.setup.ts', // optional setup file
     // Include any Next.js specific globals you need
     coverage: {
-      provider: 'v8'
+      provider: 'v8',
+      reportsDirectory: 'test-results/unit/vitest-coverage'
     }
   }
 })

@@ -5,61 +5,77 @@ import ReservationDetailForm from "../basicforms/reservationdetailform";
 import { Group, GroupContent, GroupTitle } from "../uicustom/group";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom";
-import { saveReservation } from "@/app/(private)/console/reservations/new/actions";
+import { saveReservationAction } from "@/app/(private)/console/reservations/new/actions";
 import { toast } from "sonner";
 import Customer from "@/domain/models/Customer";
 import Reservation from "@/domain/models/Reservation";
+import { Loader } from "../uicustom/loader";
 
 interface ReservationDetailNewFormProps {
-    customers?: Customer[]
+    customers?: Customer[];
+    onReservationSaved: () => void;
 }
 
-export default function ReservationDetailNewForm({customers}: ReservationDetailNewFormProps)  {
+export default function ReservationDetailNewForm({ customers, onReservationSaved }: ReservationDetailNewFormProps) {
     c.i('Client > ReservationDetailNewForm');
 
-    const [state, formAction, isPending] = React.useActionState(saveReservation,
-        {
-            error:false,
-            message:'',
-            reload: false
-        });
+    const [isPending, setIsPending] = React.useState(false);
+    const [reservation, setReservation] = React.useState(new Reservation());
 
-    const formRef = React.useRef(undefined);
-    const detailFormRef = React.useRef<{ resetForm: () => void }>(null);
+    const detailFormRef = React.useRef<{ resetForm: () => void, getReservation?: () => Reservation }>(null);
 
-    function clearForm(){
+
+    function clearForm() {
         detailFormRef.current?.resetForm();
     }
 
-    React.useEffect(() => {
-        if(state.message)
-            toast(state.message);
-        if(state.reload){
-            //router.replace(`/console/reservations/new/?id=${Date.now()}`);
-            window.location.reload();
+
+    async function saveAndCopyReservation() {
+        setIsPending(true);
+        const r = detailFormRef.current?.getReservation();
+        r.customers = customers.map(c => ({ id: c.id } as Customer))
+        const response = await saveReservationAction(JSON.parse(JSON.stringify(r)) as unknown as Reservation);
+        if (response.message) toast(response.message);
+        if (!response.error && onReservationSaved) onReservationSaved();
+        setIsPending(false);
+    }
+
+
+    async function saveReservation() {
+        setIsPending(true);
+        const r = detailFormRef.current?.getReservation();
+        r.customers = customers.map(c => ({ id: c.id } as Customer))
+        const response = await saveReservationAction(JSON.parse(JSON.stringify(r)) as unknown as Reservation);
+        if (response.message) toast(response.message);
+        if (!response.error && onReservationSaved) {
+            onReservationSaved();
+            setReservation(new Reservation());
         }
-    },[state]);
+        setIsPending(false);
+    }
+
 
     return (
-        <form ref={formRef} action={formAction}>
+        <div>
+            <Loader isLoading={isPending} />
             <div className="flex flex-col">
-            <Group className="flex h-full">
-                <GroupTitle>
-                    Reservation Details (New)
-                </GroupTitle>
-                <GroupContent>
-                    <div className="flex flex-col gap-4">
-                    <ReservationDetailForm ref={detailFormRef} initialReservation={new Reservation()} />
-                    <div className="flex gap-4">
-                        <ButtonCustom type="button" variant={"green"} disabled={isPending} onClick={() => formRef.current?.requestSubmit()} >Create Reservation</ButtonCustom>
-                        <ButtonCustom type="button" variant={"red"} disabled={isPending} onClick={() => clearForm()}>Clear Form</ButtonCustom>
-                    </div>
-                    </div>
-                </GroupContent>
-            </Group>
+                <Group className="flex h-full">
+                    <GroupTitle>
+                        Reservation Details (New)
+                    </GroupTitle>
+                    <GroupContent>
+                        <div className="flex flex-col gap-4">
+                            <ReservationDetailForm ref={detailFormRef} initialReservation={reservation} />
+                            <div className="flex gap-4">
+                                <ButtonCustom type="button" variant={"green"} disabled={isPending} onClick={() => saveReservation()} >Create Reservation</ButtonCustom>
+                                <ButtonCustom type="button" variant={"green"} disabled={isPending} onClick={() => saveAndCopyReservation()} >Create & Copy</ButtonCustom>
+                                <ButtonCustom type="button" variant={"red"} disabled={isPending} onClick={() => clearForm()}>Clear Form</ButtonCustom>
+                            </div>
+                        </div>
+                    </GroupContent>
+                </Group>
+            </div>
         </div>
-        <input type="hidden" name="customers" value={JSON.stringify(customers?.map(c => ({id:c.id})))} />
-        </form>
 
     );
 };

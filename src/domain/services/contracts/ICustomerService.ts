@@ -4,14 +4,14 @@ import { PagerParams, SearchParam } from "@/lib/types";
 
 export default interface ICustomerService {
 
-    customerDelete(id : number) : Promise<boolean>;
+    customerDelete(id : string) : Promise<boolean>;
 
     customerFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[Customer[],PagerParams]>;
 
-    customerFindById(id : number) : Promise<Customer | null>;
+    customerFindById(id : string) : Promise<Customer | null>;
 
     customerCreate(customer : Customer) : Promise<Customer>;
 
-    customerUpdate(id:number, user : Customer) : Promise<Customer>;
+    customerUpdate(id:string, user : Customer) : Promise<Customer>;
     
 }
