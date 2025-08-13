@@ -21,7 +21,7 @@ export default class CustomerService implements ICustomerService{
     }
 
 
-    async customerDelete(id: number): Promise<boolean> {
+    async customerDelete(id: string): Promise<boolean> {
         c.i('CustomerService > CustomerDelete');
         return await this.CustomerRepository.delete(id);
     }
@@ -40,14 +40,14 @@ export default class CustomerService implements ICustomerService{
     // }
 
 
-    async customerFindById(id: number): Promise<Customer | null> {
+    async customerFindById(id: string): Promise<Customer | null> {
       c.i('CustomerService > CustomerFindById');
       c.d(String(id));
       return await this.CustomerRepository.findById(id);
     }
 
 
-    async customerUpdate(id:number, CustomerPosted: Customer): Promise<Customer> {
+    async customerUpdate(id:string, CustomerPosted: Customer): Promise<Customer> {
       c.i('CustomerService > CustomerUpdate');
       return await this.CustomerRepository.update(id, CustomerPosted);
     }

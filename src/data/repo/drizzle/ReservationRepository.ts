@@ -396,13 +396,19 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         return eq(reservationTypeAlias.value, searchParam.searchValue);
                     }
                     if (searchParam.searchColumn === 'checkInDateUTC') {
-                        return eq(reservationTable.checkInDateUTC, new Date(searchParam.searchValue));
+                        let d: Date = new Date(searchParam.searchValue);
+                        d.setHours(0, 0, 0, 0);
+                        return eq(reservationTable.checkInDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'checkOutDateUTC') {
-                        return eq(reservationTable.checkOutDateUTC, new Date(searchParam.searchValue));
+                        let d: Date = new Date(searchParam.searchValue);
+                        d.setHours(0, 0, 0, 0);
+                        return eq(reservationTable.checkOutDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdFrom') {
-                        return gte(reservationTable.createdAtUTC, new Date(searchParam.searchValue));
+                        let d: Date = new Date(searchParam.searchValue);
+                        d.setHours(0, 0, 0, 0);
+                        return gte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdUntil') {
                         let d: Date = new Date(searchParam.searchValue);
@@ -578,13 +584,19 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         return eq(reservationTypeAlias.value, searchParam.searchValue);
                     }
                     if (searchParam.searchColumn === 'checkInDateUTC') {
-                        return eq(reservationTable.checkInDateUTC, new Date(searchParam.searchValue));
+                        let d: Date = new Date(searchParam.searchValue);
+                        d.setHours(0, 0, 0, 0);
+                        return eq(reservationTable.checkInDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'checkOutDateUTC') {
-                        return eq(reservationTable.checkOutDateUTC, new Date(searchParam.searchValue));
+                        let d: Date = new Date(searchParam.searchValue);
+                        d.setHours(0, 0, 0, 0);
+                        return eq(reservationTable.checkOutDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdFrom') {
-                        return gte(reservationTable.createdAtUTC, new Date(searchParam.searchValue));
+                        let d: Date = new Date(searchParam.searchValue);
+                        d.setHours(0, 0, 0, 0);
+                        return gte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdUntil') {
                         let d: Date = new Date(searchParam.searchValue);
@@ -937,13 +949,19 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         return eq(reservationTypeAlias.value, searchParam.searchValue);
                     }
                     if (searchParam.searchColumn === 'checkInDateUTC') {
-                        return eq(reservationTable.checkInDateUTC, new Date(searchParam.searchValue));
+                        let d: Date = new Date(searchParam.searchValue);
+                        d.setHours(0, 0, 0, 0);
+                        return eq(reservationTable.checkInDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'checkOutDateUTC') {
-                        return eq(reservationTable.checkOutDateUTC, new Date(searchParam.searchValue));
+                        let d: Date = new Date(searchParam.searchValue);
+                        d.setHours(0, 0, 0, 0);
+                        return eq(reservationTable.checkOutDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdFrom') {
-                        return gte(reservationTable.createdAtUTC, new Date(searchParam.searchValue));
+                        let d: Date = new Date(searchParam.searchValue);
+                        d.setHours(0, 0, 0, 0);
+                        return gte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdUntil') {
                         let d: Date = new Date(searchParam.searchValue);
@@ -951,7 +969,9 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         return lte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'checkInDateFrom') {
-                        return gte(reservationTable.checkInDateUTC, new Date(searchParam.searchValue));
+                        let d: Date = new Date(searchParam.searchValue);
+                        d.setHours(0, 0, 0, 0);
+                        return gte(reservationTable.checkInDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'checkInDateUntil') {
                         let d: Date = new Date(searchParam.searchValue);

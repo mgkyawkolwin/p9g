@@ -86,7 +86,7 @@ export default function ReceiptDialog({
         if(r.message)
             toast(r.message);
         if(r.data){
-            setReservation(r.data);
+            setReservation(r.data.reservation as unknown as Reservation);
         }
     };
     fetchData();

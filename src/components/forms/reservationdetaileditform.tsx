@@ -10,62 +10,64 @@ import Reservation from "@/domain/models/Reservation";
 import { updateReservationAction } from "@/app/(private)/console/reservations/[id]/edit/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Loader } from "../uicustom/loader";
 
 interface ReservationDetailEditFormProps {
     customers?: Customer[];
     reservation: Reservation;
+    onReservationSaved?: () => void;
 }
 
 export default function ReservationDetailEditForm({
     customers,
-    reservation
+    reservation,
+    onReservationSaved
 }: ReservationDetailEditFormProps) {
     c.i('Client > ReservationDetailEditForm');
 
-    const detailFormRef = React.useRef<{ resetForm: () => void }>(null);
     const router = useRouter();
 
-    const [state, formAction, isPending] = React.useActionState(updateReservationAction, {
-        error: false,
-        message:''
-    });
+    const [isPending, setIsPending] = React.useState(false);
 
-    // function clearForm(){
-    //     detailFormRef.current?.resetForm();
-    // }
+    const detailFormRef = React.useRef<{ resetForm: () => void, getReservation?: () => Reservation }>(null);
 
-    React.useEffect(() => {
-        if(state.message)
-            toast(state.message);
-        if(state.reload)
-            window.location.reload();
-    },[state]);
+
+    async function saveReservation() {
+        setIsPending(true);
+        const r = detailFormRef.current?.getReservation();
+        r.customers = customers.map(c => ({ id: c.id } as Customer))
+        const response = await updateReservationAction(JSON.parse(JSON.stringify(r)) as unknown as Reservation);
+        setIsPending(false);
+        if (response.message) toast(response.message);
+        if (!response.error) {
+            if(onReservationSaved) onReservationSaved();
+            router.push('/console/reservations');
+        }
+    }
+
 
     return (
-        <form className="flex h-full" action={formAction}>
-            <div className="flex flex-col">
+        <div className="flex flex-col">
+            <Loader isLoading={isPending} />
             <Group className="flex h-full">
                 <GroupTitle>
                     Reservation Details (Edit)
                 </GroupTitle>
                 <GroupContent>
                     <div className="flex flex-col gap-4">
-                    <ReservationDetailForm ref={detailFormRef} initialReservation={reservation} />
-                    <div className="flex gap-4">
-                        <ButtonCustom variant={"green"} disabled={isPending} onClick={() => {
-                            
-                        }}>Update Reservation</ButtonCustom>
-                        <ButtonCustom type="button" variant={"red"} disabled={isPending} onClick={() => {
-                            window.location.reload();
-                        }}>Cancel Update</ButtonCustom>
-                    </div>
+                        <ReservationDetailForm ref={detailFormRef} initialReservation={reservation} />
+                        <div className="flex gap-4">
+                            <ButtonCustom type="button" variant={"green"} disabled={isPending} onClick={() => {
+                                saveReservation();
+                            }}>Update Reservation</ButtonCustom>
+                            <ButtonCustom type="button" variant={"red"} disabled={isPending} onClick={() => {
+                                window.location.reload();
+                            }}>Reset</ButtonCustom>
+                        </div>
                     </div>
                 </GroupContent>
             </Group>
         </div>
-        <input type="hidden" name="id" defaultValue={reservation.id} />
-        <input type="hidden" name="customers" defaultValue={JSON.stringify(customers?.map(c => ({id:c.id})))} />
-        </form>
 
     );
 };

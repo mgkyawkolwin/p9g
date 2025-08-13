@@ -24,7 +24,7 @@ export default class UserService implements IUserService{
 
     async userDelete(id: number): Promise<boolean> {
       c.i('UserService > userDelete');
-      const result = await this.userRepository.delete(id);
+      const result = await this.userRepository.delete(String(id));
       return result;
     }
 
@@ -67,14 +67,14 @@ export default class UserService implements IUserService{
     async userFindById(id: number): Promise<UserEntity | null> {
       c.i('UserService > userFindById');
       c.d(String(id));
-      const result = await this.userRepository.findById(id);
+      const result = await this.userRepository.findById(String(id));
       return result;
     }
 
 
     async userUpdate(id:number, userPosted: UserEntity): Promise<UserEntity> {
       c.i('UserService > userUpdate');
-      const result = await this.userRepository.update(id, userPosted);
+      const result = await this.userRepository.update(String(id), userPosted);
       return result;
     }
 

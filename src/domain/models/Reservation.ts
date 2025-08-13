@@ -3,7 +3,7 @@ import Customer from "./Customer";
 
 
 export default class Reservation{
-    public id: string = '';
+    public id: string = undefined;
     // public arrivalDateTime: string | undefined;
     public arrivalDateTimeUTC: Date | undefined;
     public arrivalFlight: string = '';
@@ -32,7 +32,7 @@ export default class Reservation{
     public dropOffTypeText!: string;
     public isSingleOccupancy: boolean = false;
     public noOfDays: number = 0;
-    public noOfGuests: number = 0;
+    public noOfGuests: number = 2;
     public pickUpCarNo: string | undefined;
     public pickUpDriver: string|undefined;
     public pickUpFee: number = 0;

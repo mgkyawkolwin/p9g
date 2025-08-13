@@ -4,22 +4,14 @@ import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
 import { headers } from 'next/headers';
+import Reservation from '@/domain/models/Reservation';
 
-export async function newReservationAction(formState : FormState, formData: FormData): Promise<FormState> {
+export async function getTopReservationsAction(): Promise<FormState> {
   try{
-    c.i("----------------------------------------------------------");
     c.i('Actions > /console/reservations/new > newReservationAction');
-    c.d(Object.fromEntries(formData.entries()));
 
     let queryString = null;
-    //let customers = [];
     const message = "";
-
-    c.i("Finding form action for further processing.");
-    const formObject = Object.fromEntries(
-      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
-    );
-    c.d(formObject);
 
     c.i("Retrieving latest reservation list.")
     //define default pageer fields for new reservation list
@@ -28,7 +20,7 @@ export async function newReservationAction(formState : FormState, formData: Form
     c.d(queryString);
     
     c.i("Request api to retrieve latest 10 reservations");
-    const response = await fetch(process.env.API_URL + `reservations?${queryString}`, {
+    const response = await fetch(process.env.API_URL + `reservations?${queryString}&list=top`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -61,19 +53,15 @@ export async function newReservationAction(formState : FormState, formData: Form
 }
 
 
-export async function saveReservation(formState : FormState, formData: FormData): Promise<FormState> {
+export async function saveReservationAction(reservation: Reservation): Promise<FormState> {
     try{
-      c.i("Action > saveReservation");
-      const formObject = Object.fromEntries(
-        Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
-      );
-      c.d(formObject);
-      const reservationFields = reservationValidator.safeParse(formObject);
-      c.d(reservationFields);
+      c.i("Action > saveReservation");c.d('aaa')
+      c.d(JSON.stringify(reservation));c.d('hhh')
 
-      if (!reservationFields.success) {
-        c.i("Reservation fields validation failed. Return response.");
-        return { error: true, message: `Invalid inputs. ${reservationFields.error?.issues[0]?.message}`};
+      const validatedReservation = await reservationValidator.safeParseAsync(reservation);
+      if(!validatedReservation.success){
+        c.d(validatedReservation.error.flatten())
+        return { error: true, message: `Failed to create reservation. Invalid inputs.`};
       }
 
       //update user
@@ -85,7 +73,7 @@ export async function saveReservation(formState : FormState, formData: FormData)
           'cookie': (await headers()).get('cookie')
         },
         //credentials: 'include',
-        body: JSON.stringify(reservationFields.data)
+        body: JSON.stringify(reservation)
       });
       const responseData = await response.json();
       
@@ -97,11 +85,12 @@ export async function saveReservation(formState : FormState, formData: FormData)
       }
 
       c.i("Create reservation successful.");
-      const reservation = responseData.data;
+      //const reservation = responseData.data;
       //c.d(reservation);
 
       return {error:false, message:'Save reservation successful.', reload:true};
     }catch(error){
+      c.e(error instanceof Error ? error.message : String(error));
       return {error:true, message:'Save reservation failed.', reload:true};
     }
 }

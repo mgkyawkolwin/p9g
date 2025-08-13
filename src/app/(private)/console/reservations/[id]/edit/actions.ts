@@ -4,52 +4,23 @@ import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
 import { headers } from 'next/headers';
+import Reservation from '@/domain/models/Reservation';
 
-export async function editReservationAction(formState : FormState, formData: FormData): Promise<FormState> {
+export async function getTopReservationsAction(): Promise<FormState> {
   try{
-    c.i('Actions > /console/reservations/[id] > editReservationAction');
-    c.d(Object.fromEntries(formData.entries()));
+    c.i('Actions > /console/reservations/new > newReservationAction');
 
-    let queryString = '';
+    let queryString = null;
     const message = "";
 
-    c.i("Finding form action for further processing.");
-    const formObject = Object.fromEntries(
-      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
-    );
-    const { id } = formObject;
-
-    //first retrieve reservation to edit
-    const getReservationResponse = await fetch(process.env.API_URL + `reservations/${id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'cookie': (await headers()).get('cookie')
-      }
-    });
-    
-    //retrieve user failed
-    if (!getReservationResponse.ok) {
-      c.i("Retrieve reservation api response failed. Return response.");
-      const errorData = await getReservationResponse.json();
-      c.e(errorData.message);
-      return { error: true, message: 'Failed to retrieve reservation.', data: null, formData: null};
-    }
-
-    c.i("Retrieve reservation successful.");
-    const reservationData = await getReservationResponse.json();
-    const reservation = reservationData.data;
-    c.d(reservation);
-
-
-    c.i("Retrieving latest reservation list.");
+    c.i("Retrieving latest reservation list.")
     //define default pageer fields for new reservation list
-    const pager = {orderBy: "createdAtUTC", orderDirection: "desc", pageIndex: 1, pageSize: 10, pages: 0, records: 0};
+    const pager = {orderBy: "createdAtUTC", orderDirection: "desc", pageIndex: 1, pageSize: 10};
     queryString = buildQueryString(pager);
     c.d(queryString);
     
     c.i("Request api to retrieve latest 10 reservations");
-    const response = await fetch(process.env.API_URL + `reservations?${queryString}`, {
+    const response = await fetch(process.env.API_URL + `reservations?${queryString}&list=top`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -60,19 +31,19 @@ export async function editReservationAction(formState : FormState, formData: For
 
     //fail
     if(!response.ok){
-      c.i("Reservaton retrieval failed. Return response.");
+      c.i("Reservation retrieval failed. Return response.");
       return {error:true, message : `Reservation list retrieval failed. ${responseData.message}`};
     }
       
     c.i("Reservation retrieval success.");
-    c.d(responseData);
+    //c.d(reservationData);
 
     //retrieve data from tuple
     const [reservations] = responseData.data;
     c.d(reservations?.length);
 
     c.i("Returning final response.");
-    const successresponse = {error:false, message : message, data: {reservation: reservation, reservations: reservations}};
+    const successresponse = {error:false, message : message, data: {reservations: reservations}};
     //c.d(successresponse);
     return successresponse;
   }catch(error){
@@ -83,7 +54,8 @@ export async function editReservationAction(formState : FormState, formData: For
 
 
 export async function getReservation(reservationId:string){
-    c.i("Action is SEARCH. Validating search fields.");
+    c.i("Action > getReservation");
+    c.d(reservationId);
 
     //update user
     c.i("Requesting API to retrieve customers.");
@@ -107,7 +79,7 @@ export async function getReservation(reservationId:string){
     c.d(responseData);
     const reservation = responseData.data;
     
-    return {error:false, data:reservation};
+    return {error:false, data:{reservation:reservation}};
 }
 
 
@@ -140,19 +112,19 @@ export async function searchCustomer(search:string){
 }
 
 
-export async function updateReservationAction(formState : FormState, formData: FormData): Promise<FormState> {
+export async function updateReservationAction(reservation: Reservation): Promise<FormState> {
   try{
     c.i('Actions > /console/reservations/[id]/edit > updateReservationAction');
-    c.d(Object.fromEntries(formData.entries()));
+    c.d(reservation);
 
     c.i("Finding form action for further processing.");
-    const formObject = Object.fromEntries(
-      Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
-    );
-    const { id } = formObject;
+    // const formObject = Object.fromEntries(
+    //   Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
+    // );
+    // const { id } = formObject;
 
     c.i("Action is SAVE. Validating input fields.");
-    const reservationFields = reservationValidator.safeParse(formObject);
+    const reservationFields = reservationValidator.safeParse(reservation);
     c.d(reservationFields);
 
     if (!reservationFields.success) {
@@ -162,7 +134,7 @@ export async function updateReservationAction(formState : FormState, formData: F
 
     //update user
     c.i("Requesting API to update reservation.");
-    const response = await fetch(process.env.API_URL + `reservations/${id}`, {
+    const response = await fetch(process.env.API_URL + `reservations/${reservation.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -180,12 +152,11 @@ export async function updateReservationAction(formState : FormState, formData: F
     }
 
     c.i("Update reservation successful.");
-    const reservation = responseData.data;
-    c.d(reservation);
+    // const reservation = responseData.data;
+    // c.d(reservation);
 
     c.i("Returning final response.");
-    const successresponse = {error:false, message : 'Update reservation successful.', reload: true};
-    return successresponse;
+    return {error:false, message : 'Update reservation successful.', reload: true};;
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
     return {error:true, message : "Unknown error occured."};

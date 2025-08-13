@@ -76,7 +76,7 @@ export const paymentValidator = z.object({
 
 
 export const reservationValidator = z.object({
-  id: z.string().min(1,"Id is required").optional(),
+  id: z.coerce.string().min(36,"Id is required").nullish().catch(undefined).optional(),
   arrivalDateTimeUTC: z.coerce.date().nullish().catch(undefined).optional(),
   arrivalFlight: z.coerce.string().optional(),
   checkInDateUTC: z.coerce.date({message:"Check-in date is either missing or incorrect format."}),
@@ -111,8 +111,8 @@ export const reservationValidator = z.object({
   noOfDays: z.coerce.number().gt(0, { message: "Number of days must be greater than 0" }),
   noOfGuests: z.coerce.number().gt(0, { message: "Number of guests must be greater than 0" }),
   pickUpType: z.string().optional(),
-  prepaidPackage: z.string().optional(),
-  promotionPackage: z.string().optional(),
+  prepaidPackage: z.coerce.string().optional(),
+  promotionPackage: z.coerce.string().optional(),
   remark: z.coerce.string().optional(),
   reservationStatus: z.string().optional(),
   reservationType: z.string().optional(),

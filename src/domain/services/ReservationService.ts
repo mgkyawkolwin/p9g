@@ -158,7 +158,7 @@ export default class ReservationService implements IReservationService{
         c.i('ReservationService > reservationCheckInList');
         c.d(searchParams);
         c.d(pagerParams);
-        pagerParams.orderBy = "createdAtUTC";
+        pagerParams.orderBy = "checkInDateUTC";
         pagerParams.orderDirection = "desc";
         
         return await this.reservationRepository.reservationCheckInList(searchParams, pagerParams);
@@ -169,7 +169,7 @@ export default class ReservationService implements IReservationService{
         c.i('ReservationService > reservationCheckInList');
         c.d(searchParams);
         c.d(pagerParams);
-        pagerParams.orderBy = "createdAtUTC";
+        pagerParams.orderBy = "checkInDateUTC";
         pagerParams.orderDirection = "desc";
         
         return await this.reservationRepository.reservationCheckOutList(searchParams, pagerParams);
@@ -223,13 +223,18 @@ export default class ReservationService implements IReservationService{
         c.i('ReservationService > reservationFindMany');
         c.d(searchParams);
         c.d(pagerParams);
-        pagerParams.orderBy = "createdAtUTC";
+        pagerParams.orderBy = "checkInDateUTC";
         pagerParams.orderDirection = "desc";
         c.d(pagerParams);
         if(list === 'checkin')
             return await this.reservationRepository.reservationCheckInList(searchParams, pagerParams);
         else if(list === 'checkout')
             return await this.reservationRepository.reservationCheckOutList(searchParams, pagerParams);
+        else if(list === 'top'){
+            pagerParams.orderBy = "createdAtUTC";
+            pagerParams.orderDirection = "desc";
+            return await this.reservationRepository.reservationCheckOutList(searchParams, pagerParams);
+        }
         else
             return await this.reservationRepository.reservationFindMany(searchParams, pagerParams);
     }

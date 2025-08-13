@@ -6,6 +6,10 @@ import { TYPES } from '@/lib/types';
 import { vi } from 'vitest';
 import UserService from '@/domain/services/UserService';
 import IUserService from '@/domain/services/contracts/IUserService';
+import ICustomerService from '@/domain/services/contracts/ICustomerService';
+import CustomerService from '@/domain/services/CustomerService';
+import ICustomerRepository from '@/data/repo/contracts/ICustomerRepository';
+import CustomerRepository from '@/data/repo/drizzle/CustomerRepository';
 
 // Mock database implementation
 const mockDb = {
@@ -23,10 +27,9 @@ const mockDb = {
     
     container.bind<IDatabase<MySqlDbType>>(TYPES.IDatabase).to(MySqlDatabase).inSingletonScope();
 
-
-    container.bind<IUserService>(TYPES.IUserService).to(UserService);
+    container.bind<ICustomerService>(TYPES.IUserService).to(CustomerService);
     
-    container.bind<UserRepository>(TYPES.IUserRepository).to(UserRepository);
+    container.bind<ICustomerRepository>(TYPES.IUserRepository).to(CustomerRepository);
     
     return { container, mockDb }; // Return both for test access
   }

@@ -36,8 +36,8 @@ export default function SignIn({action} : { action: (state : FormState, formData
       action={formAction}
     >
         <div className="flex flex-col gap-4">
-          <InputWithLabel size="full" label="User Name"  name="userName" defaultValue={state.formData?.get("userName")?.toString() ?? ""} />
-          <InputWithLabel size="full" label="Password" type="password" name="password" />
+          <InputWithLabel data-testid="userName" size="full" label="User Name"  name="userName" defaultValue={state.formData?.get("userName")?.toString() ?? ""} />
+          <InputWithLabel data-testid="password" size="full" label="Password" type="password" name="password" />
           <Button disabled={isPending}>Sign In</Button>
         </div>
     </form>
