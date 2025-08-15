@@ -41,7 +41,7 @@ jobs:
         run: |
           cd src
           npx eslint .
-          --config .eslint.config.mjs
+          --config eslint.config.mjs
           --ext .js,.jsx,.ts,.tsx
           --format @microsoft/eslint-formatter-sarif
           --output-file eslint-results.sarif
