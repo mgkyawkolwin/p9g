@@ -37,8 +37,8 @@ jobs:
 
       - name: Install Next
         run: |
-          npm install @next@15.2.2
-          npm install @eslint-config-next@15.3.3
+          npm install next@15.3.3
+          npm install eslint-config-next@15.3.3
 
       - name: Run ESLint
         env:
