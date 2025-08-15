@@ -46,11 +46,13 @@ jobs:
         run: |
           cd src
           npx eslint . \
+          --debug \
           --config eslint.config.mjs \
           --ext .js,.jsx,.ts,.tsx \
           --format @microsoft/eslint-formatter-sarif \
           --output-file eslint-results.sarif 
-        continue-on-error: true
+          cat eslint-output.log  # Print to workflow log
+        continue-on-error: false
       - name: See files
         run: |
           cd src
