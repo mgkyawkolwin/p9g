@@ -39,6 +39,8 @@ jobs:
         env:
           SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
         run: |
+          echo 'output files'
+          ls
           npx eslint . \
           --config eslint.config.mjs \
           --ext .js,.jsx,.ts,.tsx \
