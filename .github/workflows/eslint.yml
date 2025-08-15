@@ -56,11 +56,14 @@ jobs:
           npx eslint . \
             --config eslint.config.mjs \
             --ext .js,.jsx,.ts,.tsx \
-            --format stylish
+            --format @microsoft/eslint-formatter-sarif \
+            --output-file ../eslint-results.sarif || true
 
           echo 'Second Run Completed'
             
           ls -la ../eslint-results.sarif || echo "SARIF generation failed"
+
+          echo 'All Done'
         continue-on-error: true
         
       - name: See files
