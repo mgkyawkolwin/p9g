@@ -38,8 +38,9 @@ jobs:
       - name: Run ESLint
         env:
           SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
-        run: cd src
-        run: npx eslint .
+        run: |
+          cd src
+          npx eslint .
           --config .eslint.config.mjs
           --ext .js,.jsx,.ts,.tsx
           --format @microsoft/eslint-formatter-sarif
