@@ -35,8 +35,10 @@ jobs:
           npm install eslint@9.28.0
           npm install @microsoft/eslint-formatter-sarif
 
-      - name: Install Next ESLint Plugin
-        run: npm install @next/eslint-plugin-next
+      - name: Install Next
+        run: |
+          npm install @next@15.2.2
+          npm install @eslint-config-next@15.3.3
 
       - name: Run ESLint
         env:
