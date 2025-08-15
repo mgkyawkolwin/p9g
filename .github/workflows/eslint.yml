@@ -63,6 +63,8 @@ jobs:
             
           ls -la ../eslint-results.sarif || echo "SARIF generation failed"
 
+          cat ../eslint-results.sarif
+
           echo 'All Done'
         continue-on-error: true
         
