@@ -35,6 +35,9 @@ jobs:
           npm install eslint@latest
           npm install @microsoft/eslint-formatter-sarif@latest
 
+      - name: Install Core Web Vitals
+        run: npm install @next/core-web-vitals@latest
+
       - name: Run ESLint
         env:
           SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
