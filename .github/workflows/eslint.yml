@@ -35,8 +35,8 @@ jobs:
           npm install eslint@latest
           npm install @microsoft/eslint-formatter-sarif@latest
 
-      - name: Install Core Web Vitals
-        run: npm install @next/core-web-vitals@latest
+      - name: Install Next ESLint Plugin
+        run: npm install @next/eslint-plugin-next
 
       - name: Run ESLint
         env:
