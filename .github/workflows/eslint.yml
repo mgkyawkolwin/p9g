@@ -50,11 +50,15 @@ jobs:
           --ext .js,.jsx,.ts,.tsx \
           --format @microsoft/eslint-formatter-sarif \
           --output-file ../eslint-results.sarif || true
+
+          echo 'First Run Completed'
         
           npx eslint . \
             --config eslint.config.mjs \
             --ext .js,.jsx,.ts,.tsx \
             --format stylish
+
+          echo 'Second Run Completed'
             
           ls -la ../eslint-results.sarif || echo "SARIF generation failed"
         continue-on-error: true
