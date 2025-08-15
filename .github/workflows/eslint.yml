@@ -51,6 +51,7 @@ jobs:
           --format stylish || echo "^^^ ESLint errors above ^^^" \
           --output-file eslint-results.sarif 
           cat eslint-results.sarif || echo "No SARIF file generated"
+          ls
         continue-on-error: true
         
       - name: See files
