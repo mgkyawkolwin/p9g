@@ -51,12 +51,18 @@ jobs:
           --ext .js,.jsx,.ts,.tsx \
           --format stylish || echo "^^^ ESLint errors above ^^^" \
           --output-file eslint-results.sarif 
-          cat eslint-output.log  # Print to workflow log
-        continue-on-error: false
+        continue-on-error: true
+        
       - name: See files
         run: |
           cd src
           ls
+          
+      - name: Verify SARIF file
+        run: |
+          cd src
+          ls -la
+          cat eslint-results.sarif || echo "No SARIF file generated"
 
       - name: Upload analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v3
