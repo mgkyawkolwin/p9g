@@ -45,20 +45,19 @@ jobs:
           SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
         run: |
           cd src
-          echo 'output files'
-          ls
           npx eslint . \
           --config eslint.config.mjs \
           --ext .js,.jsx,.ts,.tsx \
           --format @microsoft/eslint-formatter-sarif \
           --output-file eslint-results.sarif 
-          ls
         continue-on-error: true
       - name: See files
-        run: ls
+        run: |
+          cd src
+          ls
 
       - name: Upload analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: eslint-results.sarif
+          sarif_file: src/eslint-results.sarif
           wait-for-processing: true
