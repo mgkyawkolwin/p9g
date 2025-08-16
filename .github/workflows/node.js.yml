@@ -52,4 +52,4 @@ jobs:
       if: always()
       with:
         name: test-results-${{ matrix.node-version }}
-        path: src/test-results-*.xml
+        path: src/vitest-results-*.xml
