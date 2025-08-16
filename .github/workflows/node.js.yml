@@ -31,6 +31,7 @@ jobs:
         ls
         cd src
         npm ci
+        npm install --save-dev vitest-junit
     - name: 'Build'
       run: |
         ls
