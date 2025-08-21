@@ -7,15 +7,18 @@ import React from "react";
 import { Loader } from "@/components/uicustom/loader";
 import DailySummaryGuestsRoomsReportRow from "@/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
 import DailySummaryGuestsRoomsReport from "@/components/reports/dailysummaryguestsroomsreport";
-import { DateInputWithLabel } from "@/components/uicustom/dateinputwithlabel";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
+import { Label } from "@/components/ui/label";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { InputCustom } from "@/components/uicustom/inputcustom";
 
 export default function DailySummaryGuestsRoomsReportPage() {
-  
+
   const [isLoading, setIsLoading] = React.useState(false);
   const [reportRows, setReportRows] = React.useState<DailySummaryGuestsRoomsReportRow[]>([]);
-  const [fromDate, setFromDate] = React.useState("");
-  const [toDate, setToDate] = React.useState("");
+  const [fromDate, setFromDate] = React.useState<Date>(null);
+  const [toDate, setToDate] = React.useState<Date>(null);
 
   useEffect(() => {
   }, []);
@@ -31,20 +34,46 @@ export default function DailySummaryGuestsRoomsReportPage() {
           <div className="flex flex-col gap-4">
             <section aria-label="reportsearch">
               <div className="flex gap-4">
-              <DateInputWithLabel type="date" label="Check-In From" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-              <DateInputWithLabel type="date" label="Until" value={toDate} onChange={(e) => setToDate(e.target.value)}/>
-              <ButtonCustom onClick={async () => {
-                setIsLoading(true);
-                const response = await getDailySummaryGuestsRoomsReport(fromDate, toDate);
-                setIsLoading(false);
-                if(response.message)
-                  toast(response.message);
-                if(!response.error)
-                  setReportRows(response.data);
-              }}>Search</ButtonCustom>
+                <div className="flex gap-2">
+                  <Label className="text-[10pt]">Check-In From</Label>
+                  <DatePicker
+                    selected={fromDate}
+                    onChange={(date: Date | null) => {
+                      setFromDate(date);
+                    }}
+                    dateFormat="yyyy-MM-dd"
+                    customInput={<InputCustom variant="form" size="md" />}
+                    placeholderText="yyyy-mm-dd"
+                    isClearable={true}
+                    showIcon
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Label className="text-[10pt]">Until</Label>
+                  <DatePicker
+                    selected={toDate}
+                    onChange={(date: Date | null) => {
+                      setToDate(date);
+                    }}
+                    dateFormat="yyyy-MM-dd"
+                    customInput={<InputCustom variant="form" size="md" />}
+                    placeholderText="yyyy-mm-dd"
+                    isClearable={true}
+                    showIcon
+                  />
+                </div>
+                <ButtonCustom onClick={async () => {
+                  setIsLoading(true);
+                  const response = await getDailySummaryGuestsRoomsReport(fromDate ? fromDate.toISOString() : '', toDate ? toDate.toISOString() : '');
+                  setIsLoading(false);
+                  if (response.message)
+                    toast(response.message);
+                  if (!response.error)
+                    setReportRows(response.data);
+                }}>Search</ButtonCustom>
               </div>
             </section>
-          <DailySummaryGuestsRoomsReport reportRows={reportRows}  />
+            <DailySummaryGuestsRoomsReport reportRows={reportRows} />
           </div>
         </GroupContent>
       </Group>

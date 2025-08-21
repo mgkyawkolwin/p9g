@@ -3,6 +3,7 @@
 import Room from '@/domain/models/Room';
 import React from 'react';
 import RoomReservation from '@/domain/dtos/RoomReservation';
+import { Theme } from '@/lib/constants';
 
 const reservationColors = [
   'bg-red-400', 'bg-blue-400', 'bg-green-400',
@@ -93,14 +94,14 @@ export default function ScheduleFlexGrid({ rooms, month }: { rooms: Room[]; mont
   });
 
   return (
-    <div className="w-full">
+    <div className={`w-full ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadText}`}>
       {/* Header Row */}
-      <div className="flex w-full">
-        <div className="w-32 flex-shrink-0 p-2 font-medium border sticky left-0 bg-gray-300">
+      <div className={`flex w-full`}>
+        <div className={`w-32 flex-shrink-0 p-2 font-medium border sticky left-0 ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadText}`}>
           Room \ Day
         </div>
         {daysArray.map(day => (
-          <div key={`header-${day}`} className="flex-1 bg-gray-300 p-2 text-center border-b font-medium">
+          <div key={`header-${day}`} className={`flex-1 p-2 text-center border-b font-medium ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadText}`}>
             {day}
           </div>
         ))}
@@ -108,15 +109,15 @@ export default function ScheduleFlexGrid({ rooms, month }: { rooms: Room[]; mont
 
       {/* Room Rows */}
       {processedRooms?.map(({ room, spans }) => (
-        <div key={room.id} className="flex w-full border-b">
-          <div className="w-32 flex-shrink-0 p-2 border-r sticky left-0 bg-white">
+        <div key={room.id} className={`flex w-full border-b ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadText}`}>
+          <div className={`w-32 flex-shrink-0 p-2 border-r sticky left-0 ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadText}`}>
             {room.roomNo}
           </div>
-          <div className="flex flex-1 bg-gray-100">
+          <div className={`flex flex-1 ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadText}`}>
             {spans.map((span, index) => (
               <div
                 key={`${room.id}-${span.day}-${index}`}
-                className={`h-10 ${span.res ? `${getColorForUUID(span.res.id)} rounded-lg mx-px` : 'bg-gray-100'}`}
+                className={`h-10 ${span.res ? `${getColorForUUID(span.res.id)} rounded-lg mx-px` : `${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadText}`}`}
                 style={{ flex: `${span.colSpan} 0 0` }}
                 title={span.res ? `[${new Date(span.res.checkInDateUTC!).toLocaleDateString('sv-SE')}] - [${new Date(span.res.checkOutDateUTC!).toLocaleDateString('sv-SE')}]\n${span.res.reservationId}` : ''}
               >

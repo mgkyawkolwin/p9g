@@ -1,13 +1,14 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { Theme } from "@/lib/constants"
 
 function Group({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "bg-[#eeeeee] text-card-foreground flex flex-col gap-6 rounded-xl border p-6 shadow-sm",
+        `${Theme.Style.groupBg} ${Theme.Style.groupText} flex flex-col gap-6 rounded-xl border p-6 shadow-sm`,
         className
       )}
       {...props}

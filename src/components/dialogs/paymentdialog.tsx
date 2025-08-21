@@ -6,17 +6,17 @@ import {
   ColumnDef
 } from "@tanstack/react-table";
 import c from "@/lib/core/logger/ConsoleLogger";
-import { ButtonCustom } from "../uicustom/buttoncustom"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
-import { paymentsDelete, paymentsGet, paymentsSave } from "@/app/(private)/console/reservations/actions"
+import { ButtonCustom } from "../uicustom/buttoncustom";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { paymentsDelete, paymentsGet, paymentsSave } from "@/app/(private)/console/reservations/actions";
 import { toast } from "sonner";
-import { InputCustom } from "../uicustom/inputcustom"
-import { SelectCustom } from "../uicustom/selectcustom"
-import { SelectList } from "@/lib/constants"
-import BillDataTable from "../uicustom/billdatatable"
-import { DatePickerCustom } from "../uicustom/datepickercustom";
-import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
+import { InputCustom } from "../uicustom/inputcustom";
+import { SelectCustom } from "../uicustom/selectcustom";
+import { SelectList } from "@/lib/constants";
+import BillDataTable from "../uicustom/billdatatable";
 import Payment from "@/domain/models/Payment";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 
 interface DataTableProps {
@@ -33,13 +33,8 @@ export default function PaymentDialog({
   c.i('Client > BillEditDialog');
   c.d(reservationId);
 
-  //   const [formState, formAction, isPending] = React.useActionState(saveBills, {
-  //     error: false,
-  //     message: ''
-  //   });
 
   const [open, setOpen] = React.useState(false);
-  // const [id, setId] = React.useState<string>(reservationId);
   const [payments, setPayments] = React.useState<Payment[]>([]);
   const [reloadDataToggle, setReloadDataToggle] = React.useState(false);
 
@@ -74,6 +69,7 @@ export default function PaymentDialog({
     }
   };
 
+
   const columns = React.useMemo<ColumnDef<Payment>[]>(() => [
     {
       accessorKey: "index",
@@ -86,26 +82,18 @@ export default function PaymentDialog({
     {
       accessorKey: "paymentDateUTC",
       header: 'Payment Date',
-      cell: (row) => <DateInputWithLabel type="date" label="" key={`${row.row.original.id}-paymentDateUTC`}
-        value={new Date(row.row.original.paymentDateUTC).toLocaleDateString('sv-SE')}
-        onChange={(e) => {
-          if (e.target.value) {
-            c.d(e.target.value);
-            handleInputChange(row.row.index, "paymentDateUTC", new Date(e.target.value).toISOString());
-          }
-
-        }} />
+      cell: (row) => <DatePicker key={`${row.row.original.id}-paymentDateUTC`}
+        selected={row.row.original.paymentDateUTC}
+        onChange={(date: Date | null) => {
+          handleInputChange(row.row.index, "paymentDateUTC", date);
+        }}
+        dateFormat="yyyy-MM-dd"
+        customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
+        placeholderText="yyyy-mm-dd"
+        isClearable={true}
+        showIcon
+      />
     },
-    // {
-    //   accessorKey: "paymentType",
-    //   header: 'Payment Type',
-    //   cell: row => {
-    //     return <SelectCustom name={`paymentType[${row.row.index}]`} key={`${row.row.original.id}-paymentType`} // Crucial for maintaining focus
-    //       size={"sm"} items={SelectList.ROOM_PAYMENT_TYPE}
-    //       value={row.row.original.paymentType}
-    //       onValueChange={value => handleInputChange(row.row.index, "paymentType", value)} />
-    //   }
-    // },
     {
       accessorKey: "amount",
       header: 'Amount',
@@ -164,6 +152,7 @@ export default function PaymentDialog({
     },
   ], []);
 
+
   React.useEffect(() => {
     if (!reservationId || reservationId === 'undefined') return;
     if (!open) return;
@@ -189,6 +178,7 @@ export default function PaymentDialog({
 
   }, [reservationId, open, reloadDataToggle]);
 
+
   function getActionButton(id: string | undefined, reservationId: string, rowIndex: number) {
     if (id && id.trim().length != 0) {
       return <ButtonCustom type="button" variant={"red"} size={"sm"}
@@ -204,6 +194,7 @@ export default function PaymentDialog({
         }}>Remove</ButtonCustom>;
     }
   }
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen} >

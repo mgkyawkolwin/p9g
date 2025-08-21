@@ -1,10 +1,8 @@
 'use client';
 
 import React from "react";
-import { Group, GroupContent, GroupTitle } from "../uicustom/group";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom";
-import { saveReservationAction } from "@/app/(private)/console/reservations/new/actions";
 import { toast } from "sonner";
 import Customer from "@/domain/models/Customer";
 import CustomerDetailForm from "../basicforms/customerdetailform";
@@ -33,6 +31,7 @@ export default function CustomerNewForm({ onSaved, openCallback }: CustomerNewFo
 
     const openDialog = (open: boolean) => {
         setOpen(open);
+        setCustomer(new Customer());
     };
 
     React.useEffect(() => {

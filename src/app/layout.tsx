@@ -1,9 +1,11 @@
+'use client';
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import GlobalErrorHandler from "./globalerrorhandler";
+import ThemeProviderWrapper from "./(private)/themeproviderwrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,10 +17,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Console - NextJS",
-  description: "NextJS, Shadcn UI, Tailwind Css, Drizzle ORM, Inversify DI, MySql Db",
-};
+// export const metadata: Metadata = {
+//   title: "Console - NextJS",
+//   description: "NextJS, Shadcn UI, Tailwind Css, Drizzle ORM, Inversify DI, MySql Db",
+// };
 
 export default function RootLayout({
   children,
@@ -26,8 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  
-  
+
   return (
     <html lang="en">
       <body
@@ -35,8 +36,10 @@ export default function RootLayout({
       >
         <GlobalErrorHandler />
         <div className="flex flex-1 min-w-screen min-h-screen">
-          <Toaster position="top-center" richColors/>
+          <Toaster position="top-center" richColors />
+          <ThemeProviderWrapper>
           {children}
+          </ThemeProviderWrapper>
         </div>
       </body>
     </html>

@@ -14,7 +14,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <div className="flex flex-1 flex-col">
       <Header location={session?.user?.location} userName={session?.user?.name} />
-      <div className='flex flex-1 p-4 bg-[#aaaaaa]'>
+      <div className='flex flex-1 p-4 bg-[#aaaaaa] dark:bg-black'>
       {children}
       </div>
       <Footer nextVersion={nextVersion} nodeVersion={process.version} appVersion={packageJson.version}  />

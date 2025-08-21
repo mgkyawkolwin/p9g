@@ -8,16 +8,17 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import CurrencyTotal from "@/domain/dtos/CurrencyTotal";
+import { Theme } from "@/lib/constants";
 
 export default function TotalTable({items}:{items:CurrencyTotal[]}) {
 
     return (
-        <Table key={`table-${Math.random()}`} className="w-auto ">
+        <Table key={`table-${Math.random()}`} className={`w-auto ${Theme.Style.tableBg}`}>
             <TableHeader key={`header-${Math.random()}`}>
-                <TableRow key={`headerrow-${Math.random()}`} className="bg-[#eee]">
+                <TableRow key={`headerrow-${Math.random()}`} className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder}`}>
                     {
                         items?.map(item => {
-                            return <TableHead key={`tablehead-${Math.random()}`}>{item.currency}</TableHead>
+                            return <TableHead key={`tablehead-${Math.random()}`} className={`${Theme.Style.tableHeadText}`}>{item.currency}</TableHead>
                         })
                     }
                 </TableRow>
@@ -26,7 +27,7 @@ export default function TotalTable({items}:{items:CurrencyTotal[]}) {
                 <TableRow key={`bodyrow-${Math.random()}`}>
                     {
                         items?.map(item => {
-                            return <TableCell key={`tablecell-${Math.random()}`}>{item.total}</TableCell>
+                            return <TableCell key={`tablecell-${Math.random()}`} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>{item.total}</TableCell>
                         })
                     }
                 </TableRow>

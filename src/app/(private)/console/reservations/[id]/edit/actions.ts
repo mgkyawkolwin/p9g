@@ -118,13 +118,12 @@ export async function updateReservationAction(reservation: Reservation): Promise
     c.d(reservation);
 
     c.i("Finding form action for further processing.");
-    // const formObject = Object.fromEntries(
-    //   Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
-    // );
-    // const { id } = formObject;
+    const formObject = Object.fromEntries(
+      Array.from(Object.entries(reservation)).filter(([key, value]) => value !== 'DEFAULT')
+    );
 
     c.i("Action is SAVE. Validating input fields.");
-    const reservationFields = reservationValidator.safeParse(reservation);
+    const reservationFields = reservationValidator.safeParse(formObject);
     c.d(reservationFields);
 
     if (!reservationFields.success) {
@@ -150,10 +149,6 @@ export async function updateReservationAction(reservation: Reservation): Promise
       c.e(responseData.message);
       return { error: true, message: `Failed to update reservation. ${responseData.message}`, data: null, formData: null};
     }
-
-    c.i("Update reservation successful.");
-    // const reservation = responseData.data;
-    // c.d(reservation);
 
     c.i("Returning final response.");
     return {error:false, message : 'Update reservation successful.', reload: true};;

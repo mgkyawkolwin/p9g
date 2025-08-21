@@ -29,6 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import c from "@/lib/core/logger/ConsoleLogger";
+import { Theme } from "@/lib/constants";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -108,13 +109,13 @@ export default function SimpleDataTable<TData, TValue>({
       </DropdownMenu>
     </div>
     <div className="flex max-w-full">
-      <Table className="bg-[#e3e3e3] rounded-xl w-full">
-        <TableHeader className="bg-[#dddddd] rounded-t-xl border-b-2 border-b-[#aaaaaa]">
+      <Table className={`w-full ${Theme.Style.tableBg}`}>
+        <TableHeader className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder}`}>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id} className=" text-[#333333]">
+                  <TableHead key={header.id} className={`${Theme.Style.tableHeadText}`}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -135,7 +136,7 @@ export default function SimpleDataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-[#444444]">
+                    <TableCell key={cell.id} className={`${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -143,7 +144,7 @@ export default function SimpleDataTable<TData, TValue>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={columns.length} className={`${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
                 No data.
               </TableCell>
             </TableRow>

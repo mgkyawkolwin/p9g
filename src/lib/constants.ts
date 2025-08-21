@@ -173,3 +173,26 @@ export const SelectListSearch = {
     ])
 } as const;
 
+export const Theme = {
+    Style: {
+        text: "text-[#999999] dark:text-[#dddddd]",
+        bg: "#000",
+        dialogBg: "bg-[#dddddd] dark:bg-[#333333]",
+        groupBg: "bg-[#dddddd] dark:bg-[#333333]",
+        groupText: "text-[#666666] dark:text-[#dddddd]",
+        tableBg: "bg-[#e6e6e6] dark:bg-black",
+        tableHeadBg: "bg-[#cccccc] dark:bg-[#444444] ",
+        tableHeadText: "text-[#666666] dark:text-[#cccccc]",
+        tableHeadBorder: "border border-[#aaaaaa] dark:border-[#666666]",
+        tableCellBg: "bg-[#e6e6e6] dark:bg-black",
+        tableCellText: "text-[#555555] dark:text-[#aaaaaa]",
+        tableCellBorder: "border-[#d9d9d9] border-b-[#c6c6c6] dark:border-[#333333] dark:border-b-[#444444]",
+        tableFooterBg: "",
+        tableFooterText: ""
+    },
+    Color: {
+        red: "#CC0000",
+        green: "#008800",
+        blue: "#000088"
+    }
+}

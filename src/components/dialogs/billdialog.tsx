@@ -69,6 +69,11 @@ export default function BillDialog({
       },
       {
         key: `key${Math.random()}`,
+        accessorKey: "paymentMode",
+        header: 'Payment Mode'
+      },
+      {
+        key: `key${Math.random()}`,
         accessorKey: "itemName",
         header: 'Name',
         cell: (row) => row.getValue()
@@ -108,6 +113,7 @@ export default function BillDialog({
 
   React.useEffect(() => {
     if(!reservationId || reservationId === 'undefined') return;
+    if(!open) return;
     //reset
     //setInvoice([]);
     const fetchInvoice = async () => {
@@ -138,7 +144,7 @@ export default function BillDialog({
     };
     fetchInvoice();
 
-  },[reservationId]);
+  },[reservationId, open]);
 
   return (
       <Dialog open={open} onOpenChange={setOpen} >

@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import c from "@/lib/core/logger/ConsoleLogger";
+import { Theme } from "@/lib/constants";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -61,13 +62,13 @@ export default function BillDataTable<TData, TValue>({
 
   return (
     <div className="flex gap-y-4 w-full max-w-full">
-      <Table className="bg-[#ffffff] border-[#999] border-1 rounded-xl w-full">
-        <TableHeader className="bg-[#eee]">
+      <Table className={`border w-full ${Theme.Style.tableBg}`}>
+        <TableHeader className={`${Theme.Style.tableHeadBg}`}>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow className="border-b-1 border-b-[#999]" key={headerGroup.id}>
+            <TableRow className={`border-b-1 ${Theme.Style.tableHeadBorder}`} key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id} className=" text-[#333333]">
+                  <TableHead key={header.id} className={`${Theme.Style.tableHeadText}`}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -83,12 +84,12 @@ export default function BillDataTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-                <TableRow className="border-b-1 border-b-[#ccc]" id={row.id}
+                <TableRow className={`border-b-1 ${Theme.Style.tableCellBorder}`} id={row.id}
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-[#444444]">
+                    <TableCell key={cell.id} className={`${Theme.Style.tableCellText}`}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -96,7 +97,7 @@ export default function BillDataTable<TData, TValue>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={columns.length} className={`h-24 text-center ${Theme.Style.tableCellText}`}>
                 No data.
               </TableCell>
             </TableRow>

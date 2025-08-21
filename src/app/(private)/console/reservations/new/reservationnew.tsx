@@ -52,6 +52,7 @@ export default function ReservationNew() {
     if(response.message) toast(response.message);
     if(!response.error && response.data.reservations){
       setNewReservations(response.data.reservations);
+      setSelectedCustomerList([]);
     }
   };
 
@@ -75,7 +76,7 @@ export default function ReservationNew() {
             }
             setIsPending(false);
           }}>Search Customer</ButtonCustom>
-          <ButtonCustom type="button" variant="green" onClick={() => {
+          <ButtonCustom type="button" variant={"green"} onClick={() => {
             openCallbackFunc.current?.openDialog(true);
           }}>New Customer</ButtonCustom>
         </section>

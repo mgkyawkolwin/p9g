@@ -1,6 +1,7 @@
 import Payment from "@/domain/models/Payment";
 import Reservation from "@/domain/models/Reservation";
 import RoomCharge from "@/domain/models/RoomCharge";
+import { Theme } from "@/lib/constants";
 
 export default function ReceiptTable({ reservation, roomCharges }: { reservation: Reservation, roomCharges: RoomCharge[] }) {
     const formatter = new Intl.NumberFormat('en-US', {
@@ -15,9 +16,9 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                 Customer: {reservation.customers?.reduce((acc, c) => acc + (acc ? ", " : "") + c.name, "")}
             </div>
             <div>
-                <table className="w-full text-[10pt]">
+                <table className={`w-full text-[10pt]`}>
                     <thead>
-                        <tr className="bg-[#ccc] border-1 border-[#999]">
+                        <tr className={`border ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`}>
                             <th className="p-2">No</th>
                             <th>Description</th>
                             <th className="text-right">Rate</th>
@@ -48,7 +49,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                                 ( {charge.startDateUTC.toLocaleDateString('sv-SE')} - {charge.endDateUTC.toLocaleDateString('sv-SE')} )
                             </div>;
 
-                            return <tr key={index} className="bg-[#eee] border-1 border-[#999] p-8">
+                            return <tr key={index} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
                                 <td className="p-2">{index + 1}</td>
                                 <td className="p-2">{description}</td>
                                 <td className="text-right">{formatter.format(charge.totalRate)}</td>
@@ -57,7 +58,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                                 <td className="text-right p-1 p-2">{formatter.format(charge.totalAmount)}</td>
                             </tr>;
                         })}
-                        <tr key={Math.random()} className="bg-[#eee] border-1 border-[#999] p-8">
+                        <tr key={Math.random()} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
                             <td className="p-2"></td>
                             <td className="p-2">
                                 {reservation?.bills?.map((bill, index) => {
@@ -85,7 +86,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                             <td></td>
                             <td></td>
                             <td className="text-right p-2">Total</td>
-                            <td className="border-1 border-[#999] text-right p-2">{formatter.format(reservation.totalAmount)}</td>
+                            <td className={`border-1 text-right p-2 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>{formatter.format(reservation.totalAmount)}</td>
                         </tr>
                         <tr>
                             <td></td>
@@ -93,7 +94,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                             <td></td>
                             <td></td>
                             <td className="text-right p-2">Deposit</td>
-                            <td className="border-1 border-[#999] text-right p-2">{formatter.format(reservation.depositAmount)}</td>
+                            <td className={`border-1 text-right p-2 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>{formatter.format(reservation.depositAmount)}</td>
                         </tr>
                         <tr>
                             <td></td>
@@ -101,7 +102,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                             <td></td>
                             <td></td>
                             <td className="text-right p-2">Discount</td>
-                            <td className="border-1 border-[#999] text-right p-2">{formatter.format(reservation.discountAmount)}</td>
+                            <td className={`border-1 text-right p-2 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>{formatter.format(reservation.discountAmount)}</td>
                         </tr>
                         <tr>
                             <td></td>
@@ -109,7 +110,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                             <td></td>
                             <td></td>
                             <td className="text-right p-2">Tax ({reservation.tax})%</td>
-                            <td className="border-1 border-[#999] text-right p-2">{formatter.format(reservation.taxAmount)}</td>
+                            <td className={`border-1 text-right p-2 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>{formatter.format(reservation.taxAmount)}</td>
                         </tr>
                         <tr>
                             <td></td>
@@ -117,7 +118,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                             <td></td>
                             <td></td>
                             <td className="text-right p-2">Net Total</td>
-                            <td className="border-1 border-[#999] text-right p-2">{formatter.format(reservation.netAmount)}</td>
+                            <td className={`border-1 text-right p-2 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>{formatter.format(reservation.netAmount)}</td>
                         </tr>
                         <tr>
                             <td></td>
@@ -125,7 +126,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                             <td></td>
                             <td></td>
                             <td className="text-right p-2">Paid</td>
-                            <td className="border-1 border-[#999] text-right p-2">{formatter.format(reservation.paidAmount)}</td>
+                            <td className={`border-1 text-right p-2 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>{formatter.format(reservation.paidAmount)}</td>
                         </tr>
                         <tr>
                             <td></td>
@@ -133,7 +134,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                             <td></td>
                             <td></td>
                             <td className="text-right p-2">Due Amount</td>
-                            <td className="border-1 border-[#999] text-right p-2">{formatter.format(reservation.dueAmount)}</td>
+                            <td className={`border-1 text-right p-2 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>{formatter.format(reservation.dueAmount)}</td>
                         </tr>
                     </tfoot>
                 </table>

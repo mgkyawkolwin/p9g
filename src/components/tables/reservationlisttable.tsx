@@ -15,9 +15,13 @@ import BillEditDialog from "../dialogs/billeditdialog"
 import BillDialog from "../dialogs/billdialog";
 import PaymentDialog from "../dialogs/paymentdialog";
 import ReceiptDialog from "../dialogs/receiptdialog";
+import { reservationCancel } from "@/app/(private)/console/reservations/actions";
+import { toast } from "sonner";
+import { getReservationStatusColorClass } from "@/lib/utils";
+import { Theme } from "@/lib/constants";
 
 
-interface DataTableProps{
+interface DataTableProps {
   formState: FormState
   formAction: (formData: FormData) => void
   formRef: React.RefObject<HTMLFormElement | null>;
@@ -33,10 +37,10 @@ export default function ReservationListTable({
 
   const router = useRouter();
 
-  const receiptDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
-  const paymentDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
-  const editDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
-  const viewDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void} | undefined>(undefined);
+  const receiptDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
+  const paymentDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
+  const editDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
+  const viewDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
 
   const columns: ColumnDef<Reservation>[] = [
     {
@@ -45,11 +49,11 @@ export default function ReservationListTable({
       accessorFn: (row) => {
         return <span>
           <a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />
-          {row.reservationStatusText}<br />
-          {row.reservationTypeText} 
-          {row.prepaidPackageText ? <><br/>{row.prepaidPackageText}</> : ''}
-          {row.promotionPackageText ? <><br/>{row.promotionPackageText}</> : ''}
-          </span>;
+          <span className={`font-bold ${getReservationStatusColorClass(row.reservationStatusText)}`}>{row.reservationStatusText}</span><br />
+          <span>{row.reservationTypeText}</span>
+          {row.prepaidPackageText ? <span className="font-bold text-[#ff00ff] dark:text-[#ff00ff]"><br />{row.prepaidPackageText}</span> : ''}
+          {row.promotionPackageText ? <span className="font-bold text-[#dd5500] dark:text-[#ff9911]"><br />{row.promotionPackageText}</span> : ''}
+        </span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -86,7 +90,7 @@ export default function ReservationListTable({
       header: "Check-In / Check-Out",
       accessorFn: (row) => {
         return <span>
-          {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')}<br/>
+          {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')}<br />
           {new Date(row.checkOutDateUTC!).toLocaleDateString('sv-SE')}<br />
           {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
@@ -96,7 +100,7 @@ export default function ReservationListTable({
       accessorKey: "depositInfo",
       header: "Deposit",
       accessorFn: (row) => {
-        return <span>{row.depositAmount > 0 ? row.depositAmount + ' ' + row.depositCurrency : ''} <br /> {row.depositDateUTC ? new Date(row.depositDateUTC).toLocaleDateString('sv-SE') : ""}</span>;
+        return <span>{row.depositAmount > 0 ? row.depositAmount : ''}<br/>{row.depositAmountInCurrency > 0 ? row.depositAmountInCurrency + ' ' + row.depositCurrency : ''} <br/> {row.depositAmount > 0 ? row.depositPaymentMode : ''} <br /> {row.depositDateUTC ? new Date(row.depositDateUTC).toLocaleDateString('sv-SE') : ""}</span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -114,36 +118,36 @@ export default function ReservationListTable({
         return <div className="flex flex-col gap-1">
           <div className="flex gap-1">
             <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
-            receiptDialogCallbackFunc.current?.openDialog(true);
-            setReservationId(row.original.id);
-            
-          }}>Receipt</ButtonCustom>
+              receiptDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+
+            }}>Receipt</ButtonCustom>
             <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
               paymentDialogCallbackFunc.current?.openDialog(true);
               setReservationId(row.original.id);
-              
+
             }}>Payment</ButtonCustom>
           </div>
           <div className="flex gap-1">
             <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
               viewDialogCallbackFunc.current?.openDialog(true);
               setReservationId(row.original.id);
-              
+
             }}>View Bill</ButtonCustom>
             <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
-            editDialogCallbackFunc.current?.openDialog(true);
-            setReservationId(row.original.id);
-            
-          }}>Add Bill</ButtonCustom>
+              editDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+
+            }}>Edit Bill</ButtonCustom>
           </div>
           <div className="flex gap-1">
-          <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
-            router.push(`/console/reservations/${row.original.id}/edit`);
-          }} >Edit</ButtonCustom>
-          <ButtonCustom type="button" variant={"red"} size={"sm"} onClick={() => {
-            setCancelId(row.original.id);
-            setOpenDialog(true);
-          }}>Cancel</ButtonCustom>
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+              router.push(`/console/reservations/${row.original.id}/edit`);
+            }} >Edit</ButtonCustom>
+            <ButtonCustom type="button" variant={"red"} size={"sm"} onClick={() => {
+              setCancelId(row.original.id);
+              setOpenDialog(true);
+            }}>Cancel</ButtonCustom>
           </div>
         </div>
       }
@@ -167,17 +171,9 @@ export default function ReservationListTable({
             <DialogFooter>
               <ButtonCustom variant={"red"} type="button" onClick={async () => {
                 setOpenDialog(false);
-                const action = document.createElement('input');
-                action.type = 'hidden';
-                action.name = 'actionVerb';
-                action.value = 'CANCEL';
-                formRef?.current?.appendChild(action);
-                const cancelIdInput = document.createElement('input');
-                cancelIdInput.type = 'hidden';
-                cancelIdInput.name = 'cancelId';
-                cancelIdInput.value = cancelId;
-                formRef?.current?.appendChild(cancelIdInput);
-                await formRef.current?.requestSubmit();
+                const response = await reservationCancel(cancelId);
+                if (response.message) toast(response.message);
+                if (!response.error) window.location.reload();
               }}>Yes</ButtonCustom>
               <DialogClose asChild>
                 <ButtonCustom variant="black" onClick={() => {
@@ -189,10 +185,10 @@ export default function ReservationListTable({
           </DialogContent>
         </Dialog>
       </section>
-      <ReceiptDialog reservationId={reservationId} callbackFunctions={(func) => {receiptDialogCallbackFunc.current = func}} />
-      <PaymentDialog reservationId={reservationId} callbackFunctions={(func) => {paymentDialogCallbackFunc.current = func}} />
-      <BillEditDialog reservationId={reservationId} callbackFunctions={(func) => {editDialogCallbackFunc.current = func}} />
-      <BillDialog reservationId={reservationId} callbackFunctions={(func) => {viewDialogCallbackFunc.current = func}} />
+      <ReceiptDialog reservationId={reservationId} callbackFunctions={(func) => { receiptDialogCallbackFunc.current = func }} />
+      <PaymentDialog reservationId={reservationId} callbackFunctions={(func) => { paymentDialogCallbackFunc.current = func }} />
+      <BillEditDialog reservationId={reservationId} callbackFunctions={(func) => { editDialogCallbackFunc.current = func }} />
+      <BillDialog reservationId={reservationId} callbackFunctions={(func) => { viewDialogCallbackFunc.current = func }} />
     </>
   )
 }

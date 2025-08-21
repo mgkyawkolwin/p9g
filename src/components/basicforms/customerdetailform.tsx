@@ -4,9 +4,11 @@ import { Label } from "@/components/ui/label";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { Textarea } from "../ui/textarea";
 import React from "react";
-import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
 import c from "@/lib/core/logger/ConsoleLogger";
 import Customer from "@/domain/models/Customer";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { InputCustom } from "../uicustom/inputcustom";
 
 
 interface CustomerDetailFormProps {
@@ -40,22 +42,38 @@ export default function CustomerDetailForm({ customer, resetDataToggle, onDataCh
         <div className="flex flex-col gap-4">
             <InputWithLabel name="name" label="Name" variant="default" size={"full"} labelPosition="top" onBlur={() => onDataChanged(localCustomer)}
                 value={localCustomer?.name ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, name: e.target.value }))} />
-                <InputWithLabel name="englishName" label="English Name" variant="default" size={"full"} labelPosition="top" onBlur={() => onDataChanged(localCustomer)}
+            <InputWithLabel name="englishName" label="English Name" variant="default" size={"full"} labelPosition="top" onBlur={() => onDataChanged(localCustomer)}
                 value={localCustomer?.englishName ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, englishName: e.target.value }))} />
-            <DateInputWithLabel label="Date of birth" labelPosition="top" type="date" variant={"date"} size={"sm"}
-                value={localCustomer?.dob ? new Date(localCustomer?.dob).toLocaleDateString('sv-SE') : ''} onBlur={() => onDataChanged(localCustomer)}
-                onChange={(e) => { setLocalCustomer(prev => ({ ...prev, dob: new Date(e.target.value).toLocaleDateString('sv-SE') })); }} />
-            <div className="flex gap-2">
-            <InputWithLabel name="nationalId" label="National ID" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
-                value={localCustomer?.nationalId ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, nationalId: e.target.value }))} />
-            <InputWithLabel name="passport" label="Passport" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
-                value={localCustomer?.passport ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, passport: e.target.value }))} />
+            <div className="flex flex-col gap-2">
+                <Label className="text-[10pt]">Check-out</Label>
+                <DatePicker
+                    selected={localCustomer?.dob ? new Date(localCustomer?.dob) : null}
+                    onChange={(date: Date | null) => {
+                        setLocalCustomer(prev => ({
+                            ...prev,
+                            dob: date.toISOString()
+                        }));
+
+                    }}
+                    onBlur={() => onDataChanged(localCustomer)}
+                    dateFormat="yyyy-MM-dd"
+                    customInput={<InputCustom variant="form" size="md" />} // Uses shadcn/ui Input
+                    placeholderText="yyyy-mm-dd"
+                    isClearable={true}
+                    showIcon
+                />
             </div>
             <div className="flex gap-2">
-            <InputWithLabel name="phone" label="Phone" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
-                value={localCustomer?.phone ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, phone: e.target.value }))} />
-            <InputWithLabel name="email" label="Email" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
-                value={localCustomer?.email ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, email: e.target.value }))} />
+                <InputWithLabel name="nationalId" label="National ID" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
+                    value={localCustomer?.nationalId ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, nationalId: e.target.value }))} />
+                <InputWithLabel name="passport" label="Passport" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
+                    value={localCustomer?.passport ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, passport: e.target.value }))} />
+            </div>
+            <div className="flex gap-2">
+                <InputWithLabel name="phone" label="Phone" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
+                    value={localCustomer?.phone ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, phone: e.target.value }))} />
+                <InputWithLabel name="email" label="Email" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
+                    value={localCustomer?.email ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, email: e.target.value }))} />
             </div>
             <InputWithLabel name="country" label="Country" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
                 value={localCustomer?.country ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, country: e.target.value }))} />
