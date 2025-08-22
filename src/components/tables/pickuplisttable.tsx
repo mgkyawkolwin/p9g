@@ -13,11 +13,12 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { InputCustom } from "../uicustom/inputcustom"
 import { updatePickUpInfo } from "@/app/(private)/console/pickup/actions"
 import { toast } from "sonner"
+import { getReservationStatusColorClass } from "@/lib/utils";
 
 
 
 
-interface DataTableProps{
+interface DataTableProps {
   formState: FormState
   formAction: (formData: FormData) => void
   formRef: React.RefObject<HTMLFormElement | null>;
@@ -40,23 +41,23 @@ export default function PickUpListTable({
       accessorFn: (row) => {
         return <span>
           <a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />
-          {row.reservationStatusText}<br />
-          {row.reservationTypeText} 
-          {row.prepaidPackageText ? <><br/>{row.prepaidPackageText}</> : ''}
-          {row.promotionPackageText ? <><br/>{row.promotionPackageText}</> : ''}
-          </span>;
+          <span className={`font-bold ${getReservationStatusColorClass(row.reservationStatusText)}`}>{row.reservationStatusText}</span><br />
+          <span>{row.reservationTypeText}</span>
+          {row.prepaidPackageText ? <span className="font-bold text-[#ff00ff] dark:text-[#ff00ff]"><br />{row.prepaidPackageText}</span> : ''}
+          {row.promotionPackageText ? <span className="font-bold text-[#dd5500] dark:text-[#ff9911]"><br />{row.promotionPackageText}</span> : ''}
+        </span>;
       },
       cell: (row) => row.getValue(),
     },
     {
       accessorKey: "pickUpCarNo",
       header: "Vehicle No",
-      cell: ({row}) => <InputCustom variant="table" size="xs" id={`car${row.original.id}`} defaultValue={String(row.original.pickUpCarNo ?? '')} />,
+      cell: ({ row }) => <InputCustom variant="table" size="xs" id={`car${row.original.id}`} defaultValue={String(row.original.pickUpCarNo ?? '')} />,
     },
     {
       accessorKey: "pickUpDriver",
       header: "Driver",
-      cell: ({row}) => <InputCustom variant="table" size="md" id={`driver${row.original.id}`} defaultValue={String(row.original.pickUpDriver ?? '')} />,
+      cell: ({ row }) => <InputCustom variant="table" size="md" id={`driver${row.original.id}`} defaultValue={String(row.original.pickUpDriver ?? '')} />,
     },
     {
       accessorKey: "customers",
@@ -70,7 +71,7 @@ export default function PickUpListTable({
           {row.original.customers?.map((customer, i) => (
             <React.Fragment key={i}>
               {i > 0 && <br />}
-              {customer.name}<br/> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
+              {customer.name}<br /> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
             </React.Fragment>
           ))}
         </div>
@@ -91,7 +92,7 @@ export default function PickUpListTable({
       header: "Check-In / Check-Out",
       accessorFn: (row) => {
         return <span>
-          {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')}<br/>
+          {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')}<br />
           {new Date(row.checkOutDateUTC!).toLocaleDateString('sv-SE')}<br />
           {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
@@ -118,10 +119,10 @@ export default function PickUpListTable({
       cell: ({ row }) => {
         return <div className="flex gap-1">
           <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={async () => {
-            const response = await updatePickUpInfo(row.original.id, 
-              (document.getElementById(`car${row.original.id}`) as HTMLInputElement)?.value, 
+            const response = await updatePickUpInfo(row.original.id,
+              (document.getElementById(`car${row.original.id}`) as HTMLInputElement)?.value,
               (document.getElementById(`driver${row.original.id}`) as HTMLInputElement)?.value);
-            if(response.message)
+            if (response.message)
               toast(response.message);
           }} >Save Car No</ButtonCustom>
         </div>
@@ -137,12 +138,12 @@ export default function PickUpListTable({
     //reset IDs and actionVerb
     setCheckOutId('');
     setActionVerb('');
-  },[formState]);
+  }, [formState]);
 
   return (
     <>
       <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
-      
+
       <section className="flex">
         <Dialog key={'checkindialog'} open={openCheckInDialog} onOpenChange={setOpenCheckInDialog}>
           <DialogContent className="">

@@ -10,7 +10,7 @@ const inputVariants = cva(
       variant: {
         default: "min-h-8",
         form: "h-7 max-h-7 text-[10pt]",
-        table: "h-6 max-h-6 text-[10pt] bg-[#eaeaea] text-[#333333] border-[#bbbbbb]"
+        table: "h-6 max-h-6 text-[10pt] bg-[#eaeaea] text-[#333333] dark:text-[#dddddd] border-[#bbbbbb]"
       },
       size: {
         default: "",

@@ -19,6 +19,7 @@ import Payment from "@/domain/models/Payment";
 import RoomCharge from "@/domain/models/RoomCharge";
 import RoomRate from "@/domain/models/RoomRate";
 import RoomType from "@/domain/models/RoomType";
+import { getMidNightDate } from "@/lib/utils";
 
 
 @injectable()
@@ -54,9 +55,12 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         c.i('ReservationRepository > billsGetAll');
         const result : BillEntity[] = await this.dbClient.db.select().from(billTable).where(eq(billTable.reservationId, reservationId));
 
+        c.i('original')
+        c.d(result);
         const bills: Bill[] = result.map((b: BillEntity) => {
             const bill = new Bill();
             bill.id = b.id;
+            bill.reservationId = b.reservationId;
             bill.amount = Number(b.amount);
             bill.currency = b.currency;
             bill.dateUTC = b.dateUTC;
@@ -65,13 +69,16 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             bill.paidOnUTC = b.paidOnUTC;
             bill.paymentMode = b.paymentMode;
             bill.paymentType = b.paymentType;
+            bill.quantity = Number(b.quantity);
+            bill.unitPrice = Number(b.unitPrice);
             bill.createdAtUTC = b.createdAtUTC;
             bill.createdBy = b.createdBy;
             bill.updatedAtUTC = b.updatedAtUTC;
             bill.updatedBy = b.updatedBy;
             //bills.push(bill);
             return bill;
-        });
+        });c.i('BILLS')
+        c.d(bills);
         return bills;
     }
 
@@ -95,6 +102,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             bill.paidOnUTC = b.paidOnUTC;
             bill.paymentMode = b.paymentMode;
             bill.paymentType = b.paymentType;
+            bill.quantity = Number(b.quantity);
+            bill.unitPrice = Number(b.unitPrice);
             bill.createdAtUTC = b.createdAtUTC;
             bill.createdBy = b.createdBy;
             bill.updatedAtUTC = b.updatedAtUTC;
@@ -125,6 +134,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             bill.paidOnUTC = b.paidOnUTC;
             bill.paymentMode = b.paymentMode;
             bill.paymentType = b.paymentType;
+            bill.quantity = Number(b.quantity);
+            bill.unitPrice = Number(b.unitPrice);
             bill.createdAtUTC = b.createdAtUTC;
             bill.createdBy = b.createdBy;
             bill.updatedAtUTC = b.updatedAtUTC;
@@ -156,8 +167,12 @@ export default class ReservationRepository extends Repository<Reservation, typeo
 
         await this.dbClient.db.transaction(async (tx: TransactionType) => {
             //update existing records
-            updateList.forEach(async bill => await tx.update(billTable).set(bill as unknown as BillEntity)
-                .where(eq(billTable.id, bill.id)));
+            updateList.forEach(async bill => {
+                const usql = tx.update(billTable).set(bill as unknown as BillEntity)
+                .where(eq(billTable.id, bill.id));
+                c.d(usql.toSQL());
+                await usql;
+            });
 
             //insert new records
             if (insertList && insertList.length >= 1) {
@@ -397,22 +412,18 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     }
                     if (searchParam.searchColumn === 'checkInDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(0, 0, 0, 0);
                         return eq(reservationTable.checkInDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'checkOutDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(0, 0, 0, 0);
                         return eq(reservationTable.checkOutDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdFrom') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(0, 0, 0, 0);
                         return gte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdUntil') {
-                        let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(23, 59, 59, 999);
+                        const d = getMidNightDate(new Date(searchParam.searchValue));
                         return lte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'name') {
@@ -585,22 +596,18 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     }
                     if (searchParam.searchColumn === 'checkInDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(0, 0, 0, 0);
                         return eq(reservationTable.checkInDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'checkOutDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(0, 0, 0, 0);
                         return eq(reservationTable.checkOutDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdFrom') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(0, 0, 0, 0);
                         return gte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdUntil') {
-                        let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(23, 59, 59, 999);
+                        const d = getMidNightDate(new Date(searchParam.searchValue));
                         return lte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'name') {
@@ -911,13 +918,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 .map((searchParam: SearchParam) => {
                     if (searchParam.searchColumn === 'arrivalDateTimeUTC') {
                         const startDate = new Date(searchParam.searchValue);
-                        startDate.setHours(0);
-                        startDate.setMinutes(0);
-                        startDate.setSeconds(0);
-                        const endDate = new Date(searchParam.searchValue);
-                        endDate.setHours(23);
-                        endDate.setMinutes(59);
-                        endDate.setSeconds(59);
+                        const endDate = getMidNightDate(new Date(searchParam.searchValue));
                         return and(
                             gte(reservationTable.arrivalDateTimeUTC, startDate),
                             lte(reservationTable.arrivalDateTimeUTC, endDate)
@@ -925,15 +926,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     }
                     if (searchParam.searchColumn === 'departureDateTimeUTC') {
                         const startDate = new Date(searchParam.searchValue);
-                        startDate.setHours(0);
-                        startDate.setMinutes(0);
-                        startDate.setSeconds(0);
-                        startDate.setMilliseconds(0);
-                        const endDate = new Date(searchParam.searchValue);
-                        endDate.setHours(23);
-                        endDate.setMinutes(59);
-                        endDate.setSeconds(59);
-                        endDate.setMilliseconds(999);
+                        const endDate = getMidNightDate(new Date(searchParam.searchValue));
                         return and(
                             gte(reservationTable.departureDateTimeUTC, startDate),
                             lte(reservationTable.departureDateTimeUTC, endDate)
@@ -950,32 +943,28 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     }
                     if (searchParam.searchColumn === 'checkInDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(0, 0, 0, 0);
                         return eq(reservationTable.checkInDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'checkOutDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(0, 0, 0, 0);
                         return eq(reservationTable.checkOutDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdFrom') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(0, 0, 0, 0);
                         return gte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'createdUntil') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(23, 59, 59, 999);
+                        d.setUTCHours(23,59,59,999);
                         return lte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'checkInDateFrom') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(0, 0, 0, 0);
                         return gte(reservationTable.checkInDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'checkInDateUntil') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(23, 59, 59, 999);
+                        d.setUTCHours(23,59,59,999);
                         return lte(reservationTable.checkInDateUTC, d);
                     }
                     if (searchParam.searchColumn === 'name') {
@@ -1094,7 +1083,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     }
                     if (searchParam.searchColumn === 'createdUntil') {
                         let d: Date = new Date(searchParam.searchValue);
-                        d.setHours(23, 59, 59, 999);
+                        d.setUTCHours(23,59,59,999);
                         return lte(reservationTable.createdAtUTC, d);
                     }
                     if (searchParam.searchColumn === 'name') {
@@ -1215,6 +1204,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         ).limit(1);
         if (prepaidPackage)
             reservation.prepaidPackageId = prepaidPackage.id;
+        else
+            reservation.prepaidPackageId = null;
 
         //retrieve and assign promotionPackageId
         const [promotionPackage] = await this.dbClient.db.select().from(promotionTable).where(
@@ -1222,6 +1213,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         ).limit(1);
         if (promotionPackage)
             reservation.promotionPackageId = promotionPackage.id;
+        else
+            reservation.promotionPackageId = null;
 
         //retrieve and assign reservationTypeId
         const [reservationType] = await this.dbClient.db.select().from(configTable).where(
@@ -1250,8 +1243,10 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 eq(configTable.value, reservation.pickUpType)
             )
         ).limit(1);
-        if (pickUpType)
+        if(pickUpType)
             reservation.pickUpTypeId = pickUpType.id;
+        else
+            reservation.pickUpTypeId = null;
 
         //retrieve and assign reservationTypeId
         const [dropOffType] = await this.dbClient.db.select().from(configTable).where(
@@ -1260,8 +1255,10 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 eq(configTable.value, reservation.dropOffType)
             )
         ).limit(1);
-        if (dropOffType)
+        if(dropOffType)
             reservation.dropOffTypeId = dropOffType.id;
+        else
+            reservation.dropOffTypeId = null;
 
 
         c.i("Prepared entity for insert/update.");

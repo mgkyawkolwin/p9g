@@ -64,9 +64,12 @@ export default function CustomerInformationTable({
           </Button>
         )
       },
+      cell: row => {
+        return row.getValue() ? new Date(String(row.getValue())).toLocaleDateString('sv-SE') : ''
+      }
     },
     {
-      accessorKey: "nationlId",
+      accessorKey: "nationalId",
       header: ({ column }) => {
         return (
           <Button

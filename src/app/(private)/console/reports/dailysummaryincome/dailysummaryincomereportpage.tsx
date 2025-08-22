@@ -1,26 +1,25 @@
 "use client";
-import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { getDailySummaryIncomeReport } from "./actions";
 import React from "react";
 import { Loader } from "@/components/uicustom/loader";
-import DailySummaryGuestsRoomsReportRow from "@/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
-import DailySummaryGuestsRoomsReport from "@/components/reports/dailysummaryguestsroomsreport";
 import { DateInputWithLabel } from "@/components/uicustom/dateinputwithlabel";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 import DailySummaryIncomeReport from "@/components/reports/dailysummaryincomereport";
 import DailySummaryIncomeReportRow from "@/domain/dtos/reports/DailySummaryIncomeReportRow";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { Label } from "@/components/ui/label";
+import { InputCustom } from "@/components/uicustom/inputcustom";
 
 export default function DailySummaryIncomeReportPage() {
   
   const [isLoading, setIsLoading] = React.useState(false);
   const [reportRows, setReportRows] = React.useState<DailySummaryIncomeReportRow[]>([]);
-  const [fromDate, setFromDate] = React.useState("");
-  const [toDate, setToDate] = React.useState("");
+  const [fromDate, setFromDate] = React.useState<Date>(null);
+  const [toDate, setToDate] = React.useState<Date>(null);
 
-  useEffect(() => {
-  }, []);
 
   return (
     <div className="flex flex-1 w-auto">
@@ -33,11 +32,37 @@ export default function DailySummaryIncomeReportPage() {
           <div className="flex flex-col gap-4">
             <section aria-label="reportsearch">
               <div className="flex gap-4">
-              <DateInputWithLabel type="date" label="Check-In From" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-              <DateInputWithLabel type="date" label="Until" value={toDate} onChange={(e) => setToDate(e.target.value)}/>
+              <div className="flex gap-2">
+                  <Label className="text-[10pt]">Check-In From</Label>
+                  <DatePicker
+                    selected={fromDate}
+                    onChange={(date: Date | null) => {
+                      setFromDate(date);
+                    }}
+                    dateFormat="yyyy-MM-dd"
+                    customInput={<InputCustom variant="form" size="md" />}
+                    placeholderText="yyyy-mm-dd"
+                    isClearable={true}
+                    showIcon
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Label className="text-[10pt]">Until</Label>
+                  <DatePicker
+                    selected={toDate}
+                    onChange={(date: Date | null) => {
+                      setToDate(date);
+                    }}
+                    dateFormat="yyyy-MM-dd"
+                    customInput={<InputCustom variant="form" size="md" />}
+                    placeholderText="yyyy-mm-dd"
+                    isClearable={true}
+                    showIcon
+                  />
+                </div>
               <ButtonCustom onClick={async () => {
                 setIsLoading(true);
-                const response = await getDailySummaryIncomeReport(fromDate, toDate);
+                const response = await getDailySummaryIncomeReport(fromDate ? fromDate.toISOString() : '', toDate ? toDate.toISOString() : '');
                 setIsLoading(false);
                 if(response.message)
                   toast(response.message);

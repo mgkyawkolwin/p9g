@@ -46,7 +46,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         c.i("POST /api/reservations/[id]/bills");
         c.d(JSON.stringify(request));
 
-
         //retrieve search params from request
         const p = await params;
         c.d(p);
@@ -60,7 +59,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         const requestBody = await request.json();
         if (!requestBody) {
             c.i('No data. Return invalid response.');
-            return NextResponse.json({ status: HttpStatusCode.BadRequest });
+            return NextResponse.json({message: "No data."}, { status: HttpStatusCode.BadRequest });
         }
         c.d(requestBody);
 
@@ -71,6 +70,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             if (result.success)
                 bills.push(result.data);
         });
+
+        if (bills.length <= 0) {
+            c.i('No bills. Return invalid response.');
+            return NextResponse.json({message:"No bill to update."}, { status: HttpStatusCode.BadRequest });
+        }
         //call service to retrieve data
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
         await reservationService.billsSave(id, bills);

@@ -3,16 +3,18 @@ import { RegularExpressions } from './regularExpressions';
 
 
 export const billValidator = z.object({
-  reservationId: z.string(),
+  id: z.coerce.string().nullish().catch(undefined).optional(),
+  reservationId: z.coerce.string(),
   dateUTC: z.coerce.date(),
-  itemName: z.string(),
-  unitPrice: z.coerce.number().nullish().catch(undefined),
-  quantity: z.coerce.number().nullish().catch(undefined),
-  amount: z.coerce.number().nullish().catch(undefined),
-  currency: z.string(),
-  isPaid: z.boolean(),
+  itemName: z.coerce.string(),
+  unitPrice: z.coerce.number(),
+  quantity: z.coerce.number(),
+  amount: z.coerce.number(),
+  currency: z.coerce.string(),
+  isPaid: z.coerce.boolean(),
   paidOnUTC: z.coerce.date().nullish().catch(undefined).optional(),
-  paymentType: z.string().min(1)
+  paymentType: z.coerce.string(),
+  paymentMode: z.coerce.string()
 });
 
 
@@ -105,12 +107,13 @@ export const reservationValidator = z.object({
   depositCurrency: z.coerce.string().nullish().catch(undefined).optional(),
   depositDateUTC: z.coerce.date().nullish().catch(undefined).optional(),
   discountAmount: z.coerce.number(),
-  dropOffType: z.string().optional(),
+  depositPaymentMode: z.coerce.string().nullish().catch(undefined).optional(),
+  dropOffType: z.coerce.string().optional(),
   isSingleOccupancy: z.coerce.boolean(),
   location: z.coerce.string(),
   noOfDays: z.coerce.number().gt(0, { message: "Number of days must be greater than 0" }),
   noOfGuests: z.coerce.number().gt(0, { message: "Number of guests must be greater than 0" }),
-  pickUpType: z.string().optional(),
+  pickUpType: z.coerce.string().optional(),
   prepaidPackage: z.coerce.string().optional(),
   promotionPackage: z.coerce.string().optional(),
   remark: z.coerce.string().optional(),

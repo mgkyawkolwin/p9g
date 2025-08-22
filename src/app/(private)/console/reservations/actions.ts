@@ -100,6 +100,8 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 export async function billDelete(reservationId:string, billId: string) : Promise<FormState>{
   try {
     c.i('Actions > /console/reservations/ > billDelete');
+    c.d(reservationId);
+    c.d(billId);
 
     //delete payment
     const response = await fetch(process.env.API_URL + `reservations/${reservationId}/bills/${billId}`, {
@@ -146,7 +148,7 @@ export async function billsGet(id:string) : Promise<FormState>{
       c.e(result.message);
       return { error: true, message: `Failed to get bills. ${result.message}`, data: null, formData: null};
     }
-    c.d(result.bills?.length);
+    c.d(result.bills);
     //update user success
     return {error: false, message:"", data: result.bills, formData: null};
   } catch (error) {
@@ -154,8 +156,6 @@ export async function billsGet(id:string) : Promise<FormState>{
     return {error: true, message: 'Failed to add bills.', data: null, formData: null};
   }
 }
-
-
 
 
 export async function billsSave(id: string, bills: Bill[]) : Promise<FormState>{
@@ -185,18 +185,13 @@ export async function billsSave(id: string, bills: Bill[]) : Promise<FormState>{
       body: JSON.stringify(bills),
     });
     
-    //update user failed
-    if (!response.ok) {
-      const errorData = await response.json();
-      c.e(errorData);
-      return { error: true, message: 'Failed to add bills.', data: null, formData: null};
-    }
+    const result = await response.json();
+    c.e(result);
 
-    //update user success
-    const result = await response.json().then().catch((error) => {
-      c.i('HAHAHA')
-      c.d(error)
-    });
+    //update bill failed
+    if (!response.ok) {
+      return { error: true, message: `Failed to save bills. ${result.message}`, data: null, formData: null};
+    }
     
     return {error: false, message:"Bills updated.", data: result.data, formData: null};
   } catch (error) {
@@ -399,4 +394,26 @@ export async function roomChargesGet(id:string) : Promise<FormState>{
     c.e(error instanceof Error ? error.message : String(error));
     return {error: true, message: 'Failed to get room charges.', data: null, formData: null};
   }
+}
+
+
+export async function reservationCancel(id:string): Promise<FormState> {
+    c.i('Action > reservationCancel');
+    const response = await fetch(process.env.API_URL + `reservations/${id}/cancel`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
+    });
+
+    const responseData = await response.json();
+
+    //fail
+    if(!response.ok){
+      c.i("Cancel failed. Return response.");
+      return {error:true, message : `Cancel reservation failed. ${responseData.message}`};
+    }
+
+    return {error: false, message:'Cancel reservation successful.'};
 }

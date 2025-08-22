@@ -9,12 +9,10 @@ import { SelectWithLabel } from "../uicustom/selectwithlabel";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { Textarea } from "../ui/textarea";
 import React from "react";
-import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
-import { calculateDayDifference, getCheckInDate, getCheckOutDate, getUTCISODateString } from "@/lib/utils";
+import { calculateDayDifference, getCheckInDate, getCheckOutDate } from "@/lib/utils";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { SelectList, SelectListForm } from "@/lib/constants";
 import Reservation from "@/domain/models/Reservation";
-import { Checkbox } from "../ui/checkbox";
 import { InputCustom } from "../uicustom/inputcustom";
 
 import DatePicker from "react-datepicker";
@@ -35,6 +33,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
         const [date, setDate] = React.useState(new Date());
         const [reservation, setReservation] = React.useState(props.initialReservation);
 
+
         React.useImperativeHandle(ref, () => ({
             resetForm: () => {
                 setReservation(new Reservation());
@@ -45,11 +44,13 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
 
         }));
 
+
         React.useEffect(() => {
             if (props.initialReservation){
                 setReservation(props.initialReservation);
             }
         }, [props.initialReservation]);
+
 
         const calculateDiscount = ({promotionPackage, noOfDays, noOfGuests}:{promotionPackage?:string, noOfDays?:number, noOfGuests?:number}) => {
             if(!reservation) return;
@@ -65,18 +66,6 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
             setReservation(prev => ({...prev, discountAmount:discount}));
         };
 
-        // React.useEffect(() => {
-        //     if(reservation.checkInDateUTC || reservation.checkOutDateUTC){
-        //         const days = calculateDayDifference(reservation.checkInDateUTC, reservation.checkOutDateUTC);
-        //         setReservation(prev => ({ ...prev, noOfDays: days }));
-        //     }else{
-        //         setReservation(prev => ({ ...prev, noOfDays: 0 }));
-        //     }
-        // }, [reservation.checkInDateUTC, reservation.checkOutDateUTC]);
-
-        // React.useEffect(() => {
-        //     calculateDiscount();
-        // }, [reservation.noOfDays, reservation.noOfGuests, reservation.promotionPackage]);
 
         return (
             <div className="flex flex-col gap-2">
@@ -99,14 +88,14 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         </div>
                     </RadioGroup>
                     <div className="flex gap-2">
-                        <SelectWithLabel name="reservationStatus" label="Reservation Status" size="sm" labelPosition="top" items={SelectListForm.RESERVATION_STATUS}
+                        <SelectWithLabel name="reservationStatus" label="Reservation Status" variant="form" size="sm" labelPosition="top" items={SelectListForm.RESERVATION_STATUS}
                             value={reservation?.reservationStatus} onValueChange={value => setReservation(prev => ({ ...prev, reservationStatus: value }))}
                         />
-                        <SelectWithLabel name="prepaidPackage" label="Prepaid Packages" size="sm" labelPosition="top" items={SelectListForm.PREPAID_PACKAGES} value={reservation?.prepaidPackage}
+                        <SelectWithLabel name="prepaidPackage" label="Prepaid Packages" variant="form" size="sm" labelPosition="top" items={SelectListForm.PREPAID_PACKAGES} value={reservation?.prepaidPackage ? reservation?.prepaidPackage : 'DEFAULT'}
                             onValueChange={value => {
                                 setReservation(prev => ({ ...prev, prepaidPackage: value === 'DEFAULT' ? '' : value }));
                                 }} />
-                        <SelectWithLabel name="promotionPackage" label="Promotion Packages" size="sm" labelPosition="top" items={SelectListForm.PROMOTION_PACKAGES} value={reservation?.promotionPackage}
+                        <SelectWithLabel name="promotionPackage" label="Promotion Packages" variant="form" size="sm" labelPosition="top" items={SelectListForm.PROMOTION_PACKAGES} value={reservation?.promotionPackage ? reservation?.promotionPackage : 'DEFAULT'}
                             onValueChange={value => {
                                 setReservation(prev => ({ ...prev, promotionPackage: value === 'DEFAULT' ? '' : value }));
                                 calculateDiscount({promotionPackage:value});
@@ -147,8 +136,8 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         </div>
                         <InputWithLabel name="arrivalFlight" label="Arrival Flight" variant="form" size={"xs"} labelPosition="top"
                             value={reservation?.arrivalFlight} onChange={(e) => setReservation(prev => ({ ...prev, arrivalFlight: e.target.value }))} />
-                        <SelectWithLabel name="pickUpType" label="Pick Up" size={"sm"} labelPosition="top" items={SelectList.TRANSPORTATION}
-                            value={reservation?.pickUpType} onValueChange={value => setReservation(prev => ({ ...prev, pickUpType: value }))} />
+                        <SelectWithLabel name="pickUpType" label="Pick Up" variant="form" size={"sm"} labelPosition="top" items={SelectListForm.TRANSPORTATION}
+                            value={reservation?.pickUpType ? reservation?.pickUpType : 'DEFAULT'} onValueChange={value => setReservation(prev => ({ ...prev, pickUpType: value === 'DEFAULT' ? '' : value }))} />
                     </div>
                     <div className="flex gap-2 items-end">
                         <div className="flex flex-col gap-2">
@@ -184,8 +173,8 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         </div>
                         <InputWithLabel name="departureFlight" label="Dep Flight" variant="form" size={"xs"} labelPosition="top"
                             value={reservation?.departureFlight} onChange={(e) => setReservation(prev => ({ ...prev, departureFlight: e.target.value }))} />
-                        <SelectWithLabel name="dropOffType" label="Drop Off" size={"sm"} labelPosition="top" items={SelectList.TRANSPORTATION}
-                            value={reservation?.dropOffType} onValueChange={value => setReservation(prev => ({ ...prev, dropOffType: value }))} />
+                        <SelectWithLabel name="dropOffType" label="Drop Off" variant="form" size={"sm"} labelPosition="top" items={SelectListForm.TRANSPORTATION}
+                            value={reservation?.dropOffType ? reservation?.dropOffType : 'DEFAULT'} onValueChange={value => setReservation(prev => ({ ...prev, dropOffType: value === 'DEFAULT' ? '' : value }))} />
                     </div>
                     <div className="flex gap-2 items-end">
                         <div className="flex flex-col gap-2">
@@ -262,59 +251,36 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         checked={reservation.isSingleOccupancy ? true : false} onCheckedChange={(checked:boolean) => {
                             setReservation(prev => ({...prev, isSingleOccupancy: checked}))
                         }} />
-                        {/* <input type="checkbox" checked={reservation.isSingleOccupancy} /> */}
-                        {/* <input type="hidden" name="isSingleOccupancy" defaultValue={1} /> */}
                         <Label htmlFor="checkbox">Single Occupancy</Label>
-                        {/* <Button size={"sm"}>Search Available Rooms</Button> */}
                     </div>
                     <div className="flex gap-2 items-end">
                         <InputWithLabel name="depositAmount" label="Deposit" variant="form" size={"xs"} labelPosition="top" 
                         value={reservation?.depositAmount} onChange={(e) => setReservation(prev => ({...prev, depositAmount: Number(e.target.value)}))} />
                         <InputWithLabel name="depositAmountInCurrency" label="Currency Amt" variant="form" size={"xs"} labelPosition="top" 
                         value={reservation?.depositAmountInCurrency} onChange={(e) => setReservation(prev => ({...prev, depositAmountInCurrency: Number(e.target.value)}))} />
-                        <SelectWithLabel name="depositCurrency" label="Currency" size={"sm"} labelPosition="top" items={SelectList.CURRENCY} 
+                        <SelectWithLabel name="depositCurrency" label="Currency" variant="form" size={"xs"} labelPosition="top" items={SelectList.CURRENCY} 
                         value={reservation?.depositCurrency} onValueChange={(value) => setReservation(prev => ({...prev, depositCurrency: value}))} />
-                        <DateInputWithLabel label="Deposit Date" type="date" size={"sm"} labelPosition="top" 
-                        value={reservation?.depositDateUTC ? new Date(reservation?.depositDateUTC).toLocaleDateString('sv-SE') : ''}
-                            onChange={(e) => {
-                                const newDate = e.target.value ? new Date(e.target.value) : undefined;
-                                setReservation(prev => ({
-                                    ...prev,
-                                    depositDateUTC: newDate
-                                }));
-                            }} />
-                        <input type="hidden" name="depositDateUTC" defaultValue={reservation.depositDateUTC ? reservation.depositDateUTC.toISOString() : ''} />
+                        <SelectWithLabel name="depositPaymentMode" label="Mode" variant="form" size={"xs"} labelPosition="top" items={SelectList.PAYMENT_MODE} 
+                        value={reservation?.depositPaymentMode} onValueChange={(value) => setReservation(prev => ({...prev, depositPaymentMode: value}))} />
+                        <div className="flex flex-col gap-2">
+                            <Label className="text-[10pt]">Deposit Date</Label>
+                            <DatePicker
+                                selected={reservation?.depositDateUTC ? new Date(reservation?.depositDateUTC) : null}
+                                onChange={(date: Date | null) => {
+                                    setReservation(prev => ({
+                                        ...prev,
+                                        depositDateUTC: date
+                                    }));
+                                }}
+                                dateFormat="yyyy-MM-dd"
+                                customInput={<InputCustom variant="form" size="md" />}
+                                placeholderText="yyyy-mm-dd"
+                                isClearable={true}
+                                showIcon
+                            />
+                            <input type="hidden" name="depositDateUTC" defaultValue={reservation.depositDateUTC ? reservation.depositDateUTC.toISOString() : ''} />
+                        </div>
                     </div>
-                    {/* <div className="flex gap-2 items-end">
-                        <InputWithLabel name="pickUpFee" label="Pick-Up Fee" size={"sm"} labelPosition="top" 
-                        value={reservation?.pickUpFee} onChange={(e) => setReservation(prev => ({...prev, pickUpFee: Number(e.target.value)}))} />
-                        <SelectWithLabel name="pickUpFeeCurrency" label="Currency" size={"sm"} labelPosition="top" items={SelectList.CURRENCY} 
-                        value={reservation?.pickUpFeeCurrency} onValueChange={(value) => setReservation(prev => ({...prev, pickUpFeeCurrency: value}))} />
-                        <DateInputWithLabel label="Deposit Date" type="date" size={"sm"} labelPosition="top" 
-                        value={reservation?.pickUpFeePaidOnUTC ? reservation?.pickUpFeePaidOnUTC.toLocaleDateString('sv-SE') : ''}
-                            onChange={(e) => {
-                                const newDate = e.target.value ? new Date(new Date(e.target.value).toISOString()) : undefined;
-                                setReservation(prev => ({
-                                    ...prev,
-                                    pickUpFeePaidOnUTC: newDate
-                                }));
-                            }} />
-                    </div> */}
-                    {/* <div className="flex gap-2 items-end">
-                        <InputWithLabel name="dropOfFee" label="Drop-Off Fee" size={"sm"} labelPosition="top" 
-                        value={reservation?.dropOfFee} onChange={(e) => setReservation(prev => ({...prev, dropOfFee: Number(e.target.value)}))} />
-                        <SelectWithLabel name="dropOffFeeCurrency" label="Currency" size={"sm"} labelPosition="top" items={SelectList.CURRENCY} 
-                        value={reservation?.dropOffFeeCurrency} onValueChange={(value) => setReservation(prev => ({...prev, dropOffFeeCurrency: value}))} />
-                        <DateInputWithLabel label="Deposit Date" type="date" size={"sm"} labelPosition="top" 
-                        value={reservation?.dropOffFeePaidOnUTC ? reservation?.depositDateUTC.toLocaleDateString('sv-SE') : ''}
-                            onChange={(e) => {
-                                const newDate = e.target.value ? new Date(new Date(e.target.value).toISOString()) : undefined;
-                                setReservation(prev => ({
-                                    ...prev,
-                                    dropOffFeePaidOnUTC: newDate
-                                }));
-                            }} />
-                    </div> */}
                     <div className="flex gap-2 items-end">
                         <InputWithLabel name="tax" label="Tax (%)" variant="form" size={"sm"} labelPosition="top"
                             value={reservation?.tax} onChange={(e) => setReservation(prev => ({ ...prev, tax: Number(e.target.value) }))} />

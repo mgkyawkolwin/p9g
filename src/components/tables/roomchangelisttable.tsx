@@ -14,6 +14,7 @@ import { InputCustom } from "../uicustom/inputcustom";
 import { moveRoom } from "@/app/(private)/console/roomchange/actions";
 import { toast } from "sonner";
 import Room from "@/domain/models/Room";
+import SimpleDataTable from "./simpledatatable";
 
 
 interface DataTableProps {
@@ -93,12 +94,12 @@ export default function RoomChangeListTable({
   },[formState]);
 
   React.useEffect(() => {
-    
+    formRef.current?.requestSubmit();
   },[]);
 
   return (
     <>
-      <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
+      <SimpleDataTable columns={columns} data={formState.data} />
       <section className="flex">
         <Dialog key={'moveroomdialog'} open={openMoveRoomDiallog} onOpenChange={setOpenMoveRoomDialog}>
           <DialogContent className="">

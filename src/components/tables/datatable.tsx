@@ -26,6 +26,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -33,6 +34,7 @@ import {
 import c from "@/lib/core/logger/ConsoleLogger"
 import { SelectWithLabel } from "../uicustom/selectwithlabel"
 import { FormState } from "@/lib/types"
+import { Theme } from "@/lib/constants";
 
 
 interface DataTableProps<TData, TValue> {
@@ -105,14 +107,14 @@ export default function DataTable<TData, TValue>({
   React.useEffect(() => {
     c.i("formState is changed.");
     //setData(formState.data);
-    if(records !== formState.pager?.records)
+    if (records !== formState.pager?.records)
       setRecords(formState.pager?.records ?? 0);
-    if(pages !== formState.pager?.pages){
+    if (pages !== formState.pager?.pages) {
       setPages(formState.pager?.pages ?? 0);
       //reset page index if pages is changed
       setPageIndex(1);
     }
-      
+
     c.d(data);
   }, [formState]);
 
@@ -127,12 +129,12 @@ export default function DataTable<TData, TValue>({
     setPageIndexList(temp);
   }, [pages]);
 
-  
+
   React.useEffect(() => {
     formRef?.current?.requestSubmit();
   }, [pageIndex]);
 
-  
+
   React.useEffect(() => {
     setPageIndex(1);
     formRef?.current?.requestSubmit();
@@ -140,10 +142,10 @@ export default function DataTable<TData, TValue>({
 
 
   return (
-      <div>
+    <div>
       <div className="flex flex-col gap-y-4 w-full max-w-full">
         <div className="flex">
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -174,13 +176,13 @@ export default function DataTable<TData, TValue>({
           </DropdownMenu>
         </div>
         <div className="flex max-w-full">
-              <Table className="bg-[#e3e3e3] rounded-xl w-full">
-                <TableHeader className="bg-[#dddddd] rounded-t-xl border-b-2 border-b-[#aaaaaa]">
+          <Table className={`w-full ${Theme.Style.tableBg}`}>
+            <TableHeader className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder}`}>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id} className=" text-[#444444]">
+                      <TableHead key={header.id} className={`${Theme.Style.tableHeadText}`}>
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -193,23 +195,23 @@ export default function DataTable<TData, TValue>({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
+            <TableBody className="">
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                    <TableRow id={row.id}
-                      key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="align-top text-[#333333]">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
-                    </TableRow>
+                  <TableRow id={row.id}
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className={`align-top border ${Theme.Style.tableCellBorder}  ${Theme.Style.tableCellText}`}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                  <TableCell colSpan={columns.length} className={`${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
                     No data.
                   </TableCell>
                 </TableRow>
@@ -295,6 +297,6 @@ export default function DataTable<TData, TValue>({
       <input type="hidden" name="pageSize" value={pageSize} />
       <input type="hidden" name="orderBy" value={sorting[0]?.id ?? 'createdAtUTC'} />
       <input type="hidden" name="orderDirection" value={"desc"} />
-      </div>
+    </div>
   )
 }

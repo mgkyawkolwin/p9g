@@ -4,6 +4,7 @@ import { twMerge } from "tailwind-merge"
 import { SearchParam, PagerParams, SearchFormFields } from "./types"
 import c from "./core/logger/ConsoleLogger";
 import { CustomError } from "./errors";
+import { Theme } from "./constants";
 
 /**
  * Merge two or more className into one.
@@ -118,7 +119,7 @@ export function calculateDayDifference(startDate:Date, endDate: Date){
 
 
 export function getCheckInDate(arrivalDate: Date){
-  if(arrivalDate.getHours() > 0 && arrivalDate.getHours() < 6){
+  if(arrivalDate.getHours() >= 0 && arrivalDate.getHours() <= 6){
     return new Date(arrivalDate.getFullYear(), arrivalDate.getMonth(), arrivalDate.getDate(), 0, 0, 0, 0);
   }else{
     return new Date(arrivalDate.getFullYear(), arrivalDate.getMonth(), arrivalDate.getDate() + 1, 0, 0, 0, 0);
@@ -127,11 +128,15 @@ export function getCheckInDate(arrivalDate: Date){
 
 
 export function getCheckOutDate(departureDate: Date){
-  if(departureDate.getHours() > 0 && departureDate.getHours() < 6){
+  if(departureDate.getHours() >= 0 && departureDate.getHours() <= 6){
     return new Date(departureDate.getFullYear(), departureDate.getMonth(), departureDate.getDate() - 1, 0, 0, 0, 0);
   }else{
     return new Date(departureDate.getFullYear(), departureDate.getMonth(), departureDate.getDate(), 0, 0, 0, 0);
   }
+}
+
+export function getMidNightDate(date:Date){
+  return new Date(date.getTime() + (23*60*60*1000) + (59*60*1000) + (59*1000) + 999);
 }
 
 
@@ -244,4 +249,16 @@ export function pagerWithDefaults(inputObject : PagerParams) : PagerParams {
     pageIndex : inputObject.pageIndex ?? 1,
     pageSize : inputObject.pageSize ?? 10
   }
+}
+
+
+export function getReservationStatusColorClass(status:string){
+  if(status === 'NEW')
+    return `text-[#333333] dark:text-[#dddddd]`;
+  else if(status === 'CIN')
+    return `text-[#008800] dark:text-[#00ff00]`;
+  else if(status === 'OUT')
+    return `text-[#888888] dark:text-[#888888]`;
+  else if(status === 'CCL')
+    return `text-[#cc0000] dark:text-[#ff0000]`;
 }

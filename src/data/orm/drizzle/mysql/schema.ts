@@ -13,7 +13,7 @@ export const billTable = mysqlTable("bill", {
   unitPrice: decimal("unitPrice").notNull(),
   quantity: tinyint("quantity").notNull(),
   amount: decimal("amount").notNull(),
-  isPaid: boolean("isPaid").notNull().default(false),
+  isPaid: boolean("isPaid").notNull(),
   paidOnUTC: datetime("paidOnUTC"),
   currency: char("currency", {length:3}),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),

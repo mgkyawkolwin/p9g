@@ -15,9 +15,9 @@ import { InputCustom } from "../uicustom/inputcustom"
 import { SelectCustom } from "../uicustom/selectcustom"
 import { SelectList } from "@/lib/constants"
 import BillDataTable from "../uicustom/billdatatable"
-import { DatePickerCustom } from "../uicustom/datepickercustom";
-import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
 import { Checkbox } from "../ui/checkbox";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 
 interface DataTableProps {
@@ -34,13 +34,8 @@ export default function BillEditDialog({
   c.i('Client > BillEditDialog');
   c.d(reservationId);
 
-  //   const [formState, formAction, isPending] = React.useActionState(saveBills, {
-  //     error: false,
-  //     message: ''
-  //   });
 
   const [open, setOpen] = React.useState(false);
-  // const [id, setId] = React.useState<string>(reservationId);
   const [bills, setBills] = React.useState<Bill[]>([]);
 
   const openDialog = (open: boolean) => {
@@ -53,7 +48,6 @@ export default function BillEditDialog({
       callbackFunctions({ openDialog });
     }
   }, [callbackFunctions]);
-
 
 
   const handleInputChange = (rowIndex: number, field: string, value: string | Date | boolean | undefined, compute: boolean = false) => {
@@ -74,6 +68,7 @@ export default function BillEditDialog({
     }
   };
 
+
   const columns = React.useMemo<ColumnDef<Bill>[]>(() => [
     {
       accessorKey: "index",
@@ -86,15 +81,17 @@ export default function BillEditDialog({
     {
       accessorKey: "dateUTC",
       header: 'Bill Date',
-      cell: (row) => <DateInputWithLabel type="date" label="" key={`${row.row.original.id}-dateUTC`}
-        value={new Date(row.row.original.dateUTC).toLocaleDateString('sv-SE')}
-        onChange={(e) => {
-          if (e.target.value) {
-            c.d(e.target.value);
-            handleInputChange(row.row.index, "dateUTC", new Date(e.target.value).toISOString());
-          }
-
-        }} />
+      cell: (row) => <DatePicker key={`${row.row.original.id}-dateUTC`}
+        selected={row.row.original.dateUTC}
+        onChange={(date: Date | null) => {
+          handleInputChange(row.row.index, "dateUTC", date);
+        }}
+        dateFormat="yyyy-MM-dd"
+        customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
+        placeholderText="yyyy-mm-dd"
+        isClearable={true}
+        showIcon
+      />
     },
     {
       accessorKey: "paymentType",
@@ -106,6 +103,16 @@ export default function BillEditDialog({
           onValueChange={value => handleInputChange(row.row.index, "paymentType", value)} />
       }
     },
+        {
+          accessorKey: "paymentMode",
+          header: 'Payment Mode',
+          cell: row => {
+            return <SelectCustom name={`paymentMode[${row.row.index}]`} key={`${row.row.original.id}-paymentMode`} // Crucial for maintaining focus
+              size={"sm"} items={SelectList.PAYMENT_MODE}
+              value={row.row.original.paymentMode}
+              onValueChange={value => handleInputChange(row.row.index, "paymentMode", value)} />
+          }
+        },
     {
       accessorKey: "itemName",
       header: 'Name',
@@ -155,7 +162,7 @@ export default function BillEditDialog({
       accessorKey: "isPaid",
       header: 'Is Paid',
       cell: (row) => <Checkbox key={`${row.row.original.id}-isPaid`}
-        checked={row.row.original.isPaid}
+        checked={Boolean(row.row.original.isPaid)}
         onCheckedChange={(checked) => {
           handleInputChange(row.row.index, "isPaid", checked.valueOf());
 
@@ -164,25 +171,24 @@ export default function BillEditDialog({
     {
       accessorKey: "paidOnUTC",
       header: 'Paid Date',
-      accessorFn: (row, index) => <DateInputWithLabel type="date" label="" key={`${row.id}-paidOnUTC`}
-        value={row.paidOnUTC ? new Date(row.paidOnUTC).toLocaleDateString('sv-SE') : ""}
-        onChange={(e) => {
-          if (e.target.value) {
-            c.d(e.target.value);
-            handleInputChange(index, "paidOnUTC", new Date(e.target.value).toISOString());
-          } else {
-            handleInputChange(index, "paidOnUTC", undefined);
-          }
-
-        }} />,
-      cell: row => row.getValue()
+      cell: (row) => <DatePicker key={`${row.row.original.id}-paidOnUTC`}
+        selected={row.row.original.paidOnUTC}
+        onChange={(date: Date | null) => {
+          handleInputChange(row.row.index, "paidOnUTC", date);
+        }}
+        dateFormat="yyyy-MM-dd"
+        customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
+        placeholderText="yyyy-mm-dd"
+        isClearable={true}
+        showIcon
+      />
     },
     {
       accessorKey: "action",
       header: "Action",
       cell: (row) => {
         return <div>
-          {getActionButton(row.row.original.id, row.row.original.reservationId, row.row.index)}
+          {getActionButton(row.row.original.id, reservationId, row.row.index)}
         </div>
       }
     },
@@ -208,10 +214,9 @@ export default function BillEditDialog({
 
   React.useEffect(() => {
     if (!reservationId || reservationId === 'undefined') return;
-    //reset
+    if (!open) return;
     setBills([]);
     const fetchBills = async () => {
-      // setId(reservationId);
       const response = await billsGet(reservationId);
       c.d(response.data);
       if (response.message)
@@ -226,11 +231,10 @@ export default function BillEditDialog({
         ));
         setBills(b);
       }
-
     };
     fetchBills();
+  }, [reservationId, open]);
 
-  }, [reservationId]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen} >

@@ -12,11 +12,12 @@ import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { reservationCheckOut } from "@/app/(private)/console/checkout/actions"
 import { toast } from "sonner"
+import { getReservationStatusColorClass } from "@/lib/utils";
 
 
 
 
-interface DataTableProps{
+interface DataTableProps {
   formState: FormState
   formAction: (formData: FormData) => void
   formRef: React.RefObject<HTMLFormElement | null>;
@@ -38,11 +39,11 @@ export default function CheckOutListTable({
       accessorFn: (row) => {
         return <span>
           <a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />
-          {row.reservationStatusText}<br />
-          {row.reservationTypeText} 
-          {row.prepaidPackageText ? <><br/>{row.prepaidPackageText}</> : ''}
-          {row.promotionPackageText ? <><br/>{row.promotionPackageText}</> : ''}
-          </span>;
+          <span className={`font-bold ${getReservationStatusColorClass(row.reservationStatusText)}`}>{row.reservationStatusText}</span><br />
+          <span>{row.reservationTypeText}</span>
+          {row.prepaidPackageText ? <span className="font-bold text-[#ff00ff] dark:text-[#ff00ff]"><br />{row.prepaidPackageText}</span> : ''}
+          {row.promotionPackageText ? <span className="font-bold text-[#dd5500] dark:text-[#ff9911]"><br />{row.promotionPackageText}</span> : ''}
+        </span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -79,7 +80,7 @@ export default function CheckOutListTable({
       header: "Check-In / Check-Out",
       accessorFn: (row) => {
         return <span>
-          {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')}<br/>
+          {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')}<br />
           {new Date(row.checkOutDateUTC!).toLocaleDateString('sv-SE')}<br />
           {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
