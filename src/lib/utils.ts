@@ -252,7 +252,7 @@ export function pagerWithDefaults(inputObject : PagerParams) : PagerParams {
 }
 
 
-export function getReservationStatusColorClass(status:String){
+export function getReservationStatusColorClass(status:string){
   if(status === 'NEW')
     return `text-[#333333] dark:text-[#dddddd]`;
   else if(status === 'CIN')

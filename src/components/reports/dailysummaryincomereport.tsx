@@ -143,50 +143,70 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                             totalPaid += Number(rp.totalPaid);
                             totalDue += Number(rp.totalDue);
 
-                            totalDepositBankKWR += Number(totalDepositBankKWR);
-                            totalDepositBankMMK += Number(totalDepositBankMMK);
-                            totalDepositBankTHB += Number(totalDepositBankTHB);
-                            totalDepositBankUSD += Number(totalDepositBankUSD);
+                            totalDepositBankKWR += Number(rp.totalDepositBankKWR);
+                            totalDepositBankMMK += Number(rp.totalDepositBankMMK);
+                            totalDepositBankTHB += Number(rp.totalDepositBankTHB);
+                            totalDepositBankUSD += Number(rp.totalDepositBankUSD);
 
-                            totalDepositCashKWR += Number(totalDepositCashKWR);
-                            totalDepositCashMMK += Number(totalDepositCashMMK);
-                            totalDepositCashTHB += Number(totalDepositCashTHB);
-                            totalDepositCashUSD += Number(totalDepositCashUSD);
+                            totalDepositCashKWR += Number(rp.totalDepositCashKWR);
+                            totalDepositCashMMK += Number(rp.totalDepositCashMMK);
+                            totalDepositCashTHB += Number(rp.totalDepositCashTHB);
+                            totalDepositCashUSD += Number(rp.totalDepositCashUSD);
 
-                            totalPickUpBankKWR += Number(totalPickUpBankKWR);
-                            totalPickUpBankMMK += Number(totalPickUpBankMMK);
-                            totalPickUpBankTHB += Number(totalPickUpBankTHB);
-                            totalPickUpBankUSD += Number(totalPickUpBankUSD);
+                            totalRoomChargeBankKWR += Number(rp.totalRoomChargeBankKWR);
+                            totalRoomChargeBankMMK += Number(rp.totalRoomChargeBankMMK);
+                            totalRoomChargeBankTHB += Number(rp.totalRoomChargeBankTHB);
+                            totalRoomChargeBankUSD += Number(rp.totalRoomChargeBankUSD);
 
-                            totalDropOffCashKWR += Number(totalDropOffCashKWR);
-                            totalDropOffCashMMK += Number(totalDropOffCashMMK);
-                            totalDropOffCashTHB += Number(totalDropOffCashTHB);
-                            totalDropOffCashUSD += Number(totalDropOffCashUSD);
+                            totalRoomChargeCashKWR += Number(rp.totalRoomChargeCashKWR);
+                            totalRoomChargeCashMMK += Number(rp.totalRoomChargeCashMMK);
+                            totalRoomChargeCashTHB += Number(rp.totalRoomChargeCashTHB);
+                            totalRoomChargeCashUSD += Number(rp.totalRoomChargeCashUSD);
 
-                            totalBillBankKWR += Number(totalBillBankKWR);
-                            totalBillBankMMK += Number(totalBillBankMMK);
-                            totalBillBankTHB += Number(totalBillBankTHB);
-                            totalBillBankUSD += Number(totalBillBankUSD);
+                            totalPickUpBankKWR += Number(rp.totalPickUpBankKWR);
+                            totalPickUpBankMMK += Number(rp.totalPickUpBankMMK);
+                            totalPickUpBankTHB += Number(rp.totalPickUpBankTHB);
+                            totalPickUpBankUSD += Number(rp.totalPickUpBankUSD);
 
-                            totalBillCashKWR += Number(totalBillCashKWR);
-                            totalBillCashMMK += Number(totalBillCashMMK);
-                            totalBillCashTHB += Number(totalBillCashTHB);
-                            totalBillCashUSD += Number(totalBillCashUSD);
+                            totalPickUpCashKWR += Number(rp.totalPickUpCashKWR);
+                            totalPickUpCashMMK += Number(rp.totalPickUpCashMMK);
+                            totalPickUpCashTHB += Number(rp.totalPickUpCashTHB);
+                            totalPickUpCashUSD += Number(rp.totalPickUpCashUSD);
 
-                            totalBankKWR += Number(totalBankKWR);
-                            totalBankMMK += Number(totalBankMMK);
-                            totalBankTHB += Number(totalBankTHB);
-                            totalBankUSD += Number(totalBankUSD);
+                            totalDropOffBankKWR += Number(rp.totalDropOffBankKWR);
+                            totalDropOffBankMMK += Number(rp.totalDropOffBankMMK);
+                            totalDropOffBankTHB += Number(rp.totalDropOffBankTHB);
+                            totalDropOffBankUSD += Number(rp.totalDropOffBankUSD);
 
-                            totalCashKWR += Number(totalCashKWR);
-                            totalCashMMK += Number(totalCashMMK);
-                            totalCashTHB += Number(totalCashTHB);
-                            totalCashUSD += Number(totalCashUSD);
+                            totalDropOffCashKWR += Number(rp.totalDropOffCashKWR);
+                            totalDropOffCashMMK += Number(rp.totalDropOffCashMMK);
+                            totalDropOffCashTHB += Number(rp.totalDropOffCashTHB);
+                            totalDropOffCashUSD += Number(rp.totalDropOffCashUSD);
 
-                            totalKWR += Number(totalKWR);
-                            totalMMK += Number(totalMMK);
-                            totalTHB += Number(totalTHB);
-                            totalUSD += Number(totalUSD);
+                            totalBillBankKWR += Number(rp.totalBillBankKWR);
+                            totalBillBankMMK += Number(rp.totalBillBankMMK);
+                            totalBillBankTHB += Number(rp.totalBillBankTHB);
+                            totalBillBankUSD += Number(rp.totalBillBankUSD);
+
+                            totalBillCashKWR += Number(rp.totalBillCashKWR);
+                            totalBillCashMMK += Number(rp.totalBillCashMMK);
+                            totalBillCashTHB += Number(rp.totalBillCashTHB);
+                            totalBillCashUSD += Number(rp.totalBillCashUSD);
+
+                            totalBankKWR += Number(rp.totalBankKWR);
+                            totalBankMMK += Number(rp.totalBankMMK);
+                            totalBankTHB += Number(rp.totalBankTHB);
+                            totalBankUSD += Number(rp.totalBankUSD);
+
+                            totalCashKWR += Number(rp.totalCashKWR);
+                            totalCashMMK += Number(rp.totalCashMMK);
+                            totalCashTHB += Number(rp.totalCashTHB);
+                            totalCashUSD += Number(rp.totalCashUSD);
+
+                            totalKWR += Number(rp.totalKWR);
+                            totalMMK += Number(rp.totalMMK);
+                            totalTHB += Number(rp.totalTHB);
+                            totalUSD += Number(rp.totalUSD);
 
 
                             return <tr key={index} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
