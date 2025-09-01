@@ -45,7 +45,7 @@ export default function CustomerDetailForm({ customer, resetDataToggle, onDataCh
             <InputWithLabel name="englishName" label="English Name" variant="default" size={"full"} labelPosition="top" onBlur={() => onDataChanged(localCustomer)}
                 value={localCustomer?.englishName ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, englishName: e.target.value }))} />
             <div className="flex flex-col gap-2">
-                <Label className="text-[10pt]">Check-out</Label>
+                <Label className="text-[10pt]">DOB</Label>
                 <DatePicker
                     selected={localCustomer?.dob ? new Date(localCustomer?.dob) : null}
                     onChange={(date: Date | null) => {

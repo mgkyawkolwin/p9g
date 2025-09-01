@@ -150,17 +150,8 @@ export abstract class Repository<TEntity extends IEntity, TTable extends  IDrizz
       : asc(getTableColumns(this.table)[pagerParams.orderBy]))
     .limit(pagerParams.pageSize)
     .offset(offset);
-
-    //Add search condition if parameters provided
-    // if (searchParams && searchParams.length > 0) {
-    //   c.i('Where applied.');
-    //   searchParams.forEach((searchParam : SearchParam) => {
-    //     const condition = like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`);
-    //     countQuery = countQuery.where(condition);
-    //     dataQuery = dataQuery.where(condition);
-    //   });
-    // }
-    countQuery = this.applyConditionAndPaging(countQuery, searchParams, pagerParams);
+    
+    countQuery = this.applyCondition(countQuery, searchParams);
     dataQuery = this.applyConditionAndPaging(dataQuery, searchParams, pagerParams);
 
     const [countResult, dataResult] = await Promise.all([
