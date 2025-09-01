@@ -35,12 +35,15 @@
 
 ## Version 1.2.0
 ### Added
-- Added manual editing function to room reservation (Issue #53)
+- Allow manual editing of room reservation and charges. (Issue #53)
 
 ### Changed
+- To Display Both English/Native Customer Names In Tables. (Issue #52)
 
 ### Deprecated
 
 ### Fixed
+- Display tour company name after saved. (Issue #54)
+- Customer Table Pagination Not Working. (Issue #48)
 
 ### Removed
