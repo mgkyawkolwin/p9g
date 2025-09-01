@@ -43,7 +43,7 @@ export const columns: ColumnDef<Reservation>[] = [
       return (
         <div className="flex flex-col">
         {
-          row.original.customers?.map(customer => (<span key={customer.id}>{customer.name}</span>))
+          row.original.customers?.map(customer => (<span key={customer.id}>{customer.englishName} {customer.name}</span>))
         }
         </div>
     )}

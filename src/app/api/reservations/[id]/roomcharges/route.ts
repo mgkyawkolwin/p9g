@@ -27,7 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
         //call service to retrieve data
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-        const result = await reservationService.roomChargesGetAll(id);
+        const result = await reservationService.roomChargeGetListById(id);
 
         c.i('Return GET /api/reservations/[id]/roomcharges');
         return NextResponse.json({ roomCharges: result }, { status: HttpStatusCode.Ok });

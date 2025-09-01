@@ -125,6 +125,38 @@ export const reservationValidator = z.object({
 });
 
 
+export const roomChargeValidator = z.object({
+  id: z.string().length(36).nullish().catch(undefined).optional(),
+  endDateUTC: z.coerce.date(),
+  extraBedRate: z.coerce.number(),
+  modelState: z.string(),
+  noOfDays: z.coerce.number(),
+  reservationId: z.string().length(36),
+  roomId: z.string().optional(),
+  roomRate: z.coerce.number(),
+  roomSurcharge: z.coerce.number(),
+  roomTypeId: z.string().optional(),
+  seasonSurcharge: z.coerce.number(),
+  singleRate: z.coerce.number(),
+  startDateUTC: z.coerce.date(),
+  totalRate: z.coerce.number(),
+  totalAmount: z.coerce.number(),
+});
+
+
+export const roomReservationValidator = z.object({
+  id: z.string().length(36).nullish().catch(undefined).optional(),
+  checkInDateUTC: z.coerce.date(),
+  checkOutDateUTC: z.coerce.date(),
+  isSingleOccupancy: z.coerce.boolean(),
+  noOfExtraBed: z.coerce.number(),
+  reservationId: z.string().length(36),
+  roomId: z.string().length(36).nullish().catch(undefined).optional(),
+  roomNo: z.string(),
+  modelState: z.string()
+});
+
+
 export const searchSchema = z.object({
   searchId: z.string().nullish().catch(undefined).optional(),
   searchRoomNo: z.string().nullish().catch(undefined).optional(),

@@ -1,5 +1,5 @@
 import { calculateDayDifference } from "@/lib/utils";
-import RoomReservation from "../dtos/RoomReservation";
+import RoomReservation from "../models/RoomReservation";
 import Reservation from "../models/Reservation";
 import RoomCharge from "../models/RoomCharge";
 import RoomRate from "../models/RoomRate";

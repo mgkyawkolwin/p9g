@@ -14,6 +14,7 @@ import RoomCharge from "../models/RoomCharge";
 import { timeStamp } from "console";
 import RoomRateEngine from "../engines/RoomRateEngine";
 import { CustomError } from "@/lib/errors";
+import RoomReservation from "../models/RoomReservation";
 
 @injectable()
 export default class ReservationService implements IReservationService{
@@ -24,22 +25,22 @@ export default class ReservationService implements IReservationService{
     }
 
 
-    async billDelete(reservationId: string, billId: string): Promise<void> {
+    async billDeleteById(reservationId: string, billId: string): Promise<void> {
         if(!reservationId) throw new CustomError('Service: Reservation id is required.');
         if(!billId) throw new CustomError('Service: Reservation id is required.');
         return await this.reservationRepository.billDelete(reservationId, billId);
     }
 
 
-    async billsGet(reservationId: string): Promise<Bill[]> {
+    async billGetListById(reservationId: string): Promise<Bill[]> {
         c.i('ReservationService > billsGet');
-        return await this.reservationRepository.billsGetAll(reservationId);
+        return await this.reservationRepository.billGetListById(reservationId);
     }
     
 
-    async billsSave(reservationId:string, bills: Bill[]): Promise<void> {
+    async billUpdateList(reservationId:string, bills: Bill[]): Promise<void> {
         c.i('ReservationService > billsSave');
-        await this.reservationRepository.billsSave(reservationId, bills);
+        await this.reservationRepository.billUpdateList(reservationId, bills);
         c.i('RETURN ReservationService > billsSave');
     }
 
@@ -47,7 +48,7 @@ export default class ReservationService implements IReservationService{
     async billsView(reservationId: string): Promise<Invoice> {
         c.i('ReservationService > billsView');
         const invoice = new Invoice();
-        const paidBills = await this.reservationRepository.billsGetPaids(reservationId);
+        const paidBills = await this.reservationRepository.billGetListPaid(reservationId);
         invoice.PaidBills = paidBills;
         invoice.PaidTotals = Object.entries(
             paidBills.reduce((acc, bill) => {
@@ -57,7 +58,7 @@ export default class ReservationService implements IReservationService{
             }, {})
         ).map(([currency, total]) => ({total: total, currency: currency}) as CurrencyTotal);
 
-        const unPaidBills = await this.reservationRepository.billsGetUnpaids(reservationId);
+        const unPaidBills = await this.reservationRepository.billGetListUnpaid(reservationId);
         invoice.UnPaidBills = unPaidBills;
         invoice.UnPaidTotals = Object.entries(
             unPaidBills.reduce((acc, bill) => {
@@ -89,22 +90,22 @@ export default class ReservationService implements IReservationService{
     }
 
 
-    async paymentsDelete(reservationId: string, paymentId: string): Promise<void> {
+    async paymentDeleteById(reservationId: string, paymentId: string): Promise<void> {
         if(!reservationId) throw new CustomError('Service: Reservation id is required.');
         if(!paymentId) throw new CustomError('Service: Reservation id is required.');
         return await this.reservationRepository.paymentDelete(reservationId, paymentId);
     }
     
     
-    async paymentsGet(reservationId: string): Promise<Payment[]> {
+    async paymentGetListById(reservationId: string): Promise<Payment[]> {
         c.i('ReservationService > paymentsGet');
-        return await this.reservationRepository.paymentsGetAll(reservationId);
+        return await this.reservationRepository.paymentGetListById(reservationId);
     }
     
 
-    async paymentsSave(reservationId:string, payments: Payment[]): Promise<void> {
+    async paymentUpdateList(reservationId:string, payments: Payment[]): Promise<void> {
         c.i('ReservationService > paymentsSave');
-        await this.reservationRepository.paymentsSave(reservationId, payments);
+        await this.reservationRepository.paymentUpdateList(reservationId, payments);
         c.i('RETURN ReservationService > paymentsSave');
     }
 
@@ -112,7 +113,7 @@ export default class ReservationService implements IReservationService{
     async paymentsView(reservationId: string): Promise<Invoice> {
         c.i('ReservationService > paymentsView');
         const invoice = new Invoice();
-        const paidBills = await this.reservationRepository.billsGetPaids(reservationId);
+        const paidBills = await this.reservationRepository.billGetListPaid(reservationId);
         invoice.PaidBills = paidBills;
         invoice.PaidTotals = Object.entries(
             paidBills.reduce((acc, bill) => {
@@ -122,7 +123,7 @@ export default class ReservationService implements IReservationService{
             }, {})
         ).map(([currency, total]) => ({total: total, currency: currency}) as CurrencyTotal);
 
-        const unPaidBills = await this.reservationRepository.billsGetUnpaids(reservationId);
+        const unPaidBills = await this.reservationRepository.billGetListUnpaid(reservationId);
         invoice.UnPaidBills = unPaidBills;
         invoice.UnPaidTotals = Object.entries(
             unPaidBills.reduce((acc, bill) => {
@@ -154,25 +155,25 @@ export default class ReservationService implements IReservationService{
     }
     
 
-    async reservationCheckInList(searchParams: SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
+    async reservationGetListCheckIn(searchParams: SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
         c.i('ReservationService > reservationCheckInList');
         c.d(searchParams);
         c.d(pagerParams);
         pagerParams.orderBy = "checkInDateUTC";
         pagerParams.orderDirection = "desc";
         
-        return await this.reservationRepository.reservationCheckInList(searchParams, pagerParams);
+        return await this.reservationRepository.reservationGetListCheckIn(searchParams, pagerParams);
     }
     
 
-    async reservationCheckOutList(searchParams: SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
+    async reservationGetListCheckOut(searchParams: SearchParam[], pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
         c.i('ReservationService > reservationCheckInList');
         c.d(searchParams);
         c.d(pagerParams);
         pagerParams.orderBy = "checkInDateUTC";
         pagerParams.orderDirection = "desc";
         
-        return await this.reservationRepository.reservationCheckOutList(searchParams, pagerParams);
+        return await this.reservationRepository.reservationGetListCheckOut(searchParams, pagerParams);
     }
 
 
@@ -190,13 +191,13 @@ export default class ReservationService implements IReservationService{
         const createdReservation = await this.reservationRepository.reservationCreate(reservation);
 
         if(reservation.roomNo && reservation.roomNo.trim() !== ''){
-            const roomReservations = await this.reservationRepository.roomReservationGetAllById(reservation.id);
+            const roomReservations = await this.reservationRepository.roomReservationGetListById(reservation.id, false);
             const roomTypes = await this.reservationRepository.roomTypeGetAll(reservation.location);
             const roomRates = await this.reservationRepository.roomRateGetAll(reservation.location);
             const roomCharges = await RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
             if(!roomCharges || roomCharges.length === 0)
                 throw new Error('Invalid room charge calculation.');
-            const result = await this.reservationRepository.roomChargesSave(reservation.id, roomCharges);
+            const result = await this.reservationRepository.roomChargeUpdateList(reservation.id, roomCharges);
             if(!result)
                 throw new Error('Room charges saved failed.');
             const totalRoomCharges = roomCharges.reduce((accu,rc) => accu += rc.totalAmount,0);
@@ -213,13 +214,13 @@ export default class ReservationService implements IReservationService{
     }
 
 
-    async reservationFindById(id:string): Promise<Reservation|undefined> {
+    async reservationGetById(id:string): Promise<Reservation|undefined> {
         c.i('ReservationService > reservationFindById');
-        return this.reservationRepository.reservationFindById(id);
+        return this.reservationRepository.reservationGetById(id);
     }
     
 
-    async reservationFindMany(searchParams: SearchParam[], pagerParams:PagerParams, list:string): Promise<[Reservation[], PagerParams]> {
+    async reservationGetList(searchParams: SearchParam[], pagerParams:PagerParams, list:string): Promise<[Reservation[], PagerParams]> {
         c.i('ReservationService > reservationFindMany');
         c.d(searchParams);
         c.d(pagerParams);
@@ -227,16 +228,16 @@ export default class ReservationService implements IReservationService{
         pagerParams.orderDirection = "desc";
         c.d(pagerParams);
         if(list === 'checkin')
-            return await this.reservationRepository.reservationCheckInList(searchParams, pagerParams);
+            return await this.reservationRepository.reservationGetListCheckIn(searchParams, pagerParams);
         else if(list === 'checkout')
-            return await this.reservationRepository.reservationCheckOutList(searchParams, pagerParams);
+            return await this.reservationRepository.reservationGetListCheckOut(searchParams, pagerParams);
         else if(list === 'top'){
             pagerParams.orderBy = "createdAtUTC";
             pagerParams.orderDirection = "desc";
-            return await this.reservationRepository.reservationCheckOutList(searchParams, pagerParams);
+            return await this.reservationRepository.reservationGetListCheckOut(searchParams, pagerParams);
         }
         else
-            return await this.reservationRepository.reservationFindMany(searchParams, pagerParams);
+            return await this.reservationRepository.reservationGetList(searchParams, pagerParams);
     }
 
     
@@ -250,53 +251,69 @@ export default class ReservationService implements IReservationService{
     }
     
 
-    async reservationTopList(pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
+    async reservationGetListTop(pagerParams : PagerParams): Promise<[Reservation[], PagerParams]> {
         c.i('ReservationService > reservationTopList');
         c.d(pagerParams);
         pagerParams.orderBy = "createdAtUTC";
         pagerParams.orderDirection = "desc";
         c.d(pagerParams);
-        return await this.reservationRepository.reservationFindMany([], pagerParams);
+        return await this.reservationRepository.reservationGetList([], pagerParams);
     }
     
 
-    async roomChargesGetAll(reservationId: string): Promise<RoomCharge[]> {
+    async roomChargeGetListById(reservationId: string): Promise<RoomCharge[]> {
         c.i('ReservationService > roomChargesGetAll');
-        return await this.reservationRepository.roomChargesGetAll(reservationId);
+        return await this.reservationRepository.roomChargeGetListById(reservationId);
     }
     
 
-    async roomReservationList(searchParams: SearchParam[]): Promise<Room[]> {
+    async roomReservationGetListById(reservationId:string, includeChildren:boolean): Promise<RoomReservation[]> {
+        c.i('ReservationService > roomReservationGetListById');
+        return await this.reservationRepository.roomReservationGetListById(reservationId, includeChildren);
+    }
+    
+
+    async roomReservationGetList(searchParams: SearchParam[]): Promise<Room[]> {
         c.i('ReservationService > roomReservationList');
         if(searchParams[0].searchColumn != SearchParams.date && !searchParams[0].searchValue)
             throw new Error('Invalid search field.');
-        return await this.reservationRepository.roomAndReservationList(searchParams);
+        return await this.reservationRepository.roomAndReservationGetList(searchParams);
+    }
+
+
+    async roomReservationUpdateList(reservationId:string, roomReservations: RoomReservation[]): Promise<boolean> {
+        c.i('ReservationService > roomReservationUpdateList');
+        if(!reservationId || reservationId === 'undefined')
+            throw new Error('Room reservation update failed. Reservation id is required.');
+        if(!roomReservations || roomReservations.length === 0)
+            throw new Error('Room reservation update failed. No data to process.');
+        return await this.reservationRepository.roomReservationUpdateList(reservationId, roomReservations);
     }
     
 
-    async roomScheduleList(searchParams: SearchParam[]): Promise<Room[]> {
+    async roomScheduleGetList(searchParams: SearchParam[]): Promise<Room[]> {
         c.i('ReservationService > roomScheduleList');
-        return await this.reservationRepository.roomScheduleList(searchParams);
+        return await this.reservationRepository.roomScheduleGetList(searchParams);
     }
 
 
-    async updateDropOffInfo(id:string, carNo:string, driver:string) : Promise<void>{
+    async reservationUpdateDropOffInfo(id:string, carNo:string, driver:string) : Promise<void>{
         c.i('ReservationRepository > updateDropOffCarNo');
         if(!id || id === 'undefined')
             throw new Error('Car number update failed. Id is required.');
 
         c.i('Return ReservationService> updatePickUpCarNo');
-        return await this.reservationRepository.updateDropOffInfo(id, carNo, driver);
+        return await this.reservationRepository.reservationUpdateDropOffInfo(id, carNo, driver);
     }
 
 
-    async updatePickUpInfo(id:string, carNo:string,  driver:string) : Promise<void>{
+    async reservationUpdatePickUpInfo(id:string, carNo:string,  driver:string) : Promise<void>{
         c.i('ReservationRepository > updatePickUpCarNo');
         if(!id || id === 'undefined')
             throw new Error('Car number update failed. Id is required.');
 
         c.i('Return ReservationService> updatePickUpCarNo');
-        return await this.reservationRepository.updatePickUpInfo(id, carNo,driver);
+        return await this.reservationRepository.reservationUpdatePickUpInfo(id, carNo,driver);
     }
 
     
@@ -316,13 +333,13 @@ export default class ReservationService implements IReservationService{
             throw new Error('Reservation update failed.');
 
         if(reservation.roomNo && reservation.roomNo.trim() !== ''){
-            const roomReservations = await this.reservationRepository.roomReservationGetAllById(updatedReservation.id);
+            const roomReservations = await this.reservationRepository.roomReservationGetListById(updatedReservation.id, false);
             const roomTypes = await this.reservationRepository.roomTypeGetAll(updatedReservation.location);
             const roomRates = await this.reservationRepository.roomRateGetAll(updatedReservation.location);
             const roomCharges = await RoomRateEngine.calculate(updatedReservation, roomReservations, roomTypes, roomRates);
             if(!roomCharges || roomCharges.length === 0)
                 throw new Error('Invalid room charge calculation.');
-            const result = await this.reservationRepository.roomChargesSave(updatedReservation.id, roomCharges);
+            const result = await this.reservationRepository.roomChargeUpdateList(updatedReservation.id, roomCharges);
             if(!result)
                 throw new Error('Room charges saved failed.');
             const totalRoomCharges = roomCharges.reduce((accu,rc) => accu += rc.totalAmount,0);

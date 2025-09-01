@@ -50,6 +50,7 @@ export default class Reservation{
     public reservationType: string = 'GENERAL';
     public reservationTypeId: string | null = null;
     public reservationTypeText: string | null = null;
+    public tourCompany: string | null = null;
     public totalAmount: number = 0;
     public paidAmount: number = 0;
     public discountAmount: number = 0;

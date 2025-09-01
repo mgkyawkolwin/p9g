@@ -1,5 +1,8 @@
-export default class RoomCharge{
-    public id!:string;
+import ModelBase from "./ModelBase";
+import { v4 as uuidv4 } from 'uuid';
+
+export default class RoomCharge extends ModelBase{
+    public id:string = uuidv4();
     public reservationId!: string;
     public startDateUTC!:Date;
     public endDateUTC!:Date;

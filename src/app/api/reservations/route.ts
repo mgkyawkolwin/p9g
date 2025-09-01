@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     //call service to retrieve data
     const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-    const result = await reservationService.reservationFindMany(searchFields, pager, searchParams.list);
+    const result = await reservationService.reservationGetList(searchFields, pager, searchParams.list);
     //c.d(JSON.stringify(result));
 
     return NextResponse.json({ data: result }, { status: 200 });

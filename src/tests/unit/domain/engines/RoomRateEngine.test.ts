@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { userTable } from '@/data/orm/drizzle/mysql/schema';
 import RoomRateEngine, { MonthDetail } from '@/domain/engines/RoomRateEngine';
 import Reservation from '@/domain/models/Reservation';
-import RoomReservation from '@/domain/dtos/RoomReservation';
+import RoomReservation from '@/domain/models/RoomReservation';
 import RoomType from '@/domain/models/RoomType';
 import RoomRate from '@/domain/models/RoomRate';
 import { reservationCheckIn } from '@/app/(private)/console/checkin/actions';

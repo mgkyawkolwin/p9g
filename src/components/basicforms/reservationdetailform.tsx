@@ -83,7 +83,9 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                             <div className="flex items-center gap-2">
                                 <RadioGroupItem className="border-[#bbb]" value="TOUR" id="r3" />
                                 <Label htmlFor="r3">Tour</Label>
-                                <InputCustom name="tourCompany" variant="form" size="full"/>
+                                <InputCustom name="tourCompany" variant="form" size="full"
+                                value={reservation?.tourCompany ? reservation?.tourCompany : ''}
+                                onChange={e => setReservation(prev => ({...prev, tourCompany: e.target.value ? e.target.value : ""}))} />
                             </div>
                         </div>
                     </RadioGroup>
