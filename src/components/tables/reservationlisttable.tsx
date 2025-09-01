@@ -19,6 +19,7 @@ import { reservationCancel } from "@/app/(private)/console/reservations/actions"
 import { toast } from "sonner";
 import { getReservationStatusColorClass } from "@/lib/utils";
 import { Theme } from "@/lib/constants";
+import RoomChargeDialog from "../dialogs/roomschargedialog";
 
 
 interface DataTableProps {
@@ -32,8 +33,6 @@ export default function ReservationListTable({
   formAction,
   formRef
 }: DataTableProps) {
-  c.i('Client > ReservationListTable');
-  c.d(JSON.stringify(formState));
 
   const router = useRouter();
 
@@ -41,6 +40,7 @@ export default function ReservationListTable({
   const paymentDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
   const editDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
   const viewDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
+  const roomDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
 
   const columns: ColumnDef<Reservation>[] = [
     {
@@ -69,7 +69,7 @@ export default function ReservationListTable({
           {row.original.customers?.map((customer, i) => (
             <React.Fragment key={i}>
               {i > 0 && <br />}
-              {customer.name}<br /> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
+              {customer.englishName} {customer.name}<br /> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
             </React.Fragment>
           ))}
         </div>
@@ -116,6 +116,13 @@ export default function ReservationListTable({
       header: "Action",
       cell: ({ row }) => {
         return <div className="flex flex-col gap-1">
+          <div className="flex gap-1">
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+              roomDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+
+            }}>Rooms & Charges</ButtonCustom>
+          </div>
           <div className="flex gap-1">
             <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
               receiptDialogCallbackFunc.current?.openDialog(true);
@@ -189,6 +196,7 @@ export default function ReservationListTable({
       <PaymentDialog reservationId={reservationId} callbackFunctions={(func) => { paymentDialogCallbackFunc.current = func }} />
       <BillEditDialog reservationId={reservationId} callbackFunctions={(func) => { editDialogCallbackFunc.current = func }} />
       <BillDialog reservationId={reservationId} callbackFunctions={(func) => { viewDialogCallbackFunc.current = func }} />
+      <RoomChargeDialog reservationId={reservationId} callbackFunctions={(func) => { roomDialogCallbackFunc.current = func }} />
     </>
   )
 }

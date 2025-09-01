@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     //call service to retrieve data
     c.i('Calling reservation service');
     const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-    const result = await reservationService.roomReservationList(searchParams);
+    const result = await reservationService.roomReservationGetList(searchParams);
     c.d(JSON.stringify(result));
 
     return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });

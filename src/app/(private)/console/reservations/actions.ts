@@ -1,5 +1,5 @@
 'use server';
-import { billValidator, pagerValidator, paymentValidator, searchSchema } from '@/lib/zodschema';
+import { billValidator, pagerValidator, paymentValidator, roomChargeValidator, roomReservationValidator, searchSchema } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
@@ -7,6 +7,8 @@ import Bill from '@/domain/models/Bill';
 import { headers } from 'next/headers';
 import { auth } from '@/app/auth';
 import Payment from '@/domain/models/Payment';
+import RoomReservation from '@/domain/models/RoomReservation';
+import RoomCharge from '@/domain/models/RoomCharge';
 
 export async function reservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
@@ -369,9 +371,9 @@ export async function paymentsView(id:string) : Promise<FormState>{
 }
 
 
-export async function roomChargesGet(id:string) : Promise<FormState>{
+export async function roomChargeGetListById(id:string) : Promise<FormState>{
   try {
-    c.i('Actions > /console/reservations/ > roomChargesGet');
+    c.i('Actions > /console/reservations/ > roomChargeGetListById');
     c.d(id);
 
     const response = await fetch(process.env.API_URL + `reservations/${id}/roomcharges`, {
@@ -393,6 +395,121 @@ export async function roomChargesGet(id:string) : Promise<FormState>{
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return {error: true, message: 'Failed to get room charges.', data: null, formData: null};
+  }
+}
+
+
+export async function roomChargeUpdateList(id: string, roomCharges: RoomCharge[]) : Promise<FormState>{
+  try {
+    c.i('Actions > /console/reservations/ > roomChargeUpdateList');
+    c.d(roomCharges);
+
+    //validate and parse form input
+    roomCharges.forEach(async (roomCharge) => {
+      const validatedFields = await roomChargeValidator.safeParseAsync(roomCharge);
+      c.d(validatedFields);
+
+      //form validation fail
+      if (!validatedFields.success) {
+        c.d(validatedFields.error.flatten().fieldErrors);
+        return { error: true, message: 'Invalid inputs.', data: null, formData: null};
+      }
+    });
+
+    //update bills
+    const response = await fetch(process.env.API_URL + `reservations/${id}/roomcharges`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      },
+      body: JSON.stringify(roomCharges),
+    });
+
+    const result = await response.json();
+    
+    //update user failed
+    if (!response.ok) {
+      return { error: true, message: 'Failed to save room charges.', data: null, formData: null};
+    }
+    
+    return {error: false, message:"Room charges saved.", data: result.data, formData: null};
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error: true, message: `Failed to save room charges. ${error instanceof Error ? error.message : ''}`, data: null, formData: null};
+  }
+}
+
+
+export async function roomReservationGetListById(id:string) : Promise<FormState>{
+  try {
+    c.i('Actions > /console/reservations/ > roomReservationGetListById');
+    c.d(id);
+
+    const response = await fetch(process.env.API_URL + `reservations/${id}/roomreservations`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
+    });
+
+    const result = await response.json();
+    c.d(result.roomReservations);
+    
+    if (!response.ok) {
+      c.e(result.message);
+      return { error: true, message: `Failed to get room reservations. ${result.message}`, data: null, formData: null};
+    }
+    
+    return {error: false, message:"", data: result.roomReservations};
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error: true, message: 'Failed to get room reservations.', data: null, formData: null};
+  }
+}
+
+
+export async function roomReservationUpdateList(id: string, roomReservations: RoomReservation[]) : Promise<FormState>{
+  try {
+    c.i('Actions > /console/reservations/ > roomReservationUpdateList');
+    c.d(roomReservations);
+
+    c.i('Validate and parse form input.');
+    roomReservations.forEach(async (roomReservation) => {
+      const validatedFields = await roomReservationValidator.safeParseAsync(roomReservation);
+      c.d(validatedFields);
+
+      //form validation fail
+      if (!validatedFields.success) {
+        c.d(validatedFields.error.flatten().fieldErrors);
+        return { error: true, message: 'Invalid inputs.', data: null, formData: null};
+      }
+    });
+
+    c.i('Calling service to update room reservations.');
+    const response = await fetch(process.env.API_URL + `reservations/${id}/roomreservations`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      },
+      body: JSON.stringify(roomReservations),
+    });
+
+    c.i('Service called. Processing response.');
+    const result = await response.json();
+    c.d(result.data);
+    
+    //update user failed
+    if (!response.ok) {
+      return { error: true, message: `Failed to save room reservations. ${result.message}`, data: null, formData: null};
+    }
+    
+    return {error: false, message:"Room charges saved.", data: result.data, formData: null};
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error: true, message: `Failed to save room reservations. ${error instanceof Error ? error.message : ''}`, data: null, formData: null};
   }
 }
 

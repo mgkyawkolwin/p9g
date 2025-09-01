@@ -32,3 +32,15 @@
 - to clear guest information, after creating reservation (Issue #36)
 
 ### Removed
+
+## Version 1.2.0
+### Added
+- Added manual editing function to room reservation (Issue #53)
+
+### Changed
+
+### Deprecated
+
+### Fixed
+
+### Removed

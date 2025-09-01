@@ -28,7 +28,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     //call service to retrieve data
     const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-    const result = await reservationService.reservationFindById(id);
+    const result = await reservationService.reservationGetById(id);
     c.d(JSON.stringify(result));
 
     c.i('Return GET /api/reservations/[id]');

@@ -32,7 +32,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
         //call service to retrieve data
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-        await reservationService.billDelete(id, billId);
+        await reservationService.billDeleteById(id, billId);
 
         return NextResponse.json({ status: HttpStatusCode.Ok });
     } catch (error) {

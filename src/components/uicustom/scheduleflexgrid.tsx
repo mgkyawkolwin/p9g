@@ -2,7 +2,7 @@
 
 import Room from '@/domain/models/Room';
 import React from 'react';
-import RoomReservation from '@/domain/dtos/RoomReservation';
+import RoomReservation from '@/domain/models/RoomReservation';
 import { Theme } from '@/lib/constants';
 
 const reservationColors = [
