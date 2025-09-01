@@ -1,11 +1,11 @@
 @END_POINT=http://localhost:3000/api/
-@id=02f7ae69-c779-461b-8222-0d09dc320a58
+@id=20afed56-f220-43de-b7c8-be5488da80fa
 
 # /api/reservations/top - get latest 10 reservation list
 curl --request GET \
-  --url {{END_POINT}}reservations/{{id}}/roomcharges \
+  --url {{END_POINT}}reservations/{{id}}/roomreservations \
   --header 'Content-Type: application/json'
-  --header 'cookie: authjs.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiYjZGd1lJMXpQN3hnby1QU3RzanRhdDZTRFBYaEp3dlE2TEJqSHFZNXI4NWxacUdTV2V6Tm5vTU5WMV81NVBBNjJhYVJ3VS1lNWxZS2xEQXhTbG9LZ1EifQ..ZeFyQGqBnKyYOl1ghRIgMw.NiRDZlZ2PV5m5Jhwvji0FbBNReHEvpd6EF4wGEvvVWr6NCzFjbosnLsT0eBrJ7ITCnNon-rClvWCL29LK0i47MqBR223iFwDIkoUSsC3z22bWdMDnOOLAiEzpSb9wnsH_qaQZrEawmulG9zrspvQQGNwVOuiRwhbkdbwvalz9eUUWoiwd7p8CEmduDm9GI_Q-iznSUGa4rJuSOHnelFhbs1msf4esHkjBldx5sHDFwE0T10MjNRuMvgMX9aJtL3I.E6Uyj3Rh3RB2j5LUv8AgFrXnBhIBRoV2sIvqmIGmo4I'
+  --header 'cookie: authjs.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiYjZGd1lJMXpQN3hnby1QU3RzanRhdDZTRFBYaEp3dlE2TEJqSHFZNXI4NWxacUdTV2V6Tm5vTU5WMV81NVBBNjJhYVJ3VS1lNWxZS2xEQXhTbG9LZ1EifQ..QEhiACYKG2uYlX9OhG5gPw.o2_3bmtafkhpQWOMSSBUa2Lx0nLUtcE55kmQLDUU2UeG-Cm7FsUCmBG8ltnp5CNgMOF1Xnlet1IvN7wdy3yGusr8uoWnqGwIFJVzdvY2MWBWSOJLpwFm3pFl98hZkQIiuvhehtPGruSv0ldHtmYXmKX3PPVwcJus5S9xyTQTwIrHXLJeLYomu3waZwM3ZeEBQn2FJobVMSjUR7n8K17vESNEyR6i3O9VwgrgKf7oAWE82GWUwuirfHNPH_oVi_YvkSFm6JHIOtv7DsMjW-6bmKXF4jXZGmzn6licKrie66E.R_INxhBKeORggpBtn5fPZk0h8rAw_kc2l3X8nJxAtkg'
 ###
 
 # /api/reservations/top - get latest 10 reservation list

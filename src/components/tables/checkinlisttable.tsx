@@ -54,7 +54,7 @@ export default function CheckInListTable({
           {row.original.customers?.map((customer, i) => (
             <React.Fragment key={i}>
               {i > 0 && <br />}
-              {customer.name}<br /> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
+              {customer.englishName} {customer.name}<br /> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
             </React.Fragment>
           ))}
         </div>

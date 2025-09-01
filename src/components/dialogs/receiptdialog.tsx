@@ -8,7 +8,7 @@ import {
 import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
-import { paymentsGet, paymentsSave, roomChargesGet } from "@/app/(private)/console/reservations/actions"
+import { paymentsGet, paymentsSave, roomChargeGetListById } from "@/app/(private)/console/reservations/actions"
 import { toast } from "sonner";
 import { InputCustom } from "../uicustom/inputcustom"
 import { SelectCustom } from "../uicustom/selectcustom"
@@ -68,7 +68,7 @@ export default function ReceiptDialog({
     setRoomCharges([]);
     const fetchData = async () => {
         // setId(reservationId);
-        const response = await roomChargesGet(reservationId);
+        const response = await roomChargeGetListById(reservationId);
         c.d(response.data);
         if(response.message)
             toast(response.message);

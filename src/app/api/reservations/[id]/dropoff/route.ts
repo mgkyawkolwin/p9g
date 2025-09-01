@@ -28,7 +28,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     //call service to retrieve data
     const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-    await reservationService.updateDropOffInfo(id, body.carNo, body.driver);
+    await reservationService.reservationUpdateDropOffInfo(id, body.carNo, body.driver);
 
 
     c.i('Return PATCH /api/reservations/[id]/dropoff');

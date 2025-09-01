@@ -27,7 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
         //call service to retrieve data
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-        const result = await reservationService.paymentsGet(id);
+        const result = await reservationService.paymentGetListById(id);
 
         c.i('Return GET /api/reservations/[id]/payments');
         return NextResponse.json({ payments: result }, { status: HttpStatusCode.Ok });
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         c.d(payments);
         //call service to retrieve data
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-        await reservationService.paymentsSave(id, payments);
+        await reservationService.paymentUpdateList(id, payments);
 
 
         c.i('Return POST /api/reservations/[id]/payments');
