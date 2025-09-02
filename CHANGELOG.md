@@ -47,3 +47,18 @@
 - Customer Table Pagination Not Working. (Issue #48)
 
 ### Removed
+
+
+## Version 1.3.0
+### Added
+- To create person report . (Issue #57)
+
+### Changed
+- To change calculation logic for daily summary guests & rooms report. (Issue #58)
+
+### Deprecated
+
+### Fixed
+- Room charge auto calculation date issue. (Issue #59)
+
+### Removed
