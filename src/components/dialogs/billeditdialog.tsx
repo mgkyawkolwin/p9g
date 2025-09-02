@@ -103,16 +103,16 @@ export default function BillEditDialog({
           onValueChange={value => handleInputChange(row.row.index, "paymentType", value)} />
       }
     },
-        {
-          accessorKey: "paymentMode",
-          header: 'Payment Mode',
-          cell: row => {
-            return <SelectCustom name={`paymentMode[${row.row.index}]`} key={`${row.row.original.id}-paymentMode`} // Crucial for maintaining focus
-              size={"sm"} items={SelectList.PAYMENT_MODE}
-              value={row.row.original.paymentMode}
-              onValueChange={value => handleInputChange(row.row.index, "paymentMode", value)} />
-          }
-        },
+    {
+      accessorKey: "paymentMode",
+      header: 'Mode',
+      cell: row => {
+        return <SelectCustom name={`paymentMode[${row.row.index}]`} key={`${row.row.original.id}-paymentMode`} // Crucial for maintaining focus
+          size={"xs"} items={SelectList.PAYMENT_MODE}
+          value={row.row.original.paymentMode}
+          onValueChange={value => handleInputChange(row.row.index, "paymentMode", value)} />
+      }
+    },
     {
       accessorKey: "itemName",
       header: 'Name',
@@ -125,7 +125,7 @@ export default function BillEditDialog({
     {
       accessorKey: "unitPrice",
       header: 'Unit Price',
-      cell: (row) => <InputCustom size={"sm"} key={`${row.row.original.id}-unitPrice`} // Crucial for maintaining focus
+      cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-unitPrice`} // Crucial for maintaining focus
         value={row.row.original.unitPrice}
         onChange={e => {
           handleInputChange(row.row.index, "unitPrice", e.target.value);
@@ -135,8 +135,8 @@ export default function BillEditDialog({
     },
     {
       accessorKey: "quantity",
-      header: 'Quantity',
-      cell: (row) => <InputCustom size={"sm"} key={`${row.row.original.id}-quantity`} // Crucial for maintaining focus
+      header: 'Qty',
+      cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-quantity`} // Crucial for maintaining focus
         value={row.row.original.quantity}
         onChange={e => {
           handleInputChange(row.row.index, "quantity", e.target.value);
@@ -153,7 +153,7 @@ export default function BillEditDialog({
       header: 'Currency',
       cell: row => {
         return <SelectCustom name={`currency[${row.row.index}]`} key={`${row.row.original.id}-currency`} // Crucial for maintaining focus
-          size={"sm"} items={SelectList.CURRENCY}
+          size={"xs"} items={SelectList.CURRENCY}
           value={row.row.original.currency}
           onValueChange={value => handleInputChange(row.row.index, "currency", value)} />
       }
