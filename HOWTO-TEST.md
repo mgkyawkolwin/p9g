@@ -12,6 +12,18 @@ npm run test:unit:coverage #defined in scripts section in package.json
 ```
 See the vitest config in vitest.config.ts for customization.
 
+## Integration Test
+Run the following commands to run all integration tests in /tests/integration folder.
+```bash
+npm run test:integration #defined in scripts section in package.json
+```
+
+To see the integration test coverage, run the following command.
+```bash
+npm run test:integration:coverage #defined in scripts section in package.json
+```
+See the vitest config in vitest.config.ts for customization.
+
 ## E2E Test
 Before running e2e tests, you need to run the app. Run the app in a terminal.
 ```bash
@@ -22,5 +34,4 @@ Then run the following command to run all e2e tests in /tests/e2e folder, in a n
 ```bash
 npm run test:e2e #defined in scripts section in package.json
 ```
-
 See the playwright config in playwright.config.ts for customization.

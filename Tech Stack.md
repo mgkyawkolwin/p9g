@@ -27,14 +27,15 @@ E2E - Playwright
 ## Tech Review
 ### Drizzle ORM
 - Schema definition only allow one-to-one mapping, we cannot create extra property wihtout corresponding db column.
-- Insert/Update of related data need to be handled manually. e.g. users.posts, reservations.customers. Drizzle doesn't automatically handle. Only supported for SELECT query.
-Sub-query must be used to achieve desired result.
+- Insert/Update of related data need to be handled manually. e.g. users.posts, reservations.customers. Drizzle doesn't automatically handle. Only supported for SELECT query. Sub-query must be used to achieve desired result.
 - If SQL style is used, 
   - For joins, you need to transform the data after query result. For example, if you retrieve user and related posts, result will include [{user1, post1}, [user1, post2]].
   - select() cannot be chained later, which will be useful if we only want to change select() between count() or different columns selection.
 - If Query API style is used, 
   - we cannot project columns from sub-table as the top-level column.
   - If Limit/Offset applies to query with "Joins", it applys to all tables, not to the final result. 
+- Does not support column type "bit" for mysql database.
+- MySql does not support "boolean" type, drizzle-mysql support boolean type. So need to use boolean column type in drizzle schema and need to use tinyint in db. When generating script using drizzle-kit generate, generated sql script will use "boolean". You need to change it manually to tinyint.
 
 ### MySql Database
 - date/time are stored as UTC/GMT and datetime data type is used. timestamp is only valid till 2038, datetime can be used till 9999, timestamp has db conversion between locale <> UTC/GMT.

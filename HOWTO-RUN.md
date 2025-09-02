@@ -1,14 +1,14 @@
 # HOW TO RUN
 
 ## Setup Secret Key For Next's Auth.js
-This will generate AUTH_SECRET key in .env.local file
+This will generate AUTH_SECRET key in .env.local file. Cut and paste the key to .env.development. (Or .env.production for production deployment. Do not use the same key for both development and production. Do not save .env.production key in local development. Only update to .env.production in production server.)
 ```bash
 npx auth secret
 ```
 
 ## Setup DB
 - create new mysql database
-- update connection string .env
+- update connection string in .env.development
 
 ## Apply Migrations
 ```bash
