@@ -61,7 +61,7 @@ export default function BillDataTable<TData, TValue>({
 
 
   return (
-    <div className="flex gap-y-4 w-full max-w-full">
+    <div className="flex gap-y-4 w-full">
       <Table className={`border w-full ${Theme.Style.tableBg}`}>
         <TableHeader className={`${Theme.Style.tableHeadBg}`}>
           {table.getHeaderGroups().map((headerGroup) => (

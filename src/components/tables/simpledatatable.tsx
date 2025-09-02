@@ -77,8 +77,8 @@ export default function SimpleDataTable<TData, TValue>({
 
 
   return (
-    <div className="flex flex-col gap-y-4 w-full max-w-full">
-    <div className="flex" hidden={!showColVisibilityControl} >
+    <div className="flex flex-col gap-y-4 w-full max-w-full overflow-visible">
+    <div className="flex overflow-visible" hidden={!showColVisibilityControl} >
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="ml-auto">
@@ -108,8 +108,8 @@ export default function SimpleDataTable<TData, TValue>({
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-    <div className="flex max-w-full">
-      <Table className={`w-full ${Theme.Style.tableBg}`}>
+    <div className="max-w-full overflow-visible">
+      <Table className={`w-full overflow-visible ${Theme.Style.tableBg}`}>
         <TableHeader className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder}`}>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

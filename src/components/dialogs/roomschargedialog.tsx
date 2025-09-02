@@ -410,15 +410,15 @@ export default function RoomChargeDialog({
 
     return (
         <Dialog open={open} onOpenChange={setOpen} >
-            <DialogContent className="flex flex-col min-h-[80vh] min-w-[95vw]">
+            <DialogContent className="flex flex-col min-h-[80vh] min-w-[95vw] overflow-visible">
                 <DialogHeader>
                     <DialogTitle>Room Reservations & Charges</DialogTitle>
                 </DialogHeader>
-                <div className="flex flex-col gap-y-10">
-                    <div className="flex">
+                <div className="flex flex-col gap-y-10 overflow-visible">
+                    <div className="overflow-visible">
                         <SimpleDataTable columns={roomReservationColumns} data={visibleRoomReservations} />
                     </div>
-                    <div className="flex"> {/* Ensure calendar is not clipped */}
+                    <div> {/* Ensure calendar is not clipped */}
                         <SimpleDataTable columns={roomChargesColumns} data={visibleRoomCharges} />
                     </div>
                 </div>
