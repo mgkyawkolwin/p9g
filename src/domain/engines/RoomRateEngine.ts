@@ -125,7 +125,8 @@ export default class RoomRateEngine{
             
             // Calculate days in this segment (+1 because both dates are inclusive)
             const timeDiff = periodEnd.getTime() - periodStart.getTime();
-            const daysInSegment = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+            //const daysInSegment = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+            const daysInSegment = periodEnd.getDate() - periodStart.getDate() + 1;
     
             result.push({
                 month: currentMonth,
