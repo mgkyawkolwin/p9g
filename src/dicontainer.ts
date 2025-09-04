@@ -27,6 +27,12 @@ import IReportService from './domain/services/contracts/IReportService';
 import ReportService from './domain/services/ReportService';
 import ILogService from './domain/services/contracts/ILogService';
 import LogService from './domain/services/LogService';
+import IRoomRepository from './data/repo/contracts/IRoomRepository';
+import IRoomChargeRepository from './data/repo/contracts/IRoomChargeRepository';
+import RoomRepository from './data/repo/drizzle/RoomRepository';
+import RoomChargeRepository from './data/repo/drizzle/RoomChargeRepository';
+import RoomReservationRepository from './data/repo/drizzle/RoomReservationRepository';
+import IRoomReservationRepository from './data/repo/contracts/IRoomReservationRepository';
 
 // create a DI container
 const container = new Container();
@@ -47,6 +53,9 @@ container.bind<ICustomerRepository>(TYPES.ICustomerRepository).to(CustomerReposi
 container.bind<ILogRepository>(TYPES.ILogRepository).to(LogRepository);
 container.bind<IReportRepository>(TYPES.IReportRepository).to(ReportRepository);
 container.bind<IReservationRepository>(TYPES.IReservationRepository).to(ReservationRepository);
+container.bind<IRoomRepository>(TYPES.IRoomRepository).to(RoomRepository);
+container.bind<IRoomChargeRepository>(TYPES.IRoomChargeRepository).to(RoomChargeRepository);
+container.bind<IRoomReservationRepository>(TYPES.IRoomReservationRepository).to(RoomReservationRepository);
 container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
 
 export { container };
