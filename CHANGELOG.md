@@ -47,8 +47,6 @@
 - Customer Table Pagination Not Working. (Issue #48)
 
 ### Removed
-
-
 ## Version 1.3.0
 ### Added
 - To create person report . (Issue #57)

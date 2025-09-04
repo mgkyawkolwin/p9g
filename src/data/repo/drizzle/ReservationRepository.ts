@@ -1316,6 +1316,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 //insert using transaction
                 await tx.insert(reservationCustomerTable).values(newReservationCustomers);
             }
+
         });
 
         const updatedReservation = await this.reservationGetById(reservation.id);
@@ -1440,6 +1441,36 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         });
         return result;
     }
+
+
+    // async roomReservationsGetByReservationId(reservationId: string): Promise<RoomReservation[]> {
+    //     const result = await this.dbClient.db.select()
+    //         .from(roomReservationTable)
+    //         .innerJoin(roomTable, eq(roomTable.id, roomChargeTable.roomId))
+    //         .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomTable.roomTypeId))
+    //         .where(eq(roomReservationTable.reservationId, reservationId));
+
+    //     const roomReservations: RoomReservation[] = result?.map((row: { roomReservation: RoomReservationEntity, roomType: RoomTypeEntity, room: RoomEntity }) => {
+    //         const rr = new RoomReservation();
+    //         rr.id = row.roomReservation.id;
+    //         rr.checkInDateUTC = row.roomReservation.checkInDateUTC;
+    //         rr.checkOutDateUTC = row.roomReservation.checkOutDateUTC;
+    //         rr.isSingleOccupancy = row.roomReservation.isSingleOccupancy;
+    //         rr.noOfExtraBed = row.roomReservation.noOfExtraBed;
+    //         rr.reservationId = row.roomReservation.reservationId;
+    //         rr.roomId = row.roomReservation.roomId;
+    //         rr.roomNo = row.room.roomNo;
+    //         rr.roomType = row.roomType.roomType;
+    //         rr.roomTypeId = row.roomType.id;
+    //         rr.createdAtUTC = row.roomReservation.createdAtUTC;
+    //         rr.createdBy = row.roomReservation.createdBy;
+    //         rr.updatedAtUTC = row.roomReservation.updatedAtUTC;
+    //         rr.updatedBy = row.roomReservation.updatedBy;
+    //         return rr;
+    //     });
+
+    //     return roomReservations;
+    // }
 
 
     async roomRateGetAll(location: string): Promise<RoomRate[]> {

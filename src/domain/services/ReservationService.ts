@@ -228,7 +228,6 @@ export default class ReservationService implements IReservationService{
                 if(!result)
                     throw new Error('Room charges saved failed.');
             }
-
             const totalRoomCharges = roomCharges.reduce((accu,rc) => accu += rc.totalAmount,0);
             reservation.totalAmount = totalRoomCharges;
             reservation.taxAmount = totalRoomCharges * Number(reservation.tax) / 100;
@@ -287,6 +286,7 @@ export default class ReservationService implements IReservationService{
         pagerParams.orderDirection = "desc";
         c.d(pagerParams);
         return await this.reservationRepository.reservationGetList([], pagerParams);
+
     }
 
 
