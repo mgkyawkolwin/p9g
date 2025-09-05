@@ -38,11 +38,11 @@ export default class RoomRateEngine{
         const roomCharges : RoomCharge[] = [];
 
         //sort room reservation by check in date
-        roomReservations.sort((a,b) => a.checkInDateUTC.getTime() - b.checkInDateUTC.getTime());
+        roomReservations.sort((a,b) => a.checkInDate.getTime() - b.checkInDate.getTime());
         roomRates.sort((a,b) => a.month - b.month);
 
         roomReservations.forEach(rrsv => {
-            const monthDays = this.getMonthlyDateSegments(rrsv.checkInDateUTC, rrsv.checkOutDateUTC);
+            const monthDays = this.getMonthlyDateSegments(rrsv.checkInDate, rrsv.checkOutDate);
             let prvRoomCharge : RoomCharge;
 
             monthDays.forEach(md => {
@@ -52,8 +52,8 @@ export default class RoomRateEngine{
                 roomCharge.reservationId = reservation.id;
                 roomCharge.roomTypeId = rrsv.roomTypeId;
                 roomCharge.roomId = rrsv.roomId;
-                roomCharge.startDateUTC = md.periodStart;
-                roomCharge.endDateUTC = md.periodEnd;
+                roomCharge.startDate = md.periodStart;
+                roomCharge.endDate = md.periodEnd;
                 roomCharge.noOfDays = Number(md.noOfDays);
                 if(reservation.prepaidPackageId && reservation.prepaidPackageId.trim() !== ''){
                     roomCharge.roomRate = 0;
@@ -81,7 +81,7 @@ export default class RoomRateEngine{
                 if(prvRoomCharge && prvRoomCharge.totalRate == roomCharge.totalRate){
                     //just modify charge for the same rate rate periods
                     prvRoomCharge.noOfDays = Number(prvRoomCharge.noOfDays) + Number(roomCharge.noOfDays);
-                    prvRoomCharge.endDateUTC = roomCharge.endDateUTC;
+                    prvRoomCharge.endDate = roomCharge.endDate;
                     //prvRoomCharge.totalAmount = (prvRoomCharge.totalRate * prvRoomCharge.noOfDays * reservation.noOfGuests) + (prvRoomCharge.singleRate * prvRoomCharge.noOfDays);
                     prvRoomCharge.totalAmount = prvRoomCharge.totalAmount + roomCharge.totalAmount;
                 }else{
@@ -109,24 +109,24 @@ export default class RoomRateEngine{
         const lastDate = new Date(endDate);
     
         while (currentDate <= lastDate) {
-            const currentMonth = currentDate.getMonth();
-            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getUTCMonth();
+            const currentYear = currentDate.getUTCFullYear();
             
             // Calculate month boundaries
             const monthStart = new Date(currentDate);
-            monthStart.setDate(1);
+            monthStart.setUTCDate(1);
             const monthEnd = new Date(currentDate);
-            monthEnd.setMonth(monthEnd.getMonth() + 1);
-            monthEnd.setDate(0);
+            monthEnd.setUTCMonth(monthEnd.getUTCMonth() + 1);
+            monthEnd.setUTCDate(0);
             
             // Determine actual period start/end for this segment
             const periodStart = currentDate > monthStart ? new Date(currentDate) : new Date(monthStart);
             const periodEnd = lastDate < monthEnd ? new Date(lastDate) : new Date(monthEnd);
             
             // Calculate days in this segment (+1 because both dates are inclusive)
-            const timeDiff = periodEnd.getTime() - periodStart.getTime();
+            //const timeDiff = periodEnd.getTime() - periodStart.getTime();
             //const daysInSegment = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
-            const daysInSegment = periodEnd.getDate() - periodStart.getDate() + 1;
+            const daysInSegment = periodEnd.getUTCDate() - periodStart.getUTCDate() + 1;
     
             result.push({
                 month: currentMonth,
@@ -136,9 +136,10 @@ export default class RoomRateEngine{
                 periodStart: new Date(periodStart),
                 periodEnd: new Date(periodEnd)
             });
-    
+            c.d(result[result.length -1]);
             // Move to first day of next month
-            currentDate = new Date(currentYear, currentMonth + 1, 1);
+            currentDate.setUTCMonth(currentDate.getUTCMonth() + 1);
+            currentDate.setUTCDate(1);
         }
     
         return result;

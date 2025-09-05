@@ -8,7 +8,6 @@ import ReservationTopList from "@/components/groups/reservationtoplist";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 import CustomerInformationForm from "@/components/forms/customerinformationform";
 import { getTopReservationsAction, searchCustomer, getReservation } from "./actions";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import CustomerChooseTable from "@/components/tables/customerchoosetable";
 import ReservationDetailEditForm from "@/components/forms/reservationdetaileditform";
@@ -25,7 +24,7 @@ export default function ReservationEdit({ id }: { id: string }) {
   const [customerList, setCustomerList] = React.useState<Customer[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [newReservations, setNewReservations] = React.useState<Reservation[]>([]);
-  const [reservation, setReservation] = React.useState(new Reservation());
+  const [reservation, setReservation] = React.useState<Reservation>(new Reservation());
   const [selectedCustomerList, setSelectedCustomerList] = React.useState<Customer[]>([]);
 
   const openCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
@@ -41,19 +40,18 @@ export default function ReservationEdit({ id }: { id: string }) {
     if (response.message) toast(response.message);
     if (!response.error && response.data.reservation) {
       //transform data first
-      const statersv = response.data.reservation;
+      const statersv : Reservation = response.data.reservation as unknown as Reservation;
       const r = new Reservation();
       Object.assign(r, statersv);
-      r.checkInDateUTC = statersv.checkInDateUTC ? new Date(statersv.checkInDateUTC) : undefined;
-      r.checkOutDateUTC = statersv.checkOutDateUTC ? new Date(statersv.checkOutDateUTC) : undefined;
-      r.arrivalDateTimeUTC = statersv.arrivalDateTimeUTC ? new Date(statersv.arrivalDateTimeUTC) : undefined;
-      r.departureDateTimeUTC = statersv.departureDateTimeUTC ? new Date(statersv.departureDateTimeUTC) : undefined;
+      r.checkInDate = statersv.checkInDate ? new Date(statersv.checkInDate) : undefined;
+      r.checkOutDate = statersv.checkOutDate ? new Date(statersv.checkOutDate) : undefined;
+      r.arrivalDateTime = statersv.arrivalDateTime ? new Date(statersv.arrivalDateTime) : undefined;
+      r.departureDateTime = statersv.departureDateTime ? new Date(statersv.departureDateTime) : undefined;
       r.depositDateUTC = statersv.depositDateUTC ? new Date(statersv.depositDateUTC) : undefined;
       setReservation(r);
       if(response.data.reservation.customers){
         setSelectedCustomerList(response.data.reservation.customers);
       }
-      
     }
   }
 

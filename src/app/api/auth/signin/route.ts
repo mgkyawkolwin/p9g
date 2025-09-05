@@ -13,10 +13,10 @@ import ILogService from '@/domain/services/contracts/ILogService';
 
 export async function POST(request: NextRequest) {
   try{
-    c.i('/api/auth/signin/route.ts is called.');
+    c.fs('POST /api/auth/signin');
     c.d(JSON.stringify(request));
 
-    //parse and validate data
+    //parse and validate data;
     const data = await request.json();
     const parsedData = await userSignInSchema.safeParseAsync(data);
     
@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
     
     await signIn('credentials',  {redirect : false, name:user.userName, id: user.id, role: user.role});
     //everything is right
+    c.fe('POST /api/auth/signin');
     return NextResponse.json(user, { status: HttpStatusCode.Ok });
   }catch(error){
     c.e(error instanceof Error ? error.message : JSON.stringify(error));

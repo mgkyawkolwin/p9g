@@ -4,7 +4,6 @@ import * as React from "react";
 import {
   ColumnDef
 } from "@tanstack/react-table";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import BillDataTable from "../uicustom/billdatatable"
 import Bill from "@/domain/models/Bill"
@@ -22,8 +21,6 @@ interface DataTableProps {
 export default function BillTable({
   data
 }: DataTableProps) {
-  c.i('Client BillTable');
-  c.d(JSON.stringify(data));
 
   const columns: ColumnDef<Bill>[] = [
     {

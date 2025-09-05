@@ -3,7 +3,6 @@
 import React from "react";
 import ReservationDetailForm from "../basicforms/reservationdetailform";
 import { Group, GroupContent, GroupTitle } from "../uicustom/group";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import Customer from "@/domain/models/Customer";
 import Reservation from "@/domain/models/Reservation";
@@ -23,7 +22,6 @@ export default function ReservationDetailEditForm({
     reservation,
     onReservationSaved
 }: ReservationDetailEditFormProps) {
-    c.i('Client > ReservationDetailEditForm');
 
     const router = useRouter();
 

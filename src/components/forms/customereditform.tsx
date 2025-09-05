@@ -1,15 +1,11 @@
 'use client';
 
 import React from "react";
-import { Group, GroupContent, GroupTitle } from "../uicustom/group";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom";
-import { saveReservationAction } from "@/app/(private)/console/reservations/new/actions";
 import { toast } from "sonner";
 import Customer from "@/domain/models/Customer";
 import CustomerDetailForm from "../basicforms/customerdetailform";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
-import { customerCreate } from "@/app/(private)/console/customers/new/actions";
 import { customerUpdate } from "@/app/(private)/console/customers/[id]/edit/actions";
 
 interface CustomerEditFormProps {
@@ -21,9 +17,7 @@ interface CustomerEditFormProps {
 }
 
 export default function CustomerEditForm({ onSaved, openCallback }: CustomerEditFormProps) {
-    c.i('Client > CustomerNewForm');
-
-
+    
     const [resetDataToggle, setResetDataToggle] = React.useState(false);
     const [customer, setCustomer] = React.useState(new Customer());
     const [open, setOpen] = React.useState(false);

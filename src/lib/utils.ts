@@ -1,20 +1,23 @@
-//ordered import
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-import { SearchParam, PagerParams, SearchFormFields } from "./types"
-import c from "./core/logger/ConsoleLogger";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { SearchParam, PagerParams, SearchFormFields } from "./types";
 import { CustomError } from "./errors";
-import { Theme } from "./constants";
+
+
+
 
 /**
- * Merge two or more className into one.
- * @param {ClassValue[]}  ...inputs - className array.
- * @returns combined className
- * @example
- * <Button className={cn(className, "flex flex-1")} />;
+ * Build query string from object, filter out invalid values (undefined, null, empty string)
+ * @param {object} input - Any object with property.
+ * @returns {string} Query string.
  */
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+export function buildQueryString(input : SearchFormFields | PagerParams): string{
+  const queryString = new URLSearchParams(
+    Object.entries(input)
+      //.filter(([_, value]) => value !== undefined && value !== null && value !== '')
+      .map(([key, value]) => [key, String(value)])
+  ).toString();
+  return queryString;
 }
 
 /**
@@ -29,10 +32,10 @@ export function cn(...inputs: ClassValue[]) {
 export function buildSearchParams(queryStringObject : SearchFormFields) : SearchParam[] {
   const search : SearchParam[]= [];
   if(queryStringObject.searchArrivalDateTime){
-    search.push({searchColumn:'arrivalDateTimeUTC', searchValue: queryStringObject.searchArrivalDateTime});
+    search.push({searchColumn:'arrivalDateTime', searchValue: queryStringObject.searchArrivalDateTime});
   }
   if(queryStringObject.searchCheckInDate){
-    search.push({searchColumn:'checkInDateUTC', searchValue: queryStringObject.searchCheckInDate});
+    search.push({searchColumn:'checkInDate', searchValue: queryStringObject.searchCheckInDate});
   }
   if(queryStringObject.searchCheckInDateFrom){
     search.push({searchColumn:'checkInDateFrom', searchValue: queryStringObject.searchCheckInDateFrom});
@@ -41,7 +44,7 @@ export function buildSearchParams(queryStringObject : SearchFormFields) : Search
     search.push({searchColumn:'checkInDateUntil', searchValue: queryStringObject.searchCheckInDateUntil});
   }
   if(queryStringObject.searchCheckOutDate){
-    search.push({searchColumn:'checkOutDateUTC', searchValue: queryStringObject.searchCheckOutDate});
+    search.push({searchColumn:'checkOutDate', searchValue: queryStringObject.searchCheckOutDate});
   }
   if(queryStringObject.searchCreatedDateFrom){
     search.push({searchColumn:'createdFrom', searchValue: queryStringObject.searchCreatedDateFrom});
@@ -56,7 +59,7 @@ export function buildSearchParams(queryStringObject : SearchFormFields) : Search
     search.push({searchColumn:'date', searchValue: queryStringObject.searchDate});
   }
   if(queryStringObject.searchDepartureDateTime){
-    search.push({searchColumn:'departureDateTimeUTC', searchValue: queryStringObject.searchDepartureDateTime});
+    search.push({searchColumn:'departureDateTime', searchValue: queryStringObject.searchDepartureDateTime});
   }
   if(queryStringObject.searchId){
     search.push({searchColumn:'id', searchValue: queryStringObject.searchId});
@@ -98,45 +101,43 @@ export function buildSearchParams(queryStringObject : SearchFormFields) : Search
 }
 
 
-/**
- * Build query string from object, filter out invalid values (undefined, null, empty string)
- * @param {object} input - Any object with property.
- * @returns {string} Query string.
- */
-export function buildQueryString(input : SearchFormFields | PagerParams): string{
-  const queryString = new URLSearchParams(
-    Object.entries(input)
-      //.filter(([_, value]) => value !== undefined && value !== null && value !== '')
-      .map(([key, value]) => [key, String(value)])
-  ).toString();
-  return queryString;
-}
-
-
 export function calculateDayDifference(startDate:Date, endDate: Date){
   return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 }
 
+/**
+ * Merge two or more className into one.
+ * @param {ClassValue[]}  ...inputs - className array.
+ * @returns combined className
+ * @example
+ * <Button className={cn(className, "flex flex-1")} />;
+ */
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
 
 export function getCheckInDate(arrivalDate: Date){
-  if(arrivalDate.getHours() >= 0 && arrivalDate.getHours() <= 6){
-    return new Date(arrivalDate.getFullYear(), arrivalDate.getMonth(), arrivalDate.getDate(), 0, 0, 0, 0);
+  const checkInDate = new Date(arrivalDate);
+  checkInDate.setHours(0,0,0,0);
+  if(arrivalDate.getHours() >= 0 && arrivalDate.getHours() <= 5){
+    return checkInDate;
   }else{
-    return new Date(arrivalDate.getFullYear(), arrivalDate.getMonth(), arrivalDate.getDate() + 1, 0, 0, 0, 0);
+    checkInDate.setDate(checkInDate.getDate() + 1);
+    return checkInDate;
   }
 }
 
 
 export function getCheckOutDate(departureDate: Date){
-  if(departureDate.getHours() >= 0 && departureDate.getHours() <= 6){
-    return new Date(departureDate.getFullYear(), departureDate.getMonth(), departureDate.getDate() - 1, 0, 0, 0, 0);
+  const checkOutDate = new Date(departureDate);
+  checkOutDate.setHours(0,0,0,0);
+  if(departureDate.getHours() >= 0 && departureDate.getHours() <= 5){
+    checkOutDate.setDate(checkOutDate.getDate() - 1);
+    return checkOutDate;
   }else{
-    return new Date(departureDate.getFullYear(), departureDate.getMonth(), departureDate.getDate(), 0, 0, 0, 0);
+    return checkOutDate;
   }
-}
-
-export function getMidNightDate(date:Date){
-  return new Date(date.getTime() + (23*60*60*1000) + (59*60*1000) + (59*1000) + 999);
 }
 
 
@@ -181,21 +182,38 @@ export function getFirstDate(year: number, month: number): Date{
   return new Date(year, month, 1);
 }
 
+// export function getFakeLocalDateTimeFromUTCDateTime(date:Date):Date{
+//   const fakeLocalDate = new Date(date.toISOString().replace('T',' ').slice(0,16));
+//   return fakeLocalDate;
+// }
+
 
 export function getLastDate(year: number, month: number): Date{
   return new Date(year,month + 1, 0, 23, 59, 59, 999);
 }
 
+// export function getUTCDateFromFakeLocalDate(date:Date):Date{
+//   return new Date(date.toLocaleString('sv-SE').slice(0,10) + 'T00:00:00.000Z');
+// }
+
+// export function getUTCDateTimeFromFakeLocalDateTime(date:Date):Date{
+//   return new Date(date.toLocaleString('sv-SE').replace(' ','T') + '.000Z');
+// }
+
+export function getMidNightDate(date:Date){
+  return new Date(date.getTime() + (23*60*60*1000) + (59*60*1000) + (59*1000) + 999);
+}
+
 /**
  * Get local date string to display in client browser.
  */
-export function getLocalDateString(){
-  const now = new Date();//this is local time
-  // Adjust for timezone offset (critical step!)
-  const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
-  const localISOFormatDate = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 10);
-  return localISOFormatDate;
-}
+// export function getLocalDateString(){
+//   const now = new Date();//this is local time
+//   // Adjust for timezone offset (critical step!)
+//   const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
+//   const localISOFormatDate = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 10);
+//   return localISOFormatDate;
+// }
 
 
 /**
@@ -203,12 +221,12 @@ export function getLocalDateString(){
  * @param dateString date value in local timezone
  * @returns UTC date value in ISO format
  */
-export function getUTCISODateString(dateString: string):string{
-  //c.d(dateString);
-  const now = new Date(dateString);
-  //c.d(now.toISOString().slice(0,10));
-  return now.toISOString();
-}
+// export function getUTCISODateString(dateString: string):string{
+//   //c.d(dateString);
+//   const now = new Date(dateString);
+//   //c.d(now.toISOString().slice(0,10));
+//   return now.toISOString();
+// }
 
 
 /**
@@ -216,24 +234,24 @@ export function getUTCISODateString(dateString: string):string{
  * @param dateString date value in local timezone
  * @returns UTC date value in ISO format
  */
-export function getUTCISODateTimeString(dateTimeString: string):string{c.i('xxx')
-  c.d(dateTimeString);
-  const now = new Date(dateTimeString);
-  c.d(now.toISOString());
-  return now.toISOString();
-}
+// export function getUTCISODateTimeString(dateTimeString: string):string{c.i('xxx')
+//   c.d(dateTimeString);
+//   const now = new Date(dateTimeString);
+//   c.d(now.toISOString());
+//   return now.toISOString();
+// }
 
 
 /**
  * Get local datetime string to display in client browser.
  */
-export function getLocalDateTimeString(){
-  const now = new Date();//this is local time
-  // Adjust for timezone offset (critical step!), wihtout adjustment , toISOString will output UTC/GMT datetime
-  const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
-  const localISOFormatDateTime = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 16);
-  return localISOFormatDateTime;
-}
+// export function getLocalDateTimeString(){
+//   const now = new Date();//this is local time
+//   // Adjust for timezone offset (critical step!), wihtout adjustment , toISOString will output UTC/GMT datetime
+//   const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
+//   const localISOFormatDateTime = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 16);
+//   return localISOFormatDateTime;
+// }
 
 
 /**
@@ -241,7 +259,7 @@ export function getLocalDateTimeString(){
  * @param inputObject - Any Object
  * @returns Original object with pager fields default.
  */
-export function pagerWithDefaults(inputObject : PagerParams) : PagerParams {
+export function getPagerWithDefaults(inputObject : PagerParams) : PagerParams {
   return {
     ...inputObject,
     orderBy : inputObject.orderBy ?? 'id',

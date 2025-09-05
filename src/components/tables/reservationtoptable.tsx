@@ -1,16 +1,11 @@
 "use client"
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
-
 import {
   ColumnDef
 } from "@tanstack/react-table";
-import c from "@/lib/core/logger/ConsoleLogger";
 import SimpleDataTable from "./simpledatatable";
 import Reservation from "@/domain/models/Reservation";
-import Customer from "@/domain/models/Customer";
 
 
 export const columns: ColumnDef<Reservation>[] = [
@@ -49,9 +44,9 @@ export const columns: ColumnDef<Reservation>[] = [
     )}
   },
   {
-    id: "checkInOutDateUTC",
+    id: "checkInOutDate",
     accessorFn: (row) => {
-      return <span>{new Date(String(row.checkInDateUTC)).toLocaleDateString('sv-SE')} <br/> {new Date(String(row.checkOutDateUTC)).toLocaleDateString('sv-SE')}</span>;
+      return <span>{new Date(String(row.checkInDate)).toISODateString()} <br/> {new Date(String(row.checkOutDate)).toISODateString()}</span>;
     },
     header: 'Check-In / Check-Out',
     cell: (row) => {
@@ -67,7 +62,6 @@ interface DataTableProps {
 export default function ReservationTopTable({
   data
 }: DataTableProps) {
-  c.i('Client > ReservationTopTable');
 
   return (
     <SimpleDataTable columns={columns} data={data ?? []} />

@@ -5,7 +5,6 @@ import {
   ColumnDef
 } from "@tanstack/react-table";
 import DataTable from "./datatable";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { FormState } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { ButtonCustom } from "../uicustom/buttoncustom";
@@ -29,8 +28,6 @@ export default function RoomChangeListTable({
   formAction,
   formRef
 }: DataTableProps) {
-  c.i('Client > RoomChangeListTable');
-  c.d(JSON.stringify(formState));
 
   const columns: ColumnDef<Room>[] = [
     {
@@ -49,12 +46,12 @@ export default function RoomChangeListTable({
     {
       accessorKey: "checkInDateUTC",
       header: "Check-In",
-      accessorFn: (row) => {return  row.reservations.length > 0 ? new Date(row.reservations[0].checkInDateUTC!).toLocaleDateString('sv-SE') : ''}
+      accessorFn: (row) => {return  row.reservations.length > 0 ? new Date(row.reservations[0].checkInDate!).toLocaleDateString('sv-SE') : ''}
     },
     {
       accessorKey: "checkOutDateUTC",
       header: "Check-Out",
-      accessorFn: (row) => {return  row.reservations.length > 0 ? new Date(row.reservations[0].checkOutDateUTC!).toLocaleDateString('sv-SE') : ''}
+      accessorFn: (row) => {return  row.reservations.length > 0 ? new Date(row.reservations[0].checkOutDate!).toLocaleDateString('sv-SE') : ''}
     },
     {
       accessorKey: "noOfDays",

@@ -4,7 +4,7 @@ import { TYPES, SearchParam } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { customerValidator, pagerValidator, searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
-import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
+import { buildSearchParams, getPagerWithDefaults } from "@/lib/utils";
 import ICustomerService from "@/domain/services/contracts/ICustomerService";
 import Customer from "@/domain/models/Customer";
 import { CustomError } from "@/lib/errors";

@@ -7,9 +7,8 @@ import { ArrowUpDown } from "lucide-react"
 import {
   ColumnDef
 } from "@tanstack/react-table";
-import c from "@/lib/core/logger/ConsoleLogger"
-import SimpleDataTable from "./simpledatatable"
-import { ButtonCustom } from "../uicustom/buttoncustom"
+import SimpleDataTable from "./simpledatatable";
+import { ButtonCustom } from "../uicustom/buttoncustom";
 import Customer from "@/domain/models/Customer";
 
 
@@ -22,8 +21,6 @@ export default function CustomerInformationTable({
   data,
   setData
 }: DataTableProps) {
-  c.i('Client GuestInformationTable');
-  c.d(JSON.stringify(data));
 
   const columns: ColumnDef<Customer>[] = [
     {
@@ -65,7 +62,7 @@ export default function CustomerInformationTable({
         )
       },
       cell: row => {
-        return row.getValue() ? new Date(String(row.getValue())).toLocaleDateString('sv-SE') : ''
+        return row.getValue() ? new Date(String(row.getValue())).toISODateString() : ''
       }
     },
     {

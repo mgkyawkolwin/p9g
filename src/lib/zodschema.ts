@@ -79,10 +79,10 @@ export const paymentValidator = z.object({
 
 export const reservationValidator = z.object({
   id: z.coerce.string().min(36,"Id is required").nullish().catch(undefined).optional(),
-  arrivalDateTimeUTC: z.coerce.date().nullish().catch(undefined).optional(),
+  arrivalDateTime: z.coerce.date().nullish().catch(undefined).optional(),
   arrivalFlight: z.coerce.string().optional(),
-  checkInDateUTC: z.coerce.date({message:"Check-in date is either missing or incorrect format."}),
-  checkOutDateUTC: z.coerce.date({message:"Check-out date is either missing or incorrect format."}),
+  checkInDate: z.coerce.date({message:"Check-in date is either missing or incorrect format."}),
+  checkOutDate: z.coerce.date({message:"Check-out date is either missing or incorrect format."}),
   customers: z.preprocess(
     (val) => {
       if (typeof val === "string") {
@@ -100,7 +100,7 @@ export const reservationValidator = z.object({
     })
   ).optional()
   ),
-  departureDateTimeUTC: z.coerce.date().nullish().catch(undefined).optional(),
+  departureDateTime: z.coerce.date().nullish().catch(undefined).optional(),
   departureFlight: z.coerce.string().optional(),
   depositAmount: z.coerce.number().optional(),
   depositAmountInCurrency: z.coerce.number().optional(),
@@ -127,7 +127,7 @@ export const reservationValidator = z.object({
 
 export const roomChargeValidator = z.object({
   id: z.string().length(36).nullish().catch(undefined).optional(),
-  endDateUTC: z.coerce.date(),
+  endDate: z.coerce.date(),
   extraBedRate: z.coerce.number(),
   modelState: z.string(),
   noOfDays: z.coerce.number(),
@@ -138,7 +138,7 @@ export const roomChargeValidator = z.object({
   roomTypeId: z.string().optional(),
   seasonSurcharge: z.coerce.number(),
   singleRate: z.coerce.number(),
-  startDateUTC: z.coerce.date(),
+  startDate: z.coerce.date(),
   totalRate: z.coerce.number(),
   totalAmount: z.coerce.number(),
 });
@@ -146,8 +146,8 @@ export const roomChargeValidator = z.object({
 
 export const roomReservationValidator = z.object({
   id: z.string().length(36).nullish().catch(undefined).optional(),
-  checkInDateUTC: z.coerce.date(),
-  checkOutDateUTC: z.coerce.date(),
+  checkInDate: z.coerce.date(),
+  checkOutDate: z.coerce.date(),
   isSingleOccupancy: z.coerce.boolean(),
   noOfExtraBed: z.coerce.number(),
   reservationId: z.string().length(36),

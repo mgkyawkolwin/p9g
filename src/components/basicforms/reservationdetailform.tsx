@@ -9,8 +9,7 @@ import { SelectWithLabel } from "../uicustom/selectwithlabel";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { Textarea } from "../ui/textarea";
 import React from "react";
-import { calculateDayDifference, getCheckInDate, getCheckOutDate } from "@/lib/utils";
-import c from "@/lib/core/logger/ConsoleLogger";
+import { calculateDayDifference, getCheckInDate, getCheckOutDate} from "@/lib/utils";
 import { SelectList, SelectListForm } from "@/lib/constants";
 import Reservation from "@/domain/models/Reservation";
 import { InputCustom } from "../uicustom/inputcustom";
@@ -28,7 +27,6 @@ interface ReservationDetailFormInterface {
 
 export default React.forwardRef<ReservationDetailFormInterface, { initialReservation: Reservation }>(
     function ReservationDetailForm(props, ref) {
-        c.i('Client > ReservationDetailForm');
 
         const [date, setDate] = React.useState(new Date());
         const [reservation, setReservation] = React.useState(props.initialReservation);
@@ -108,10 +106,10 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         <div className="flex flex-col gap-2">
                             <Label className="text-[10pt]">Arrival Date/Time</Label>
                             <DatePicker
-                                selected={reservation?.arrivalDateTimeUTC ? new Date(reservation?.arrivalDateTimeUTC) : null}
+                                selected={reservation?.arrivalDateTime ? reservation?.arrivalDateTime.convertToFakeLocalDate() : null}
                                 onChange={(date: Date | null) => {
-                                    if (date && reservation?.checkOutDateUTC) {
-                                        const days = calculateDayDifference(getCheckInDate(date), reservation.checkOutDateUTC);
+                                    if (date && reservation?.checkOutDate) {
+                                        const days = calculateDayDifference(getCheckInDate(date.convertToFakeLocalDate()), reservation.checkOutDate);
                                         calculateDiscount({noOfDays:days});
                                         setReservation(prev => ({ ...prev, noOfDays: days < 0 ? 0 : days }));
                                     }else{
@@ -119,10 +117,9 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                     }
                                     setReservation(prev => ({
                                         ...prev,
-                                        arrivalDateTimeUTC: date,
-                                        checkInDateUTC: date ? getCheckInDate(date) : undefined
+                                        arrivalDateTime: date ? date.convertToUTCFromFakeLocalDateTime() : undefined,
+                                        checkInDate: date ? getCheckInDate(date.convertToUTCFromFakeLocalDateTime()) : undefined
                                     }));
-                                    
                                 }}
 
                                 dateFormat="yyyy-MM-dd HH:mm"
@@ -134,7 +131,6 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                 timeIntervals={5}
                                 timeFormat="HH:mm"
                             />
-                            <input type="hidden" name="arrivalDateTimeUTC" defaultValue={reservation.arrivalDateTimeUTC ? reservation.arrivalDateTimeUTC.toISOString() : ''} />
                         </div>
                         <InputWithLabel name="arrivalFlight" label="Arrival Flight" variant="form" size={"xs"} labelPosition="top"
                             value={reservation?.arrivalFlight} onChange={(e) => setReservation(prev => ({ ...prev, arrivalFlight: e.target.value }))} />
@@ -145,10 +141,10 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         <div className="flex flex-col gap-2">
                             <Label className="text-[10pt]">Departure Date/Time</Label>
                             <DatePicker
-                                selected={reservation?.departureDateTimeUTC ? new Date(reservation?.departureDateTimeUTC) : null}
+                                selected={reservation?.departureDateTime ? reservation?.departureDateTime.convertToFakeLocalDate() : null}
                                 onChange={(date: Date | null) => {
-                                    if (date && reservation.checkInDateUTC) {
-                                        const days = calculateDayDifference(reservation.checkInDateUTC, getCheckOutDate(date));
+                                    if (date && reservation.checkInDate) {
+                                        const days = calculateDayDifference(reservation.checkInDate, getCheckOutDate(date));
                                         calculateDiscount({noOfDays:days});
                                         setReservation(prev => ({ ...prev, noOfDays: days < 0 ? 0 : days }));
                                     }else{
@@ -156,8 +152,8 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                     }
                                     setReservation(prev => ({
                                         ...prev,
-                                        departureDateTimeUTC: date,
-                                        checkOutDateUTC: date ? getCheckOutDate(date) : undefined
+                                        departureDateTime: date ? date.convertToUTCFromFakeLocalDateTime() : undefined,
+                                        checkOutDate: date ? getCheckOutDate(date.convertToUTCFromFakeLocalDateTime()) : undefined
                                     }));
                                     
                                 }}
@@ -171,7 +167,6 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                 timeIntervals={5}
                                 timeFormat="HH:mm"
                             />
-                            <input type="hidden" name="departureDateTimeUTC" defaultValue={reservation.departureDateTimeUTC ? reservation.departureDateTimeUTC.toISOString() : ''} />
                         </div>
                         <InputWithLabel name="departureFlight" label="Dep Flight" variant="form" size={"xs"} labelPosition="top"
                             value={reservation?.departureFlight} onChange={(e) => setReservation(prev => ({ ...prev, departureFlight: e.target.value }))} />
@@ -182,10 +177,10 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         <div className="flex flex-col gap-2">
                             <Label className="text-[10pt]">Check-in</Label>
                             <DatePicker
-                                selected={reservation?.checkInDateUTC ? new Date(reservation?.checkInDateUTC) : null}
+                                selected={reservation?.checkInDate ? reservation?.checkInDate.convertToFakeLocalDate() : null}
                                 onChange={(date: Date | null) => {
-                                    if (date && reservation?.checkOutDateUTC) {
-                                        const days = calculateDayDifference(date, reservation.checkOutDateUTC);
+                                    if (date && reservation?.checkOutDate) {
+                                        const days = calculateDayDifference(date.convertToUTCFromFakeLocalDate(), reservation.checkOutDate);
                                         calculateDiscount({noOfDays:days});
                                         setReservation(prev => ({ ...prev, noOfDays: days < 0 ? 0 : days }));
                                     }else{
@@ -193,7 +188,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                     }
                                     setReservation(prev => ({
                                         ...prev,
-                                        checkInDateUTC: date
+                                        checkInDate: date ? date.convertToUTCFromFakeLocalDate() : undefined
                                     }));
                                     
                                 }}
@@ -203,15 +198,14 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                 isClearable={true}
                                 showIcon
                             />
-                            <input type="hidden" name="checkInDateUTC" defaultValue={reservation.checkInDateUTC ? reservation.checkInDateUTC.toISOString() : ''} />
                         </div>
                         <div className="flex flex-col gap-2">
                             <Label className="text-[10pt]">Check-out</Label>
                             <DatePicker
-                                selected={reservation?.checkOutDateUTC ? new Date(reservation?.checkOutDateUTC) : null}
+                                selected={reservation?.checkOutDate ? reservation?.checkOutDate.convertToFakeLocalDate() : null}
                                 onChange={(date: Date | null) => {
-                                    if (date && reservation?.checkInDateUTC) {
-                                        const days = calculateDayDifference(reservation.checkInDateUTC, date);
+                                    if (date && reservation?.checkInDate) {
+                                        const days = calculateDayDifference(reservation.checkInDate, date.convertToUTCFromFakeLocalDate());
                                         calculateDiscount({noOfDays:days});
                                         setReservation(prev => ({ ...prev, noOfDays: days < 0 ? 0 : days }));
                                     }else{
@@ -219,7 +213,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                     }
                                     setReservation(prev => ({
                                         ...prev,
-                                        checkOutDateUTC: date
+                                        checkOutDate: date ? date.convertToUTCFromFakeLocalDate() : undefined
                                     }));
                                     
                                 }}
@@ -229,7 +223,6 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                 isClearable={true}
                                 showIcon
                             />
-                            <input type="hidden" name="checkOutDateUTC" defaultValue={reservation.checkOutDateUTC ? reservation.checkOutDateUTC.toISOString() : ''} />
                         </div>
                         <InputWithLabel name="noOfDays" label="No of Days*" variant="form" size={"xs"} labelPosition="top" 
                         value={reservation?.noOfDays} onChange={(e) => {
@@ -290,7 +283,6 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                             value={reservation?.discountAmount} onChange={(e) => setReservation(prev => ({ ...prev, discountAmount: Number(e.target.value) }))} />
                     </div>
                     <div className="flex gap-2 flex-col">
-
                         <Textarea name="remark" placeholder="Remarks ..." value={reservation?.remark ?? ''} onChange={(e) => setReservation(prev => ({ ...prev, remark: e.target.value }))} />
                     </div>
                 </section>

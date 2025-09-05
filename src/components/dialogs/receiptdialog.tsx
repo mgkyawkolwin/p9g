@@ -1,22 +1,10 @@
 "use client"
 
 import * as React from "react";
-
-import {
-  ColumnDef
-} from "@tanstack/react-table";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
-import { paymentsGet, paymentsSave, roomChargeGetListById } from "@/app/(private)/console/reservations/actions"
+import { roomChargeGetListById } from "@/app/(private)/console/reservations/actions"
 import { toast } from "sonner";
-import { InputCustom } from "../uicustom/inputcustom"
-import { SelectCustom } from "../uicustom/selectcustom"
-import { SelectList } from "@/lib/constants"
-import BillDataTable from "../uicustom/billdatatable"
-import { DatePickerCustom } from "../uicustom/datepickercustom";
-import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
-import Payment from "@/domain/models/Payment";
 import ReceiptTable from "../tables/receipttable";
 import RoomCharge from "@/domain/models/RoomCharge";
 import Reservation from "@/domain/models/Reservation";
@@ -35,13 +23,6 @@ export default function ReceiptDialog({
   reservationId,
   callbackFunctions
 }: DataTableProps) {
-  c.i('Client > BillEditDialog');
-  c.d(reservationId);
-
-//   const [formState, formAction, isPending] = React.useActionState(saveBills, {
-//     error: false,
-//     message: ''
-//   });
 
   const receiptRef = React.useRef(undefined);
 
@@ -69,15 +50,15 @@ export default function ReceiptDialog({
     const fetchData = async () => {
         // setId(reservationId);
         const response = await roomChargeGetListById(reservationId);
-        c.d(response.data);
+        
         if(response.message)
             toast(response.message);
         if(response.data){
-          const b = response.data.map(roomCharge => (
+          const b : RoomCharge[] = response.data.map((roomCharge : RoomCharge) => (
             {
               ...roomCharge, 
-              startDateUTC:new Date(roomCharge.startDateUTC), 
-              endDateUTC:new Date(roomCharge.endDateUTC)
+              startDate:new Date(roomCharge.startDate), 
+              endDate:new Date(roomCharge.endDate)
             }
           ));
           setRoomCharges(b);

@@ -2,7 +2,6 @@
 import { useActionState, useEffect } from "react";
 
 import { toast } from "sonner";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { reservationGetList } from "./actions";
 import React from "react";
@@ -11,7 +10,6 @@ import CheckOutListSearch from "@/components/searchs/checkoutlistsearch";
 import CheckOutListTable from "@/components/tables/checkoutlisttable";
 
 export default function CheckOutList() {
-  c.i("Client > CheckOutList");
 
   const formRef = React.useRef<HTMLFormElement>(null);
 

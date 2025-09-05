@@ -9,7 +9,6 @@ import ReservationTopList from "@/components/groups/reservationtoplist";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 import CustomerInformationForm from "@/components/forms/customerinformationform";
 import { getTopReservationsAction, searchCustomer } from "./actions";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import CustomerChooseTable from "@/components/tables/customerchoosetable";
 import Customer from "@/domain/models/Customer";

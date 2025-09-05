@@ -47,6 +47,21 @@ class ConsoleLogger {
             
     }
 
+    public fe(message:string){
+        if(this.logLevel >= this.logLevels.info){
+            console.log(`--------------------- ${message} ---------------------`);
+        }
+            
+    }
+
+    public fs(message:string){
+        if(this.logLevel >= this.logLevels.info){
+            console.log();
+            console.log(`********************* ${message} ********************`);
+        }
+            
+    }
+
     public i(message : string){
         if(this.logLevel >= this.logLevels.info)
             console.log('INFO: ' + message);

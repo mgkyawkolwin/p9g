@@ -8,7 +8,7 @@ import Reservation from '@/domain/models/Reservation';
 
 export async function getTopReservationsAction(): Promise<FormState> {
   try{
-    c.i('Actions > /console/reservations/new > newReservationAction');
+    c.fs('Actions > getTopReservationsAction');
 
     let queryString = null;
     const message = "";
@@ -42,7 +42,7 @@ export async function getTopReservationsAction(): Promise<FormState> {
     const [reservations] = responseData.data;
     c.d(reservations?.length);
 
-    c.i("Returning final response.");
+    c.fe('Actions > getTopReservationsAction');
     const successresponse = {error:false, message : message, data: {reservations: reservations}};
     //c.d(successresponse);
     return successresponse;
@@ -55,8 +55,8 @@ export async function getTopReservationsAction(): Promise<FormState> {
 
 export async function saveReservationAction(reservation: Reservation): Promise<FormState> {
     try{
-      c.i("Action > saveReservation");c.d('aaa')
-      c.d(JSON.stringify(reservation));c.d('hhh')
+      c.fs("Action > saveReservationAction");
+      c.d(JSON.stringify(reservation));
 
       const validatedReservation = await reservationValidator.safeParseAsync(reservation);
       if(!validatedReservation.success){
@@ -84,10 +84,10 @@ export async function saveReservationAction(reservation: Reservation): Promise<F
         return { error: true, message: `Failed to create reservation. ${responseData.message}`};
       }
 
-      c.i("Create reservation successful.");
+      
       //const reservation = responseData.data;
       //c.d(reservation);
-
+      c.fe("Action > saveReservationAction");
       return {error:false, message:'Save reservation successful.', reload:true};
     }catch(error){
       c.e(error instanceof Error ? error.message : String(error));
@@ -97,7 +97,7 @@ export async function saveReservationAction(reservation: Reservation): Promise<F
 
 
 export async function searchCustomer(search:string){
-    c.i("Action is SEARCH. Validating search fields.");
+    c.fs("Action > searchCustomer");
 
     //update user
     c.i("Requesting API to retrieve customers.");
@@ -122,5 +122,6 @@ export async function searchCustomer(search:string){
     c.d(responseData);
     const [customers] = responseData.data;
     
+    c.fe("Action > searchCustomer");
     return {error:false, data:customers};
 }

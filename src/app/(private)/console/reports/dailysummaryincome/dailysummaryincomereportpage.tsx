@@ -4,7 +4,6 @@ import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { getDailySummaryIncomeReport } from "./actions";
 import React from "react";
 import { Loader } from "@/components/uicustom/loader";
-import { DateInputWithLabel } from "@/components/uicustom/dateinputwithlabel";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 import DailySummaryIncomeReport from "@/components/reports/dailysummaryincomereport";
 import DailySummaryIncomeReportRow from "@/domain/dtos/reports/DailySummaryIncomeReportRow";

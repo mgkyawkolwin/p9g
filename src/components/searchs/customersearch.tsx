@@ -3,7 +3,6 @@ import * as React from "react";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { FormState } from "@/lib/types";
 import { ButtonCustom } from "../uicustom/buttoncustom";
-import c from "@/lib/core/logger/ConsoleLogger";
 import CustomerNewForm from "../forms/customernewform";
 import Customer from "@/domain/models/Customer";
 
@@ -21,10 +20,6 @@ export default function CustomerSearch({
     formRef,
     isPending
   }: DataTableProps){
-
-    c.d(JSON.stringify(formState));
-    c.d(formAction);
-    c.d(String(isPending));
 
     const openCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
     

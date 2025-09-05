@@ -4,8 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 export default class RoomCharge extends ModelBase{
     public id:string = uuidv4();
     public reservationId!: string;
-    public startDateUTC!:Date;
-    public endDateUTC!:Date;
+    public startDate!:Date;
+    public endDate!:Date;
     public roomId!:string;
     public roomNo!:string;
     public roomTypeId!:string;

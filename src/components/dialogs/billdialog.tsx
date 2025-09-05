@@ -4,7 +4,6 @@ import * as React from "react";
 import {
   ColumnDef
 } from "@tanstack/react-table";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { billsView } from "@/app/(private)/console/reservations/actions"
@@ -26,8 +25,6 @@ export default function BillDialog({
   reservationId,
   callbackFunctions
 }: DataTableProps) {
-  c.i('Client > BillEditDialog');
-  c.d(reservationId);
 
   const [open, setOpen] = React.useState(false);
   // const [id, setId] = React.useState<string>(reservationId);
@@ -119,7 +116,6 @@ export default function BillDialog({
     const fetchInvoice = async () => {
         // setId(reservationId);
         const response = await billsView(reservationId);
-        c.d(response.data);
         if(response.message)
             toast(response.message);
         if(response.data){

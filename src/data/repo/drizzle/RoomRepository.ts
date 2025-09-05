@@ -21,7 +21,7 @@ export default class RoomRepository extends Repository<Room, typeof roomTable> i
     }
 
 
-    async findByRoomNo(roomNo: string): Promise<Room | null> {
+    async findByRoomNoAndLocation(roomNo:string, location:string): Promise<Room | null> {
         const result = await this.dbClient.db.select(
             { ...roomTable, roomType: roomTypeTable.roomType, roomTypeId: roomTypeTable.id }
         )
@@ -29,7 +29,8 @@ export default class RoomRepository extends Repository<Room, typeof roomTable> i
             .innerJoin(roomTypeTable, eq(this.table.roomTypeId, roomTypeTable.id))
             .where(
                 and(
-                    eq(this.table.roomNo, roomNo)
+                    eq(this.table.roomNo, roomNo),
+                    eq(this.table.location, location)
                 )
             )
             .limit(1) as unknown as Room[];

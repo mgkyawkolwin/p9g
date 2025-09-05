@@ -3,5 +3,5 @@ import Room from "@/domain/models/Room";
 
 export default interface IRoomRepository extends IRepository<Room>{
 
-    findByRoomNo(roomNo: string): Promise<Room | null>;
+    findByRoomNoAndLocation(roomNo: string, location:string): Promise<Room | null>;
 }

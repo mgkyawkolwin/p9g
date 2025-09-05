@@ -5,13 +5,12 @@ import {
   ColumnDef
 } from "@tanstack/react-table";
 import DataTable from "./datatable";
-import c from "@/lib/core/logger/ConsoleLogger"
-import { FormState } from "@/lib/types"
+import { FormState } from "@/lib/types";
 import Reservation from "@/domain/models/Reservation";
-import { ButtonCustom } from "../uicustom/buttoncustom"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
-import { reservationCheckOut } from "@/app/(private)/console/checkout/actions"
-import { toast } from "sonner"
+import { ButtonCustom } from "../uicustom/buttoncustom";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { reservationCheckOut } from "@/app/(private)/console/checkout/actions";
+import { toast } from "sonner";
 import { getReservationStatusColorClass } from "@/lib/utils";
 
 
@@ -28,8 +27,6 @@ export default function CheckOutListTable({
   formAction,
   formRef
 }: DataTableProps) {
-  c.i('Client > CheckOutListTable');
-  c.d(JSON.stringify(formState));
 
 
   const columns: ColumnDef<Reservation>[] = [
@@ -70,8 +67,8 @@ export default function CheckOutListTable({
       header: "Arrival / Departure",
       accessorFn: (row) => {
         return <span>
-          {row.arrivalDateTimeUTC ? new Date(row.arrivalDateTimeUTC).toLocaleString('sv-SE') : ''} {row.arrivalFlight} {row.pickUpTypeText}<br />
-          {row.departureDateTimeUTC ? new Date(row.departureDateTimeUTC).toLocaleString('sv-SE') : ''} {row.departureFlight} {row.dropOffTypeText}</span>;
+          {row.arrivalDateTime ? new Date(row.arrivalDateTime).toISODateTimeString() : ''} {row.arrivalFlight} {row.pickUpTypeText}<br />
+          {row.departureDateTime ? new Date(row.departureDateTime).toISODateTimeString() : ''} {row.departureFlight} {row.dropOffTypeText}</span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -80,8 +77,8 @@ export default function CheckOutListTable({
       header: "Check-In / Check-Out",
       accessorFn: (row) => {
         return <span>
-          {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')}<br />
-          {new Date(row.checkOutDateUTC!).toLocaleDateString('sv-SE')}<br />
+          {new Date(row.checkInDate!).toISODateString()}<br />
+          {new Date(row.checkOutDate!).toISODateString()}<br />
           {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
       cell: (row) => row.getValue(),

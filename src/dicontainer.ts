@@ -1,6 +1,7 @@
 import { Container } from 'inversify';
 //import { interfaces, Controller } from 'inversify-express-utils';
 import "reflect-metadata";
+import '@/lib/extensions/dateextensions';
 
 import IUserService from '@/domain/services/contracts/IUserService';
 import UserService from '@/domain/services/UserService';

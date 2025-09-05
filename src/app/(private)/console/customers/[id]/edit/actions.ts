@@ -1,6 +1,5 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { customerValidator } from '@/lib/zodschema';
 import { FormState } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
@@ -10,7 +9,7 @@ import { headers } from 'next/headers';
 
 export async function customerUpdate(customer: Customer) : Promise<FormState>{
   try {
-    c.i('Actions > /console/customers/new/ > customerUpdate');
+    c.fs('Actions > customerUpdate');
     c.d(customer);
 
     //validate and parse form input
@@ -42,6 +41,7 @@ export async function customerUpdate(customer: Customer) : Promise<FormState>{
     }
 
     //update user success
+    c.fe('Actions > customerUpdate');
     return {error: false, message:"Customer update successful", data: responseData.data, formData: null};
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));

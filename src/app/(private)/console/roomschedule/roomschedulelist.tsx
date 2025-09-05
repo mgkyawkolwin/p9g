@@ -2,7 +2,6 @@
 import { useActionState, useEffect } from "react";
 
 import { toast } from "sonner";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { roomScheduleGetList } from "./actions";
 import React from "react";
@@ -15,7 +14,6 @@ import { SelectList } from "@/lib/constants";
 import { getCurrentMonthFirstDate, getCurrentMonthLastDate, getFirstDate, getLastDate } from "@/lib/utils";
 
 export default function RoomScheduleList() {
-  c.i("Client > RoomScheduleList");
 
   const formRef = React.useRef<HTMLFormElement>(null);
 

@@ -8,7 +8,7 @@ import Reservation from '@/domain/models/Reservation';
 
 export async function getTopReservationsAction(): Promise<FormState> {
   try{
-    c.i('Actions > /console/reservations/new > newReservationAction');
+    c.fs('Actions > getTopReservationsAction');
 
     let queryString = null;
     const message = "";
@@ -42,7 +42,7 @@ export async function getTopReservationsAction(): Promise<FormState> {
     const [reservations] = responseData.data;
     c.d(reservations?.length);
 
-    c.i("Returning final response.");
+    c.fe('Actions > getTopReservationsAction');
     const successresponse = {error:false, message : message, data: {reservations: reservations}};
     //c.d(successresponse);
     return successresponse;
@@ -54,7 +54,7 @@ export async function getTopReservationsAction(): Promise<FormState> {
 
 
 export async function getReservation(reservationId:string){
-    c.i("Action > getReservation");
+    c.fs("Action > getReservation");
     c.d(reservationId);
 
     //update user
@@ -78,13 +78,13 @@ export async function getReservation(reservationId:string){
     c.i("Retrieve reservation successful.");
     c.d(responseData);
     const reservation = responseData.data;
-    
+    c.fe("Action > getReservation");
     return {error:false, data:{reservation:reservation}};
 }
 
 
 export async function searchCustomer(search:string){
-    c.i("Action is SEARCH. Validating search fields.");
+    c.fs("Action > searchCustomer");
 
     //update user
     c.i("Requesting API to retrieve customers.");
@@ -107,14 +107,15 @@ export async function searchCustomer(search:string){
     c.i("Retrieve users successful.");
     c.d(responseData);
     const [customers] = responseData.data;
-    
+
+    c.fe("Action > searchCustomer");
     return {error:false, data:customers};
 }
 
 
 export async function updateReservationAction(reservation: Reservation): Promise<FormState> {
   try{
-    c.i('Actions > /console/reservations/[id]/edit > updateReservationAction');
+    c.fs('Actions > updateReservationAction');
     c.d(reservation);
 
     c.i("Finding form action for further processing.");
@@ -150,7 +151,7 @@ export async function updateReservationAction(reservation: Reservation): Promise
       return { error: true, message: `Failed to update reservation. ${responseData.message}`, data: null, formData: null};
     }
 
-    c.i("Returning final response.");
+    c.fe('Actions > updateReservationAction');
     return {error:false, message : 'Update reservation successful.', reload: true};;
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));

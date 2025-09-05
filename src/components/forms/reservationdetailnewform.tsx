@@ -3,7 +3,6 @@
 import React from "react";
 import ReservationDetailForm from "../basicforms/reservationdetailform";
 import { Group, GroupContent, GroupTitle } from "../uicustom/group";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import { saveReservationAction } from "@/app/(private)/console/reservations/new/actions";
 import { toast } from "sonner";
@@ -17,7 +16,7 @@ interface ReservationDetailNewFormProps {
 }
 
 export default function ReservationDetailNewForm({ customers, onReservationSaved }: ReservationDetailNewFormProps) {
-    c.i('Client > ReservationDetailNewForm');
+    
 
     const [isPending, setIsPending] = React.useState(false);
     const [reservation, setReservation] = React.useState(new Reservation());
@@ -33,8 +32,8 @@ export default function ReservationDetailNewForm({ customers, onReservationSaved
     async function saveAndCopyReservation() {
         setIsPending(true);
         const r = detailFormRef.current?.getReservation();
-        r.customers = customers.map(c => ({ id: c.id } as Customer))
-        const response = await saveReservationAction(JSON.parse(JSON.stringify(r)) as unknown as Reservation);
+        r.customers = customers.map(c => ({ id: c.id } as Customer));
+        const response = await saveReservationAction(r as unknown as Reservation);
         if (response.message) toast(response.message);
         if (!response.error && onReservationSaved) onReservationSaved();
         setIsPending(false);

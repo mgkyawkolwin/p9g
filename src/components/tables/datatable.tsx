@@ -30,10 +30,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import c from "@/lib/core/logger/ConsoleLogger"
-import { SelectWithLabel } from "../uicustom/selectwithlabel"
-import { FormState } from "@/lib/types"
+} from "@/components/ui/table";
+import { SelectWithLabel } from "../uicustom/selectwithlabel";
+import { FormState } from "@/lib/types";
 import { Theme } from "@/lib/constants";
 
 
@@ -51,10 +50,6 @@ export default function DataTable<TData, TValue>({
   formAction,
   formRef,
 }: DataTableProps<TData, TValue>) {
-
-  c.i("DataTable is called.");
-  c.d(JSON.stringify(formState));
-  c.d(JSON.stringify(formAction));
 
   const [data] = React.useState([]);
   const [pageIndex, setPageIndex] = React.useState(1);
@@ -105,7 +100,6 @@ export default function DataTable<TData, TValue>({
 
 
   React.useEffect(() => {
-    c.i("formState is changed.");
     //setData(formState.data);
     if (records !== formState.pager?.records)
       setRecords(formState.pager?.records ?? 0);
@@ -114,13 +108,10 @@ export default function DataTable<TData, TValue>({
       //reset page index if pages is changed
       setPageIndex(1);
     }
-
-    c.d(data);
   }, [formState]);
 
 
   React.useEffect(() => {
-    c.i("pages is changed.");
     const temp = new Map<string, string>();
     //rebuid pages
     for (let x = 1; x <= pages; x++) {

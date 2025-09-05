@@ -5,7 +5,6 @@ import * as React from "react";
 import {
   ColumnDef
 } from "@tanstack/react-table";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { paymentsDelete, paymentsGet, paymentsSave } from "@/app/(private)/console/reservations/actions";
@@ -30,8 +29,6 @@ export default function PaymentDialog({
   reservationId,
   callbackFunctions
 }: DataTableProps) {
-  c.i('Client > BillEditDialog');
-  c.d(reservationId);
 
 
   const [open, setOpen] = React.useState(false);
@@ -59,13 +56,11 @@ export default function PaymentDialog({
         )
       );
     else {
-      c.d(payments);
       setPayments(prev =>
         prev.map((bill, index) =>
           index === rowIndex ? { ...bill, [field]: value } : bill
         )
       );
-      c.d(payments);
     }
   };
 
@@ -161,7 +156,6 @@ export default function PaymentDialog({
     const fetchPayments = async () => {
       // setId(reservationId);
       const response = await paymentsGet(reservationId);
-      c.d(response.data);
       if (response.message)
         toast(response.message);
       if (response.data) {

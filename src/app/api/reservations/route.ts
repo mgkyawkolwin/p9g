@@ -4,7 +4,7 @@ import { TYPES, SearchParam } from "@/lib/types";
 import c from "@/lib/core/logger/ConsoleLogger";
 import { pagerValidator, reservationValidator, searchSchema } from "@/lib/zodschema";
 import { HttpStatusCode } from "@/lib/constants";
-import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
+import { buildSearchParams, getPagerWithDefaults } from "@/lib/utils";
 import IReservationService from "@/domain/services/contracts/IReservationService";
 import Reservation from "@/domain/models/Reservation";
 import { CustomError } from "@/lib/errors";
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     //no need to validate pager params, if not valid, will use defaults
     const pagerValidatedFields = await pagerValidator.safeParseAsync(searchParams);
     c.d(JSON.stringify(pagerValidatedFields));
-    const pager = pagerWithDefaults(pagerValidatedFields.data);
+    const pager = getPagerWithDefaults(pagerValidatedFields.data);
     c.d(JSON.stringify(pager));
 
     //call service to retrieve data

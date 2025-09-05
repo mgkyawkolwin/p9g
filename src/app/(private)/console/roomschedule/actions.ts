@@ -7,7 +7,7 @@ import { headers } from 'next/headers';
 
 export async function roomScheduleGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
-    c.i('Actions > /console/roomschedule > roomScheduleGetList');
+    c.fs('Actions > roomScheduleGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
     const formObject = Object.fromEntries(
@@ -48,7 +48,7 @@ export async function roomScheduleGetList(formState : FormState, formData: FormD
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
-    c.i("Everything is alright. Return response.");
+    c.fe('Actions > roomScheduleGetList');
     const rooms = responseData.data;
     return {error:false, message : '', data: {rooms: rooms, date: formObject.searchCheckInDateUntil}};
   }catch(error){

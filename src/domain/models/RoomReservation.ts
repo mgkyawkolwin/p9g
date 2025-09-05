@@ -9,8 +9,8 @@ export default class RoomReservation extends ModelBase{
     public roomType!:string;
     public roomTypeId!: string;
     public reservationId!: string;
-    public checkInDateUTC!: Date;
-    public checkOutDateUTC!: Date;
+    public checkInDate!: Date;
+    public checkOutDate!: Date;
     public noOfExtraBed: number = 0;
     public isSingleOccupancy: boolean = false;
     public roomCharges: RoomCharge[] = [];

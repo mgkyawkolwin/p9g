@@ -5,7 +5,7 @@ import { headers } from 'next/headers';
 
 export async function getDailySummaryPersonReport(startDate:string, endDate:string): Promise<FormState> {
   try{
-    c.i('Actions > /console/checkin > getDailySummaryPersonReport');
+    c.fs('Actions > getDailySummaryPersonReport');
 
     //retrieve users
     c.i("Get report by calling api.");
@@ -30,7 +30,7 @@ export async function getDailySummaryPersonReport(startDate:string, endDate:stri
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
-    c.i("Everything is alright. Return response.");
+    c.fe('Actions > getDailySummaryPersonReport');
     return {error:false, message: '', data: responseData.data};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));

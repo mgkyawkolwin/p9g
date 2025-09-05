@@ -412,11 +412,11 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     }
                     if (searchParam.searchColumn === 'checkInDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        return eq(reservationTable.checkInDateUTC, d);
+                        return eq(reservationTable.checkInDate, d);
                     }
                     if (searchParam.searchColumn === 'checkOutDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        return eq(reservationTable.checkOutDateUTC, d);
+                        return eq(reservationTable.checkOutDate, d);
                     }
                     if (searchParam.searchColumn === 'createdFrom') {
                         let d: Date = new Date(searchParam.searchValue);
@@ -596,11 +596,11 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     }
                     if (searchParam.searchColumn === 'checkInDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        return eq(reservationTable.checkInDateUTC, d);
+                        return eq(reservationTable.checkInDate, d);
                     }
                     if (searchParam.searchColumn === 'checkOutDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        return eq(reservationTable.checkOutDateUTC, d);
+                        return eq(reservationTable.checkOutDate, d);
                     }
                     if (searchParam.searchColumn === 'createdFrom') {
                         let d: Date = new Date(searchParam.searchValue);
@@ -896,16 +896,16 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         const startDate = new Date(searchParam.searchValue);
                         const endDate = getMidNightDate(new Date(searchParam.searchValue));
                         return and(
-                            gte(reservationTable.arrivalDateTimeUTC, startDate),
-                            lte(reservationTable.arrivalDateTimeUTC, endDate)
+                            gte(reservationTable.arrivalDateTime, startDate),
+                            lte(reservationTable.arrivalDateTime, endDate)
                         );
                     }
                     if (searchParam.searchColumn === 'departureDateTimeUTC') {
                         const startDate = new Date(searchParam.searchValue);
                         const endDate = getMidNightDate(new Date(searchParam.searchValue));
                         return and(
-                            gte(reservationTable.departureDateTimeUTC, startDate),
-                            lte(reservationTable.departureDateTimeUTC, endDate)
+                            gte(reservationTable.departureDateTime, startDate),
+                            lte(reservationTable.departureDateTime, endDate)
                         );
                     }
                     if (searchParam.searchColumn === 'remark') {
@@ -919,11 +919,11 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     }
                     if (searchParam.searchColumn === 'checkInDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        return eq(reservationTable.checkInDateUTC, d);
+                        return eq(reservationTable.checkInDate, d);
                     }
                     if (searchParam.searchColumn === 'checkOutDateUTC') {
                         let d: Date = new Date(searchParam.searchValue);
-                        return eq(reservationTable.checkOutDateUTC, d);
+                        return eq(reservationTable.checkOutDate, d);
                     }
                     if (searchParam.searchColumn === 'createdFrom') {
                         let d: Date = new Date(searchParam.searchValue);
@@ -936,12 +936,12 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     }
                     if (searchParam.searchColumn === 'checkInDateFrom') {
                         let d: Date = new Date(searchParam.searchValue);
-                        return gte(reservationTable.checkInDateUTC, d);
+                        return gte(reservationTable.checkInDate, d);
                     }
                     if (searchParam.searchColumn === 'checkInDateUntil') {
                         let d: Date = new Date(searchParam.searchValue);
                         d.setUTCHours(23, 59, 59, 999);
-                        return lte(reservationTable.checkInDateUTC, d);
+                        return lte(reservationTable.checkInDate, d);
                     }
                     if (searchParam.searchColumn === 'name') {
                         return or(
@@ -1049,10 +1049,10 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         return eq(reservationTypeAlias.value, searchParam.searchValue);
                     }
                     if (searchParam.searchColumn === 'checkInDateUTC') {
-                        return eq(reservationTable.checkInDateUTC, new Date(searchParam.searchValue));
+                        return eq(reservationTable.checkInDate, new Date(searchParam.searchValue));
                     }
                     if (searchParam.searchColumn === 'checkOutDateUTC') {
-                        return eq(reservationTable.checkOutDateUTC, new Date(searchParam.searchValue));
+                        return eq(reservationTable.checkOutDate, new Date(searchParam.searchValue));
                     }
                     if (searchParam.searchColumn === 'createdFrom') {
                         return gte(reservationTable.createdAtUTC, new Date(searchParam.searchValue));
@@ -1151,7 +1151,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             const date = new Date(new Date().toISOString());
             c.i('Update current roomReservation record');
             await tx.update(roomReservationTable)
-                .set({ checkOutDateUTC: date, updatedBy: session.user.id })
+                .set({ checkOutDate: date, updatedBy: session.user.id })
                 .where(eq(roomReservationTable.reservationId, id));
 
             c.i('Create new roomReservation record');
@@ -1160,8 +1160,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     {
                         reservationId: id,
                         roomId: room.id,
-                        checkInDateUTC: date,
-                        checkOutDateUTC: reservation.checkOutDateUTC,
+                        checkInDate: date,
+                        checkOutDate: reservation.checkOutDate,
                         isSingleOccupancy: reservation.isSingleOccupancy,
                         createdBy: session.user.id,
                         updatedBy: session.user.id
@@ -1351,8 +1351,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 or(
                     and(
                         eq(roomReservationTable.roomId, roomTable.id),
-                        lte(roomReservationTable.checkInDateUTC, new Date(searchParams[0].searchValue)),
-                        gte(roomReservationTable.checkOutDateUTC, new Date(searchParams[0].searchValue))
+                        lte(roomReservationTable.checkInDate, new Date(searchParams[0].searchValue)),
+                        gte(roomReservationTable.checkOutDate, new Date(searchParams[0].searchValue))
                     ),
                     isNull(roomReservationTable.id)
                 )
@@ -1395,12 +1395,13 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             .from(roomChargeTable)
             .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomChargeTable.roomTypeId))
             .innerJoin(roomTable, eq(roomTable.id, roomChargeTable.roomId))
-            .where(eq(roomChargeTable.reservationId, reservationId));
+            .where(eq(roomChargeTable.reservationId, reservationId))
+            .orderBy(asc(roomChargeTable.startDate));
 
         const roomCharges: RoomCharge[] = result?.map((row: { roomCharge: RoomChargeEntity, roomType: RoomTypeEntity, room: RoomEntity }) => {
             const rc = new RoomCharge();
             rc.id = row.roomCharge.id;
-            rc.endDateUTC = row.roomCharge.endDateUTC;
+            rc.endDate = row.roomCharge.endDate;
             rc.extraBedRate = Number(row.roomCharge.extraBedRate);
             rc.noOfDays = Number(row.roomCharge.noOfDays);
             rc.reservationId = row.roomCharge.reservationId;
@@ -1413,7 +1414,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             rc.roomTypeText = row.roomType.roomTypeText;
             rc.seasonSurcharge = Number(row.roomCharge.seasonSurcharge);
             rc.singleRate = Number(row.roomCharge.singleRate);
-            rc.startDateUTC = row.roomCharge.startDateUTC;
+            rc.startDate = row.roomCharge.startDate;
             rc.totalAmount = Number(row.roomCharge.totalAmount);
             rc.totalRate = Number(row.roomCharge.totalRate);
             rc.createdAtUTC = row.roomCharge.createdAtUTC;
@@ -1523,7 +1524,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 eq(roomReservationTable.reservationId, reservationId),
                 eq(roomTypeTable.location, user.location),
                 eq(roomTable.location, user.location)
-            )).orderBy(asc(roomReservationTable.checkInDateUTC), asc(roomChargeTable.startDateUTC));
+            )).orderBy(asc(roomReservationTable.checkInDate), asc(roomChargeTable.startDate));
 
         const roomReservations = result?.reduce((acc: RoomReservation[], row: { roomReservation: RoomReservationEntity, roomCharge: RoomChargeEntity, roomType: RoomTypeEntity, room: RoomEntity }) => {
             let roomReservation = acc.find(entry => entry.id === row.roomReservation.id);
@@ -1531,8 +1532,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             if (!roomReservation) {
                 roomReservation = new RoomReservation();
                 roomReservation.id = row.roomReservation.id;
-                roomReservation.checkInDateUTC = row.roomReservation.checkInDateUTC;
-                roomReservation.checkOutDateUTC = row.roomReservation.checkOutDateUTC;
+                roomReservation.checkInDate = row.roomReservation.checkInDate;
+                roomReservation.checkOutDate = row.roomReservation.checkOutDate;
                 roomReservation.isSingleOccupancy = Boolean(row.roomReservation.isSingleOccupancy);
                 roomReservation.noOfExtraBed = row.roomReservation.noOfExtraBed;
                 roomReservation.reservationId = row.roomReservation.reservationId;
@@ -1551,8 +1552,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 const roomCharge = new RoomCharge();
                 roomCharge.id = row.roomCharge.id;
                 roomCharge.reservationId = row.roomCharge.reservationId;
-                roomCharge.startDateUTC = row.roomCharge.startDateUTC;
-                roomCharge.endDateUTC = row.roomCharge.endDateUTC;
+                roomCharge.startDate = row.roomCharge.startDate;
+                roomCharge.endDate = row.roomCharge.endDate;
                 roomCharge.extraBedRate = Number(row.roomCharge.extraBedRate);
                 roomCharge.noOfDays = Number(row.roomCharge.noOfDays);
                 roomCharge.roomId = row.roomCharge.roomId;
@@ -1611,7 +1612,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
 
         const result = await this.dbClient.db.transaction(async (tx: TransactionType) => {
             //sort roomReservations by checkInDateUTC ascending
-            const sortedRoomReservations = roomReservations.sort((a, b) => a.checkInDateUTC.getTime() - b.checkInDateUTC.getTime());
+            const sortedRoomReservations = roomReservations.sort((a, b) => a.checkInDate.getTime() - b.checkInDate.getTime());
 
             //update total room charges and room no
             const totalRoomCharges = sortedRoomReservations.filter(rr => rr.modelState !== 'deleted')
@@ -1739,11 +1740,11 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     and(
                         eq(roomReservationTable.roomId, roomTable.id),
                         or(
-                            between(roomReservationTable.checkInDateUTC, start!, end!),
-                            between(roomReservationTable.checkOutDateUTC, start!, end!),
+                            between(roomReservationTable.checkInDate, start!, end!),
+                            between(roomReservationTable.checkOutDate, start!, end!),
                             and(
-                                lte(roomReservationTable.checkInDateUTC, start!),
-                                gte(roomReservationTable.checkOutDateUTC, end!)
+                                lte(roomReservationTable.checkInDate, start!),
+                                gte(roomReservationTable.checkOutDate, end!)
                             )
                         )
                     ),
@@ -1755,11 +1756,11 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     and(
                         eq(reservationTable.id, roomReservationTable.reservationId),
                         or(
-                            between(reservationTable.checkInDateUTC, start!, end!),
-                            between(reservationTable.checkOutDateUTC, start!, end!),
+                            between(reservationTable.checkInDate, start!, end!),
+                            between(reservationTable.checkOutDate, start!, end!),
                             and(
-                                lte(reservationTable.checkInDateUTC, start!),
-                                gte(reservationTable.checkOutDateUTC, end!)
+                                lte(reservationTable.checkInDate, start!),
+                                gte(reservationTable.checkOutDate, end!)
                             )
                         )
                     ),

@@ -28,7 +28,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { Theme } from "@/lib/constants";
 
 interface DataTableProps<TData, TValue> {
@@ -43,9 +42,6 @@ export default function SimpleDataTable<TData, TValue>({
   data,
   showColVisibilityControl = false
 }: DataTableProps<TData, TValue>) {
-
-  c.i("DataTable is called.");
-  c.d(JSON.stringify(data));
   
 
   //Table Related

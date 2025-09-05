@@ -4,13 +4,13 @@ import Customer from "./Customer";
 
 export default class Reservation{
     public id: string = undefined;
-    public arrivalDateTimeUTC: Date | undefined;
+    public arrivalDateTime: Date | undefined;
     public arrivalFlight: string = "";
     public bills: Bill[] = [];
-    public checkInDateUTC: Date;
-    public checkOutDateUTC: Date;
+    public checkInDate: Date;
+    public checkOutDate: Date;
     public customers: Customer[] = [];
-    public departureDateTimeUTC: Date | undefined;
+    public departureDateTime: Date | undefined;
     public departureFlight: string = "";
     public depositAmount: number = 0;
     public depositAmountInCurrency: number = 0;
@@ -63,6 +63,5 @@ export default class Reservation{
     public createdBy!: string;
     public updatedAtUTC?: Date;
     public updatedBy?: string;
-    
 }
 

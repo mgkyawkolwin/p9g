@@ -66,8 +66,8 @@ export default class ReportRepository extends Repository<Customer, typeof custom
                 .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                 .where(
                     and(
-                        gte(reservationTable.checkInDateUTC, start),
-                        lte(reservationTable.checkInDateUTC, end),
+                        gte(reservationTable.checkInDate, start),
+                        lte(reservationTable.checkInDate, end),
                         ne(configTable.value, 'CCL'),
                         eq(reservationTable.location, user.location)
                     )).limit(1);
@@ -80,8 +80,8 @@ export default class ReportRepository extends Repository<Customer, typeof custom
                 .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                 .where(
                     and(
-                        gte(reservationTable.checkOutDateUTC, start),
-                        lte(reservationTable.checkOutDateUTC, end),
+                        gte(reservationTable.checkOutDate, start),
+                        lte(reservationTable.checkOutDate, end),
                         ne(configTable.value, 'CCL'),
                         eq(reservationTable.location, user.location)
                     )).limit(1);
@@ -94,8 +94,8 @@ export default class ReportRepository extends Repository<Customer, typeof custom
                 .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                 .where(
                     and(
-                        lt(reservationTable.checkInDateUTC, start),
-                        gt(reservationTable.checkOutDateUTC, end),
+                        lt(reservationTable.checkInDate, start),
+                        gt(reservationTable.checkOutDate, end),
                         ne(configTable.value, 'CCL'),
                         eq(reservationTable.location, user.location)
                     )).limit(1);
@@ -156,8 +156,8 @@ export default class ReportRepository extends Repository<Customer, typeof custom
                 .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                 .where(
                     and(
-                        gte(reservationTable.checkInDateUTC, start),
-                        lte(reservationTable.checkInDateUTC, end),
+                        gte(reservationTable.checkInDate, start),
+                        lte(reservationTable.checkInDate, end),
                         ne(configTable.value, 'CCL'),
                         eq(reservationTable.location, user.location)
                     ));
@@ -354,8 +354,8 @@ export default class ReportRepository extends Repository<Customer, typeof custom
                 .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                 .where(
                     and(
-                        gte(reservationTable.checkInDateUTC, start),
-                        lte(reservationTable.checkInDateUTC, end),
+                        gte(reservationTable.checkInDate, start),
+                        lte(reservationTable.checkInDate, end),
                         ne(configTable.value, 'CCL'),
                         eq(reservationTable.location, user.location)
                     )).limit(1);
@@ -368,8 +368,8 @@ export default class ReportRepository extends Repository<Customer, typeof custom
                 .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                 .where(
                     and(
-                        gte(reservationTable.checkOutDateUTC, start),
-                        lte(reservationTable.checkOutDateUTC, end),
+                        gte(reservationTable.checkOutDate, start),
+                        lte(reservationTable.checkOutDate, end),
                         ne(configTable.value, 'CCL'),
                         eq(reservationTable.location, user.location)
                     )).limit(1);
@@ -382,8 +382,8 @@ export default class ReportRepository extends Repository<Customer, typeof custom
                 .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                 .where(
                     and(
-                        lt(reservationTable.checkInDateUTC, start),
-                        gt(reservationTable.checkOutDateUTC, end),
+                        lt(reservationTable.checkInDate, start),
+                        gt(reservationTable.checkOutDate, end),
                         ne(configTable.value, 'CCL'),
                         eq(reservationTable.location, user.location)
                     )).limit(1);

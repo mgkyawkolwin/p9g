@@ -65,8 +65,8 @@ export default function CheckInListTable({
       header: "Arrival / Departure",
       accessorFn: (row) => {
         return <span>
-          {row.arrivalDateTimeUTC ? new Date(row.arrivalDateTimeUTC).toLocaleString('sv-SE') : ''} {row.arrivalFlight} {row.pickUpTypeText}<br />
-          {row.departureDateTimeUTC ? new Date(row.departureDateTimeUTC).toLocaleString('sv-SE') : ''} {row.departureFlight} {row.dropOffTypeText}</span>;
+          {row.arrivalDateTime ? new Date(row.arrivalDateTime).toISODateTimeString() : ''} {row.arrivalFlight} {row.pickUpTypeText}<br />
+          {row.departureDateTime ? new Date(row.departureDateTime).toISODateTimeString() : ''} {row.departureFlight} {row.dropOffTypeText}</span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -75,8 +75,8 @@ export default function CheckInListTable({
       header: "Check-In / Check-Out",
       accessorFn: (row) => {
         return <span>
-          {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')}<br />
-          {new Date(row.checkOutDateUTC!).toLocaleDateString('sv-SE')}<br />
+          {new Date(row.checkInDate!).toISODateString()}<br />
+          {new Date(row.checkOutDate!).toISODateString()}<br />
           {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
       cell: (row) => row.getValue(),

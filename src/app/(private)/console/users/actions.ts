@@ -8,7 +8,7 @@ import { headers } from 'next/headers';
 
 export async function userGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
-    c.i('Actions > /admin/users > userGetAll');
+    c.fs('Actions > userGetList');
     c.d(JSON.stringify(formData.entries()));
 
     let queryString = null;
@@ -50,6 +50,7 @@ export async function userGetList(formState : FormState, formData: FormData): Pr
 
     //retrieve data from tuple
     const [users, pager] = responseData.data;
+    c.fe('Actions > userGetList');
     return {error:false, message : "", data: users, pager: pager};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
@@ -60,7 +61,7 @@ export async function userGetList(formState : FormState, formData: FormData): Pr
 
 export async function userUpdate(formState : FormState, formData: FormData) : Promise<FormState>{
   try {
-    c.i('Actions > /admin/users/[id]/edit > userUpdate');
+    c.fs('Actions > userUpdate');
 
     //validate and parse form input
     const validatedFields = userUpdateSchema.safeParse(Object.fromEntries(formData.entries()));
@@ -93,6 +94,8 @@ export async function userUpdate(formState : FormState, formData: FormData) : Pr
 
     //update user success
     const data = await response.json();
+
+    c.fe('Actions > userUpdate');
     return {error: false, message:"", data: data, formData: null};
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));

@@ -2,7 +2,6 @@
 import { useActionState, useEffect } from "react";
 
 import { toast } from "sonner";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { reservationGetList } from "./actions";
 import React from "react";
@@ -11,7 +10,6 @@ import PickUpListSearch from "@/components/searchs/pickuplistsearch";
 import PickUpListTable from "@/components/tables/pickuplisttable";
 
 export default function PickUpList() {
-  c.i("Client > PickUpList");
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
