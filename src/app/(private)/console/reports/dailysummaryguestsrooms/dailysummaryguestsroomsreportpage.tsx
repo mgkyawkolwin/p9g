@@ -5,13 +5,14 @@ import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { getDailySummaryGuestsRoomsReport } from "./actions";
 import React from "react";
 import { Loader } from "@/components/uicustom/loader";
-import DailySummaryGuestsRoomsReportRow from "@/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
+import DailySummaryGuestsRoomsReportRow from "@/core/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
 import DailySummaryGuestsRoomsReport from "@/components/reports/dailysummaryguestsroomsreport";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 import { Label } from "@/components/ui/label";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { InputCustom } from "@/components/uicustom/inputcustom";
+import { getUTCDateTimeMidNightString, getUTCDateTimeString } from "@/core/lib/utils";
 
 export default function DailySummaryGuestsRoomsReportPage() {
 
@@ -64,7 +65,7 @@ export default function DailySummaryGuestsRoomsReportPage() {
                 </div>
                 <ButtonCustom onClick={async () => {
                   setIsLoading(true);
-                  const response = await getDailySummaryGuestsRoomsReport(fromDate ? fromDate.toISOString() : '', toDate ? toDate.toISOString() : '');
+                  const response = await getDailySummaryGuestsRoomsReport(fromDate ? getUTCDateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getUTCDateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '');
                   setIsLoading(false);
                   if (response.message)
                     toast(response.message);

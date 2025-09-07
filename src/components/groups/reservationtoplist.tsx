@@ -2,7 +2,7 @@
 
 import ReservationTopTable from "@/components/tables/reservationtoptable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import Reservation from "@/domain/models/Reservation";
+import Reservation from "@/core/domain/models/Reservation";
 
 export default function ReservationTopList({data} : {data:Reservation[]}) {
   

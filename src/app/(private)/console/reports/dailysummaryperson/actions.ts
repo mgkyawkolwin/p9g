@@ -1,6 +1,6 @@
 'use server';
-import { FormState } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
+import { FormState } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
 import { headers } from 'next/headers';
 
 export async function getDailySummaryPersonReport(startDate:string, endDate:string): Promise<FormState> {

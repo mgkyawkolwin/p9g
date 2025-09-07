@@ -1,4 +1,4 @@
-import Customer from "@/domain/models/Customer";
+import Customer from "@/core/domain/models/Customer";
 import CustomerInformationTable from "../tables/customerinformationtable";
 import { Group, GroupContent, GroupTitle } from "../uicustom/group";
 

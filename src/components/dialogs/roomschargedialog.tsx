@@ -13,8 +13,8 @@ import { InputCustom } from "../uicustom/inputcustom";
 import { Checkbox } from "../ui/checkbox";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import RoomReservation from "@/domain/models/RoomReservation";
-import RoomCharge from "@/domain/models/RoomCharge";
+import RoomReservation from "@/core/domain/models/RoomReservation";
+import RoomCharge from "@/core/domain/models/RoomCharge";
 import SimpleDataTable from "../tables/simpledatatable";
 
 

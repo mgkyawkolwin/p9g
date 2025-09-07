@@ -5,9 +5,9 @@ import {
   ColumnDef
 } from "@tanstack/react-table";
 import DataTable from "./datatable";
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/lib/types";
 import { useRouter } from "next/navigation";
-import Reservation from "@/domain/models/Reservation";
+import Reservation from "@/core/domain/models/Reservation";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import BillEditDialog from "../dialogs/billeditdialog";
@@ -16,7 +16,7 @@ import PaymentDialog from "../dialogs/paymentdialog";
 import ReceiptDialog from "../dialogs/receiptdialog";
 import { reservationCancel } from "@/app/(private)/console/reservations/actions";
 import { toast } from "sonner";
-import { getReservationStatusColorClass } from "@/lib/utils";
+import { getReservationStatusColorClass } from "@/core/lib/utils";
 import RoomChargeDialog from "../dialogs/roomschargedialog";
 
 

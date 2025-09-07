@@ -1,10 +1,10 @@
 'use server';
-import { reservationValidator } from '@/lib/zodschema';
-import { FormState } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { buildQueryString } from "@/lib/utils";
+import { reservationValidator } from '@/core/validation/zodschema';
+import { FormState } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { buildQueryString } from "@/core/lib/utils";
 import { headers } from 'next/headers';
-import Reservation from '@/domain/models/Reservation';
+import Reservation from '@/core/domain/models/Reservation';
 
 export async function getTopReservationsAction(): Promise<FormState> {
   try{

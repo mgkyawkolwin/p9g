@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table";
 import SimpleDataTable from "./simpledatatable";
 import { ButtonCustom } from "../uicustom/buttoncustom";
-import Customer from "@/domain/models/Customer";
+import Customer from "@/core/domain/models/Customer";
 
 
 interface DataTableProps {

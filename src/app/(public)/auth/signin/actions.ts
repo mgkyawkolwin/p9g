@@ -1,9 +1,9 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { signIn } from "@/app/auth";
-import c from '@/lib/core/logger/ConsoleLogger';
-import { AppUrl } from '@/lib/constants';
-import { FormState } from '@/lib/types';
+import c from '@/core/logger/console/ConsoleLogger';
+import { AppUrl } from '@/core/lib/constants';
+import { FormState } from '@/core/lib/types';
 
 
 export async function signInAction(state : FormState, formData:FormData){

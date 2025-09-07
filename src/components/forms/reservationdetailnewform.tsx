@@ -6,8 +6,8 @@ import { Group, GroupContent, GroupTitle } from "../uicustom/group";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import { saveReservationAction } from "@/app/(private)/console/reservations/new/actions";
 import { toast } from "sonner";
-import Customer from "@/domain/models/Customer";
-import Reservation from "@/domain/models/Reservation";
+import Customer from "@/core/domain/models/Customer";
+import Reservation from "@/core/domain/models/Reservation";
 import { Loader } from "../uicustom/loader";
 
 interface ReservationDetailNewFormProps {

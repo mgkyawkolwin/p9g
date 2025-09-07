@@ -1,10 +1,10 @@
 
 import * as React from "react";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/lib/types";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import CustomerNewForm from "../forms/customernewform";
-import Customer from "@/domain/models/Customer";
+import Customer from "@/core/domain/models/Customer";
 
 
 interface DataTableProps {

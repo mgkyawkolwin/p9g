@@ -5,13 +5,13 @@ import {
   ColumnDef
 } from "@tanstack/react-table";
 import DataTable from "./datatable";
-import { FormState } from "@/lib/types";
-import Reservation from "@/domain/models/Reservation";
+import { FormState } from "@/core/lib/types";
+import Reservation from "@/core/domain/models/Reservation";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { reservationCheckOut } from "@/app/(private)/console/checkout/actions";
 import { toast } from "sonner";
-import { getReservationStatusColorClass } from "@/lib/utils";
+import { getReservationStatusColorClass } from "@/core/lib/utils";
 
 
 

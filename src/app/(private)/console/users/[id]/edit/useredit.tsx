@@ -1,8 +1,8 @@
 "use client";
 import { useActionState, useEffect, useState } from "react";
 //Local Imports
-import { UserEntity } from "@/data/orm/drizzle/mysql/schema";
-import { FormState } from "@/lib/types";
+import { UserEntity } from "@/core/data/orm/drizzle/mysql/schema";
+import { FormState } from "@/core/lib/types";
 import { Loader } from "@/components/uicustom/loader";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { InputWithLabel } from "@/components/uicustom/inputwithlabel";

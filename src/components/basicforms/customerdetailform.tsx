@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { Textarea } from "../ui/textarea";
 import React from "react";
-import Customer from "@/domain/models/Customer";
+import Customer from "@/core/domain/models/Customer";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { InputCustom } from "../uicustom/inputcustom";

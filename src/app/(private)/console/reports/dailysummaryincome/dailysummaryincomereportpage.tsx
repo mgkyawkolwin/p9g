@@ -6,11 +6,12 @@ import React from "react";
 import { Loader } from "@/components/uicustom/loader";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 import DailySummaryIncomeReport from "@/components/reports/dailysummaryincomereport";
-import DailySummaryIncomeReportRow from "@/domain/dtos/reports/DailySummaryIncomeReportRow";
+import DailySummaryIncomeReportRow from "@/core/domain/dtos/reports/DailySummaryIncomeReportRow";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Label } from "@/components/ui/label";
 import { InputCustom } from "@/components/uicustom/inputcustom";
+import { getUTCDateTimeMidNightString, getUTCDateTimeString } from "@/core/lib/utils";
 
 export default function DailySummaryIncomeReportPage() {
   
@@ -61,7 +62,7 @@ export default function DailySummaryIncomeReportPage() {
                 </div>
               <ButtonCustom onClick={async () => {
                 setIsLoading(true);
-                const response = await getDailySummaryIncomeReport(fromDate ? fromDate.toISOString() : '', toDate ? toDate.toISOString() : '');
+                const response = await getDailySummaryIncomeReport(fromDate ? getUTCDateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getUTCDateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '');
                 setIsLoading(false);
                 if(response.message)
                   toast(response.message);

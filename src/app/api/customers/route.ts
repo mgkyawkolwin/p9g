@@ -1,19 +1,19 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import { TYPES, SearchParam } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { customerValidator, pagerValidator, searchSchema } from "@/lib/zodschema";
-import { HttpStatusCode } from "@/lib/constants";
-import { buildSearchParams, getPagerWithDefaults } from "@/lib/utils";
-import ICustomerService from "@/domain/services/contracts/ICustomerService";
-import Customer from "@/domain/models/Customer";
-import { CustomError } from "@/lib/errors";
-import ILogService from "@/domain/services/contracts/ILogService";
+import { TYPES, SearchParam } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { customerValidator, pagerValidator, searchSchema } from "@/core/validation/zodschema";
+import { HttpStatusCode } from "@/core/lib/constants";
+import { buildSearchParams, getPagerWithDefaults } from "@/core/lib/utils";
+import ICustomerService from "@/core/domain/services/contracts/ICustomerService";
+import Customer from "@/core/domain/models/Customer";
+import { CustomError } from "@/core/lib/errors";
+import ILogService from "@/core/domain/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest) {
   try {
-    c.i("GET /api/customers");
+    c.fs("GET /api/customers");
     c.d(JSON.stringify(request));
 
     //retrieve search params from request
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    c.i("POST api/customers");
+    c.fs("POST api/customers");
     c.i("Retrieving post body.")
     const body = await request.json();
     c.d(body);

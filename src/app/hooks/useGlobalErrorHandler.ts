@@ -1,6 +1,6 @@
 "use client";
 
-import c from "@/lib/core/logger/ConsoleLogger";
+import c from "@/core/logger/console/ConsoleLogger";
 import { useEffect } from "react";
 import { toast } from "sonner";
 

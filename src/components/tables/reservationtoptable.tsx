@@ -5,7 +5,7 @@ import {
   ColumnDef
 } from "@tanstack/react-table";
 import SimpleDataTable from "./simpledatatable";
-import Reservation from "@/domain/models/Reservation";
+import Reservation from "@/core/domain/models/Reservation";
 
 
 export const columns: ColumnDef<Reservation>[] = [

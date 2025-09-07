@@ -1,18 +1,18 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import { TYPES } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { HttpStatusCode } from "@/lib/constants";
-import IReservationService from "@/domain/services/contracts/IReservationService";
-import Bill from "@/domain/models/Bill";
-import { billValidator } from "@/lib/zodschema";
-import { CustomError } from "@/lib/errors";
-import ILogService from "@/domain/services/contracts/ILogService";
+import { TYPES } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { HttpStatusCode } from "@/core/lib/constants";
+import IReservationService from "@/core/domain/services/contracts/IReservationService";
+import Bill from "@/core/domain/models/Bill";
+import { billValidator } from "@/core/validation/zodschema";
+import { CustomError } from "@/core/lib/errors";
+import ILogService from "@/core/domain/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        c.i("GET /api/reservations/[id]/roomcharges");
+        c.fs("GET /api/reservations/[id]/roomcharges");
         c.d(JSON.stringify(request));
 
         //retrieve search params from request

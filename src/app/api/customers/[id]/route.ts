@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { container } from "@/dicontainer";
-import IUserService from "@/domain/services/contracts/IUserService";
-import { TYPES } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import ICustomerService from "@/domain/services/contracts/ICustomerService";
-import { customerValidator } from "@/lib/zodschema";
-import { HttpStatusCode } from "@/lib/constants";
-import Customer from "@/domain/models/Customer";
-import { CustomError } from "@/lib/errors";
-import ILogService from "@/domain/services/contracts/ILogService";
+import IUserService from "@/core/domain/services/contracts/IUserService";
+import { TYPES } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import ICustomerService from "@/core/domain/services/contracts/ICustomerService";
+import { customerValidator } from "@/core/validation/zodschema";
+import { HttpStatusCode } from "@/core/lib/constants";
+import Customer from "@/core/domain/models/Customer";
+import { CustomError } from "@/core/lib/errors";
+import ILogService from "@/core/domain/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        c.i("GET /api/customers/[id]");
+        c.fs("GET /api/customers/[id]");
         c.d(JSON.stringify(await params));
         const { id } = await params;
         const service = container.get<ICustomerService>(TYPES.ICustomerService);
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        c.i("PUT api/customers[id]");
+        c.fs("PUT api/customers/[id]");
         const body = await request.json();
         c.d(body);
         const { id } = await params;

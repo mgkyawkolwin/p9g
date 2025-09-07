@@ -5,14 +5,14 @@ import {
   ColumnDef
 } from "@tanstack/react-table";
 import DataTable from "./datatable";
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/lib/types";
 import { useRouter } from "next/navigation";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { InputCustom } from "../uicustom/inputcustom";
 import { moveRoom } from "@/app/(private)/console/roomchange/actions";
 import { toast } from "sonner";
-import Room from "@/domain/models/Room";
+import Room from "@/core/domain/models/Room";
 import SimpleDataTable from "./simpledatatable";
 
 

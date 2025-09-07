@@ -9,10 +9,10 @@ import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { billDelete, billsGet, billsSave } from "@/app/(private)/console/reservations/actions"
 import { toast } from "sonner"
-import Bill from "@/domain/models/Bill"
+import Bill from "@/core/domain/models/Bill"
 import { InputCustom } from "../uicustom/inputcustom"
 import { SelectCustom } from "../uicustom/selectcustom"
-import { SelectList } from "@/lib/constants"
+import { SelectList } from "@/core/lib/constants"
 import BillDataTable from "../uicustom/billdatatable"
 import { Checkbox } from "../ui/checkbox";
 import DatePicker from "react-datepicker";

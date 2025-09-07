@@ -1,18 +1,18 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import { TYPES, SearchParam } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { searchSchema } from "@/lib/zodschema";
-import { HttpStatusCode } from "@/lib/constants";
-import { buildSearchParams } from "@/lib/utils";
-import IReservationService from "@/domain/services/contracts/IReservationService";
-import { CustomError } from "@/lib/errors";
-import ILogService from "@/domain/services/contracts/ILogService";
+import { TYPES, SearchParam } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { searchSchema } from "@/core/validation/zodschema";
+import { HttpStatusCode } from "@/core/lib/constants";
+import { buildSearchParams } from "@/core/lib/utils";
+import IReservationService from "@/core/domain/services/contracts/IReservationService";
+import { CustomError } from "@/core/lib/errors";
+import ILogService from "@/core/domain/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest) {
   try {
-    c.i("GET /api/roomsechedules");
+    c.fs("GET /api/roomsechedules");
     c.d(JSON.stringify(request));
     let searchParams: SearchParam[] = [];
 

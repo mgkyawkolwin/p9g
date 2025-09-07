@@ -1,9 +1,9 @@
 'use client';
 
-import Room from '@/domain/models/Room';
+import Room from '@/core/domain/models/Room';
 import React from 'react';
-import RoomReservation from '@/domain/models/RoomReservation';
-import { Theme } from '@/lib/constants';
+import RoomReservation from '@/core/domain/models/RoomReservation';
+import { Theme } from '@/core/lib/constants';
 
 const reservationColors = [
   'bg-red-400', 'bg-blue-400', 'bg-green-400',

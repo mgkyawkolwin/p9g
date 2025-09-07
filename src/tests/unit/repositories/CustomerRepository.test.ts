@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import CustomerRepository from '@/data/repo/drizzle/CustomerRepository';
-import { MySqlDatabase } from '@/data/db/mysql/MySqlDatabase';
-import * as schema from '@/data/orm/drizzle/mysql/schema';
+import CustomerRepository from '@/core/data/repo/drizzle/CustomerRepository';
+import { MySqlDatabase } from '@/core/data/db/mysql/MySqlDatabase';
+import * as schema from '@/core/data/orm/drizzle/mysql/schema';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/app/auth';  // Adjust the import path
-import Customer from '@/domain/models/Customer';
+import Customer from '@/core/domain/models/Customer';
 
 // Mock the auth() function
 vi.mock('@/app/auth', () => ({

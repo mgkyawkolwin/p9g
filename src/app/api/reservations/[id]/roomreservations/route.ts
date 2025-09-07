@@ -1,20 +1,20 @@
 import { NextResponse, NextRequest } from "next/server";
 
 import { container } from "@/dicontainer";
-import { TYPES } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { HttpStatusCode } from "@/lib/constants";
-import IReservationService from "@/domain/services/contracts/IReservationService";
-import { CustomError } from "@/lib/errors";
-import ILogService from "@/domain/services/contracts/ILogService";
-import { roomChargeValidator, roomReservationValidator } from "@/lib/zodschema";
-import RoomCharge from "@/domain/models/RoomCharge";
-import RoomReservation from "@/domain/models/RoomReservation";
+import { TYPES } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { HttpStatusCode } from "@/core/lib/constants";
+import IReservationService from "@/core/domain/services/contracts/IReservationService";
+import { CustomError } from "@/core/lib/errors";
+import ILogService from "@/core/domain/services/contracts/ILogService";
+import { roomChargeValidator, roomReservationValidator } from "@/core/validation/zodschema";
+import RoomCharge from "@/core/domain/models/RoomCharge";
+import RoomReservation from "@/core/domain/models/RoomReservation";
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        c.i("GET /api/reservations/[id]/roomreservations");
+        c.fs("GET /api/reservations/[id]/roomreservations");
         c.d(JSON.stringify(request));
 
         const p = await params;
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    c.i("POST api/reservations/{id}/roomreservations");
+    c.fs("PUT api/reservations/{id}/roomreservations");
     c.i("Retrieving put body.")
     const p = await params;
     c.d(p);

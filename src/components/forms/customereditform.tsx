@@ -3,7 +3,7 @@
 import React from "react";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import { toast } from "sonner";
-import Customer from "@/domain/models/Customer";
+import Customer from "@/core/domain/models/Customer";
 import CustomerDetailForm from "../basicforms/customerdetailform";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { customerUpdate } from "@/app/(private)/console/customers/[id]/edit/actions";

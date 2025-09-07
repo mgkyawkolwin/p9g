@@ -1,7 +1,7 @@
-import Payment from "@/domain/models/Payment";
-import Reservation from "@/domain/models/Reservation";
-import RoomCharge from "@/domain/models/RoomCharge";
-import { Theme } from "@/lib/constants";
+import Payment from "@/core/domain/models/Payment";
+import Reservation from "@/core/domain/models/Reservation";
+import RoomCharge from "@/core/domain/models/RoomCharge";
+import { Theme } from "@/core/lib/constants";
 
 export default function ReceiptTable({ reservation, roomCharges }: { reservation: Reservation, roomCharges: RoomCharge[] }) {
     const formatter = new Intl.NumberFormat('en-US', {

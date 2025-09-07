@@ -1,1 +1,1 @@
-import '@/lib/extensions/dateextensions';
+import '@/core/lib/extensions/dateextensions';

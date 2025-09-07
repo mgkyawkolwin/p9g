@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/lib/utils";
 
 import { cva, type VariantProps } from "class-variance-authority";
 import { Label } from "../ui/label";

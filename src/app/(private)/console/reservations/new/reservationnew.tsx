@@ -11,8 +11,8 @@ import CustomerInformationForm from "@/components/forms/customerinformationform"
 import { getTopReservationsAction, searchCustomer } from "./actions";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import CustomerChooseTable from "@/components/tables/customerchoosetable";
-import Customer from "@/domain/models/Customer";
-import Reservation from "@/domain/models/Reservation";
+import Customer from "@/core/domain/models/Customer";
+import Reservation from "@/core/domain/models/Reservation";
 import CustomerNewForm from "@/components/forms/customernewform";
 import { InputCustom } from "@/components/uicustom/inputcustom";
 import { Label } from "@/components/ui/label";

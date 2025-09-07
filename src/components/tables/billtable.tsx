@@ -6,10 +6,10 @@ import {
 } from "@tanstack/react-table";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import BillDataTable from "../uicustom/billdatatable"
-import Bill from "@/domain/models/Bill"
+import Bill from "@/core/domain/models/Bill"
 import { InputCustom } from "../uicustom/inputcustom";
 import { SelectCustom } from "../uicustom/selectcustom"
-import { SelectList } from "@/lib/constants"
+import { SelectList } from "@/core/lib/constants"
 
 
 

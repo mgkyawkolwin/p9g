@@ -9,9 +9,9 @@ import { SelectWithLabel } from "../uicustom/selectwithlabel";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { Textarea } from "../ui/textarea";
 import React from "react";
-import { calculateDayDifference, getCheckInDate, getCheckOutDate} from "@/lib/utils";
-import { SelectList, SelectListForm } from "@/lib/constants";
-import Reservation from "@/domain/models/Reservation";
+import { calculateDayDifference, getCheckInDate, getCheckOutDate} from "@/core/lib/utils";
+import { SelectList, SelectListForm } from "@/core/lib/constants";
+import Reservation from "@/core/domain/models/Reservation";
 import { InputCustom } from "../uicustom/inputcustom";
 
 import DatePicker from "react-datepicker";

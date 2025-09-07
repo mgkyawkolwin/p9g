@@ -32,8 +32,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SelectWithLabel } from "../uicustom/selectwithlabel";
-import { FormState } from "@/lib/types";
-import { Theme } from "@/lib/constants";
+import { FormState } from "@/core/lib/types";
+import { Theme } from "@/core/lib/constants";
 
 
 interface DataTableProps<TData, TValue> {

@@ -1,6 +1,6 @@
 'use client';
 
-import '@/lib/extensions/dateextensions';
+import '@/core/lib/extensions/dateextensions';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";

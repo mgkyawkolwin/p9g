@@ -6,8 +6,8 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { roomChargeGetListById } from "@/app/(private)/console/reservations/actions"
 import { toast } from "sonner";
 import ReceiptTable from "../tables/receipttable";
-import RoomCharge from "@/domain/models/RoomCharge";
-import Reservation from "@/domain/models/Reservation";
+import RoomCharge from "@/core/domain/models/RoomCharge";
+import Reservation from "@/core/domain/models/Reservation";
 import { getReservation } from "@/app/(private)/console/reservations/[id]/edit/actions";
 import { useReactToPrint } from 'react-to-print';
 

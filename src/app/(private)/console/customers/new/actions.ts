@@ -1,10 +1,10 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { customerValidator } from '@/lib/zodschema';
-import { FormState } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import Customer from '@/domain/models/Customer';
+import { customerValidator } from '@/core/validation/zodschema';
+import { FormState } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import Customer from '@/core/domain/models/Customer';
 import { headers } from 'next/headers';
 
 

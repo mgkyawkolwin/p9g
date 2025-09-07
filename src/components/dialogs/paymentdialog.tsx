@@ -11,9 +11,9 @@ import { paymentsDelete, paymentsGet, paymentsSave } from "@/app/(private)/conso
 import { toast } from "sonner";
 import { InputCustom } from "../uicustom/inputcustom";
 import { SelectCustom } from "../uicustom/selectcustom";
-import { SelectList } from "@/lib/constants";
+import { SelectList } from "@/core/lib/constants";
 import BillDataTable from "../uicustom/billdatatable";
-import Payment from "@/domain/models/Payment";
+import Payment from "@/core/domain/models/Payment";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 

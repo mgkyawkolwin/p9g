@@ -1,20 +1,20 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import { TYPES, SearchParam } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { pagerValidator, reservationValidator, searchSchema } from "@/lib/zodschema";
-import { HttpStatusCode } from "@/lib/constants";
-import { buildSearchParams, getPagerWithDefaults } from "@/lib/utils";
-import IReservationService from "@/domain/services/contracts/IReservationService";
-import Reservation from "@/domain/models/Reservation";
-import { CustomError } from "@/lib/errors";
+import { TYPES, SearchParam } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { pagerValidator, reservationValidator, searchSchema } from "@/core/validation/zodschema";
+import { HttpStatusCode } from "@/core/lib/constants";
+import { buildSearchParams, getPagerWithDefaults } from "@/core/lib/utils";
+import IReservationService from "@/core/domain/services/contracts/IReservationService";
+import Reservation from "@/core/domain/models/Reservation";
+import { CustomError } from "@/core/lib/errors";
 import { auth } from "@/app/auth";
-import ILogService from "@/domain/services/contracts/ILogService";
+import ILogService from "@/core/domain/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest) {
   try {
-    c.i("GET /api/reservations");
+    c.fs("GET /api/reservations");
     c.d(JSON.stringify(request));
 
     //retrieve search params from request
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    c.i("POST api/reservations/create");
+    c.fs("POST api/reservations");
     c.i("Retrieving post body.")
     const body = await request.json();
     c.d(body);

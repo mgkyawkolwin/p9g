@@ -9,8 +9,8 @@ import {
 } from "@tanstack/react-table"
 
 import DataTable from "./datatable";
-import { FormState } from "@/lib/types";
-import User from "@/domain/models/User";
+import { FormState } from "@/core/lib/types";
+import User from "@/core/domain/models/User";
 
 
 export const columns: ColumnDef<User>[] = [

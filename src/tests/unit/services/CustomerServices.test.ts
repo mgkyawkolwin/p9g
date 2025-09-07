@@ -1,7 +1,7 @@
-import CustomerService from '@/domain/services/CustomerService';
-import CustomerRepository from '@/data/repo/drizzle/CustomerRepository';
+import CustomerService from '@/core/domain/services/CustomerService';
+import CustomerRepository from '@/core/data/repo/drizzle/CustomerRepository';
 import { vi } from 'vitest';
-import Customer from '@/domain/models/Customer';
+import Customer from '@/core/domain/models/Customer';
 
 
 vi.mock('@/data/repo/drizzle/CustomerRepository', () => {
