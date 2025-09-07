@@ -13,8 +13,8 @@ import { InputCustom } from "../uicustom/inputcustom";
 import { Checkbox } from "../ui/checkbox";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import RoomReservation from "@/domain/models/RoomReservation";
-import RoomCharge from "@/domain/models/RoomCharge";
+import RoomReservation from "@/core/domain/models/RoomReservation";
+import RoomCharge from "@/core/domain/models/RoomCharge";
 import SimpleDataTable from "../tables/simpledatatable";
 
 
@@ -68,7 +68,9 @@ export default function RoomChargeDialog({
         if (selectedRoomReservation !== null) {
             setVisibleRoomCharges(prev =>
                 prev.map((roomCharge) =>
-                    roomCharge.id === id ? { ...roomCharge, [field]: value, modelState: roomCharge.modelState == "inserted" ? "inserted" : "updated"  } : roomCharge
+                    roomCharge.id === id ? { ...roomCharge, 
+                        [field]: value, 
+                        modelState: roomCharge.modelState == "inserted" ? "inserted" : "updated"  } : roomCharge
                 )
             );
 
@@ -76,7 +78,9 @@ export default function RoomChargeDialog({
                 prev.map((roomReservation) => {
                     if (roomReservation.id === selectedRoomReservation.id) {
                         const updatedCharges : RoomCharge[] = roomReservation.roomCharges.map((roomCharge:RoomCharge) =>
-                            roomCharge.id === id ? { ...roomCharge, [field]: value, modelState: roomCharge.modelState == "inserted" ? "inserted" : "updated" } : roomCharge
+                            roomCharge.id === id ? { ...roomCharge, 
+                                [field]: value, 
+                                modelState: roomCharge.modelState == "inserted" ? "inserted" : "updated" } : roomCharge
                         );
                         return { ...roomReservation, roomCharges: updatedCharges };
                     }
@@ -173,12 +177,12 @@ export default function RoomChargeDialog({
                 }} />
         },
         {
-            accessorKey: "checkInDateUTC",
+            accessorKey: "checkInDate",
             header: 'Check In',
-            cell: (row) => <DatePicker key={`${row.row.original.id}-checkInDateUTC`}
-                selected={row.row.original.checkInDateUTC}
+            cell: (row) => <DatePicker key={`${row.row.original.id}-checkInDate`}
+                selected={row.row.original.checkInDate ? new Date(row.row.original.checkInDate).convertToFakeLocalDate() : null}
                 onChange={(date: Date | null) => {
-                    handleRoomInputChange(row.row.original.id, row.row.index, "checkInDateUTC", date);
+                    handleRoomInputChange(row.row.original.id, row.row.index, "checkInDate", date.convertToUTCFromFakeLocalDate());
                 }}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
@@ -188,12 +192,12 @@ export default function RoomChargeDialog({
             />
         },
         {
-            accessorKey: "checkOutDateUTC",
+            accessorKey: "checkOutDate",
             header: 'Check Out',
-            cell: (row) => <DatePicker key={`${row.row.original.id}-checkOutDateUTC`}
-                selected={row.row.original.checkOutDateUTC}
+            cell: (row) => <DatePicker key={`${row.row.original.id}-checkOutDate`}
+                selected={new Date(row.row.original.checkOutDate).convertToFakeLocalDate()}
                 onChange={(date: Date | null) => {
-                    handleRoomInputChange(row.row.original.id, row.row.index, "checkOutDateUTC", date);
+                    handleRoomInputChange(row.row.original.id, row.row.index, "checkOutDate", date.convertToUTCFromFakeLocalDate());
                 }}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
@@ -252,12 +256,12 @@ export default function RoomChargeDialog({
                 }} />
         },
         {
-            accessorKey: "startDateUTC",
+            accessorKey: "startDate",
             header: 'Start Date',
-            cell: (row) => <DatePicker key={`${row.row.original.id}-startDateUTC`}
-                selected={row.row.original.startDateUTC}
+            cell: (row) => <DatePicker key={`${row.row.original.id}-startDate`}
+                selected={new Date(row.row.original.startDate).convertToFakeLocalDate()}
                 onChange={(date: Date | null) => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "startDateUTC", date);
+                    handleChargeInputChange(row.row.original.id, row.row.index, "startDate", date.convertToUTCFromFakeLocalDate());
                 }}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="sm" />} // Uses shadcn/ui Input
@@ -266,12 +270,12 @@ export default function RoomChargeDialog({
             />
         },
         {
-            accessorKey: "endDateUTC",
+            accessorKey: "endDate",
             header: 'End Date',
-            cell: (row) => <DatePicker key={`${row.row.original.id}-endDateUTC`}
-                selected={row.row.original.endDateUTC}
+            cell: (row) => <DatePicker key={`${row.row.original.id}-endDate`}
+                selected={new Date(row.row.original.endDate).convertToFakeLocalDate()}
                 onChange={(date: Date | null) => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "endDateUTC", date);
+                    handleChargeInputChange(row.row.original.id, row.row.index, "endDate", date.convertToUTCFromFakeLocalDate());
                 }}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="sm" />} // Uses shadcn/ui Input
@@ -381,8 +385,8 @@ export default function RoomChargeDialog({
                 const rrs = rrResponse.data.map((roomReservation: RoomReservation) => (
                     {
                         ...roomReservation,
-                        checkInDateUTC: new Date(roomReservation.checkInDateUTC),
-                        checkOutDateUTC: new Date(roomReservation.checkOutDateUTC)
+                        checkInDateUTC: new Date(roomReservation.checkInDate),
+                        checkOutDateUTC: new Date(roomReservation.checkOutDate)
                     }
                 ));
                 setRoomReservations(rrs);

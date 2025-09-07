@@ -47,6 +47,7 @@
 - Customer Table Pagination Not Working. (Issue #48)
 
 ### Removed
+
 ## Version 1.3.0
 ### Added
 - To create person report . (Issue #57)
@@ -60,3 +61,19 @@
 - Room charge auto calculation date issue. (Issue #59)
 
 ### Removed
+
+## Version 2.0.0
+### Added
+N/A
+
+### Changed
+- Change datetime values(Issue #68)
+
+### Deprecated
+N/A
+
+### Fixed
+N/A
+
+### Removed
+N/A

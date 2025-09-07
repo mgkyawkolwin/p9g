@@ -1,4 +1,4 @@
-import { calculateDayDifference } from '@/lib/utils';
+import { calculateDayDifference } from '@/core/lib/utils';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 describe('Utils', () => {

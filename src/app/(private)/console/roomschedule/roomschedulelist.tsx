@@ -2,7 +2,6 @@
 import { useActionState, useEffect } from "react";
 
 import { toast } from "sonner";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { roomScheduleGetList } from "./actions";
 import React from "react";
@@ -11,11 +10,10 @@ import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 import ScheduleFlexGrid from "@/components/uicustom/scheduleflexgrid";
 import { SelectWithLabel } from "@/components/uicustom/selectwithlabel";
 import { InputCustom } from "@/components/uicustom/inputcustom";
-import { SelectList } from "@/lib/constants";
-import { getCurrentMonthFirstDate, getCurrentMonthLastDate, getFirstDate, getLastDate } from "@/lib/utils";
+import { SelectList } from "@/core/lib/constants";
+import { getCurrentMonthFirstDate, getCurrentMonthLastDate, getFirstDate, getLastDate } from "@/core/lib/utils";
 
 export default function RoomScheduleList() {
-  c.i("Client > RoomScheduleList");
 
   const formRef = React.useRef<HTMLFormElement>(null);
 

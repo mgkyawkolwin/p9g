@@ -1,16 +1,16 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { customerValidator } from '@/lib/zodschema';
-import { FormState } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import Customer from '@/domain/models/Customer';
+import { customerValidator } from '@/core/validation/zodschema';
+import { FormState } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import Customer from '@/core/domain/models/Customer';
 import { headers } from 'next/headers';
 
 
 export async function customerCreate(customer: Customer) : Promise<FormState>{
   try {
-    c.i('Actions > /console/customers/new/ > customerCreate');
+    c.fs('Actions > customerCreate');
     c.d(customer);
 
     //validate and parse form input
@@ -41,6 +41,7 @@ export async function customerCreate(customer: Customer) : Promise<FormState>{
       return { error: true, message: `Failed to create customer. ${responseData.message}`};
     }
 
+    c.fe('Actions > customerCreate');
     return {error: false, message:"Customer create successful", data: responseData.data, formData: null};
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));

@@ -1,14 +1,14 @@
 'use server';
-import { searchSchema } from '@/lib/zodschema';
-import { FormState } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { buildQueryString } from "@/lib/utils";
+import { searchSchema } from '@/core/validation/zodschema';
+import { FormState } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { buildQueryString } from "@/core/lib/utils";
 import { headers } from 'next/headers';
 
 
 export async function roomReservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
-    c.i('Actions > /console/checkin > roomReservationGetList');
+    c.fs('Actions > roomReservationGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
     const formObject = Object.fromEntries(
@@ -53,7 +53,7 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
-    c.i("Everything is alright. Return response.");
+    c.fe('Actions > roomReservationGetList');
     const roomReservations = responseData.data;
     return {error:false, message : message, data: roomReservations, pager: undefined};
   }catch(error){
@@ -65,7 +65,7 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
 
 export async function moveRoom(id: string, roomNo:string){
   try{
-    c.i('Action > roomchange > moveRoom');
+    c.fs('Action > moveRoom');
     const response = await fetch(process.env.API_URL + `roomreservation?id=${id}&roomNo=${roomNo}`, {
       method: 'PATCH',
       headers: {
@@ -82,7 +82,7 @@ export async function moveRoom(id: string, roomNo:string){
       return {error:true, message : `Room move failed. ${responseData.message}`};
     }
 
-    c.i('Return > moveRoom');
+    c.fe('Action > moveRoom');
     return {error:false, message:'Room moved.'};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));

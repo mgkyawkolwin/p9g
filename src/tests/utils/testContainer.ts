@@ -1,15 +1,15 @@
 import { Container } from 'inversify';
-import { IDatabase } from '@/data/db/IDatabase';
-import { MySqlDatabase, MySqlDbType } from '@/data/db/mysql/MySqlDatabase';
-import UserRepository from '@/data/repo/drizzle/UserRepository';
-import { TYPES } from '@/lib/types';
+import { IDatabase } from '@/core/data/db/IDatabase';
+import { MySqlDatabase, MySqlDbType } from '@/core/data/db/mysql/MySqlDatabase';
+import UserRepository from '@/core/data/repo/drizzle/UserRepository';
+import { TYPES } from '@/core/lib/types';
 import { vi } from 'vitest';
-import UserService from '@/domain/services/UserService';
-import IUserService from '@/domain/services/contracts/IUserService';
-import ICustomerService from '@/domain/services/contracts/ICustomerService';
-import CustomerService from '@/domain/services/CustomerService';
-import ICustomerRepository from '@/data/repo/contracts/ICustomerRepository';
-import CustomerRepository from '@/data/repo/drizzle/CustomerRepository';
+import UserService from '@/core/domain/services/UserService';
+import IUserService from '@/core/domain/services/contracts/IUserService';
+import ICustomerService from '@/core/domain/services/contracts/ICustomerService';
+import CustomerService from '@/core/domain/services/CustomerService';
+import ICustomerRepository from '@/core/data/repo/contracts/ICustomerRepository';
+import CustomerRepository from '@/core/data/repo/drizzle/CustomerRepository';
 
 // Mock database implementation
 const mockDb = {

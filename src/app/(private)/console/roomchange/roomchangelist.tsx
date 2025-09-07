@@ -1,7 +1,6 @@
 "use client";
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { roomReservationGetList } from "./actions";
 import React from "react";
@@ -9,7 +8,6 @@ import { Loader } from "@/components/uicustom/loader";
 import RoomChangeListTable from "@/components/tables/roomchangelisttable";
 
 export default function RoomChangeList() {
-  c.i("Client > RoomChangeList");
 
   const formRef = React.useRef<HTMLFormElement>(null);
 

@@ -1,13 +1,13 @@
 'use server';
 
-import { userUpdateSchema } from '@/lib/zodschema';
-import c from "@/lib/core/logger/ConsoleLogger";
-import { FormState } from "@/lib/types";
+import { userUpdateSchema } from '@/core/validation/zodschema';
+import c from "@/core/logger/console/ConsoleLogger";
+import { FormState } from "@/core/lib/types";
 import { headers } from 'next/headers';
 
 export async function userGet(id : number): Promise<FormState> {
   try{
-    c.i('Actions > /admin/users/[id]/edit > userGet');
+    c.fs('Actions > userGet');
 
     //retrieve user
     const response = await fetch(process.env.API_URL + `users/${id}`, {
@@ -24,19 +24,18 @@ export async function userGet(id : number): Promise<FormState> {
 
     //user retrieval success
     const responseData = await response.json();
+    c.fe('Actions > userGet');
     return {error:false, message : "", data: responseData.data, formData:null};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
     return {error: true, message: "Failed to retrieve user.", data: null, formData:null};
   }
-
 }
-
 
 
 export async function userUpdate(formState : FormState, formData: FormData) : Promise<FormState>{
   try {
-    c.i('Actions > /admin/users/[id]/edit > userUpdate');
+    c.fs('Actions > userUpdate');
     c.d(JSON.stringify(formData.entries));
 
     //validate and parse form input
@@ -70,6 +69,7 @@ export async function userUpdate(formState : FormState, formData: FormData) : Pr
 
     //update user success
     const data = await response.json();
+    c.fe('Actions > userUpdate');
     return {error: false, message:"User updated.", data: data, formData:null};
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));

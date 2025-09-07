@@ -1,14 +1,14 @@
 'use server';
 
-import {  pagerValidator, searchSchema } from '@/lib/zodschema';
-import { FormState } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { buildQueryString } from "@/lib/utils";
+import {  pagerValidator, searchSchema } from '@/core/validation/zodschema';
+import { FormState } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { buildQueryString } from "@/core/lib/utils";
 import { headers } from 'next/headers';
 
 export async function reservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
-    c.i('Actions > /console/checkin > reservationGetList');
+    c.fs('Actions > reservationGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
     const formObject = Object.fromEntries(
@@ -69,7 +69,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
-    c.i("Everything is alright. Return response.");
+    c.fe('Actions > reservationGetList');
     const [reservations, pager] = responseData.data;
     return {error:false, message : message, data: reservations, pager: pager};
   }catch(error){
@@ -80,7 +80,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
 
 export async function reservationCheckOut(id:string): Promise<FormState> {
-    c.i('Action > reservationCheckOut');
+    c.fs('Action > reservationCheckOut');
     const response = await fetch(process.env.API_URL + `reservations/${id}/checkout`, {
       method: 'PATCH',
             headers: {
@@ -97,6 +97,7 @@ export async function reservationCheckOut(id:string): Promise<FormState> {
       return {error:true, message : `Check out reservation failed. ${responseData.message}`};
     }
 
+    c.fe('Action > reservationCheckOut');
     return {error: false, message:'Check out reservation successful.'};
 }
 

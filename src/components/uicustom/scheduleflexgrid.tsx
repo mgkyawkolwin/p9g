@@ -1,9 +1,9 @@
 'use client';
 
-import Room from '@/domain/models/Room';
+import Room from '@/core/domain/models/Room';
 import React from 'react';
-import RoomReservation from '@/domain/models/RoomReservation';
-import { Theme } from '@/lib/constants';
+import RoomReservation from '@/core/domain/models/RoomReservation';
+import { Theme } from '@/core/lib/constants';
 
 const reservationColors = [
   'bg-red-400', 'bg-blue-400', 'bg-green-400',
@@ -26,11 +26,11 @@ const clampReservationToMonth = (res: RoomReservation, month: Date) : RoomReserv
   return {
     ...res,
     startDate: new Date(Math.max(
-      new Date(res.checkInDateUTC!).getTime(), 
+      new Date(res.checkInDate!).getTime(), 
       monthStart.getTime()
     )),
     endDate: new Date(Math.min(
-      new Date(res.checkOutDateUTC!).getTime(), 
+      new Date(res.checkOutDate!).getTime(), 
       monthEnd.getTime()
     ))
   };
@@ -119,7 +119,7 @@ export default function ScheduleFlexGrid({ rooms, month }: { rooms: Room[]; mont
                 key={`${room.id}-${span.day}-${index}`}
                 className={`h-10 ${span.res ? `${getColorForUUID(span.res.id)} rounded-lg mx-px` : `${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadText}`}`}
                 style={{ flex: `${span.colSpan} 0 0` }}
-                title={span.res ? `[${new Date(span.res.checkInDateUTC!).toLocaleDateString('sv-SE')}] - [${new Date(span.res.checkOutDateUTC!).toLocaleDateString('sv-SE')}]\n${span.res.reservationId}` : ''}
+                title={span.res ? `[${new Date(span.res.checkInDate!).toLocaleDateString('sv-SE')}] - [${new Date(span.res.checkOutDate!).toLocaleDateString('sv-SE')}]\n${span.res.reservationId}` : ''}
               >
                 {span.res && (
                   <div className="relative w-full h-full">

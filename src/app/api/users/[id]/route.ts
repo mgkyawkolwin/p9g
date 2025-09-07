@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { container } from "@/dicontainer";
-import IUserService from "@/domain/services/contracts/IUserService";
-import { TYPES } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { HttpStatusCode } from "@/lib/constants";
-import { CustomError } from "@/lib/errors";
-import ILogService from "@/domain/services/contracts/ILogService";
+import IUserService from "@/core/domain/services/contracts/IUserService";
+import { TYPES } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { HttpStatusCode } from "@/core/lib/constants";
+import { CustomError } from "@/core/lib/errors";
+import ILogService from "@/core/domain/services/contracts/ILogService";
 
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
-        c.i("GET /api/users/[id]");
+        c.fs("GET /api/users/[id]");
         c.d(JSON.stringify(await params));
         const { id } = await params;
         const service = container.get<IUserService>(TYPES.IUserService);
@@ -33,6 +33,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: number }> }) {
     try {
+        c.fs('PUT /api/users/[id]');
         const body = await request.json();
         const { id } = await params;
         const service = container.get<IUserService>(TYPES.IUserService);
@@ -62,6 +63,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: number }> }) {
     try {
+        c.fs('DELETE /api/users/[id]');
         const { id } = await params;
         const service = container.get<IUserService>(TYPES.IUserService);
         const result = await service.userDelete(id);

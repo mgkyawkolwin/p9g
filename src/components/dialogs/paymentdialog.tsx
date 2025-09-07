@@ -5,16 +5,15 @@ import * as React from "react";
 import {
   ColumnDef
 } from "@tanstack/react-table";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { paymentsDelete, paymentsGet, paymentsSave } from "@/app/(private)/console/reservations/actions";
 import { toast } from "sonner";
 import { InputCustom } from "../uicustom/inputcustom";
 import { SelectCustom } from "../uicustom/selectcustom";
-import { SelectList } from "@/lib/constants";
+import { SelectList } from "@/core/lib/constants";
 import BillDataTable from "../uicustom/billdatatable";
-import Payment from "@/domain/models/Payment";
+import Payment from "@/core/domain/models/Payment";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -30,8 +29,6 @@ export default function PaymentDialog({
   reservationId,
   callbackFunctions
 }: DataTableProps) {
-  c.i('Client > BillEditDialog');
-  c.d(reservationId);
 
 
   const [open, setOpen] = React.useState(false);
@@ -59,13 +56,11 @@ export default function PaymentDialog({
         )
       );
     else {
-      c.d(payments);
       setPayments(prev =>
         prev.map((bill, index) =>
           index === rowIndex ? { ...bill, [field]: value } : bill
         )
       );
-      c.d(payments);
     }
   };
 
@@ -161,7 +156,6 @@ export default function PaymentDialog({
     const fetchPayments = async () => {
       // setId(reservationId);
       const response = await paymentsGet(reservationId);
-      c.d(response.data);
       if (response.message)
         toast(response.message);
       if (response.data) {

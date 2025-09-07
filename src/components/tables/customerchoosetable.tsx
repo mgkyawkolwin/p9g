@@ -7,10 +7,9 @@ import { ArrowUpDown } from "lucide-react"
 import {
   ColumnDef
 } from "@tanstack/react-table";
-import c from "@/lib/core/logger/ConsoleLogger";
-import SimpleDataTable from "./simpledatatable"
-import { ButtonCustom } from "../uicustom/buttoncustom"
-import Customer from "@/domain/models/Customer";
+import SimpleDataTable from "./simpledatatable";
+import { ButtonCustom } from "../uicustom/buttoncustom";
+import Customer from "@/core/domain/models/Customer";
 
 
 interface DataTableProps {
@@ -26,8 +25,6 @@ export default function CustomerChooseTable({
   setSelectedCustomers,
   setOpen
 }: DataTableProps) {
-  c.i('Client GuestInformationTable');
-  c.d(JSON.stringify(data));
 
   const columns: ColumnDef<Customer>[] = [
     {
@@ -57,7 +54,7 @@ export default function CustomerChooseTable({
       accessorKey: "dob",
       header: 'DOB',
       cell: row => {
-        return row.getValue() ? new Date(String(row.getValue())).toLocaleDateString('sv-SE') : ''
+        return row.getValue() ? new Date(String(row.getValue())).toISODateString() : ''
       }
     },
     {

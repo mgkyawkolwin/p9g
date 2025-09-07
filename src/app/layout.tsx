@@ -1,6 +1,6 @@
 'use client';
 
-import type { Metadata } from "next";
+import '@/core/lib/extensions/dateextensions';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";

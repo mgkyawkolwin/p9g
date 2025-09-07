@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn } from "@/core/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { InputCustom } from "./inputcustom";
 

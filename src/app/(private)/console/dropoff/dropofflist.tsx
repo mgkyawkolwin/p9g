@@ -2,7 +2,6 @@
 import { useActionState, useEffect } from "react";
 
 import { toast } from "sonner";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { reservationGetList } from "./actions";
 import React from "react";
@@ -11,7 +10,6 @@ import DropOffListSearch from "@/components/searchs/dropofflistsearch";
 import DropOffListTable from "@/components/tables/dropofflisttable";
 
 export default function DropOffList() {
-  c.i("Client > DropOffList");
 
   const formRef = React.useRef<HTMLFormElement>(null);
 

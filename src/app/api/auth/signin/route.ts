@@ -1,22 +1,22 @@
 import { container } from '@/dicontainer';
-import { HttpStatusCode } from '@/lib/constants';
-import { TYPES } from '@/lib/types';
-import IAuthService from '@/domain/services/contracts/IAuthService';
+import { HttpStatusCode } from '@/core/lib/constants';
+import { TYPES } from '@/core/lib/types';
+import IAuthService from '@/core/domain/services/contracts/IAuthService';
 import { NextRequest, NextResponse } from 'next/server'
-import { userSignInSchema } from '@/lib/zodschema';
+import { userSignInSchema } from '@/core/validation/zodschema';
 
-import c from '@/lib/core/logger/ConsoleLogger';
+import c from '@/core/logger/console/ConsoleLogger';
 import { auth, signIn } from '@/app/auth';
-import { CustomError } from '@/lib/errors';
-import LogError from '@/domain/models/LogError';
-import ILogService from '@/domain/services/contracts/ILogService';
+import { CustomError } from '@/core/lib/errors';
+import LogError from '@/core/domain/models/LogError';
+import ILogService from '@/core/domain/services/contracts/ILogService';
 
 export async function POST(request: NextRequest) {
   try{
-    c.i('/api/auth/signin/route.ts is called.');
+    c.fs('POST /api/auth/signin');
     c.d(JSON.stringify(request));
 
-    //parse and validate data
+    //parse and validate data;
     const data = await request.json();
     const parsedData = await userSignInSchema.safeParseAsync(data);
     
@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
     
     await signIn('credentials',  {redirect : false, name:user.userName, id: user.id, role: user.role});
     //everything is right
+    c.fe('POST /api/auth/signin');
     return NextResponse.json(user, { status: HttpStatusCode.Ok });
   }catch(error){
     c.e(error instanceof Error ? error.message : JSON.stringify(error));

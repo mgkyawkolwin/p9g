@@ -19,8 +19,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import c from "@/lib/core/logger/ConsoleLogger";
-import { Theme } from "@/lib/constants";
+import c from "@/core/logger/console/ConsoleLogger";
+import { Theme } from "@/core/lib/constants";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

@@ -1,10 +1,10 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { userTable } from '@/data/orm/drizzle/mysql/schema';
-import RoomRateEngine, { MonthDetail } from '@/domain/engines/RoomRateEngine';
-import Reservation from '@/domain/models/Reservation';
-import RoomReservation from '@/domain/models/RoomReservation';
-import RoomType from '@/domain/models/RoomType';
-import RoomRate from '@/domain/models/RoomRate';
+import { userTable } from '@/core/data/orm/drizzle/mysql/schema';
+import RoomRateEngine, { MonthDetail } from '@/core/domain/engines/RoomRateEngine';
+import Reservation from '@/core/domain/models/Reservation';
+import RoomReservation from '@/core/domain/models/RoomReservation';
+import RoomType from '@/core/domain/models/RoomType';
+import RoomRate from '@/core/domain/models/RoomRate';
 import { reservationCheckIn } from '@/app/(private)/console/checkin/actions';
 
 describe('RoomRateEngine', () => {
@@ -106,10 +106,10 @@ describe('RoomRateEngine', () => {
     it('Simple date.', async () => {
         const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-        reservation.checkInDateUTC = new Date('2025-01-01T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-01-10T00:00:00.000Z');
+        reservation.checkInDate = new Date('2025-01-01T00:00:00.000Z');
+        reservation.checkOutDate = new Date('2025-01-10T00:00:00.000Z');
 
-        const roomCharges : MonthDetail[] = RoomRateEngine.getMonthlyDateSegments(reservation.checkInDateUTC, reservation.checkOutDateUTC);
+        const roomCharges : MonthDetail[] = RoomRateEngine.getMonthlyDateSegments(reservation.checkInDate, reservation.checkOutDate);
         // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(1);
@@ -119,10 +119,10 @@ describe('RoomRateEngine', () => {
     it('Mixed month date.', async () => {
         const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-        reservation.checkInDateUTC = new Date('2025-02-24T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-03-05T00:00:00.000Z');
+        reservation.checkInDate = new Date('2025-02-24T00:00:00.000Z');
+        reservation.checkOutDate = new Date('2025-03-05T00:00:00.000Z');
 
-        const roomCharges = RoomRateEngine.getMonthlyDateSegments(reservation.checkInDateUTC, reservation.checkOutDateUTC);
+        const roomCharges = RoomRateEngine.getMonthlyDateSegments(reservation.checkInDate, reservation.checkOutDate);
         // console.log(roomCharges);
 
         expect(roomCharges.length).toEqual(2);
@@ -135,12 +135,12 @@ describe('RoomRateEngine', () => {
     it('Normal Reservation, Single Rate, Normal Room, Double Occupancy.', async () => {
         const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-        reservation.checkInDateUTC = new Date('2025-01-01T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-01-10T00:00:00.000Z');
+        reservation.checkInDate = new Date('2025-01-01T00:00:00.000Z');
+        reservation.checkOutDate = new Date('2025-01-10T00:00:00.000Z');
 
         const roomReservation = new RoomReservation();
-        roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-        roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+        roomReservation.checkInDate = reservation.checkInDate;
+        roomReservation.checkOutDate = reservation.checkOutDate;
         roomReservation.roomTypeId = "1";
         reservation.noOfGuests = 2;
         roomReservation.isSingleOccupancy = false;
@@ -162,12 +162,12 @@ describe('RoomRateEngine', () => {
     it('Normal Reservation, Single Rate, Normal Room, Single Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-      reservation.checkInDateUTC = new Date('2025-01-01T00:00:00.000Z');
-      reservation.checkOutDateUTC = new Date('2025-01-10T00:00:00.000Z');
+      reservation.checkInDate = new Date('2025-01-01T00:00:00.000Z');
+      reservation.checkOutDate = new Date('2025-01-10T00:00:00.000Z');
 
       const roomReservation = new RoomReservation();
-      roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-      roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+      roomReservation.checkInDate = reservation.checkInDate;
+      roomReservation.checkOutDate = reservation.checkOutDate;
       roomReservation.roomTypeId = "1";
       reservation.noOfGuests = 1;
       roomReservation.isSingleOccupancy = true;
@@ -189,12 +189,12 @@ describe('RoomRateEngine', () => {
     it('Normal Reservation, Single Rate, Modern Room, Double Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-      reservation.checkInDateUTC = new Date('2025-01-01T00:00:00.000Z');
-      reservation.checkOutDateUTC = new Date('2025-01-10T00:00:00.000Z');
+      reservation.checkInDate = new Date('2025-01-01T00:00:00.000Z');
+      reservation.checkOutDate = new Date('2025-01-10T00:00:00.000Z');
 
       const roomReservation = new RoomReservation();
-      roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-      roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+      roomReservation.checkInDate = reservation.checkInDate;
+      roomReservation.checkOutDate = reservation.checkOutDate;
       roomReservation.roomTypeId = "2";
       reservation.noOfGuests = 2;
       roomReservation.isSingleOccupancy = false;
@@ -216,12 +216,12 @@ describe('RoomRateEngine', () => {
     it('Normal Reservation, Single Rate, Modern Room, Single Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-      reservation.checkInDateUTC = new Date('2025-01-01T00:00:00.000Z');
-      reservation.checkOutDateUTC = new Date('2025-01-10T00:00:00.000Z');
+      reservation.checkInDate = new Date('2025-01-01T00:00:00.000Z');
+      reservation.checkOutDate = new Date('2025-01-10T00:00:00.000Z');
 
       const roomReservation = new RoomReservation();
-      roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-      roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+      roomReservation.checkInDate = reservation.checkInDate;
+      roomReservation.checkOutDate = reservation.checkOutDate;
       roomReservation.roomTypeId = "2";
       reservation.noOfGuests = 1;
       roomReservation.isSingleOccupancy = true;
@@ -243,12 +243,12 @@ describe('RoomRateEngine', () => {
     it('Normal Reservation, Single Rate, Mixed Month, Normal Room, Double Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-        reservation.checkInDateUTC = new Date('2025-01-27T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-02-05T00:00:00.000Z');
+        reservation.checkInDate = new Date('2025-01-27T00:00:00.000Z');
+        reservation.checkOutDate = new Date('2025-02-05T00:00:00.000Z');
 
         const roomReservation = new RoomReservation();
-        roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-        roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+        roomReservation.checkInDate = reservation.checkInDate;
+        roomReservation.checkOutDate = reservation.checkOutDate;
         roomReservation.roomTypeId = "1";
         reservation.noOfGuests = 2;
         roomReservation.isSingleOccupancy = false;
@@ -270,12 +270,12 @@ describe('RoomRateEngine', () => {
     it('Normal Reservation, Mixed Rate, Mixed Month, Normal Room, Double Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-        reservation.checkInDateUTC = new Date('2025-02-24T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-03-05T00:00:00.000Z');
+        reservation.checkInDate = new Date('2025-02-24T00:00:00.000Z');
+        reservation.checkOutDate = new Date('2025-03-05T00:00:00.000Z');
 
         const roomReservation = new RoomReservation();
-        roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-        roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+        roomReservation.checkInDate = reservation.checkInDate;
+        roomReservation.checkOutDate = reservation.checkOutDate;
         roomReservation.roomTypeId = "1";
         reservation.noOfGuests = 2;
         roomReservation.isSingleOccupancy = false;
@@ -310,13 +310,13 @@ describe('RoomRateEngine', () => {
     it('Prepaid Reservation, Single Rate, Normal Room, Double Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-        reservation.checkInDateUTC = new Date('2025-01-01T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-01-10T00:00:00.000Z');
+        reservation.checkInDate = new Date('2025-01-01T00:00:00.000Z');
+        reservation.checkOutDate = new Date('2025-01-10T00:00:00.000Z');
         reservation.prepaidPackageId = 'dummy';
 
         const roomReservation = new RoomReservation();
-        roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-        roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+        roomReservation.checkInDate = reservation.checkInDate;
+        roomReservation.checkOutDate = reservation.checkOutDate;
         roomReservation.roomTypeId = "1";
         reservation.noOfGuests = 2;
         roomReservation.isSingleOccupancy = false;
@@ -338,13 +338,13 @@ describe('RoomRateEngine', () => {
     it('Prepaid Reservation, Single Rate, Normal Room, Single Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-      reservation.checkInDateUTC = new Date('2025-01-01T00:00:00.000Z');
-      reservation.checkOutDateUTC = new Date('2025-01-10T00:00:00.000Z');
+      reservation.checkInDate = new Date('2025-01-01T00:00:00.000Z');
+      reservation.checkOutDate = new Date('2025-01-10T00:00:00.000Z');
       reservation.prepaidPackageId = 'dummy';
 
       const roomReservation = new RoomReservation();
-      roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-      roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+      roomReservation.checkInDate = reservation.checkInDate;
+      roomReservation.checkOutDate = reservation.checkOutDate;
       roomReservation.roomTypeId = "1";
       reservation.noOfGuests = 1;
       roomReservation.isSingleOccupancy = true;
@@ -366,13 +366,13 @@ describe('RoomRateEngine', () => {
     it('Prepaid Reservation, Single Rate, Modern Room, Double Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-      reservation.checkInDateUTC = new Date('2025-01-01T00:00:00.000Z');
-      reservation.checkOutDateUTC = new Date('2025-01-10T00:00:00.000Z');
+      reservation.checkInDate = new Date('2025-01-01T00:00:00.000Z');
+      reservation.checkOutDate = new Date('2025-01-10T00:00:00.000Z');
       reservation.prepaidPackageId = 'dummy';
 
       const roomReservation = new RoomReservation();
-      roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-      roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+      roomReservation.checkInDate = reservation.checkInDate;
+      roomReservation.checkOutDate = reservation.checkOutDate;
       roomReservation.roomTypeId = "2";
       reservation.noOfGuests = 2;
       roomReservation.isSingleOccupancy = false;
@@ -394,13 +394,13 @@ describe('RoomRateEngine', () => {
     it('Prepaid Reservation, Single Rate, Modern Room, Single Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-      reservation.checkInDateUTC = new Date('2025-01-01T00:00:00.000Z');
-      reservation.checkOutDateUTC = new Date('2025-01-10T00:00:00.000Z');
+      reservation.checkInDate = new Date('2025-01-01T00:00:00.000Z');
+      reservation.checkOutDate = new Date('2025-01-10T00:00:00.000Z');
       reservation.prepaidPackageId = 'dummy';
 
       const roomReservation = new RoomReservation();
-      roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-      roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+      roomReservation.checkInDate = reservation.checkInDate;
+      roomReservation.checkOutDate = reservation.checkOutDate;
       roomReservation.roomTypeId = "2";
       reservation.noOfGuests = 1;
       roomReservation.isSingleOccupancy = true;
@@ -422,13 +422,13 @@ describe('RoomRateEngine', () => {
     it('Prepaid Reservation, Single Rate, Mixed Month, Normal Room, Double Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-        reservation.checkInDateUTC = new Date('2025-01-27T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-02-05T00:00:00.000Z');
+        reservation.checkInDate = new Date('2025-01-27T00:00:00.000Z');
+        reservation.checkOutDate = new Date('2025-02-05T00:00:00.000Z');
         reservation.prepaidPackageId = 'dummy';
 
         const roomReservation = new RoomReservation();
-        roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-        roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+        roomReservation.checkInDate = reservation.checkInDate;
+        roomReservation.checkOutDate = reservation.checkOutDate;
         roomReservation.roomTypeId = "1";
         reservation.noOfGuests = 2;
         roomReservation.isSingleOccupancy = false;
@@ -450,13 +450,13 @@ describe('RoomRateEngine', () => {
     it('Prepaid Reservation, Mixed Rate, Mixed Month, Normal Room, Double Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-        reservation.checkInDateUTC = new Date('2025-02-24T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-03-05T00:00:00.000Z');
+        reservation.checkInDate = new Date('2025-02-24T00:00:00.000Z');
+        reservation.checkOutDate = new Date('2025-03-05T00:00:00.000Z');
         reservation.prepaidPackageId = 'dummy';
 
         const roomReservation = new RoomReservation();
-        roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-        roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+        roomReservation.checkInDate = reservation.checkInDate;
+        roomReservation.checkOutDate = reservation.checkOutDate;
         roomReservation.roomTypeId = "1";
         reservation.noOfGuests = 2;
         roomReservation.isSingleOccupancy = false;
@@ -488,13 +488,13 @@ describe('RoomRateEngine', () => {
     it('Prepaid Reservation, Mixed Rate, Mixed Month, Normal Room, Single Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-        reservation.checkInDateUTC = new Date('2025-02-24T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-03-05T00:00:00.000Z');
+        reservation.checkInDate = new Date('2025-02-24T00:00:00.000Z');
+        reservation.checkOutDate = new Date('2025-03-05T00:00:00.000Z');
         reservation.prepaidPackageId = 'dummy';
 
         const roomReservation = new RoomReservation();
-        roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-        roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+        roomReservation.checkInDate = reservation.checkInDate;
+        roomReservation.checkOutDate = reservation.checkOutDate;
         roomReservation.roomTypeId = "1";
         reservation.noOfGuests = 1;
         roomReservation.isSingleOccupancy = true;
@@ -525,13 +525,13 @@ describe('RoomRateEngine', () => {
     it('Prepaid Reservation, Mixed Rate, Mixed Month, Modern Room, Double Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-        reservation.checkInDateUTC = new Date('2025-02-24T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-03-05T00:00:00.000Z');
+        reservation.checkInDate = new Date('2025-02-24T00:00:00.000Z');
+        reservation.checkOutDate = new Date('2025-03-05T00:00:00.000Z');
         reservation.prepaidPackageId = 'dummy';
 
         const roomReservation = new RoomReservation();
-        roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-        roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+        roomReservation.checkInDate = reservation.checkInDate;
+        roomReservation.checkOutDate = reservation.checkOutDate;
         roomReservation.roomTypeId = "2";
         reservation.noOfGuests = 2;
         roomReservation.isSingleOccupancy = false;
@@ -562,13 +562,13 @@ describe('RoomRateEngine', () => {
     it('Prepaid Reservation, Mixed Rate, Mixed Month, Modern Room, Single Occupancy.', async () => {
       const reservation = new Reservation();
         const roomReservations : RoomReservation[] = [];
-        reservation.checkInDateUTC = new Date('2025-02-24T00:00:00.000Z');
-        reservation.checkOutDateUTC = new Date('2025-03-05T00:00:00.000Z');
+        reservation.checkInDate = new Date('2025-02-24T00:00:00.000Z');
+        reservation.checkOutDate = new Date('2025-03-05T00:00:00.000Z');
         reservation.prepaidPackageId = 'dummy';
 
         const roomReservation = new RoomReservation();
-        roomReservation.checkInDateUTC = reservation.checkInDateUTC;
-        roomReservation.checkOutDateUTC = reservation.checkOutDateUTC;
+        roomReservation.checkInDate = reservation.checkInDate;
+        roomReservation.checkOutDate = reservation.checkOutDate;
         roomReservation.roomTypeId = "2";
         reservation.noOfGuests = 1;
         roomReservation.isSingleOccupancy = true;

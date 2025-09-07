@@ -5,15 +5,14 @@ import * as React from "react";
 import {
   ColumnDef
 } from "@tanstack/react-table";
-import c from "@/lib/core/logger/ConsoleLogger";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { billDelete, billsGet, billsSave } from "@/app/(private)/console/reservations/actions"
 import { toast } from "sonner"
-import Bill from "@/domain/models/Bill"
+import Bill from "@/core/domain/models/Bill"
 import { InputCustom } from "../uicustom/inputcustom"
 import { SelectCustom } from "../uicustom/selectcustom"
-import { SelectList } from "@/lib/constants"
+import { SelectList } from "@/core/lib/constants"
 import BillDataTable from "../uicustom/billdatatable"
 import { Checkbox } from "../ui/checkbox";
 import DatePicker from "react-datepicker";
@@ -31,8 +30,6 @@ export default function BillEditDialog({
   reservationId,
   callbackFunctions
 }: DataTableProps) {
-  c.i('Client > BillEditDialog');
-  c.d(reservationId);
 
 
   const [open, setOpen] = React.useState(false);
@@ -58,13 +55,11 @@ export default function BillEditDialog({
         )
       );
     else {
-      c.d(bills);
       setBills(prev =>
         prev.map((bill, index) =>
           index === rowIndex ? { ...bill, [field]: value } : bill
         )
       );
-      c.d(bills);
     }
   };
 
@@ -218,7 +213,6 @@ export default function BillEditDialog({
     setBills([]);
     const fetchBills = async () => {
       const response = await billsGet(reservationId);
-      c.d(response.data);
       if (response.message)
         toast(response.message);
       if (response.data) {

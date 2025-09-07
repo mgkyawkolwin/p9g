@@ -1,20 +1,20 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import { TYPES, SearchParam } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { customerValidator, pagerValidator, searchSchema } from "@/lib/zodschema";
-import { HttpStatusCode } from "@/lib/constants";
-import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
-import ICustomerService from "@/domain/services/contracts/ICustomerService";
-import Customer from "@/domain/models/Customer";
-import { CustomError } from "@/lib/errors";
-import ILogService from "@/domain/services/contracts/ILogService";
-import IReportService from "@/domain/services/contracts/IReportService";
+import { TYPES, SearchParam } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { customerValidator, pagerValidator, searchSchema } from "@/core/validation/zodschema";
+import { HttpStatusCode } from "@/core/lib/constants";
+import { buildSearchParams, getPagerWithDefaults } from "@/core/lib/utils";
+import ICustomerService from "@/core/domain/services/contracts/ICustomerService";
+import Customer from "@/core/domain/models/Customer";
+import { CustomError } from "@/core/lib/errors";
+import ILogService from "@/core/domain/services/contracts/ILogService";
+import IReportService from "@/core/domain/services/contracts/IReportService";
 
 
 export async function GET(request: NextRequest) {
   try {
-    c.i("GET /api/reports/dailysummaryreport");
+    c.fs("GET /api/reports/dailysummaryguestsroomsreport");
     c.d(JSON.stringify(request));
 
     //retrieve search params from request

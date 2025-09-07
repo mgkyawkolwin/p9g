@@ -1,14 +1,14 @@
 'use server';
 
-import { userUpdateSchema } from '@/lib/zodschema';
-import c from "@/lib/core/logger/ConsoleLogger";
-import { FormState } from "@/lib/types";
-import { HttpStatusCode } from "@/lib/constants";
+import { userUpdateSchema } from '@/core/validation/zodschema';
+import c from "@/core/logger/console/ConsoleLogger";
+import { FormState } from "@/core/lib/types";
+import { HttpStatusCode } from "@/core/lib/constants";
 import { headers } from 'next/headers';
 
 export async function userGet(id : number): Promise<FormState> {
   try{
-    c.i('Actions > /admin/users/[id] > userGet');
+    c.fs('Actions > userGet');
 
     //retrieve user
     const response = await fetch(process.env.API_URL + `users/${id}`, {
@@ -33,19 +33,18 @@ export async function userGet(id : number): Promise<FormState> {
       
     //user retrieval success
     const responseData = await response.json();
+    c.fe('Actions > userGet');
     return {error:false, message : "", data: responseData.data, formData: null};
   }catch(error){
     c.e(String(error));
     return {error: true, message: "Failed to retrieve user.", data: null, formData: null};
   }
-
 }
-
 
 
 export async function userUpdate(formState : FormState, formData: FormData) : Promise<FormState>{
   try {
-    c.i('Actions > /admin/users/[id]/edit > userUpdate');
+    c.fs('Actions > userUpdate');
 
     //validate and parse form input
     const validatedFields = userUpdateSchema.safeParse(Object.fromEntries(formData.entries()));
@@ -78,6 +77,8 @@ export async function userUpdate(formState : FormState, formData: FormData) : Pr
 
     //update user success
     const data = await response.json();
+
+    c.fe('Actions > userUpdate');
     return {error: false, message:"", data: data, formData: null};
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));

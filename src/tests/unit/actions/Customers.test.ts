@@ -1,6 +1,6 @@
 import { customerCreate } from '@/app/(private)/console/customers/new/actions';
-import Customer from '@/domain/models/Customer';
-import { customerValidator } from '@/lib/zodschema';
+import Customer from '@/core/domain/models/Customer';
+import { customerValidator } from '@/core/validation/zodschema';
 import { expect, describe, it, vi, beforeEach } from 'vitest';
 import createFetchMock from 'vitest-fetch-mock';
 

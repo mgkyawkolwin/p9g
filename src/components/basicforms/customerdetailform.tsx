@@ -4,8 +4,7 @@ import { Label } from "@/components/ui/label";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { Textarea } from "../ui/textarea";
 import React from "react";
-import c from "@/lib/core/logger/ConsoleLogger";
-import Customer from "@/domain/models/Customer";
+import Customer from "@/core/domain/models/Customer";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { InputCustom } from "../uicustom/inputcustom";
@@ -18,13 +17,9 @@ interface CustomerDetailFormProps {
 }
 
 export default function CustomerDetailForm({ customer, resetDataToggle, onDataChanged }: CustomerDetailFormProps) {
-    c.i('Client > CustomerDetailForm');
+    
 
     const [localCustomer, setLocalCustomer] = React.useState(customer);
-
-    // React.useEffect(() => {
-    //     onDataChanged(localCustomer);
-    // }, [localCustomer]);
 
 
     React.useEffect(() => {
@@ -51,7 +46,7 @@ export default function CustomerDetailForm({ customer, resetDataToggle, onDataCh
                     onChange={(date: Date | null) => {
                         setLocalCustomer(prev => ({
                             ...prev,
-                            dob: date.toISOString()
+                            dob: date.toLocaleDateString()
                         }));
 
                     }}

@@ -1,15 +1,15 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { customerValidator, pagerValidator, searchSchema } from '@/lib/zodschema';
-import { FormState } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { buildQueryString } from "@/lib/utils";
+import { customerValidator, pagerValidator, searchSchema } from '@/core/validation/zodschema';
+import { FormState } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { buildQueryString } from "@/core/lib/utils";
 import { headers } from 'next/headers';
 
 export async function customerGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
-    c.i('Actions > /console/customers > customerGetList');
+    c.fs('Actions > customerGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
     const formObject = Object.fromEntries(
@@ -17,34 +17,6 @@ export async function customerGetList(formState : FormState, formData: FormData)
     );
 
     const message = '';
-
-    //form data is blank, get the list by default pager
-    // if (!formData || !(formData instanceof FormData)){
-    //   c.i("formData is invalid. Retrieve list by default pager.");
-    //   //retrieve users
-    //   const response = await fetch(process.env.API_URL + `customers`, {
-    //     method: 'GET',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'cookie': (await headers()).get('cookie')
-    //     }
-    //   });
-
-    //   //fail
-    //   if(!response.ok){
-    //     c.i("List retrieval failed. Return error.");
-    //     return {error:true, message : "Customer list retrieval failed."};
-    //   }
-        
-    //   //success
-    //   const responseData = await response.json();
-    //   c.d(JSON.stringify(responseData));
-
-    //   //retrieve data from tuple
-    //   const [users, pager] = responseData.data;
-    //   return {error:false, message : "", data: users, pager: pager};
-    // }
-    
 
     // formData is valid, further process
     let queryString = null;
@@ -76,45 +48,6 @@ export async function customerGetList(formState : FormState, formData: FormData)
       c.d(queryString);
     }
 
-    // const formObj = Object.fromEntries(formData.entries());
-    // if(formObj.action && formObj.action == "UPDATE")
-    // {
-    //   c.i("Table action is UPDATE");
-    //   //validate and parse form input
-    //   c.i("Validating update fields.");
-    //   const validatedFields = customerValidator.safeParse(formObject);
-    //   c.d(validatedFields);
-
-    //   //form validation fail
-    //   if (!validatedFields.success) {
-    //     c.i("Update fields validation failed. Return response.");
-    //     return { error: true, message: 'Invalid inputs.', data: null, formData: null};
-    //   }
-
-    //   //form validation pass
-    //   const { id, ...updatefields } = validatedFields.data;
-
-    //   //update user
-    //   c.i("Update fields validation successful. Requesting API to update.");
-    //   const response = await fetch(process.env.API_URL + `customers/${id}`, {
-    //     method: 'PUT',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'cookie': (await headers()).get('cookie')
-    //     },
-    //     body: JSON.stringify(updatefields),
-    //   });
-      
-    //   //update user failed
-    //   if (!response.ok) {
-    //     c.i("Update api response failed. Return response.");
-    //     const errorData = await response.json();
-    //     c.e(errorData.message);
-    //     return { error: true, message: `Failed to update customer. ${errorData.message}`, data: null, formData: null};
-    //   }
-    //   message = 'Customer updated';
-    // }
-
     //retrieve users
     const response = await fetch(process.env.API_URL + `customers?${queryString}`, {
       method: 'GET',
@@ -137,7 +70,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
-    c.i("Everything is alright. Return response.");
+    c.fe('Actions > customerGetList');
     const [users, pager] = responseData.data;
     return {error:false, message : message, data: users, pager: pager};
   }catch(error){
@@ -149,7 +82,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
 
 export async function customerUpdate(formState : FormState, formData: FormData) : Promise<FormState>{
   try {
-    c.i('Actions > /console/customers > customerUpdate');
+    c.fs('Actions > customerUpdate');
     const formObject = Object.fromEntries(
       Array.from(formData?.entries()).filter(([key, value]) => value !== 'DEFAULT')
     );
@@ -185,6 +118,7 @@ export async function customerUpdate(formState : FormState, formData: FormData) 
     }
 
     //update user success
+    c.fe('Actions > customerUpdate');
     return {error: false, message:"Customer update successful", data: responseData, formData: null};
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));

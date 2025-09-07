@@ -1,5 +1,5 @@
-import DailySummaryPersonReportRow from "@/domain/dtos/reports/DailySummaryPersonReportRow";
-import { Theme } from "@/lib/constants";
+import DailySummaryPersonReportRow from "@/core/domain/dtos/reports/DailySummaryPersonReportRow";
+import { Theme } from "@/core/lib/constants";
 
 export default function DailySummaryPersonReport({ reportRows }: { reportRows: DailySummaryPersonReportRow[] }) {
     const formatter = new Intl.NumberFormat('en-US', {

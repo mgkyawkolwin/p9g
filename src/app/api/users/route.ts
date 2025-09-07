@@ -1,18 +1,18 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import IUserService from "@/domain/services/contracts/IUserService";
-import { TYPES, SearchParam } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { pagerValidator, searchSchema } from "@/lib/zodschema";
-import { HttpStatusCode } from "@/lib/constants";
-import { buildSearchParams, pagerWithDefaults } from "@/lib/utils";
-import { CustomError } from "@/lib/errors";
-import ILogService from "@/domain/services/contracts/ILogService";
+import IUserService from "@/core/domain/services/contracts/IUserService";
+import { TYPES, SearchParam } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { pagerValidator, searchSchema } from "@/core/validation/zodschema";
+import { HttpStatusCode } from "@/core/lib/constants";
+import { buildSearchParams, getPagerWithDefaults } from "@/core/lib/utils";
+import { CustomError } from "@/core/lib/errors";
+import ILogService from "@/core/domain/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest) {
   try {
-    c.i("GET /api/users");
+    c.fs("GET /api/users");
     c.d(JSON.stringify(request));
 
     //retrieve search params from request
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     //no need to validate pager params, if not valid, will use defaults
     const pagerValidatedFields = await pagerValidator.safeParseAsync(searchParams);
     c.d(JSON.stringify(pagerValidatedFields));
-    const pager = pagerWithDefaults(pagerValidatedFields.data);
+    const pager = getPagerWithDefaults(pagerValidatedFields.data);
     c.d(JSON.stringify(pager));
 
     //call service to retrieve data
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: Request) {
   try {
-    c.i("GET /api/users/[id]");
+    c.fs("POST /api/users");
     c.d(JSON.stringify(request));
     const body = await request.json();
     const userService = container.get<IUserService>(TYPES.IUserService);

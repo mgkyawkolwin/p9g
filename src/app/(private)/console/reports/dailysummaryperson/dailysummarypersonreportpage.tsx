@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { InputCustom } from "@/components/uicustom/inputcustom";
-import DailySummaryPersonReportRow from "@/domain/dtos/reports/DailySummaryPersonReportRow";
+import DailySummaryPersonReportRow from "@/core/domain/dtos/reports/DailySummaryPersonReportRow";
 import DailySummaryPersonReport from "@/components/reports/dailysummarypersonreport";
+import { getUTCDateTimeMidNightString, getUTCDateTimeString } from "@/core/lib/utils";
 
 export default function DailySummaryPersonReportPage() {
 
@@ -64,7 +65,7 @@ export default function DailySummaryPersonReportPage() {
                 </div>
                 <ButtonCustom onClick={async () => {
                   setIsLoading(true);
-                  const response = await getDailySummaryPersonReport(fromDate ? fromDate.toISOString() : '', toDate ? toDate.toISOString() : '');
+                  const response = await getDailySummaryPersonReport(fromDate ? getUTCDateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getUTCDateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '');
                   setIsLoading(false);
                   if (response.message)
                     toast(response.message);

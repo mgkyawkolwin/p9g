@@ -5,13 +5,13 @@ import {
   ColumnDef
 } from "@tanstack/react-table";
 import DataTable from "./datatable";
-import { FormState } from "@/lib/types";
-import Reservation from "@/domain/models/Reservation";
+import { FormState } from "@/core/lib/types";
+import Reservation from "@/core/domain/models/Reservation";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { reservationCancel, reservationCheckIn } from "@/app/(private)/console/checkin/actions"
 import { toast } from "sonner"
-import { getReservationStatusColorClass } from "@/lib/utils";
+import { getReservationStatusColorClass } from "@/core/lib/utils";
 
 
 interface DataTableProps {
@@ -65,8 +65,8 @@ export default function CheckInListTable({
       header: "Arrival / Departure",
       accessorFn: (row) => {
         return <span>
-          {row.arrivalDateTimeUTC ? new Date(row.arrivalDateTimeUTC).toLocaleString('sv-SE') : ''} {row.arrivalFlight} {row.pickUpTypeText}<br />
-          {row.departureDateTimeUTC ? new Date(row.departureDateTimeUTC).toLocaleString('sv-SE') : ''} {row.departureFlight} {row.dropOffTypeText}</span>;
+          {row.arrivalDateTime ? new Date(row.arrivalDateTime).toISODateTimeString() : ''} {row.arrivalFlight} {row.pickUpTypeText}<br />
+          {row.departureDateTime ? new Date(row.departureDateTime).toISODateTimeString() : ''} {row.departureFlight} {row.dropOffTypeText}</span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -75,8 +75,8 @@ export default function CheckInListTable({
       header: "Check-In / Check-Out",
       accessorFn: (row) => {
         return <span>
-          {new Date(row.checkInDateUTC!).toLocaleDateString('sv-SE')}<br />
-          {new Date(row.checkOutDateUTC!).toLocaleDateString('sv-SE')}<br />
+          {new Date(row.checkInDate!).toISODateString()}<br />
+          {new Date(row.checkOutDate!).toISODateString()}<br />
           {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
       cell: (row) => row.getValue(),

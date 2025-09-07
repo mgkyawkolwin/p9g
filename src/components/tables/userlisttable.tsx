@@ -1,17 +1,16 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { ArrowUpDown } from "lucide-react"
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowUpDown } from "lucide-react";
 
 import {
   ColumnDef
 } from "@tanstack/react-table"
 
 import DataTable from "./datatable";
-import c from "@/lib/core/logger/ConsoleLogger"
-import { FormState } from "@/lib/types";
-import User from "@/domain/models/User"
+import { FormState } from "@/core/lib/types";
+import User from "@/core/domain/models/User";
 
 
 export const columns: ColumnDef<User>[] = [
@@ -58,7 +57,7 @@ export const columns: ColumnDef<User>[] = [
   },
 ];
 
-interface DataTableProps{
+interface DataTableProps {
   formState: FormState
   formAction: (formData: FormData) => void
   isPending: boolean
@@ -71,9 +70,6 @@ export default function UserListTable({
   isPending,
   formRef
 }: DataTableProps) {
-  c.i('Client UserListTable');
-  c.d(JSON.stringify(formState));
-  c.d(isPending);
 
   return (
     <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />

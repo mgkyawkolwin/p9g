@@ -1,14 +1,14 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { signIn } from "@/app/auth";
-import c from '@/lib/core/logger/ConsoleLogger';
-import { AppUrl } from '@/lib/constants';
-import { FormState } from '@/lib/types';
+import c from '@/core/logger/console/ConsoleLogger';
+import { AppUrl } from '@/core/lib/constants';
+import { FormState } from '@/core/lib/types';
 
 
 export async function signInAction(state : FormState, formData:FormData){
     try {
-        c.i("singInAction");
+        c.fs("singInAction");
         c.d(JSON.stringify(formData));
         //retreive 
         const formObject = Object.fromEntries(formData.entries());
@@ -30,6 +30,7 @@ export async function signInAction(state : FormState, formData:FormData){
         const user = await response.json();
 
         // valid credentials, sign the user in
+        c.fe("singInAction");
         await signIn('credentials',  {redirect : false, name:user.userName, id: user.id, role: user.role, location: user.location});
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));

@@ -1,5 +1,5 @@
 import { useActionState } from "react";
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/lib/types";
 import { ButtonCustom } from "./buttoncustom";
  
 

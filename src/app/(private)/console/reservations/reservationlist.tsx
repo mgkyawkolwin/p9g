@@ -2,7 +2,6 @@
 
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
-import c from "@/lib/core/logger/ConsoleLogger";
 import ReservationListTable from "@/components/tables/reservationlisttable";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import ReservationListSearch from "@/components/searchs/reservationlistsearch";
@@ -12,7 +11,6 @@ import { Loader } from "@/components/uicustom/loader";
 
 
 export default function ReservationList() {
-  c.i("Client > ReservationList");
 
   const formRef = React.useRef<HTMLFormElement>(null);
 

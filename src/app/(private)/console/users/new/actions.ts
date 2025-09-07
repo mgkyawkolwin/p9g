@@ -1,15 +1,15 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { userCreateSchema } from '@/lib/zodschema';
-import { FormState } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
+import { userCreateSchema } from '@/core/validation/zodschema';
+import { FormState } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
 import { headers } from 'next/headers';
 
 
 export async function userNew(formState : FormState, formData: FormData) : Promise<FormState>{
   try {
-    c.i('Actions > /admin/users/new > userCreate');
+    c.fs('Actions > userNew');
     c.d(JSON.stringify(formData.entries));
 
     //validate and parse form input
@@ -41,6 +41,7 @@ export async function userNew(formState : FormState, formData: FormData) : Promi
       return { error: true, message: 'Failed to create user.', data: null, formData:null};
     }
 
+    c.fe('Actions > userNew');
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return {error: true, message: 'Failed to update user.', data: null, formData:null};

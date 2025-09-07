@@ -6,9 +6,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import CurrencyTotal from "@/domain/dtos/CurrencyTotal";
-import { Theme } from "@/lib/constants";
+} from "@/components/ui/table";
+import CurrencyTotal from "@/core/domain/dtos/CurrencyTotal";
+import { Theme } from "@/core/lib/constants";
 
 export default function TotalTable({items}:{items:CurrencyTotal[]}) {
 

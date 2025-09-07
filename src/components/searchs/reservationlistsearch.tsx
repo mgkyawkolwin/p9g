@@ -2,8 +2,7 @@
 import * as React from "react";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
 import { SelectWithLabel } from "../uicustom/selectwithlabel";
-import { SelectListSearch } from "@/lib/constants";
-import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
+import { SelectListSearch } from "@/core/lib/constants";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -62,7 +61,7 @@ export default function ReservationListSearch({
                     isClearable={true}
                     showIcon
                 />
-                <input type="hidden" name="searchCheckInDateFrom" defaultValue={formData.checkInDateFrom ? formData.checkInDateFrom.toISOString() : ''} />
+                <input type="hidden" name="searchCheckInDateFrom" defaultValue={formData.checkInDateFrom ? formData.checkInDateFrom.toLocaleDateString('sv-SE') : ''} />
                 <Label>Until</Label>
                 <DatePicker
                     selected={formData.checkInDateUntil}
@@ -75,7 +74,7 @@ export default function ReservationListSearch({
                     isClearable={true}
                     showIcon
                 />
-                <input type="hidden" name="searchCheckInDateUntil" defaultValue={formData.checkInDateUntil ? formData.checkInDateUntil.toISOString() : ''} />
+                <input type="hidden" name="searchCheckInDateUntil" defaultValue={formData.checkInDateUntil ? formData.checkInDateUntil.toLocaleDateString('sv-SE') : ''} />
                 <InputWithLabel size="md" name="searchId" label="Reservation ID" defaultValue={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} />
                 <InputWithLabel size="md" name="searchName" label="Customer Name" defaultValue={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                 <InputWithLabel size="md" name="searchRemark" label="Remark" defaultValue={formData.remark} onChange={(e) => setFormData({ ...formData, remark: e.target.value })} />

@@ -1,5 +1,5 @@
-import DailySummaryIncomeReportRow from "@/domain/dtos/reports/DailySummaryIncomeReportRow";
-import { Theme } from "@/lib/constants";
+import DailySummaryIncomeReportRow from "@/core/domain/dtos/reports/DailySummaryIncomeReportRow";
+import { Theme } from "@/core/lib/constants";
 
 export default function DailySummaryIncomeReport({ reportRows }: { reportRows: DailySummaryIncomeReportRow[] }) {
     const formatter = new Intl.NumberFormat('en-US', {

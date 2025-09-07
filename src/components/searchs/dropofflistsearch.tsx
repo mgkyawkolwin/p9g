@@ -1,7 +1,6 @@
 
 import * as React from "react";
 import { InputWithLabel } from "../uicustom/inputwithlabel";
-import { DateInputWithLabel } from "../uicustom/dateinputwithlabel";
 import { ButtonCustom } from "../uicustom/buttoncustom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -45,7 +44,7 @@ export default function DropOffListSearch({
                     isClearable={true}
                     showIcon
                 />
-                <input type="hidden" name="searchDepartureDateTime" defaultValue={formData.departureDate ? formData.departureDate.toISOString() : ''} />
+                <input type="hidden" name="searchDepartureDateTime" defaultValue={formData.departureDate ? formData.departureDate.toLocaleDateString('sv-SE') : ''} />
                 <InputWithLabel size="md" name="searchId" label="Reservation ID" defaultValue={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} />
                 <InputWithLabel size="md" name="searchRemark" label="Remark" defaultValue={formData.remark} onChange={(e) => setFormData({ ...formData, remark: e.target.value })} />
             </div>

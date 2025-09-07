@@ -1,7 +1,7 @@
-import Payment from "@/domain/models/Payment";
-import Reservation from "@/domain/models/Reservation";
-import RoomCharge from "@/domain/models/RoomCharge";
-import { Theme } from "@/lib/constants";
+import Payment from "@/core/domain/models/Payment";
+import Reservation from "@/core/domain/models/Reservation";
+import RoomCharge from "@/core/domain/models/RoomCharge";
+import { Theme } from "@/core/lib/constants";
 
 export default function ReceiptTable({ reservation, roomCharges }: { reservation: Reservation, roomCharges: RoomCharge[] }) {
     const formatter = new Intl.NumberFormat('en-US', {
@@ -29,7 +29,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                     </thead>
                     <tbody>
                         {/* {roomCharges?.length === 0 && <tr><td colSpan={6}>No Data</td></tr>} */}
-                        {roomCharges.map((charge, index) => {
+                        {roomCharges.map((charge:RoomCharge, index) => {
                             let rate;
                             if (reservation.prepaidPackageId) {
                                 rate = 'Prepaid';
@@ -46,7 +46,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                                 {reservation.prepaidPackageId && charge.seasonSurcharge > 0 ? <span>Season Surcharge: {formatter.format(charge.seasonSurcharge)}<br /></span> : ''}
                                 {charge.singleRate > 0 ? <span>Single Charge: {formatter.format(charge.singleRate)}<br /></span> : ''}
 
-                                ( {charge.startDateUTC.toLocaleDateString('sv-SE')} - {charge.endDateUTC.toLocaleDateString('sv-SE')} )
+                                ( {charge.startDate.toISODateString()} - {charge.endDate.toISODateString()} )
                             </div>;
 
                             return <tr key={index} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>

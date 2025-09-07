@@ -1,14 +1,14 @@
 'use server';
 
-import { pagerValidator, searchSchema } from '@/lib/zodschema';
-import { FormState } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { buildQueryString } from "@/lib/utils";
+import { pagerValidator, searchSchema } from '@/core/validation/zodschema';
+import { FormState } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
+import { buildQueryString } from "@/core/lib/utils";
 import { headers } from 'next/headers';
 
 export async function reservationGetList(formState : FormState, formData: FormData): Promise<FormState> {
   try{
-    c.i('Actions > /console/pickup > reservationGetList');
+    c.fs('Actions > reservationGetList');
     c.d(Object.fromEntries(formData?.entries()));
 
     const formObject = Object.fromEntries(
@@ -69,7 +69,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
-    c.i("Everything is alright. Return response.");
+    c.fe('Actions > reservationGetList');
     const [reservations, pager] = responseData.data;
     return {error:false, message : message, data: reservations, pager: pager};
   }catch(error){
@@ -80,7 +80,7 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
 
 export async function updateDropOffInfo(id:string, carNo:string, driver:string) : Promise<FormState>{
-  c.i('Action > updateDropOffCarNo');
+  c.fs('Action > updateDropOffInfo');
   c.d(id);
   c.d(carNo);
     const response = await fetch(process.env.API_URL + `reservations/${id}/dropoff`, {
@@ -100,6 +100,7 @@ export async function updateDropOffInfo(id:string, carNo:string, driver:string) 
       return {error:true, message : `Dropoff info update failed. ${responseData.message}`};
     }
 
+    c.fe('Action > updateDropOffInfo');
     return {error: false, message:'Dropoff info update successful.'};
 }
 

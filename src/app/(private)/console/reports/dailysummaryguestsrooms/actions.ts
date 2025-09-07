@@ -1,13 +1,11 @@
 'use server';
-import { pagerValidator, searchSchema } from '@/lib/zodschema';
-import { FormState } from "@/lib/types";
-import c from "@/lib/core/logger/ConsoleLogger";
-import { buildQueryString } from "@/lib/utils";
+import { FormState } from "@/core/lib/types";
+import c from "@/core/logger/console/ConsoleLogger";
 import { headers } from 'next/headers';
 
 export async function getDailySummaryGuestsRoomsReport(startDate:string, endDate:string): Promise<FormState> {
   try{
-    c.i('Actions > /console/checkin > getDailySummaryReport');
+    c.fs('Actions > getDailySummaryGuestsRoomsReport');
 
     //retrieve users
     c.i("Update successful. Get the updated list based on query string.");
@@ -32,7 +30,7 @@ export async function getDailySummaryGuestsRoomsReport(startDate:string, endDate
     c.d(JSON.stringify(responseData));
 
     //retrieve data from tuple
-    c.i("Everything is alright. Return response.");
+    c.fe('Actions > getDailySummaryGuestsRoomsReport');
     return {error:false, message: '', data: responseData.data};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
