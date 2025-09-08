@@ -65,7 +65,8 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     //success
     c.i("Updated list retrieval successful.");
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.reservations?.length);
+    c.d(responseData.data?.reservations?.length > 0 ? responseData.data.reservations[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > reservationGetList');

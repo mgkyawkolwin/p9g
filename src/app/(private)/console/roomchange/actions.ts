@@ -50,7 +50,8 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
 
     //success
     c.i("Room reservation list retrieval successful.");
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.roomReservations?.length);
+    c.d(responseData.data?.roomReservations?.length > 0 ? responseData.data.roomReservations[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > roomReservationGetList');

@@ -74,9 +74,6 @@ export abstract class Repository<TEntity extends IEntity, TTable extends  IDrizz
     c.fs("Repository > create");
     const session = await auth();
     c.d(data as any);
-    data.createdBy = session.user.id;
-    data.updatedBy = session.user.id;
-    // data.updatedAtUTC = new Date();
     c.i("Inserting new entity.");
     const [insertedResult] = await this.dbClient.db.insert(this.table).values(data as TEntity).$returningId();
     c.i("Entity inserted.");
@@ -132,6 +129,23 @@ export abstract class Repository<TEntity extends IEntity, TTable extends  IDrizz
   }
 
 
+  async findManyByCondition(rootCondition?: SQL, sort?:SQL, limit?:number): Promise<TEntity[]> {
+    c.fs('Repository > findManyByCondition');
+    let query = this.dbClient.db.select().from(this.table);
+    if(rootCondition)
+      query = query.where(rootCondition);
+    if(sort)
+      query = query.orderBy(sort);
+    if(limit)
+      query = query.limit(limit);
+
+    const records = await query;
+
+    c.fe('Repository > findManyByCondition');
+    return records as TEntity[];
+  }
+
+
   async findMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[TEntity[], PagerParams]> {
     c.fs('Repository > findMany');
     c.d(JSON.stringify(searchParams));
@@ -172,15 +186,11 @@ export abstract class Repository<TEntity extends IEntity, TTable extends  IDrizz
   }
 
 
-  async update(
-    id: string,
-    data: Partial<Omit<TEntity, "id" | "createdAt" | "updatedAt">>
+  async update(id: string, data: Partial<Omit<TEntity, "id" | "createdAt" | "updatedAt">>
   ): Promise<TEntity> {
     c.fs('Reository > update');
     c.d(String(id));
     c.d(data);
-    const session = await auth();
-    data.updatedBy = session.user.id;
     const query = this.dbClient.db.update(this.table)
       .set(data as any)
       .where(eq(this.table.id as Column, id));

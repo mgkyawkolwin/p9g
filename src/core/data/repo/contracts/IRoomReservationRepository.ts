@@ -7,4 +7,5 @@ export default interface IRoomReservationRepository extends IRepository<RoomRese
     create(roomReservation:RoomReservation, transaction?:TransactionType) : Promise<RoomReservation>;
     deleteAllByReservationId(reservationId: string): Promise<void>;
     deleteAllByReservationId(reservationId: string, transaction?:TransactionType): Promise<void>;
+    getAllByReservationId(reservationId: string): Promise<RoomReservation[]>;
 }

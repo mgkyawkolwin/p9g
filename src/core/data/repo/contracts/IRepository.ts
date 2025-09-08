@@ -11,6 +11,7 @@ export default interface IRepository<TEntity> {
   findAll(pagerParams : PagerParams): Promise<TEntity[]>;
   findById(id: string): Promise<TEntity | null>;
   findOne(where?: SQL | undefined): Promise<TEntity | null>;
+  findManyByCondition(query: SQL) : Promise<TEntity[]>;
   findMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[TEntity[], PagerParams]>;
   update(
     id: string,

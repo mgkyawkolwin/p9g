@@ -27,7 +27,8 @@ export async function getDailySummaryPersonReport(startDate:string, endDate:stri
 
     //success
     c.i("Report retrieval successful.");
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.length);
+    c.d(responseData.data?.length > 0 ? responseData.data[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > getDailySummaryPersonReport');

@@ -45,7 +45,8 @@ export async function roomScheduleGetList(formState : FormState, formData: FormD
 
     //success
     c.i("Room schedule list retrieval successful.");
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.length);
+    c.d(responseData.data?.length > 0 ? responseData.data[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > roomScheduleGetList');

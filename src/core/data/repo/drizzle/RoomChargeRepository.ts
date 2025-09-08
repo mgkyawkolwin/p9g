@@ -25,11 +25,6 @@ export default class RoomChargeRepository extends Repository<RoomCharge, typeof 
 
     async create(roomCharge: RoomCharge, transaction?: TransactionType): Promise<RoomCharge> {
         c.fs('RoomChargeRepository > create');
-        const session = await auth();
-        if(!session) throw new CustomError('Invalid session.');
-
-        roomCharge.createdBy = session.user.id;
-        roomCharge.updatedBy = session.user.id;
         
         let query = this.dbClient.db.insert(this.table)
             .values(roomCharge).$returningId();

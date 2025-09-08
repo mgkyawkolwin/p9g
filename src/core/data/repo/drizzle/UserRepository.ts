@@ -9,10 +9,11 @@ import IUserRepository from "../contracts/IUserRepository";
 import { TYPES } from "@/core/lib/types";
 import { type IDatabase } from "@/core/data/db/IDatabase";
 import c from "@/core/logger/console/ConsoleLogger";
+import User from "@/core/domain/models/User";
 
 
 @injectable()
-export default class UserRepository extends Repository<UserEntity, typeof userTable> implements IUserRepository {
+export default class UserRepository extends Repository<User, typeof userTable> implements IUserRepository {
 
     constructor(
         @inject(TYPES.IDatabase) protected readonly dbClient: IDatabase<any>
@@ -20,7 +21,7 @@ export default class UserRepository extends Repository<UserEntity, typeof userTa
         super(dbClient, userTable);
     }
 
-    async findByEmailAndPassword(email: string, password: string): Promise<UserEntity> {
+    async findByEmailAndPassword(email: string, password: string): Promise<User> {
         c.fs('UserRepository > findByEmailAndPassword');
         const [user] = await this.dbClient.db
             .select()
@@ -34,10 +35,10 @@ export default class UserRepository extends Repository<UserEntity, typeof userTa
             .limit(1);
 
         c.fe('UserRepository > findByEmailAndPassword');
-        return user as UserEntity;
+        return user as User;
     }
 
-    async findByUserName(userName: string): Promise<UserEntity> {
+    async findByUserName(userName: string): Promise<User> {
         c.fs('UserRepository > findByUserName');
         const [user] = await this.dbClient.db
             .select()
@@ -48,10 +49,10 @@ export default class UserRepository extends Repository<UserEntity, typeof userTa
             .limit(1);
 
         c.fe('UserRepository > findByUserName');
-        return user as UserEntity;
+        return user as User;
     }
 
-    async findByUserNameAndPassword(userName: string, password: string): Promise<UserEntity> {
+    async findByUserNameAndPassword(userName: string, password: string): Promise<User> {
         c.fs('UserRepository > findByUserNameAndPassword');
         const [user] = await this.dbClient.db
             .select()
@@ -65,7 +66,7 @@ export default class UserRepository extends Repository<UserEntity, typeof userTa
             .limit(1);
 
         c.fe('UserRepository > findByUserNameAndPassword');
-        return user as UserEntity;
+        return user as User;
     }
 
 }

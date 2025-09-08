@@ -46,7 +46,8 @@ export async function userGetList(formState : FormState, formData: FormData): Pr
 
     //success
     const responseData = await response.json();
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.users?.length);
+    c.d(responseData.data?.users?.length > 0 ? responseData.data.users[0] : []);
 
     //retrieve data from tuple
     const [users, pager] = responseData.data;

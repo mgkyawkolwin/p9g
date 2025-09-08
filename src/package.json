@@ -18,6 +18,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@automapper/classes": "^8.8.1",
     "@automapper/core": "^8.8.1",
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.9.0",

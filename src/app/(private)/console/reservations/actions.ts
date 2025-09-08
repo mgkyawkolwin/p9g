@@ -69,7 +69,8 @@ export async function reservationGetList(formState: FormState, formData: FormDat
 
     //success
     c.i("Updated list retrieval successful.");
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.reservations?.length);
+    c.d(responseData.data?.reservations?.length > 0 ? responseData.data.reservations[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > reservationGetList');
@@ -127,17 +128,19 @@ export async function billsGet(id: string): Promise<FormState> {
       }
     });
 
-    const result = await response.json();
+    const responseData = await response.json();
 
     //update user failed
     if (!response.ok) {
-      c.e(result.message);
-      return { error: true, message: `Failed to get bills. ${result.message}`, data: null, formData: null };
+      c.e(responseData.message);
+      return { error: true, message: `Failed to get bills. ${responseData.message}`, data: null, formData: null };
     }
-    c.d(result.bills);
+    
+    c.d(responseData.data?.bills?.length);
+    c.d(responseData.data?.bills?.length > 0 ? responseData.data.bills[0] : []);
 
     c.fe('Actions > billsGet');
-    return { error: false, message: "", data: result.bills, formData: null };
+    return { error: false, message: "", data: responseData.bills, formData: null };
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return { error: true, message: 'Failed to add bills.', data: null, formData: null };
@@ -203,16 +206,18 @@ export async function billsView(id: string): Promise<FormState> {
       }
     });
 
-    const result = await response.json();
+    const responseData = await response.json();
 
     //update user failed
     if (!response.ok) {
-      c.e(result.message);
-      return { error: true, message: `Failed to get invoices. ${result.message}`, data: null, formData: null };
+      c.e(responseData.message);
+      return { error: true, message: `Failed to get invoices. ${responseData.message}`, data: null, formData: null };
     }
+
+    c.d(responseData.data?.invoice);
     //update user success
     c.fe('Actions > billsView');
-    return { error: false, message: "", data: result.invoice, formData: null };
+    return { error: false, message: "", data: responseData.invoice, formData: null };
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return { error: true, message: 'Failed to get invoices.', data: null, formData: null };

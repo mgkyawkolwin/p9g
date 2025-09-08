@@ -63,5 +63,11 @@ export default class Reservation{
     public createdBy!: string;
     public updatedAtUTC?: Date;
     public updatedBy?: string;
+
+    public calculateAllAmount() {
+        this.taxAmount = this.totalAmount * this.tax / 100;
+        this.netAmount = this.totalAmount + this.taxAmount - this.discountAmount - this.depositAmount;
+        this.dueAmount = this.totalAmount - this.paidAmount;
+    }
 }
 

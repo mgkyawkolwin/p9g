@@ -15,41 +15,37 @@ export default class CustomerService implements ICustomerService{
     }
 
 
-    async customerCreate(CustomerPosted: Customer): Promise<Customer> {
+    async customerCreate(customer: Customer, sessionUser: SessionUser): Promise<Customer> {
         c.fs('CustomerService > customerCreate');
-        return await this.CustomerRepository.create(CustomerPosted);
+        customer.createdBy = sessionUser.id;
+        customer.updatedBy = sessionUser.id;
+        return await this.CustomerRepository.create(customer);
     }
 
 
-    async customerDelete(id: string): Promise<boolean> {
+    async customerDelete(id: string, sessionUser: SessionUser): Promise<boolean> {
         c.fs('CustomerService > customerDelete');
         return await this.CustomerRepository.delete(id);
     }
 
 
-    async customerFindMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[Customer[], PagerParams]> {
+    async customerFindMany(searchParams:SearchParam[], pagerParams : PagerParams, sessionUser: SessionUser): Promise<[Customer[], PagerParams]> {
       c.fs('CustomerService > customerFindMany');
       return await this.CustomerRepository.findMany(searchParams, pagerParams);
     }
 
-    
-    // async customerFindByCustomerName(CustomerName: string): Promise<Customer | null> {
-    //   consoleLogger.logInfo('CustomerService > CustomerFindByCustomerName');
-    //   const result = await this.CustomerRepository.findByCustomerName(CustomerName);
-    //   return result;
-    // }
 
-
-    async customerFindById(id: string): Promise<Customer | null> {
+    async customerFindById(id: string, sessionUser: SessionUser): Promise<Customer | null> {
       c.fs('CustomerService > customerFindById');
       c.d(String(id));
       return await this.CustomerRepository.findById(id);
     }
 
 
-    async customerUpdate(id:string, CustomerPosted: Customer): Promise<Customer> {
+    async customerUpdate(id:string, customer: Customer, sessionUser: SessionUser): Promise<Customer> {
       c.fs('CustomerService > customerUpdate');
-      return await this.CustomerRepository.update(id, CustomerPosted);
+      customer.updatedBy = sessionUser.id;
+      return await this.CustomerRepository.update(id, customer);
     }
 
 }

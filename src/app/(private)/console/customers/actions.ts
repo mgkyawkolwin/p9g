@@ -67,7 +67,8 @@ export async function customerGetList(formState : FormState, formData: FormData)
 
     //success
     c.i("Updated list retrieval successful.");
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.users?.length);
+    c.d(responseData.data?.users?.length > 0 ? responseData.data?.users[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > customerGetList');

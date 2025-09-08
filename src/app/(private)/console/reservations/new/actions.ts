@@ -36,11 +36,11 @@ export async function getTopReservationsAction(): Promise<FormState> {
     }
       
     c.i("Reservation retrieval success.");
-    //c.d(reservationData);
+    c.d(responseData.data?.reservations?.length);
+    c.d(responseData.data?.reservations?.length > 0 ? responseData.data.reservations[0] : []);
 
     //retrieve data from tuple
     const [reservations] = responseData.data;
-    c.d(reservations?.length);
 
     c.fe('Actions > getTopReservationsAction');
     const successresponse = {error:false, message : message, data: {reservations: reservations}};
@@ -119,7 +119,8 @@ export async function searchCustomer(search:string){
     }
 
     c.i("Retrieve users successful.");
-    c.d(responseData);
+    c.d(responseData.data?.customers?.length);
+    c.d(responseData.data?.customers?.length > 0 ? responseData.data.customers[0] : []);
     const [customers] = responseData.data;
     
     c.fe("Action > searchCustomer");

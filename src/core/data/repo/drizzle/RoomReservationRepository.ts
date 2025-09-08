@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, SQL } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
 
@@ -27,11 +27,6 @@ export default class RoomReservationRepository extends Repository<RoomReservatio
 
     async create(roomReservation:RoomReservation, transaction?:TransactionType): Promise<RoomReservation> {
         c.fs('RoomReservationRepository > create');
-        const session = await auth();
-        if(!session) throw new CustomError('Invalid session.');
-
-        roomReservation.createdBy = session.user.id;
-        roomReservation.updatedBy = session.user.id;
 
         let query = this.dbClient.db.insert(this.table)
             .values(roomReservation).$returningId();
@@ -45,6 +40,18 @@ export default class RoomReservationRepository extends Repository<RoomReservatio
             roomReservation.id = result[0].id;
         c.fe('RoomReservationRepository > create');
         return roomReservation;
+    }
+
+    async getAllByReservationId(reservationId: string) : Promise<RoomReservation[]>{
+        c.fs('RoomReservationRepository > findManyByCondition');
+        return super.findManyByCondition(eq(this.table.reservationId, reservationId));
+    }
+
+
+    async getLatestByReservationId(reservationId: string) : Promise<RoomReservation>{
+        c.fs('RoomReservationRepository > findManyByCondition');
+        const [result] = await super.findManyByCondition(eq(this.table.reservationId, reservationId), desc(this.table.checkInDate), 1);
+        return result;
     }
 
 
