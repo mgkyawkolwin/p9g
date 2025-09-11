@@ -1,1 +1,1 @@
-import '@/core/domain/mapper/automapper/mappings';
+import '@/core/lib/mappers/automapper/mappings';

@@ -1,7 +1,7 @@
 'use server';
 
-import { userUpdateSchema } from '@/core/validation/zodschema';
-import c from "@/core/logger/console/ConsoleLogger";
+import { userUpdateSchema } from '@/core/validators/zodschema';
+import c from "@/core/loggers/console/ConsoleLogger";
 import { FormState } from "@/core/lib/types";
 import { HttpStatusCode } from "@/core/lib/constants";
 import { headers } from 'next/headers';

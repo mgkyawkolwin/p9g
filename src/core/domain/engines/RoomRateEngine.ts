@@ -5,7 +5,7 @@ import RoomCharge from "../models/RoomCharge";
 import RoomRate from "../models/RoomRate";
 import RoomType from "../models/RoomType";
 import { CustomError } from "@/core/lib/errors";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 
 export interface MonthDetail {
     month: number;          // 0-11 (0 = January)

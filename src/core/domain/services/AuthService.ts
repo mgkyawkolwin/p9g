@@ -4,42 +4,37 @@ import argon2 from 'argon2';
 import IAuthService from "./contracts/IAuthService";
 import type IUserService from './contracts/IUserService';
 import { TYPES } from '@/core/lib/types';
-import { UserEntity } from '@/core/data/orm/drizzle/mysql/schema';
-import c from '@/core/logger/console/ConsoleLogger';
+import c from '@/core/loggers/console/ConsoleLogger';
+import User from '../models/User';
 
 @injectable()
-export default class AuthService implements IAuthService{
+export default class AuthService implements IAuthService {
 
-    constructor(@inject(TYPES.IUserService) private userService : IUserService){
+    constructor(@inject(TYPES.IUserService) private userService: IUserService) {
 
     }
 
-    async signMeIn(userName: string, password: string): Promise<UserEntity | null> {
+    async signMeIn(userName: string, password: string): Promise<User | null> {
         c.fs('AuthService > signMeIn');
         c.d(userName);
         //retrieve user based on userName
-        const user = await this.userService.userFindByUserName(userName);
+        const user = await this.userService.userFindByUserName(userName, null);
 
         //user not found
-        if(!user){
+        if (!user) {
             c.i('User not found.');
             return null;
         }
-            
-
-        c.i('Found user. Compare password.');
-        console.log(await argon2.hash(password))
-
 
         //compare password
         const isValid = await argon2.verify(user.password, password);
 
         //not valid password
-        if(!isValid)
+        if (!isValid)
             return null;
 
         //everyting fine
         return user;
     }
-    
+
 }

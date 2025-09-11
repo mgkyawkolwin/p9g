@@ -5,7 +5,7 @@ import { TYPES } from '@/core/lib/types';
 import type IReportRepository from "@/core/data/repo/contracts/IReportRepository";
 import DailySummaryIncomeReportRow from "../dtos/reports/DailySummaryIncomeReportRow";
 import DailySummaryPersonReportRow from "../dtos/reports/DailySummaryPersonReportRow";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 
 @injectable()
 export default class ReportService implements IReportService{

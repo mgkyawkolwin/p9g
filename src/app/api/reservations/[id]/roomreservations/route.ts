@@ -2,12 +2,12 @@ import { NextResponse, NextRequest } from "next/server";
 
 import { container } from "@/dicontainer";
 import { TYPES } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 import { HttpStatusCode } from "@/core/lib/constants";
 import IReservationService from "@/core/domain/services/contracts/IReservationService";
 import { CustomError } from "@/core/lib/errors";
 import ILogService from "@/core/domain/services/contracts/ILogService";
-import { roomChargeValidator, roomReservationValidator } from "@/core/validation/zodschema";
+import { roomChargeValidator, roomReservationValidator } from "@/core/validators/zodschema";
 import RoomCharge from "@/core/domain/models/RoomCharge";
 import RoomReservation from "@/core/domain/models/RoomReservation";
 

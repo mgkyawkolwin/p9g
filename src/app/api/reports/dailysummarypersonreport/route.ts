@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
 import { TYPES } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 import { HttpStatusCode } from "@/core/lib/constants";
 import { CustomError } from "@/core/lib/errors";
 import ILogService from "@/core/domain/services/contracts/ILogService";

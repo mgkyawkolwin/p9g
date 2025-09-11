@@ -1,9 +1,9 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { customerValidator, pagerValidator, searchSchema } from '@/core/validation/zodschema';
+import { customerValidator, pagerValidator, searchSchema } from '@/core/validators/zodschema';
 import { FormState } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 import { buildQueryString } from "@/core/lib/utils";
 import { headers } from 'next/headers';
 

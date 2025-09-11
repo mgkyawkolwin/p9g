@@ -8,7 +8,7 @@ import RoomCharge from "@/core/domain/models/RoomCharge";
 import RoomReservation from "@/core/domain/models/RoomReservation";
 import RoomRate from "@/core/domain/models/RoomRate";
 import RoomType from "@/core/domain/models/RoomType";
-import { TransactionType } from "../../orm/drizzle/mysql/db";
+import { TransactionType } from "@/core/data/db/mysql/MySqlDatabase";
 
 export default interface IReservationRepository extends IRepository<Reservation>{
 
@@ -20,15 +20,15 @@ export default interface IReservationRepository extends IRepository<Reservation>
     paymentDelete(reservationId:string, paymentId:string): Promise<void>;
     paymentGetListById(reservationId:string) : Promise<Payment[]>;
     paymentUpdateList(reservationId:string, payments:Payment[]) : Promise<void>;
-    reservationCancel(id:string) : Promise<void>;
+    // reservationCancel(id:string) : Promise<void>;
     reservationCheckIn(id:string) : Promise<void>;
     reservationCheckOut(id:string) : Promise<void>;
     reservationCreate(reservation:Reservation) : Promise<Reservation>;
     reservationCreate(reservation:Reservation, transaction:TransactionType) : Promise<Reservation>;
     reservationGetById(id:string): Promise<Reservation|undefined>;
     reservationGetList(searchParams:SearchParam[], pagerParams:PagerParams): Promise<[Reservation[], PagerParams]>;
-    reservationMoveRoom(id:string, roomNo:string):Promise<void>;
-    reservationMoveRoom(id:string, roomNo:string, transaction:TransactionType):Promise<void>;
+    // reservationMoveRoom(id:string, roomNo:string):Promise<void>;
+    // reservationMoveRoom(id:string, roomNo:string, transaction:TransactionType):Promise<void>;
     reservationUpdate(id:string, reservation:Reservation) : Promise<Reservation>;
     reservationUpdate(id:string, reservation:Reservation, transaction:TransactionType) : Promise<Reservation>;
     roomAndReservationGetList(searchParams:SearchParam[]) : Promise<Room[]>;

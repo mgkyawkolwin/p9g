@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { customerTable } from "@/core/data/orm/drizzle/mysql/schema";
 import { Repository } from "./Repository";
 import { TYPES } from "@/core/lib/types";
-import { type IDatabase } from "@/core/data/db/IDatabase";
+import { type IDatabaseClient } from "@/core/data/db/IDatabase";
 import ICustomerRepository from "../contracts/ICustomerRepository";
 import Customer from "@/core/domain/models/Customer";
 
@@ -12,7 +12,7 @@ import Customer from "@/core/domain/models/Customer";
 export default class CustomerRepository extends Repository<Customer, typeof customerTable> implements ICustomerRepository {
 
     constructor(
-        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabase<any>
+        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabaseClient<any>
     ) {
         super(dbClient, customerTable);
     }

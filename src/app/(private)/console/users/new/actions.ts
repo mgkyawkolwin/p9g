@@ -1,9 +1,9 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { userCreateSchema } from '@/core/validation/zodschema';
+import { userCreateSchema } from '@/core/validators/zodschema';
 import { FormState } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 import { headers } from 'next/headers';
 
 

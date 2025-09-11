@@ -2,6 +2,6 @@
 // export type IDBType = MySql2Database<typeof schema>;
 // export type ITransactionType = Parameters<Parameters<IDBType['transaction']>[0]>[0];
 
-export interface IDatabase<T> {
+export interface IDatabaseClient<T> {
     get db(): T ;
 }

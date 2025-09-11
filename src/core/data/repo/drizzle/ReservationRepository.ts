@@ -1,13 +1,13 @@
 import { configTable, ReservationEntity, reservationTable, reservationCustomerTable, prepaidTable, promotionTable, customerTable, ConfigEntity, roomTable, roomReservationTable, RoomReservationEntity, ReservationCustomerEntity, billTable, BillEntity, userTable, paymentTable, PaymentEntity, roomChargeTable, roomRateTable, roomTypeTable, RoomChargeEntity, RoomTypeEntity, RoomEntity, RoomRateEntity, UserEntity } from "@/core/data/orm/drizzle/mysql/schema";
 import IReservationRepository from "../contracts/IReservationRepository";
 import { inject, injectable } from "inversify";
-import type { IDatabase } from "@/core/data/db/IDatabase";
+import type { IDatabaseClient } from "@/core/data/db/IDatabase";
 import { PagerParams, SearchParam, TYPES } from "@/core/lib/types";
 import { Repository } from "./Repository";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 import { SQL, and, count, asc, desc, eq, ne, gte, between, lte, or, like, isNull, sum } from "drizzle-orm";
 import Reservation from "@/core/domain/models/Reservation";
-import { TransactionType } from "@/core/data/orm/drizzle/mysql/db";
+import { TransactionType } from "@/core/data/db/mysql/MySqlDatabase";
 import { alias } from "drizzle-orm/mysql-core";
 import Room from "@/core/domain/models/Room";
 import RoomReservation from "@/core/domain/models/RoomReservation";
@@ -30,7 +30,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     dropOffAlias = alias(configTable, 'dropOffAlias');
 
     constructor(
-        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabase<any>
+        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabaseClient<any>
     ) {
         super(dbClient, reservationTable);
     }
@@ -53,150 +53,150 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
-    async billGetListById(reservationId: string): Promise<Bill[]> {
-        c.fs('ReservationRepository > billGetListById');
-        const result: BillEntity[] = await this.dbClient.db.select().from(billTable).where(eq(billTable.reservationId, reservationId));
+    // async billGetListById(reservationId: string): Promise<Bill[]> {
+    //     c.fs('ReservationRepository > billGetListById');
+    //     const result: BillEntity[] = await this.dbClient.db.select().from(billTable).where(eq(billTable.reservationId, reservationId));
 
-        c.i('original')
-        c.d(result);
-        const bills: Bill[] = result.map((b: BillEntity) => {
-            const bill = new Bill();
-            bill.id = b.id;
-            bill.reservationId = b.reservationId;
-            bill.amount = Number(b.amount);
-            bill.currency = b.currency;
-            bill.dateUTC = b.dateUTC;
-            bill.isPaid = Boolean(b.isPaid);
-            bill.itemName = b.itemName;
-            bill.paidOnUTC = b.paidOnUTC;
-            bill.paymentMode = b.paymentMode;
-            bill.paymentType = b.paymentType;
-            bill.quantity = Number(b.quantity);
-            bill.unitPrice = Number(b.unitPrice);
-            bill.createdAtUTC = b.createdAtUTC;
-            bill.createdBy = b.createdBy;
-            bill.updatedAtUTC = b.updatedAtUTC;
-            bill.updatedBy = b.updatedBy;
-            //bills.push(bill);
-            return bill;
-        });
-        c.d(bills.length);
-        c.d(bills.length > 0 ? bills[0] : []);
+    //     c.i('original')
+    //     c.d(result);
+    //     const bills: Bill[] = result.map((b: BillEntity) => {
+    //         const bill = new Bill();
+    //         bill.id = b.id;
+    //         bill.reservationId = b.reservationId;
+    //         bill.amount = Number(b.amount);
+    //         bill.currency = b.currency;
+    //         bill.dateUTC = b.dateUTC;
+    //         bill.isPaid = Boolean(b.isPaid);
+    //         bill.itemName = b.itemName;
+    //         bill.paidOnUTC = b.paidOnUTC;
+    //         bill.paymentMode = b.paymentMode;
+    //         bill.paymentType = b.paymentType;
+    //         bill.quantity = Number(b.quantity);
+    //         bill.unitPrice = Number(b.unitPrice);
+    //         bill.createdAtUTC = b.createdAtUTC;
+    //         bill.createdBy = b.createdBy;
+    //         bill.updatedAtUTC = b.updatedAtUTC;
+    //         bill.updatedBy = b.updatedBy;
+    //         //bills.push(bill);
+    //         return bill;
+    //     });
+    //     c.d(bills.length);
+    //     c.d(bills.length > 0 ? bills[0] : []);
 
-        c.fe('ReservationRepository > billGetListById');
-        return bills;
-    }
-
-
-    async billGetListPaid(reservationId: string): Promise<Bill[]> {
-        c.fs('ReservationRepository > billsGetPaids');
-        const result: BillEntity[] = await this.dbClient.db.select().from(billTable)
-            .where(and(
-                eq(billTable.reservationId, reservationId),
-                eq(billTable.isPaid, true)
-            ));
-
-        const bills: Bill[] = result.map((b: BillEntity) => {
-            const bill = new Bill();
-            bill.id = b.id;
-            bill.amount = Number(b.amount);
-            bill.currency = b.currency;
-            bill.dateUTC = b.dateUTC;
-            bill.isPaid = Boolean(b.isPaid);
-            bill.itemName = b.itemName;
-            bill.paidOnUTC = b.paidOnUTC;
-            bill.paymentMode = b.paymentMode;
-            bill.paymentType = b.paymentType;
-            bill.quantity = Number(b.quantity);
-            bill.unitPrice = Number(b.unitPrice);
-            bill.createdAtUTC = b.createdAtUTC;
-            bill.createdBy = b.createdBy;
-            bill.updatedAtUTC = b.updatedAtUTC;
-            bill.updatedBy = b.updatedBy;
-            // bills.push(bill);
-            return bill;
-        });
-
-        c.d(bills.length);
-        c.d(bills.length > 0 ? bills[0] : []);
-        c.fe('ReservationRepository > billsGetPaids');
-        return bills;
-    }
+    //     c.fe('ReservationRepository > billGetListById');
+    //     return bills;
+    // }
 
 
-    async billGetListUnpaid(reservationId: string): Promise<Bill[]> {
-        c.fs('ReservationRepository > billGetListUnpaid');
-        const result: BillEntity[] = await this.dbClient.db.select().from(billTable)
-            .where(and(
-                eq(billTable.reservationId, reservationId),
-                eq(billTable.isPaid, false)
-            ));
+    // async billGetListPaid(reservationId: string): Promise<Bill[]> {
+    //     c.fs('ReservationRepository > billsGetPaids');
+    //     const result: BillEntity[] = await this.dbClient.db.select().from(billTable)
+    //         .where(and(
+    //             eq(billTable.reservationId, reservationId),
+    //             eq(billTable.isPaid, true)
+    //         ));
 
-        const bills: Bill[] = result.map((b: BillEntity) => {
-            const bill = new Bill();
-            bill.id = b.id;
-            bill.amount = Number(b.amount);
-            bill.currency = b.currency;
-            bill.dateUTC = b.dateUTC;
-            bill.isPaid = Boolean(b.isPaid);
-            bill.itemName = b.itemName;
-            bill.paidOnUTC = b.paidOnUTC;
-            bill.paymentMode = b.paymentMode;
-            bill.paymentType = b.paymentType;
-            bill.quantity = Number(b.quantity);
-            bill.unitPrice = Number(b.unitPrice);
-            bill.createdAtUTC = b.createdAtUTC;
-            bill.createdBy = b.createdBy;
-            bill.updatedAtUTC = b.updatedAtUTC;
-            bill.updatedBy = b.updatedBy;
-            //bills.push(bill);
-            return bill;
-        });
+    //     const bills: Bill[] = result.map((b: BillEntity) => {
+    //         const bill = new Bill();
+    //         bill.id = b.id;
+    //         bill.amount = Number(b.amount);
+    //         bill.currency = b.currency;
+    //         bill.dateUTC = b.dateUTC;
+    //         bill.isPaid = Boolean(b.isPaid);
+    //         bill.itemName = b.itemName;
+    //         bill.paidOnUTC = b.paidOnUTC;
+    //         bill.paymentMode = b.paymentMode;
+    //         bill.paymentType = b.paymentType;
+    //         bill.quantity = Number(b.quantity);
+    //         bill.unitPrice = Number(b.unitPrice);
+    //         bill.createdAtUTC = b.createdAtUTC;
+    //         bill.createdBy = b.createdBy;
+    //         bill.updatedAtUTC = b.updatedAtUTC;
+    //         bill.updatedBy = b.updatedBy;
+    //         // bills.push(bill);
+    //         return bill;
+    //     });
 
-        c.d(bills.length);
-        c.d(bills.length > 0 ? bills[0] : []);
-        c.fe('ReservationRepository > billGetListUnpaid');
-        return bills;
-    }
+    //     c.d(bills.length);
+    //     c.d(bills.length > 0 ? bills[0] : []);
+    //     c.fe('ReservationRepository > billsGetPaids');
+    //     return bills;
+    // }
 
 
-    async billUpdateList(reservationId: string, bills: Bill[]): Promise<void> {
-        c.fs('ReservationRepository > billUpdateList');
-        c.d(bills);
-        const session = await auth();
+    // async billGetListUnpaid(reservationId: string): Promise<Bill[]> {
+    //     c.fs('ReservationRepository > billGetListUnpaid');
+    //     const result: BillEntity[] = await this.dbClient.db.select().from(billTable)
+    //         .where(and(
+    //             eq(billTable.reservationId, reservationId),
+    //             eq(billTable.isPaid, false)
+    //         ));
 
-        //get list to update and insert
-        const updateList = bills.filter(p => typeof p.id !== 'undefined');
-        const insertList = bills.filter(p => typeof p.id === 'undefined');
+    //     const bills: Bill[] = result.map((b: BillEntity) => {
+    //         const bill = new Bill();
+    //         bill.id = b.id;
+    //         bill.amount = Number(b.amount);
+    //         bill.currency = b.currency;
+    //         bill.dateUTC = b.dateUTC;
+    //         bill.isPaid = Boolean(b.isPaid);
+    //         bill.itemName = b.itemName;
+    //         bill.paidOnUTC = b.paidOnUTC;
+    //         bill.paymentMode = b.paymentMode;
+    //         bill.paymentType = b.paymentType;
+    //         bill.quantity = Number(b.quantity);
+    //         bill.unitPrice = Number(b.unitPrice);
+    //         bill.createdAtUTC = b.createdAtUTC;
+    //         bill.createdBy = b.createdBy;
+    //         bill.updatedAtUTC = b.updatedAtUTC;
+    //         bill.updatedBy = b.updatedBy;
+    //         //bills.push(bill);
+    //         return bill;
+    //     });
 
-        updateList.forEach(bill => {
-            bill.updatedBy = session.user.id;
-        });
+    //     c.d(bills.length);
+    //     c.d(bills.length > 0 ? bills[0] : []);
+    //     c.fe('ReservationRepository > billGetListUnpaid');
+    //     return bills;
+    // }
 
-        insertList.forEach(bill => {
-            bill.createdBy = session.user.id;
-            bill.updatedBy = session.user.id;
-        });
 
-        await this.dbClient.db.transaction(async (tx: TransactionType) => {
-            //update existing records
-            updateList.forEach(async bill => {
-                const usql = tx.update(billTable).set(bill as unknown as BillEntity)
-                    .where(eq(billTable.id, bill.id));
-                c.d(usql.toSQL());
-                await usql;
-            });
+    // async billUpdateList(reservationId: string, bills: Bill[]): Promise<void> {
+    //     c.fs('ReservationRepository > billUpdateList');
+    //     c.d(bills);
+    //     const session = await auth();
 
-            //insert new records
-            if (insertList && insertList.length >= 1) {
-                const msql = tx.insert(billTable).values(insertList as unknown as BillEntity[]);
-                c.d(msql.toSQL());
-                await msql;
-            }
+    //     //get list to update and insert
+    //     const updateList = bills.filter(p => typeof p.id !== 'undefined');
+    //     const insertList = bills.filter(p => typeof p.id === 'undefined');
 
-        });
-        c.fe('ReservationRepository > billUpdateList');
-    }
+    //     updateList.forEach(bill => {
+    //         bill.updatedBy = session.user.id;
+    //     });
+
+    //     insertList.forEach(bill => {
+    //         bill.createdBy = session.user.id;
+    //         bill.updatedBy = session.user.id;
+    //     });
+
+    //     await this.dbClient.db.transaction(async (tx: TransactionType) => {
+    //         //update existing records
+    //         updateList.forEach(async bill => {
+    //             const usql = tx.update(billTable).set(bill as unknown as BillEntity)
+    //                 .where(eq(billTable.id, bill.id));
+    //             c.d(usql.toSQL());
+    //             await usql;
+    //         });
+
+    //         //insert new records
+    //         if (insertList && insertList.length >= 1) {
+    //             const msql = tx.insert(billTable).values(insertList as unknown as BillEntity[]);
+    //             c.d(msql.toSQL());
+    //             await msql;
+    //         }
+
+    //     });
+    //     c.fe('ReservationRepository > billUpdateList');
+    // }
 
 
     async paymentDelete(reservationId: string, paymentId: string): Promise<void> {

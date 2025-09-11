@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { billTable, configTable, customerTable, paymentTable, reservationTable, roomTable, userTable } from "@/core/data/orm/drizzle/mysql/schema";
 import { Repository } from "./Repository";
 import { TYPES } from "@/core/lib/types";
-import { type IDatabase } from "@/core/data/db/IDatabase";
+import { type IDatabaseClient } from "@/core/data/db/IDatabase";
 import Customer from "@/core/domain/models/Customer";
 import IReportRepository from "../contracts/IReportRepository";
 import DailySummaryGuestsRoomsReportRow from "@/core/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
@@ -11,7 +11,7 @@ import { getDateRange } from "@/core/lib/utils";
 import { and, count, eq, gt, gte, lt, lte, ne, sum } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { CustomError } from "@/core/lib/errors";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 import { auth } from "@/app/auth";
 import DailySummaryIncomeReportRow from "@/core/domain/dtos/reports/DailySummaryIncomeReportRow";
 import Bill from "@/core/domain/models/Bill";
@@ -21,7 +21,7 @@ import DailySummaryPersonReportRow from "@/core/domain/dtos/reports/DailySummary
 
 
 @injectable()
-export default class ReportRepository extends Repository<Customer, typeof customerTable> implements IReportRepository {
+export default class ReportRepository  implements IReportRepository {
 
     reservationTypeAlias = alias(configTable, 'reservation_type');
     reservationStatusAlias = alias(configTable, 'reservation_status');
@@ -29,9 +29,9 @@ export default class ReportRepository extends Repository<Customer, typeof custom
     dropOffAlias = alias(configTable, 'dropOffAlias');
 
     constructor(
-        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabase<any>
+        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabaseClient<any>
     ) {
-        super(dbClient, customerTable);
+        
     }
 
 

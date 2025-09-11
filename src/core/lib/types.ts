@@ -57,6 +57,7 @@ export type SearchFormFields = {
 
 export const TYPES = {
   IAuthService : Symbol.for('IAuthService'),
+  IBillRepository : Symbol.for('IBillRepository'),
   IConfigRepository : Symbol.for('IConfigRepository'),
   ICustomerRepository : Symbol.for('ICustomerRepository'),
   ICustomerService : Symbol.for('ICustomerService'),
@@ -64,6 +65,8 @@ export const TYPES = {
   IDbType : Symbol.for('IDbType'),
   ILogRepository : Symbol.for('ILogRepository'),
   ILogService : Symbol.for('ILogService'),
+  IMapper : Symbol.for('IMapper'),
+  IQueryObjectTransformer : Symbol.for('IQueryObjectTransformer'),
   IReportRepository : Symbol.for('IReportRepository'),
   IReportService : Symbol.for('IReportService'),
   IRepository : Symbol.for('IRepository'),

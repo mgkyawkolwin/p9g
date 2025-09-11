@@ -21,6 +21,15 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: 'vitest.setup.ts', // optional setup file
+    server: {
+      deps: {
+        inline: ['next', 'next-auth', 'reflect-metadata'],
+      },
+    },
+    env: {
+      DATABASE_URL: "prisma+mysql://root:Dbpwd_123@localhost:3306/p9g",
+      NODE_ENV: 'test',
+    },
     // Include any Next.js specific globals you need
     coverage: {
       provider: 'v8',

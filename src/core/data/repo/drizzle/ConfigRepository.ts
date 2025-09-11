@@ -6,8 +6,8 @@ import { configTable } from "@/core/data/orm/drizzle/mysql/schema";
 import { Repository } from "./Repository";
 
 import { TYPES } from "@/core/lib/types";
-import { type IDatabase } from "@/core/data/db/IDatabase";
-import c from "@/core/logger/console/ConsoleLogger";
+import { type IDatabaseClient } from "@/core/data/db/IDatabase";
+import c from "@/core/loggers/console/ConsoleLogger";
 import Config from "@/core/domain/models/Config";
 import IConfigRepository from "../contracts/IConfigRepository";
 
@@ -16,7 +16,7 @@ import IConfigRepository from "../contracts/IConfigRepository";
 export default class ConfigRepository extends Repository<Config, typeof configTable> implements IConfigRepository {
 
     constructor(
-        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabase<any>
+        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabaseClient<any>
     ) {
         super(dbClient, configTable);
     }

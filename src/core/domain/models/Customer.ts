@@ -1,18 +1,18 @@
 import IEntity from "@/core/data/repo/contracts/IEntity";
 
 export default class Customer implements IEntity {
-    public id!: string;
-    public address?: string | undefined;
-    public country?: string | undefined;
-    public dob?: string | undefined;
-    public email?: string | undefined;
-    public englishName: string | undefined;
-    public name!: string | undefined;
-    public nationalId?: string | undefined;
-    public passport?: string | undefined;
-    public phone?: string | undefined;
-    public createdAtUTC!: Date;
-    public createdBy!: string;
-    public updatedAtUTC?: Date;
-    public updatedBy?: string;
+    public id: string = '';
+    public address: string = '';
+    public country: string = '';
+    public dob: string = '';
+    public email: string = '';
+    public englishName: string = '';
+    public name: string = '';
+    public nationalId: string = '';
+    public passport: string = '';
+    public phone: string = '';
+    public createdAtUTC: Date = undefined;
+    public createdBy: string = '';
+    public updatedAtUTC: Date;
+    public updatedBy: string = '';
 }

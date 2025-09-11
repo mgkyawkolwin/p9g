@@ -12,7 +12,7 @@ export default interface IReservationService {
     billGetListById(reservationId:string, sessionUser: SessionUser):Promise<Bill[]>;
     billUpdateList(reservationId:string, bills:Bill[], sessionUser: SessionUser) : Promise<void>;
     billsView(reservationId:string, sessionUser: SessionUser):Promise<Invoice>;
-    patch(id:string, operation : string, sessionUser: SessionUser): Promise<void>;
+    // patch(id:string, operation : string, sessionUser: SessionUser): Promise<void>;
     paymentDeleteById(reservationId: string, paymentId: string, sessionUser: SessionUser): Promise<void>;
     paymentGetListById(reservationId:string, sessionUser: SessionUser):Promise<Payment[]>;
     paymentUpdateList(reservationId:string, payments:Payment[], sessionUser: SessionUser) : Promise<void>;

@@ -1,20 +1,25 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
 import { TYPES, SearchParam } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import { customerValidator, pagerValidator, searchSchema } from "@/core/validation/zodschema";
+import c from "@/core/loggers/console/ConsoleLogger";
+import { customerValidator, pagerValidator, searchSchema } from "@/core/validators/zodschema";
 import { HttpStatusCode } from "@/core/lib/constants";
 import { buildSearchParams, getPagerWithDefaults } from "@/core/lib/utils";
 import ICustomerService from "@/core/domain/services/contracts/ICustomerService";
 import Customer from "@/core/domain/models/Customer";
 import { CustomError } from "@/core/lib/errors";
 import ILogService from "@/core/domain/services/contracts/ILogService";
+import { auth } from "@/app/auth";
 
 
 export async function GET(request: NextRequest) {
   try {
     c.fs("GET /api/customers");
     c.d(JSON.stringify(request));
+
+    const session = await auth();
+    if(!session?.user)
+        throw new CustomError('Invalid session');
 
     //retrieve search params from request
     const searchParams = Object.fromEntries(request.nextUrl.searchParams);
@@ -39,7 +44,7 @@ export async function GET(request: NextRequest) {
 
     //call service to retrieve data
     const customerService = container.get<ICustomerService>(TYPES.ICustomerService);
-    const result = await customerService.customerFindMany(searchFields, pager);
+    const result = await customerService.customerFindMany(searchFields, pager, session.user);
     c.d(JSON.stringify(result));
 
     return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });
@@ -62,6 +67,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     c.d(body);
 
+    const session = await auth();
+    if(!session?.user)
+      throw new CustomError('Invalid session');
+
     c.i("Validating post data.");
     const validatedReservation = await customerValidator.safeParseAsync(body);
 
@@ -74,7 +83,7 @@ export async function POST(request: NextRequest) {
     // update user
     c.i("Calling service.");
     const customerService = container.get<ICustomerService>(TYPES.ICustomerService);
-    const createdCustomer = await customerService.customerCreate(validatedReservation.data as unknown as Customer);
+    const createdCustomer = await customerService.customerCreate(validatedReservation.data as unknown as Customer, session.user);
     if (!createdCustomer) {
       c.d("Customer creation failed. Return result.");
       return NextResponse.json({ message: "Create failed." }, { status: HttpStatusCode.ServerError });

@@ -6,17 +6,17 @@ import { RoomEntity, roomTable, roomTypeTable } from "@/core/data/orm/drizzle/my
 import { Repository } from "./Repository";
 
 import { TYPES } from "@/core/lib/types";
-import { type IDatabase } from "@/core/data/db/IDatabase";
+import { type IDatabaseClient } from "@/core/data/db/IDatabase";
 import IRoomRepository from "../contracts/IRoomRepository";
 import Room from "@/core/domain/models/Room";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 
 
 @injectable()
 export default class RoomRepository extends Repository<Room, typeof roomTable> implements IRoomRepository {
 
     constructor(
-        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabase<any>
+        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabaseClient<any>
     ) {
         super(dbClient, roomTable);
     }

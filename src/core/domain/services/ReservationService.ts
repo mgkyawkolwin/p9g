@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import type IReservationRepository from "@/core/data/repo/contracts/IReservationRepository";
 import { PagerParams, SearchParam, TYPES } from "@/core/lib/types";
 import Reservation from "@/core/domain/models/Reservation";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 import Room from "../models/Room";
 import { SearchParams } from "@/core/lib/constants";
 import Bill from "../models/Bill";
@@ -14,28 +14,32 @@ import RoomCharge from "../models/RoomCharge";
 import RoomRateEngine from "../engines/RoomRateEngine";
 import { CustomError } from "@/core/lib/errors";
 import RoomReservation from "../models/RoomReservation";
-import type IRoomChargeRepository from "@/core/data/repo/contracts/IRoomChargeRepository";
-import type IRoomRepository from "@/core/data/repo/contracts/IRoomRepository";
-import type IRoomReservationRepository from "@/core/data/repo/contracts/IRoomReservationRepository";
+// import type IRoomChargeRepository from "@/core/data/repo/contracts/IRoomChargeRepository";
+// import type IRoomRepository from "@/core/data/repo/contracts/IRoomRepository";
+// import type IRoomReservationRepository from "@/core/data/repo/contracts/IRoomReservationRepository";
 import { auth } from "@/app/auth";
 import type IUserService from "./contracts/IUserService";
-import type { IDatabase } from "@/core/data/db/IDatabase";
-import { TransactionType } from "@/core/data/orm/drizzle/mysql/db";
+import type { IDatabaseClient } from "@/core/data/db/IDatabase";
+import { TransactionType } from "@/core/data/db/mysql/MySqlDatabase";
 import type IConfigRepository from "@/core/data/repo/contracts/IConfigRepository";
-import { roomReservationTable } from "@/core/data/orm/drizzle/mysql/schema";
-import { eq } from "drizzle-orm";
+import { BillEntity, billTable, reservationTable, RoomChargeEntity, RoomEntity, RoomReservationEntity, roomReservationTable, roomTable, userTable } from "@/core/data/orm/drizzle/mysql/schema";
+import { and, desc, eq } from "drizzle-orm";
+import type IRepository from "@/core/data/repo/contracts/IRepository";
+import User from "../models/User";
 
 @injectable()
 export default class ReservationService implements IReservationService {
 
 
     constructor(
+        @inject(TYPES.IBillRepository) private billRepository: IRepository<Bill>,
         @inject(TYPES.IConfigRepository) protected readonly configRepository: IConfigRepository,
-        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabase<any>,
+        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabaseClient<any>,
         @inject(TYPES.IReservationRepository) private reservationRepository: IReservationRepository,
-        @inject(TYPES.IRoomRepository) private roomRepository: IRoomRepository,
-        @inject(TYPES.IRoomChargeRepository) private roomChargeRepository: IRoomChargeRepository,
-        @inject(TYPES.IRoomReservationRepository) private roomReservationRepository: IRoomReservationRepository,
+        @inject(TYPES.IRoomRepository) private roomRepository: IRepository<Room>,
+        @inject(TYPES.IRoomChargeRepository) private roomChargeRepository: IRepository<RoomCharge>,
+        @inject(TYPES.IRoomReservationRepository) private roomReservationRepository: IRepository<RoomReservation>,
+        @inject(TYPES.IUserRepository) private userRepository: IRepository<User>,
         @inject(TYPES.IUserService) private userService: IUserService) {
 
     }
@@ -45,20 +49,47 @@ export default class ReservationService implements IReservationService {
         c.fs('ReservationService > billDeleteById');
         if (!reservationId) throw new CustomError('Service: Reservation id is required.');
         if (!billId) throw new CustomError('Service: Reservation id is required.');
-        return await this.reservationRepository.billDelete(reservationId, billId);
+        //return await this.reservationRepository.billDelete(reservationId, billId);
+        return await this.billRepository.delete(reservationId);
     }
 
 
     async billGetListById(reservationId: string, sessionUser: SessionUser): Promise<Bill[]> {
         c.fs('ReservationService > billGetListById');
-        return await this.reservationRepository.billGetListById(reservationId);
+        //return await this.reservationRepository.billGetListById(reservationId);
+        return await this.billRepository.findMany(eq(billTable.reservationId, reservationId))[0];
     }
 
 
     async billUpdateList(reservationId: string, bills: Bill[], sessionUser: SessionUser): Promise<void> {
         c.fs('ReservationService > billUpdateList');
         bills.forEach(bill => bill.updatedBy = sessionUser.id);
-        await this.reservationRepository.billUpdateList(reservationId, bills);
+        //await this.reservationRepository.billUpdateList(reservationId, bills);
+        //get list to update and insert
+        const updateList = bills.filter(p => typeof p.id !== 'undefined');
+        const insertList = bills.filter(p => typeof p.id === 'undefined');
+
+        updateList.forEach(bill => {
+            bill.updatedBy = sessionUser.id;
+        });
+
+        insertList.forEach(bill => {
+            bill.createdBy = sessionUser.id;
+            bill.updatedBy = sessionUser.id;
+        });
+
+        await this.dbClient.db.transaction(async (tx: any) => {
+            //update existing records
+            for(const bill of updateList){
+                await this.billRepository.update(bill, tx);
+            };
+
+            //insert new records
+            for(const bill of insertList){
+                await this.billRepository.create(bill, tx);
+            };
+
+        });
 
     }
 
@@ -162,8 +193,8 @@ export default class ReservationService implements IReservationService {
         const config = await this.configRepository.findByGroupAndCode('RESERVATION_STATUS', 'CCL');
         if (!config) throw new CustomError('Cannot find config in reservation service.');
 
-        await this.reservationRepository.update(id, { reservationStatusId: config.id, updatedBy: sessionUser.id });
-        
+        await this.reservationRepository.update(id, { reservationStatusId: config.id, updatedBy: sessionUser.id } as Reservation);
+
     }
 
 
@@ -174,7 +205,7 @@ export default class ReservationService implements IReservationService {
         const config = await this.configRepository.findByGroupAndCode('RESERVATION_STATUS', 'CIN');
         if (!config) throw new CustomError('Cannot find config in reservation service.');
 
-        await this.reservationRepository.update(id, { reservationStatusId: config.id, updatedBy: sessionUser.id });
+        await this.reservationRepository.update(id, { reservationStatusId: config.id, updatedBy: sessionUser.id } as Reservation);
     }
 
 
@@ -237,7 +268,7 @@ export default class ReservationService implements IReservationService {
         const config = await this.configRepository.findByGroupAndCode('RESERVATION_STATUS', 'OUT');
         if (!config) throw new CustomError('Cannot find config in reservation service.');
 
-        await this.reservationRepository.update(id, { reservationStatusId: config.id, updatedBy: sessionUser.id });
+        await this.reservationRepository.update(id, { reservationStatusId: config.id, updatedBy: sessionUser.id } as Reservation);
     }
 
 
@@ -248,7 +279,7 @@ export default class ReservationService implements IReservationService {
         const user = await this.userService.userFindByUserName(sessionUser.name, sessionUser);
         if (!user) throw new CustomError('Repository cannot find valid user.');
 
-        const result = this.dbClient.db.transaction(async (tx: TransactionType) => {
+        const result = this.dbClient.db.transaction(async (tx: any) => {
 
             //first create reservation
             reservation.createdBy = sessionUser.id;
@@ -305,50 +336,47 @@ export default class ReservationService implements IReservationService {
         c.d(roomNo);
 
         c.i('retrieve new room info');
-        const room: Room = await this.roomRepository.findByRoomNoAndLocation(roomNo, sessionUser.location);
-        if(!room) throw new CustomError('Cannot find room while moving room');
+        const room: Room = await this.roomRepository.findOne(and(eq(roomTable.roomNo, roomNo),eq(roomTable.location, sessionUser.location)));
+        if (!room) throw new CustomError('Cannot find room while moving room');
 
         c.i('Retrieve reservation.');
         const reservation: Reservation = await this.reservationRepository.findById(id);
-        if(!reservation) throw new CustomError('Cannot find reservation while moving room');
+        if (!reservation) throw new CustomError('Cannot find reservation while moving room');
 
-        const roomReservations : RoomReservation[] = this.roomReservationRepository.getAllByReservationId(id);
+        const [[roomReservation], count]: [RoomReservation[], Number] = await this.roomReservationRepository.findMany(eq(reservationTable.id, id), desc(roomReservationTable.checkInDate), 0, 1);
+        if (!roomReservation) throw new CustomError('Cannot find room reservation.');
 
-        
-
-        const operation = async (tx: TransactionType) => {
+        await this.dbClient.db.transaction(async (tx:TransactionType) => {
             c.i('Inside transaction');
             const date = new Date(new Date().toISOString());
             c.i('Update current roomReservation record');
-            await tx.update(roomReservationTable)
-                .set({ checkOutDate: date, updatedBy: session.user.id })
-                .where(eq(roomReservationTable.reservationId, id));
+            await this.roomReservationRepository.update(roomReservation.id, { checkOutDate: date, updatedBy: sessionUser.id } as RoomReservation, tx as any);
 
             c.i('Create new roomReservation record');
-            await tx.insert(roomReservationTable)
-                .values(
-                    {
-                        reservationId: id,
-                        roomId: room.id,
-                        checkInDate: date,
-                        checkOutDate: reservation.checkOutDate,
-                        isSingleOccupancy: reservation.isSingleOccupancy,
-                        createdBy: session.user.id,
-                        updatedBy: session.user.id
-                    });
+            const newRoomReservation = new RoomReservation();
+            newRoomReservation.reservationId = id;
+            newRoomReservation.roomId = room.id;
+            newRoomReservation.checkInDate = date;
+            newRoomReservation.checkOutDate = reservation.checkOutDate;
+            newRoomReservation.isSingleOccupancy = reservation.isSingleOccupancy;
+            newRoomReservation.createdBy = sessionUser.id;
+            newRoomReservation.updatedBy = sessionUser.id;
+
+            await this.roomReservationRepository.create(newRoomReservation, tx as any);
 
             c.i('Update reservation table.');
-            await tx.update(reservationTable)
-                .set({ roomNo: roomNo })
-                .where(eq(reservationTable.id, id));
-        };
-        if(transaction){
-            await operation(transaction);
-        }else{
-            await this.dbClient.db.transaction(async (tx:TransactionType) => {
-                await operation(tx);
-            });
-        }
+            await this.reservationRepository.update(id, { roomNo: roomNo } as Reservation, tx as any);
+        });
+        // const operation = async (tx: TransactionType) => {
+            
+        // };
+        // if (transaction) {
+        //     await operation(transaction);
+        // } else {
+        //     await this.dbClient.db.transaction(async (tx: TransactionType) => {
+        //         await operation(tx);
+        //     });
+        // }
     }
 
 
@@ -386,7 +414,7 @@ export default class ReservationService implements IReservationService {
             throw new CustomError('Repository cannot find valid session');
 
         //retrieve current user
-        const user = await this.userService.userFindByUserName(session.user.name);
+        const user = await this.userRepository.findOne(eq(userTable.name, sessionUser.name));
         if (!user) throw new CustomError('Repository cannot find valid user.');
 
         const result = this.dbClient.db.transaction(async (tx: TransactionType) => {
@@ -399,10 +427,10 @@ export default class ReservationService implements IReservationService {
             if (reservation.roomNo && originalReservation.roomNo !== reservation.roomNo) {
 
                 c.i('vital changed, delete all room reservations and room charges');
-                await this.roomReservationRepository.deleteAllByReservationId(reservation.id, tx);
-                await this.roomChargeRepository.deleteAllByReservationId(reservation.id, tx);
+                await this.roomReservationRepository.delete(reservation.id, tx as any);
+                await this.roomChargeRepository.delete(reservation.id, tx as any);
 
-                const room = await this.roomRepository.findByRoomNoAndLocation(reservation.roomNo, user.location);
+                const room = await this.roomRepository.findOne(and(eq(roomTable.roomNo, reservation.roomNo),eq(roomTable.location, sessionUser.location)));
                 if (!room) throw new CustomError('Room not found.');
 
                 const roomReservation = new RoomReservation();
@@ -413,7 +441,7 @@ export default class ReservationService implements IReservationService {
                 roomReservation.checkInDate = reservation.checkInDate;
                 roomReservation.checkOutDate = reservation.checkOutDate;
                 roomReservation.isSingleOccupancy = reservation.isSingleOccupancy;
-                const rrResult = await this.roomReservationRepository.create(roomReservation, tx);
+                const rrResult = await this.roomReservationRepository.create(roomReservation, tx as any);
                 if (!rrResult)
                     throw new Error('Room reservation creation failed.');
 
@@ -424,7 +452,7 @@ export default class ReservationService implements IReservationService {
                     throw new Error('Invalid room charge calculation.');
 
                 for (const roomCharge of roomCharges) {
-                    const result = await this.roomChargeRepository.create(roomCharge, tx);
+                    const result = await this.roomChargeRepository.create(roomCharge, tx as any);
                     if (!result)
                         throw new Error('Room charges saved failed.');
                 }
@@ -434,20 +462,20 @@ export default class ReservationService implements IReservationService {
                 reservation.taxAmount = totalRoomCharges * Number(reservation.tax) / 100;
                 reservation.netAmount = reservation.totalAmount - reservation.depositAmount - reservation.taxAmount - reservation.discountAmount;
                 reservation.dueAmount = reservation.netAmount;
-                const updateResult = await this.reservationRepository.reservationUpdate(reservation.id, reservation, tx);
+                const updateResult = await this.reservationRepository.reservationUpdate(reservation.id, reservation, tx as any);
                 if (!updateResult)
                     throw new Error('Reservation updated failed.');
             } else if (!reservation.roomNo) {
                 c.i('no room number, clear all room reservations and room charges');
-                await this.roomReservationRepository.deleteAllByReservationId(reservation.id, tx);
-                await this.roomChargeRepository.deleteAllByReservationId(reservation.id, tx);
+                await this.roomReservationRepository.delete(reservation.id, tx as any);
+                await this.roomChargeRepository.delete(reservation.id, tx as any);
                 reservation.totalAmount = 0;
                 reservation.taxAmount = 0;
                 reservation.netAmount = 0;
                 reservation.dueAmount = 0 - Number(reservation.paidAmount ?? 0);
             }
 
-            const updatedReservation = await this.reservationRepository.reservationUpdate(id, reservation, tx);
+            const updatedReservation = await this.reservationRepository.reservationUpdate(id, reservation, tx as any);
             if (!updatedReservation)
                 throw new Error('Reservation update failed.');
 
@@ -458,9 +486,9 @@ export default class ReservationService implements IReservationService {
     }
 
 
-    async roomReservationCreate(reservation: Reservation, sessionUser: SessionUser, transaction: TransactionType) : Promise<RoomReservation>{
-        const room = await this.roomRepository.findByRoomNoAndLocation(reservation.roomNo, sessionUser.location);
-        if(!room) throw new Error('Cannot find room while saving room reservation.');
+    async roomReservationCreate(reservation: Reservation, sessionUser: SessionUser, transaction: TransactionType): Promise<RoomReservation> {
+        const room = await this.roomRepository.findOne(and(eq(roomTable.roomNo, reservation.roomNo),eq(roomTable.location, sessionUser.location)));
+        if (!room) throw new Error('Cannot find room while saving room reservation.');
 
         const roomReservation = new RoomReservation();
         roomReservation.reservationId = reservation.id;
@@ -472,11 +500,11 @@ export default class ReservationService implements IReservationService {
         roomReservation.isSingleOccupancy = reservation.isSingleOccupancy;
         roomReservation.createdBy = sessionUser.id;
         roomReservation.updatedBy = sessionUser.id;
-        const rrResult = await this.roomReservationRepository.create(roomReservation, transaction);
+        const rrResult = await this.roomReservationRepository.create(roomReservation, transaction as any);
 
-        if(!rrResult) throw new CustomError('Room reservation creation failed.');
+        if (!rrResult) throw new CustomError('Room reservation creation failed.');
 
-        return rrResult;
+        return rrResult as RoomReservation;
     }
 
 

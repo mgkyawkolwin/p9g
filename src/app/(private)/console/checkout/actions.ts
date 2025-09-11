@@ -1,8 +1,8 @@
 'use server';
 
-import {  pagerValidator, searchSchema } from '@/core/validation/zodschema';
+import {  pagerValidator, searchSchema } from '@/core/validators/zodschema';
 import { FormState } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 import { buildQueryString } from "@/core/lib/utils";
 import { headers } from 'next/headers';
 

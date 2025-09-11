@@ -1,7 +1,7 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { signOut } from "@/app/auth";
-import c from '@/core/logger/console/ConsoleLogger';
+import c from '@/core/loggers/console/ConsoleLogger';
 import { FormState } from '@/core/lib/types';
 import { AppUrl } from '@/core/lib/constants';
 

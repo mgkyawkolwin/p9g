@@ -2,13 +2,14 @@ import { injectable } from 'inversify';
 import { MySql2Database, drizzle} from 'drizzle-orm/mysql2';
 import mysql from 'mysql2/promise';
 
-import { IDatabase } from '../IDatabase';
+import { IDatabaseClient } from '../IDatabase';
 import * as schema from '@/core/data/orm/drizzle/mysql/schema';
 
 export type MySqlDbType = MySql2Database<typeof schema>;
+export type TransactionType = Parameters<Parameters<MySqlDbType["transaction"]>[0]>[0];
 
 @injectable()
-export class MySqlDatabase implements IDatabase<MySqlDbType>{
+export class MySqlDatabaseClient implements IDatabaseClient<MySqlDbType>{
   private _db: MySqlDbType;
 
   constructor() {

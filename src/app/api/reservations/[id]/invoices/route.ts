@@ -1,11 +1,11 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
 import { TYPES } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 import { HttpStatusCode } from "@/core/lib/constants";
 import IReservationService from "@/core/domain/services/contracts/IReservationService";
 import Bill from "@/core/domain/models/Bill";
-import { billValidator } from "@/core/validation/zodschema";
+import { billValidator } from "@/core/validators/zodschema";
 import { CustomError } from "@/core/lib/errors";
 import ILogService from "@/core/domain/services/contracts/ILogService";
 

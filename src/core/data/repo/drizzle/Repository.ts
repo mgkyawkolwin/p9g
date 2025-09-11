@@ -1,226 +1,232 @@
 //Ordered Imports
 import { SQL, and,  count, asc, desc, eq, gt, gte, inArray, lt, lte, or, like, Table, Column, getTableColumns, getTableName } from "drizzle-orm";
 import { AnyMySqlSelectQueryBuilder, MySqlColumn, MySqlSelectQueryBuilder, MySqlTable, MySqlTableWithColumns } from "drizzle-orm/mysql-core";
-import { MySqlQueryResultHKT } from "drizzle-orm/mysql-core";
-import { MySqlTransaction } from "drizzle-orm/mysql-core";
-import { db, type DBType, type TransactionType } from "@/core/data/orm/drizzle/mysql/db";
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
-import {auth} from "@/app/auth";
 import IRepository from "../contracts/IRepository";
-import { PagerParams, SearchParam, TYPES } from "@/core/lib/types";
-import { type IDatabase } from "@/core/data/db/IDatabase";
+import { type IDatabaseClient } from "@/core/data/db/IDatabase";
 import IDrizzleTable from "@/core/data/repo/drizzle/IDrizzleTable";
-import c from "@/core/logger/console/ConsoleLogger";
+import c from "@/core/loggers/console/ConsoleLogger";
 import IEntity from "../contracts/IEntity";
+import { CustomError } from "@/core/lib/errors";
+import ITransaction from "../../db/ITransaction";
+import type IMapper from "@/core/lib/mappers/IMapper";
+import { TYPES } from "@/core/lib/types";
 
 
 @injectable()
-export abstract class Repository<TEntity extends IEntity, TTable extends  IDrizzleTable> implements IRepository<TEntity> {
-  protected readonly dbClient: IDatabase<any>;
-  protected readonly table: TTable;
+export class Repository<TDomain extends IEntity, TEntity extends IEntity, TTable extends  IDrizzleTable, TDomainClass extends new () => TDomain, TEntityClass extends new () => TEntity> implements IRepository<TDomain> {
+  //protected readonly table: TTable;
 
   constructor(
-    dbClient: IDatabase<any>,
-    table: TTable
+    protected readonly dbClient: IDatabaseClient<any>,
+    protected readonly table: TTable,
+    protected readonly mapper: IMapper,
+    protected readonly domainClass : TDomainClass,
+    protected readonly entityClass : TEntityClass
   ) {
-    this.dbClient = dbClient;
-    this.table = table;
+    
   }
 
 
-  applyCondition<T extends MySqlSelectQueryBuilder>(query: T, searchParams: SearchParam[]) : T{
-    if (searchParams && searchParams.length > 0) {
-      searchParams.forEach((searchParam : SearchParam) => {
-        let condition 
-        if(searchParam.searchColumn === 'name'){
-          condition = or(
-            like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`),
-            like(getTableColumns(this.table)['englishName'], `%${searchParam.searchValue}%`)
-          )
-        }else{
-          condition = like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`)
-        }
+  // applyCondition<T extends MySqlSelectQueryBuilder>(query: T, searchParams: SearchParam[]) : T{
+  //   if (searchParams && searchParams.length > 0) {
+  //     searchParams.forEach((searchParam : SearchParam) => {
+  //       let condition 
+  //       if(searchParam.searchColumn === 'name'){
+  //         condition = or(
+  //           like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`),
+  //           like(getTableColumns(this.table)['englishName'], `%${searchParam.searchValue}%`)
+  //         )
+  //       }else{
+  //         condition = like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`)
+  //       }
 
-        like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`);
-        return query.where(condition);
-      });
-    }
-    return query;
-  }
-
-
-  applyConditionAndPaging<T extends MySqlSelectQueryBuilder>(query: T, searchParams: SearchParam[], pagerParams: PagerParams) : T{
-    query = this.applyCondition(query, searchParams);
-    query = this.applyPaging(query, pagerParams);
-    return query;
-  }
+  //       like(getTableColumns(this.table)[searchParam.searchColumn], `%${searchParam.searchValue}%`);
+  //       return query.where(condition);
+  //     });
+  //   }
+  //   return query;
+  // }
 
 
-  applyPaging<T extends MySqlSelectQueryBuilder>(query: T, pagerParams: PagerParams) : T{
-    if(pagerParams.orderDirection === 'desc')
-      query = query.orderBy(desc(getTableColumns(this.table)[pagerParams.orderBy]));
-    else
-      query = query.orderBy(asc(getTableColumns(this.table)[pagerParams.orderBy]));
-
-    query.limit(pagerParams.pageSize);
-    query.offset((pagerParams.pageIndex - 1) * pagerParams.pageSize);
-
-    return query;
-  }
+  // applyConditionAndPaging<T extends MySqlSelectQueryBuilder>(query: T, searchParams: SearchParam[], pagerParams: PagerParams) : T{
+  //   query = this.applyCondition(query, searchParams);
+  //   query = this.applyPaging(query, pagerParams);
+  //   return query;
+  // }
 
 
-  async create(data: TEntity): Promise<TEntity> {
+  // applyPaging<T extends MySqlSelectQueryBuilder>(query: T, pagerParams: PagerParams) : T{
+  //   if(pagerParams.orderDirection === 'desc')
+  //     query = query.orderBy(desc(getTableColumns(this.table)[pagerParams.orderBy]));
+  //   else
+  //     query = query.orderBy(asc(getTableColumns(this.table)[pagerParams.orderBy]));
+
+  //   query.limit(pagerParams.pageSize);
+  //   query.offset((pagerParams.pageIndex - 1) * pagerParams.pageSize);
+
+  //   return query;
+  // }
+
+
+  async create<TTransaction extends ITransaction>(domain: TDomain, transaction?:TTransaction): Promise<TDomain> {
     c.fs("Repository > create");
-    const session = await auth();
-    c.d(data as any);
+    c.d(domain as any);
     c.i("Inserting new entity.");
-    const [insertedResult] = await this.dbClient.db.insert(this.table).values(data as TEntity).$returningId();
-    c.i("Entity inserted.");
-    c.d(insertedResult);
-    c.i("Retrieving newly inserted entity.");
-    const [record] = await this.dbClient.db.select()
-      .from(this.table)
-      .where(eq(this.table.id as Column, insertedResult.id))
-      .limit(1);
-    c.d(record);
+    const entity = await this.mapper.map(domain, this.entityClass);
+    const query =  this.dbClient.db.insert(this.table).values(entity).$returningId();
+    let result;
+    if(transaction)
+      [result] = await transaction.execute(query);
+    else
+      [result] = await query;
+    domain.id = result.id;
     c.fe("Repository > create");
-    return record as TEntity;
+    return domain;
   }
 
 
-  async findAll(pagerParams : PagerParams): Promise<TEntity[]> {
+  async findAll(): Promise<TDomain[]> {
     c.fs('Repository > findAll');
-    c.d(JSON.stringify(pagerParams));
-    // Calculate offset
-    const offset = (pagerParams.pageIndex - 1) * pagerParams.pageSize;
 
     // Build base query
     let query = this.dbClient.db
       .select()
-      .from(this.table)
-      .orderBy(pagerParams.orderBy, pagerParams.orderDirection)
-      .limit(pagerParams.pageSize)
-      .offset(offset);
+      .from(this.table);
 
     // Execute query
-    const records = await query;
-    return records as TEntity[];
+    const entities = await query;
+    const domains : TDomain[] = entities.map((e:TEntity) => this.mapper.map(e, this.domainClass));
+    return domains;
   }
 
 
-  async findById(id: string): Promise<TEntity | null> {
-    const [record] = await this.dbClient.db
+  async findById<TIdType>(id: TIdType): Promise<TDomain | null> {
+    c.fs('Repository > findById');
+    const [entity] = await this.dbClient.db
       .select()
       .from(this.table)
-      .where(eq(this.table.id as Column, id))
+      .where(eq(this.table.id, id))
       .limit(1);
+
+    if(!entity) return null;
     
-    c.fe('Repository > findAll');
-    return (record as TEntity) ?? null;
+    c.fe('Repository > findById');
+    return this.mapper.map(entity, this.domainClass);
   }
 
 
-  async findOne(where?: SQL | undefined): Promise<TEntity | null> {
+  async findOne<TCondition>(where: TCondition): Promise<TDomain | null> {
     c.fs('Repository > findOne');
-    const [record] = await this.dbClient.db.select().from(this.table).where(where).limit(1);
+    if(!where) throw new CustomError('Condtion is required.');
+    const [entity] = await this.dbClient.db.select().from(this.table).where(where).limit(1);
     c.fe('Repository > findOne');
-    return (record as TEntity) ?? null;
+    if(!entity) return null;
+    return await this.mapper.map(entity, this.domainClass) as TDomain;
   }
 
 
-  async findManyByCondition(rootCondition?: SQL, sort?:SQL, limit?:number): Promise<TEntity[]> {
-    c.fs('Repository > findManyByCondition');
-    let query = this.dbClient.db.select().from(this.table);
-    if(rootCondition)
-      query = query.where(rootCondition);
-    if(sort)
-      query = query.orderBy(sort);
-    if(limit)
-      query = query.limit(limit);
-
-    const records = await query;
-
-    c.fe('Repository > findManyByCondition');
-    return records as TEntity[];
-  }
-
-
-  async findMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[TEntity[], PagerParams]> {
+  async findMany<TCondition,TOrderBy>(condition?: TCondition, sort?:TOrderBy, offset?:number, limit?:number): Promise<[TDomain[],number]> {
     c.fs('Repository > findMany');
-    c.d(JSON.stringify(searchParams));
-    c.d(JSON.stringify(pagerParams));
-
-    // Calculate offset
-    const offset = (pagerParams.pageIndex - 1) * pagerParams.pageSize;
-
-    // Build result query
-    let countQuery = this.dbClient.db
-      .select({count: count(this.table.id)})
-      .from(this.table)
-
-      // Build result query
-    let dataQuery = this.dbClient.db
-    .select()
-    .from(this.table)
-    .orderBy(pagerParams.orderDirection === 'desc' 
-      ? desc(getTableColumns(this.table)[pagerParams.orderBy]) 
-      : asc(getTableColumns(this.table)[pagerParams.orderBy]))
-    .limit(pagerParams.pageSize)
-    .offset(offset);
+    let dataQuery = this.dbClient.db.select().from(this.table);
+    let countQuery = this.dbClient.db.select({count: count(this.table.id)}).from(this.table);
+    if(condition) {
+      dataQuery = dataQuery.where(condition);
+      countQuery = countQuery.where(condition);
+    }
     
-    countQuery = this.applyCondition(countQuery, searchParams);
-    dataQuery = this.applyConditionAndPaging(dataQuery, searchParams, pagerParams);
+    if(sort) dataQuery = dataQuery.orderBy(sort);
+    if(offset) dataQuery = dataQuery.offset(offset);
+    if(limit) dataQuery = dataQuery.limit(limit);
+    c.d(dataQuery.toSQL());
 
     const [countResult, dataResult] = await Promise.all([
       countQuery.execute(),
       dataQuery.execute()
     ]);
-
-    //calculate number of pages
-    const pages = Math.ceil(countResult[0].count / pagerParams.pageSize);
-    c.d(countResult[0]);
-
+c.d(dataResult);
     c.fe('Repository > findMany');
-    return [dataResult as TEntity[], {...pagerParams, pages: pages}];
+    return [dataResult as TDomain[], countResult[0]?.count];
   }
 
 
-  async update(id: string, data: Partial<Omit<TEntity, "id" | "createdAt" | "updatedAt">>
-  ): Promise<TEntity> {
+  // async findMany(searchParams:SearchParam[], pagerParams : PagerParams): Promise<[TEntity[], PagerParams]> {
+  //   c.fs('Repository > findMany');
+  //   c.d(JSON.stringify(searchParams));
+  //   c.d(JSON.stringify(pagerParams));
+
+  //   // Calculate offset
+  //   const offset = (pagerParams.pageIndex - 1) * pagerParams.pageSize;
+
+  //   // Build result query
+  //   let countQuery = this.dbClient.db
+  //     .select({count: count(this.table.id)})
+  //     .from(this.table)
+
+  //     // Build result query
+  //   let dataQuery = this.dbClient.db
+  //   .select()
+  //   .from(this.table)
+  //   .orderBy(pagerParams.orderDirection === 'desc' 
+  //     ? desc(getTableColumns(this.table)[pagerParams.orderBy]) 
+  //     : asc(getTableColumns(this.table)[pagerParams.orderBy]))
+  //   .limit(pagerParams.pageSize)
+  //   .offset(offset);
+    
+  //   countQuery = this.applyCondition(countQuery, searchParams);
+  //   dataQuery = this.applyConditionAndPaging(dataQuery, searchParams, pagerParams);
+
+  //   const [countResult, dataResult] = await Promise.all([
+  //     countQuery.execute(),
+  //     dataQuery.execute()
+  //   ]);
+
+  //   //calculate number of pages
+  //   const pages = Math.ceil(countResult[0].count / pagerParams.pageSize);
+  //   c.d(countResult[0]);
+
+  //   c.fe('Repository > findMany');
+  //   return [dataResult as TEntity[], {...pagerParams, pages: pages}];
+  // }
+
+
+  async update<TIdType, TTransaction extends ITransaction>(id:TIdType, entity: TDomain, transaction?: TTransaction): Promise<void> {
     c.fs('Reository > update');
-    c.d(String(id));
-    c.d(data);
+    c.d(entity);
     const query = this.dbClient.db.update(this.table)
-      .set(data as any)
-      .where(eq(this.table.id as Column, id));
+      .set(entity as any)
+      .where(eq(this.table.id, id));
     c.d(query.toSQL());
-    await query.execute();
+
+    if(transaction)
+      await transaction.execute(query);
+    else
+      await query.execute();
 
     c.fe('Reository > update');
-    return data as TEntity;
+    // return data as TEntity;
   }
 
 
-  async delete(id: string): Promise<boolean> {
+  async delete<TIdType, TTransaction extends ITransaction>(id: TIdType, transaction?: TTransaction): Promise<void> {
     c.fs('Reository > delete');
-    await this.dbClient.db.delete(this.table).where(eq(this.table._.columns.id as MySqlColumn, id));
-    const [record] = await this.dbClient.db
-      .select()
-      .from(this.table)
-      .where(eq(this.table.id as Column, id))
-      .limit(1);
+    const query = this.dbClient.db.delete(this.table).where(eq(this.table.id, id));
 
+    if(transaction)
+      await transaction.execute(query);
+    else
+      await query.execute();
     c.fe('Reository > delete');
-    return record ? false : true;
   }
 
 
-  async exists(where?: SQL | undefined): Promise<boolean> {
+  async exists<TCondition>(condition: TCondition): Promise<boolean> {
     c.fs('Reository > exits');
-    const [record] = await this.dbClient.db.select().from(this.table).where(where).limit(1);
+    if(!condition) throw new CustomError('Condition is required.');
+    const [entity] = await this.dbClient.db.select().from(this.table).where(condition).limit(1);
     c.fe('Reository > exits');
-    return !!record;
+    return !!entity;
   }
 
 }

@@ -5,12 +5,12 @@ import ILogService from './contracts/ILogService';
 import type ILogRepository from '@/core/data/repo/contracts/ILogRepository';
 import LogError from '../models/LogError';
 import { auth } from '@/app/auth';
-import c from '@/core/logger/console/ConsoleLogger';
+import c from '@/core/loggers/console/ConsoleLogger';
 
 @injectable()
-export default class LogService implements ILogService{
+export default class LogService implements ILogService {
 
-    constructor(@inject(TYPES.ILogRepository) private logRepository : ILogRepository){
+    constructor(@inject(TYPES.ILogRepository) private logRepository: ILogRepository) {
 
     }
 
@@ -18,14 +18,15 @@ export default class LogService implements ILogService{
         c.fs('LogService > logError');
         const session = await auth();
         const logError = new LogError();
-        if(session.user?.id)
-        logError.userId = session.user.id;
+        if (session.user?.id)
+            logError.userId = session.user.id;
         logError.datetime = new Date();
-        logError.detail = JSON.stringify(error).substring(0,500);
-        if(error instanceof Error){
-            logError.detail = String(error.name + " " + error.cause + " " + error.message + " " + error.stack).substring(0,500);
+        logError.detail = JSON.stringify(error).substring(0, 500);
+        if (error instanceof Error) {
+            logError.detail = String(error.name + " " + error.cause + " " + error.message + " " + error.stack).substring(0, 500);
         }
-        this.logRepository.logError(logError);
+        this.logRepository.create(logError);
+        c.fe('LogService > logError');
     }
-    
+
 }

@@ -1,7 +1,7 @@
-import { UserEntity } from "@/core/data/orm/drizzle/mysql/schema";
+import User from "../../models/User";
 
 export default interface IAuth {
 
-    signMeIn(userName : string, password : string) : Promise<UserEntity | null>;
-    
+    signMeIn(userName: string, password: string): Promise<User | null>;
+
 }

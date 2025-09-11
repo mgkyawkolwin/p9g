@@ -1,6 +1,6 @@
 import { Container } from 'inversify';
-import { IDatabase } from '@/core/data/db/IDatabase';
-import { MySqlDatabase, MySqlDbType } from '@/core/data/db/mysql/MySqlDatabase';
+import { IDatabaseClient } from '@/core/data/db/IDatabase';
+import { MySqlDatabaseClient, MySqlDbType } from '@/core/data/db/mysql/MySqlDatabase';
 import UserRepository from '@/core/data/repo/drizzle/UserRepository';
 import { TYPES } from '@/core/lib/types';
 import { vi } from 'vitest';
@@ -25,7 +25,7 @@ const mockDb = {
   export function createTestContainer() {
     const container = new Container();
     
-    container.bind<IDatabase<MySqlDbType>>(TYPES.IDatabase).to(MySqlDatabase).inSingletonScope();
+    container.bind<IDatabaseClient<MySqlDbType>>(TYPES.IDatabase).to(MySqlDatabaseClient).inSingletonScope();
 
     container.bind<ICustomerService>(TYPES.IUserService).to(CustomerService);
     

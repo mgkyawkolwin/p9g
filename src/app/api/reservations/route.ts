@@ -1,8 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
 import { TYPES, SearchParam } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import { pagerValidator, reservationValidator, searchSchema } from "@/core/validation/zodschema";
+import c from "@/core/loggers/console/ConsoleLogger";
+import { pagerValidator, reservationValidator, searchSchema } from "@/core/validators/zodschema";
 import { HttpStatusCode } from "@/core/lib/constants";
 import { buildSearchParams, getPagerWithDefaults } from "@/core/lib/utils";
 import IReservationService from "@/core/domain/services/contracts/IReservationService";
