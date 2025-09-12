@@ -2,15 +2,15 @@ import { injectable, inject } from 'inversify';
 
 import { TYPES } from '@/core/lib/types';
 import ILogService from './contracts/ILogService';
-import type ILogRepository from '@/core/data/repo/contracts/ILogRepository';
 import LogError from '../models/LogError';
 import { auth } from '@/app/auth';
 import c from '@/core/loggers/console/ConsoleLogger';
+import type IRepository from '@/core/data/repo/contracts/IRepository';
 
 @injectable()
 export default class LogService implements ILogService {
 
-    constructor(@inject(TYPES.ILogRepository) private logRepository: ILogRepository) {
+    constructor(@inject(TYPES.ILogRepository) private logRepository: IRepository<LogError>) {
 
     }
 

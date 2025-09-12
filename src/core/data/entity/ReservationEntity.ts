@@ -1,55 +1,39 @@
-import Bill from "./Bill";
-import Customer from "./Customer";
-import ModelBase from "./ModelBase";
+import EntityBase from "./EntityBase";
 
 
-export default class Reservation extends ModelBase{
+export default class ReservationEntity extends EntityBase{
     public arrivalDateTime: Date = null;
     public arrivalFlight: string = "";
-    public bills: Bill[] = [];
     public checkInDate: Date = null;
     public checkOutDate: Date = null;
-    public customers: Customer[] = [];
     public departureDateTime: Date = null;
     public departureFlight: string = "";
     public depositAmount: number = 0;
     public depositAmountInCurrency: number = 0;
-    public depositCurrency: string = 'KWR';
-    public depositPaymentMode: string = 'BANK';
+    public depositCurrency: string = '';
+    public depositPaymentMode: string = '';
     public depositDateUTC: Date = null;
     public dropOffCarNo: string = "";
     public dropOffDriver: string = "";
     public dropOfFee: number = 0;
-    public dropOffFeeCurrency: string = 'KWR';
+    public dropOffFeeCurrency: string = '';
     public dropOffFeePaidOnUTC: Date = null;
-    public dropOffType: string = '';
     public dropOffTypeId: string = '';
-    public dropOffTypeText: string = '';
     public isSingleOccupancy: boolean = false;
     public noOfDays: number = 0;
     public noOfGuests: number = 2;
     public pickUpCarNo: string = "";
     public pickUpDriver: string = "";
     public pickUpFee: number = 0;
-    public pickUpFeeCurrency: string = 'KWR';
+    public pickUpFeeCurrency: string = '';
     public pickUpFeePaidOnUTC: Date = null;
-    public pickUpType: string  = '';
     public pickUpTypeId: string  = '';
-    public pickUpTypeText: string  = '';
-    public prepaidPackage: string  = '';
     public prepaidPackageId: string  = '';
-    public prepaidPackageText: string  = '';
-    public promotionPackage: string  = '';
     public promotionPackageId: string  = '';
-    public promotionPackageText: string  = '';
     public remark: string = "";
     public roomNo: string = "";
-    public reservationStatus: string = 'NEW';
     public reservationStatusId: string  = '';
-    public reservationStatusText: string  = '';
-    public reservationType: string = 'GENERAL';
     public reservationTypeId: string  = '';
-    public reservationTypeText: string  = '';
     public tourCompany: string  = '';
     public totalAmount: number = 0;
     public paidAmount: number = 0;
@@ -59,11 +43,5 @@ export default class Reservation extends ModelBase{
     public tax: number = 0;
     public taxAmount: number = 0;
     public location: string = '';
-
-    public calculateAllAmount() {
-        this.taxAmount = this.totalAmount * this.tax / 100;
-        this.netAmount = this.totalAmount + this.taxAmount - this.discountAmount - this.depositAmount;
-        this.dueAmount = this.totalAmount - this.paidAmount;
-    }
 }
 

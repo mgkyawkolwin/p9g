@@ -1,6 +1,6 @@
-import ModelBase from "./ModelBase";
+import EntityBase from "./EntityBase";
 
-export default class Config extends ModelBase {
+export default class Config extends EntityBase {
     public group: string = '';
     public value: string = '';
     public text: string = '';

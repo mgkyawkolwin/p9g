@@ -1,13 +1,11 @@
 import { and, sql, SQL } from "drizzle-orm";
-import { SearchParam } from "../types";
 import { queryObjectMapping } from "./QueryObjectMapping";
 import IQueryObjectTranformer from "./IQueryObjectTransformer";
 
-export default class QueryObjectTransformer implements IQueryObjectTranformer {
+export default class DrizzleQueryObjectTransformer implements IQueryObjectTranformer {
 
-    async transform<TResult, T>(
-        queryParams: T
-      ): Promise<TResult | null> {
+    async transform<TResult>( queryParams: Record<string, any> ): Promise<TResult | null> {
+
         const conditions: SQL[] = [];
         const tableMapping = queryObjectMapping;
     
@@ -113,14 +111,14 @@ export default class QueryObjectTransformer implements IQueryObjectTranformer {
       /**
        * Helper to create pagination SQL
        */
-      static paginate(limit: number, offset: number): SQL {
+      paginate(limit: number, offset: number): SQL {
         return sql`LIMIT ${limit} OFFSET ${offset}`;
       }
     
       /**
        * Helper to create order by SQL
        */
-      static orderBy(field: string, direction: 'asc' | 'desc' = 'asc'): SQL {
-        return sql`ORDER BY ${sql.identifier(field)} ${sql.raw(direction.toUpperCase())}`;
+      orderBy<TResult>(orderBy: Record<string, any>): TResult {
+        return sql`ORDER BY ${sql.identifier(orderBy.column)} ${sql.raw(orderBy.direction.toUpperCase())}` as TResult;
       }
 }

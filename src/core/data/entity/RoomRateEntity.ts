@@ -1,6 +1,6 @@
-import ModelBase from "./ModelBase";
+import EntityBase from "./EntityBase";
 
-export default class RoomRate extends ModelBase{
+export default class RoomRateEntity extends EntityBase{
     public roomType: string = '';
     public roomTypeId: string = '';
     public roomRate: number = 0;

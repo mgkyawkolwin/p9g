@@ -1,6 +1,6 @@
-import ModelBase from "./ModelBase";
+import EntityBase from "./EntityBase";
 
-export default class Bill extends ModelBase{
+export default class BillEntity extends EntityBase{
     public dateUTC: Date = new Date();
     public reservationId: string;
     public itemName: string = "";

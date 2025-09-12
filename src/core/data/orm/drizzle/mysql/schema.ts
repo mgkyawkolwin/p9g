@@ -313,16 +313,16 @@ export const roomReservationRelations = relations(roomReservationTable, ({ one, 
 
 
 // Export TypeScript types
-export type BillEntity = typeof billTable.$inferSelect;
-export type UserEntity = typeof userTable.$inferSelect;
-export type ConfigEntity = typeof configTable.$inferSelect;
-export type CustomerEntity = typeof customerTable.$inferSelect;
-export type LogErrorEntity = typeof logErrorTable.$inferSelect;
-export type PaymentEntity = typeof paymentTable.$inferSelect;
-export type ReservationEntity = typeof reservationTable.$inferSelect;
-export type ReservationCustomerEntity = typeof reservationCustomerTable.$inferSelect;
-export type RoomEntity = typeof roomTable.$inferSelect;
-export type RoomChargeEntity = typeof roomChargeTable.$inferSelect;
-export type RoomRateEntity = typeof roomRateTable.$inferSelect;
-export type RoomTypeEntity = typeof roomTypeTable.$inferSelect;
-export type RoomReservationEntity = typeof roomReservationTable.$inferSelect;
+// export type BillEntity = typeof billTable.$inferSelect;
+// export type UserEntity = typeof userTable.$inferSelect;
+// export type ConfigEntity = typeof configTable.$inferSelect;
+// export type CustomerEntity = typeof customerTable.$inferSelect;
+// export type LogErrorEntity = typeof logErrorTable.$inferSelect;
+// export type PaymentEntity = typeof paymentTable.$inferSelect;
+// export type ReservationEntity = typeof reservationTable.$inferSelect;
+// export type ReservationCustomerEntity = typeof reservationCustomerTable.$inferSelect;
+// export type RoomEntity = typeof roomTable.$inferSelect;
+// export type RoomChargeEntity = typeof roomChargeTable.$inferSelect;
+// export type RoomRateEntity = typeof roomRateTable.$inferSelect;
+// export type RoomTypeEntity = typeof roomTypeTable.$inferSelect;
+// export type RoomReservationEntity = typeof roomReservationTable.$inferSelect;

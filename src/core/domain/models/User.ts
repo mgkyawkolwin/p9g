@@ -1,15 +1,11 @@
+import ModelBase from "./ModelBase";
 
-export default class User{
-    public id: string | undefined;
-    public name: string | undefined;
-    public userName: string | undefined;
-    public email: string | undefined;
-    public password: string | undefined;
-    public role: string | undefined;
-    public location: string | undefined;
-    public createdAtUTC!: Date;
-    public createdBy!: string;
-    public updatedAtUTC?: Date;
-    public updatedBy?: string;
+export default class User extends ModelBase{
+    public name: string = '';
+    public userName: string = '';
+    public email: string = '';
+    public password: string = '';
+    public role: string = '';
+    public location: string = '';
 
 }

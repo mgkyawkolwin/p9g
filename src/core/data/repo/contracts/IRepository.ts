@@ -9,7 +9,9 @@ export default interface IRepository<TDomain> {
   // applyConditionAndPaging<T extends MySqlSelectQueryBuilder>(query: T, searchParams: SearchParam[], pagerParams: PagerParams) : T;
   // applyPaging<T extends MySqlSelectQueryBuilder>(query: T, pagerParams: PagerParams) : T;
   create<TTransaction extends ITransaction>(entity: TDomain, transaction?:TTransaction): Promise<TDomain>;
+  createMany<TTransaction extends ITransaction>(entity: TDomain[], transaction?:TTransaction): Promise<void>;
   delete<TIdType,TTransaction extends ITransaction>(id: TIdType, transaction?:TTransaction): Promise<void>;
+  deleteMany<TCondition,TTransaction extends ITransaction>(condition: TCondition, transaction?:TTransaction): Promise<void>;
   exists<TCondition>(condition: TCondition): Promise<boolean>;
   findAll(): Promise<TDomain[]>;
   findById<TIdType>(id: TIdType): Promise<TDomain | null>;

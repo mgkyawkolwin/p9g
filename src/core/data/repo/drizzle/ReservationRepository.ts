@@ -19,6 +19,7 @@ import RoomCharge from "@/core/domain/models/RoomCharge";
 import RoomRate from "@/core/domain/models/RoomRate";
 import RoomType from "@/core/domain/models/RoomType";
 import { getUTCDateMidNight, getUTCDateTimeString } from "@/core/lib/utils";
+import SessionUser from "@/core/domain/dtos/SessionUser";
 
 
 @injectable()
@@ -36,21 +37,21 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
-    async billDelete(reservationId: string, billId: string): Promise<void> {
-        c.fs('ReservationRepository > billDelete');
-        if (!reservationId) throw new CustomError('Reservation id is required.');
-        if (!billId) throw new CustomError('Bill id is required.');
+    // async billDelete(reservationId: string, billId: string): Promise<void> {
+    //     c.fs('ReservationRepository > billDelete');
+    //     if (!reservationId) throw new CustomError('Reservation id is required.');
+    //     if (!billId) throw new CustomError('Bill id is required.');
 
-        const session = await auth();
+    //     const session = await auth();
 
 
-        await this.dbClient.db.delete(billTable)
-            .where(and(
-                eq(billTable.reservationId, reservationId),
-                eq(billTable.id, billId)
-            ));
-        c.fe('ReservationRepository > billDelete');
-    }
+    //     await this.dbClient.db.delete(billTable)
+    //         .where(and(
+    //             eq(billTable.reservationId, reservationId),
+    //             eq(billTable.id, billId)
+    //         ));
+    //     c.fe('ReservationRepository > billDelete');
+    // }
 
 
     // async billGetListById(reservationId: string): Promise<Bill[]> {
@@ -199,119 +200,119 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     // }
 
 
-    async paymentDelete(reservationId: string, paymentId: string): Promise<void> {
-        c.fs('ReservationRepository > paymentDelete');
-        if (!reservationId) throw new CustomError('Reservation id is required.');
-        if (!paymentId) throw new CustomError('Reservation id is required.');
+    // async paymentDelete(reservationId: string, paymentId: string): Promise<void> {
+    //     c.fs('ReservationRepository > paymentDelete');
+    //     if (!reservationId) throw new CustomError('Reservation id is required.');
+    //     if (!paymentId) throw new CustomError('Reservation id is required.');
 
-        const session = await auth();
+    //     const session = await auth();
 
-        await this.dbClient.db.transaction(async (tx: TransactionType) => {
-            //retrieve existing payment
-            const [payment]: PaymentEntity[] = await tx.select().from(paymentTable)
-                .where(eq(paymentTable.id, paymentId)).limit(1);
+    //     await this.dbClient.db.transaction(async (tx: TransactionType) => {
+    //         //retrieve existing payment
+    //         const [payment]: PaymentEntity[] = await tx.select().from(paymentTable)
+    //             .where(eq(paymentTable.id, paymentId)).limit(1);
 
-            await tx.delete(paymentTable)
-                .where(and(
-                    eq(paymentTable.reservationId, reservationId),
-                    eq(paymentTable.id, paymentId)
-                ));
+    //         await tx.delete(paymentTable)
+    //             .where(and(
+    //                 eq(paymentTable.reservationId, reservationId),
+    //                 eq(paymentTable.id, paymentId)
+    //             ));
 
-            const [reservation]: ReservationEntity[] = await this.dbClient.db.select().from(reservationTable)
-                .where(eq(reservationTable.id, reservationId)).limit(1);
-            c.d(reservation);
+    //         const [reservation]: ReservationEntity[] = await this.dbClient.db.select().from(reservationTable)
+    //             .where(eq(reservationTable.id, reservationId)).limit(1);
+    //         c.d(reservation);
 
-            const updatedPaid = Number(reservation.paidAmount) - Number(payment.amount);
-            const updatedDue = Number(reservation.dueAmount) + Number(payment.amount);
+    //         const updatedPaid = Number(reservation.paidAmount) - Number(payment.amount);
+    //         const updatedDue = Number(reservation.dueAmount) + Number(payment.amount);
 
-            await this.dbClient.db.update(reservationTable).set({ paidAmount: updatedPaid, dueAmount: updatedDue })
-                .where(eq(reservationTable.id, reservationId));
+    //         await this.dbClient.db.update(reservationTable).set({ paidAmount: updatedPaid, dueAmount: updatedDue })
+    //             .where(eq(reservationTable.id, reservationId));
 
             
-        });
-        c.fe('ReservationRepository > paymentDelete');
-    }
+    //     });
+    //     c.fe('ReservationRepository > paymentDelete');
+    // }
 
 
-    async paymentGetListById(reservationId: string): Promise<Payment[]> {
-        c.fs('ReservationRepository > paymentGetListById');
-        const result: Payment[] = await this.dbClient.db.select().from(paymentTable)
-            .where(eq(paymentTable.reservationId, reservationId)).orderBy(asc(paymentTable.paymentDateUTC));
+    // async paymentGetListById(reservationId: string): Promise<Payment[]> {
+    //     c.fs('ReservationRepository > paymentGetListById');
+    //     const result: Payment[] = await this.dbClient.db.select().from(paymentTable)
+    //         .where(eq(paymentTable.reservationId, reservationId)).orderBy(asc(paymentTable.paymentDateUTC));
 
-        const payments: Payment[] = result.map((p: Payment) => {
-            const payment = new Payment();
-            payment.id = p.id;
-            payment.amount = Number(p.amount);
-            payment.amountInCurrency = Number(p.amountInCurrency);
-            payment.currency = p.currency;
-            payment.description = p.description;
-            payment.paymentDateUTC = p.paymentDateUTC;
-            payment.paymentMode = p.paymentMode;
-            payment.paymentType = p.paymentType;
-            payment.remark = p.remark;
-            payment.reservationId = p.reservationId;
-            payment.createdAtUTC = p.createdAtUTC;
-            payment.createdBy = p.createdBy;
-            payment.updatedAtUTC = p.updatedAtUTC;
-            payment.updatedBy = p.updatedBy;
-            return payment;
-        });
+    //     const payments: Payment[] = result.map((p: Payment) => {
+    //         const payment = new Payment();
+    //         payment.id = p.id;
+    //         payment.amount = Number(p.amount);
+    //         payment.amountInCurrency = Number(p.amountInCurrency);
+    //         payment.currency = p.currency;
+    //         payment.description = p.description;
+    //         payment.paymentDateUTC = p.paymentDateUTC;
+    //         payment.paymentMode = p.paymentMode;
+    //         payment.paymentType = p.paymentType;
+    //         payment.remark = p.remark;
+    //         payment.reservationId = p.reservationId;
+    //         payment.createdAtUTC = p.createdAtUTC;
+    //         payment.createdBy = p.createdBy;
+    //         payment.updatedAtUTC = p.updatedAtUTC;
+    //         payment.updatedBy = p.updatedBy;
+    //         return payment;
+    //     });
 
-        c.d(payments.length);
-        c.d(payments.length > 0 ? payments[0] : []);
-        c.fe('ReservationRepository > paymentGetListById');
-        return payments;
+    //     c.d(payments.length);
+    //     c.d(payments.length > 0 ? payments[0] : []);
+    //     c.fe('ReservationRepository > paymentGetListById');
+    //     return payments;
 
-    }
-
-
-    async paymentUpdateList(reservationId: string, payments: Payment[]): Promise<void> {
-        c.fs('ReservationRepository > paymentUpdateList');
-        c.d(payments);
-
-        const session = await auth();
-
-        //get list to update and insert
-        const updateList = payments.filter(p => typeof p.id !== 'undefined');
-        const insertList = payments.filter(p => typeof p.id === 'undefined');
-
-        updateList.forEach(bill => {
-            bill.updatedBy = session.user.id;
-        });
-
-        insertList.forEach(bill => {
-            bill.createdBy = session.user.id;
-            bill.updatedBy = session.user.id;
-        });
-
-        await this.dbClient.db.transaction(async (tx: TransactionType) => {
-
-            updateList.forEach(async payment => await tx.update(paymentTable).set(payment as unknown as PaymentEntity).where(eq(paymentTable.id, payment.id)));
-
-            if (insertList && insertList.length >= 1) {
-                const msql = tx.insert(paymentTable).values(insertList as unknown as PaymentEntity[]);
-                c.d(msql.toSQL());
-                await msql;
-            }
-
-            //use the arguments values, database in transaction, cannot retrieve the update values
-            const totalPaid = payments.reduce((acc, p) => (acc + p.amount), 0);
-
-            const [reservation] = await this.dbClient.db.select().from(reservationTable)
-                .where(eq(reservationTable.id, reservationId)).limit(1);
-            c.d(reservation);
-
-            const balance = Number(reservation.totalAmount) - Number(reservation.depositAmount) - Number(totalPaid) - Number(reservation.discountAmount) - Number(reservation.taxAmount);
-            c.d(balance);
-
-            await this.dbClient.db.update(reservationTable).set({ paidAmount: totalPaid, dueAmount: balance })
-                .where(eq(reservationTable.id, reservationId));
+    // }
 
 
-        });
+    // async paymentUpdateList(reservationId: string, payments: Payment[]): Promise<void> {
+    //     c.fs('ReservationRepository > paymentUpdateList');
+    //     c.d(payments);
 
-        c.fe('ReservationRepository > paymentUpdateList');
-    }
+    //     const session = await auth();
+
+    //     //get list to update and insert
+    //     const updateList = payments.filter(p => typeof p.id !== 'undefined');
+    //     const insertList = payments.filter(p => typeof p.id === 'undefined');
+
+    //     updateList.forEach(bill => {
+    //         bill.updatedBy = session.user.id;
+    //     });
+
+    //     insertList.forEach(bill => {
+    //         bill.createdBy = session.user.id;
+    //         bill.updatedBy = session.user.id;
+    //     });
+
+    //     await this.dbClient.db.transaction(async (tx: TransactionType) => {
+
+    //         updateList.forEach(async payment => await tx.update(paymentTable).set(payment as unknown as PaymentEntity).where(eq(paymentTable.id, payment.id)));
+
+    //         if (insertList && insertList.length >= 1) {
+    //             const msql = tx.insert(paymentTable).values(insertList as unknown as PaymentEntity[]);
+    //             c.d(msql.toSQL());
+    //             await msql;
+    //         }
+
+    //         //use the arguments values, database in transaction, cannot retrieve the update values
+    //         const totalPaid = payments.reduce((acc, p) => (acc + p.amount), 0);
+
+    //         const [reservation] = await this.dbClient.db.select().from(reservationTable)
+    //             .where(eq(reservationTable.id, reservationId)).limit(1);
+    //         c.d(reservation);
+
+    //         const balance = Number(reservation.totalAmount) - Number(reservation.depositAmount) - Number(totalPaid) - Number(reservation.discountAmount) - Number(reservation.taxAmount);
+    //         c.d(balance);
+
+    //         await this.dbClient.db.update(reservationTable).set({ paidAmount: totalPaid, dueAmount: balance })
+    //             .where(eq(reservationTable.id, reservationId));
+
+
+    //     });
+
+    //     c.fe('ReservationRepository > paymentUpdateList');
+    // }
 
 
     // async reservationCancel(id: string): Promise<void> {
@@ -341,25 +342,25 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     // }
 
 
-    async reservationCheckIn(id: string): Promise<void> {
-        c.fs('ReservationRepository > reservationCheckIn');
-        c.d(id);
-        const session = await auth();
+    // async reservationCheckIn(id: string): Promise<void> {
+    //     c.fs('ReservationRepository > reservationCheckIn');
+    //     c.d(id);
+    //     const session = await auth();
 
-        const [reservationStatus]: ConfigEntity[] = await this.dbClient.db.select().from(configTable).where(
-            and(
-                eq(configTable.group, "RESERVATION_STATUS"),
-                eq(configTable.value, "CIN")
-            )
-        ).limit(1);
+    //     const [reservationStatus]: ConfigEntity[] = await this.dbClient.db.select().from(configTable).where(
+    //         and(
+    //             eq(configTable.group, "RESERVATION_STATUS"),
+    //             eq(configTable.value, "CIN")
+    //         )
+    //     ).limit(1);
 
-        c.d(reservationStatus);
+    //     c.d(reservationStatus);
 
-        await this.dbClient.db.update(reservationTable)
-            .set({ reservationStatusId: reservationStatus.id, updatedBy: session.user.id })
-            .where(eq(reservationTable.id, id));
-        c.fe('ReservationRepository > reservationCheckIn');
-    }
+    //     await this.dbClient.db.update(reservationTable)
+    //         .set({ reservationStatusId: reservationStatus.id, updatedBy: session.user.id })
+    //         .where(eq(reservationTable.id, id));
+    //     c.fe('ReservationRepository > reservationCheckIn');
+    // }
 
 
     // async reservationGetListCheckIn(searchParams: SearchParam[], pagerParams: PagerParams): Promise<[Reservation[], PagerParams]> {
@@ -526,24 +527,24 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     // }
 
 
-    async reservationCheckOut(id: string): Promise<void> {
-        c.fs('ReservationRepository > reservationCheckOut');
-        c.d(id);
-        const session = await auth();
-        const [reservationStatus]: ConfigEntity[] = await this.dbClient.db.select().from(configTable).where(
-            and(
-                eq(configTable.group, "RESERVATION_STATUS"),
-                eq(configTable.value, "OUT")
-            )
-        ).limit(1);
+    // async reservationCheckOut(id: string): Promise<void> {
+    //     c.fs('ReservationRepository > reservationCheckOut');
+    //     c.d(id);
+    //     const session = await auth();
+    //     const [reservationStatus]: ConfigEntity[] = await this.dbClient.db.select().from(configTable).where(
+    //         and(
+    //             eq(configTable.group, "RESERVATION_STATUS"),
+    //             eq(configTable.value, "OUT")
+    //         )
+    //     ).limit(1);
 
-        c.d(reservationStatus);
+    //     c.d(reservationStatus);
 
-        await this.dbClient.db.update(reservationTable)
-            .set({ reservationStatusId: reservationStatus.id, updatedBy: session.user.id })
-            .where(eq(reservationTable.id, id));
-        c.fe('ReservationRepository > reservationCheckOut');
-    }
+    //     await this.dbClient.db.update(reservationTable)
+    //         .set({ reservationStatusId: reservationStatus.id, updatedBy: session.user.id })
+    //         .where(eq(reservationTable.id, id));
+    //     c.fe('ReservationRepository > reservationCheckOut');
+    // }
 
 
     // async reservationGetListCheckOut(searchParams: SearchParam[], pagerParams: PagerParams): Promise<[Reservation[], PagerParams]> {
@@ -711,67 +712,67 @@ export default class ReservationRepository extends Repository<Reservation, typeo
 
 
 
-    async reservationCreate(reservation: Reservation, transaction?:TransactionType): Promise<Reservation> {
-        c.fs("ReservationRepository > reservationCreate");
-        c.d(reservation);
-        const session = await auth();
-        if (!session)
-            throw new CustomError('Repository cannot find valid session');
-        //retrieve current user
-        const [user]: UserEntity[] = await this.dbClient.db.select().from(userTable)
-            .where(eq(userTable.userName, session.user.name)).limit(1);
-        if (!user) throw new CustomError('Repository cannot find valid user.');
+    // async reservationCreate(reservation: Reservation, transaction?:TransactionType): Promise<Reservation> {
+    //     c.fs("ReservationRepository > reservationCreate");
+    //     c.d(reservation);
+    //     const session = await auth();
+    //     if (!session)
+    //         throw new CustomError('Repository cannot find valid session');
+    //     //retrieve current user
+    //     const [user]: UserEntity[] = await this.dbClient.db.select().from(userTable)
+    //         .where(eq(userTable.userName, session.user.name)).limit(1);
+    //     if (!user) throw new CustomError('Repository cannot find valid user.');
 
-        reservation = await this.reservationPrepare(reservation);
-        reservation.createdBy = session.user.id;
-        reservation.updatedBy = session.user.id;
-        reservation.totalAmount = 0;
-        reservation.paidAmount = 0;
-        reservation.taxAmount = 0;
-        reservation.netAmount = 0;
-        reservation.dueAmount = 0;
-        reservation.location = user.location;
+    //     reservation = await this.reservationPrepare(reservation);
+    //     reservation.createdBy = session.user.id;
+    //     reservation.updatedBy = session.user.id;
+    //     reservation.totalAmount = 0;
+    //     reservation.paidAmount = 0;
+    //     reservation.taxAmount = 0;
+    //     reservation.netAmount = 0;
+    //     reservation.dueAmount = 0;
+    //     reservation.location = user.location;
 
-        // Use transaction
-        const operation =  async (tx: TransactionType) => {
-            c.i('Starting transaction.');
-            c.d(reservation);
+    //     // Use transaction
+    //     const operation =  async (tx: TransactionType) => {
+    //         c.i('Starting transaction.');
+    //         c.d(reservation);
 
-            // Use the transaction for create operation
-            const [createdId] = await tx.insert(reservationTable).values(reservation as unknown as ReservationEntity).$returningId();
-            c.i("Insert return new entity.");
-            c.d(createdId);
-            reservation.id = createdId.id;
+    //         // Use the transaction for create operation
+    //         const [createdId] = await tx.insert(reservationTable).values(reservation as unknown as ReservationEntity).$returningId();
+    //         c.i("Insert return new entity.");
+    //         c.d(createdId);
+    //         reservation.id = createdId.id;
 
-            //insert reservation-customer
-            if (reservation.customers && reservation.customers.length > 0) {
-                c.i('Customers exist. Prepare to insert.');
-                const newReservationCustomers = reservation.customers.map((c) => {
-                    return {
-                        reservationId: createdId.id,
-                        customerId: c.id,
-                        createdBy: session.user.id,
-                        updatedBy: session.user.id
-                    };
-                });
-                c.d(newReservationCustomers?.length);
-                //insert using transaction
-                await tx.insert(reservationCustomerTable).values(newReservationCustomers as unknown as ReservationCustomerEntity[]);
-            }
-            return reservation;
-        };
+    //         //insert reservation-customer
+    //         if (reservation.customers && reservation.customers.length > 0) {
+    //             c.i('Customers exist. Prepare to insert.');
+    //             const newReservationCustomers = reservation.customers.map((c) => {
+    //                 return {
+    //                     reservationId: createdId.id,
+    //                     customerId: c.id,
+    //                     createdBy: session.user.id,
+    //                     updatedBy: session.user.id
+    //                 };
+    //             });
+    //             c.d(newReservationCustomers?.length);
+    //             //insert using transaction
+    //             await tx.insert(reservationCustomerTable).values(newReservationCustomers as unknown as ReservationCustomerEntity[]);
+    //         }
+    //         return reservation;
+    //     };
 
-        let result : Reservation;
-        if(transaction){
-            result = await operation(transaction);
-        }else{
-            result = await this.dbClient.db.transaction(async (tx: TransactionType) => {
-                await operation(tx);
-            });
-        }
-        c.fe("ReservationRepository > reservationCreate");
-        return result;
-    }
+    //     let result : Reservation;
+    //     if(transaction){
+    //         result = await operation(transaction);
+    //     }else{
+    //         result = await this.dbClient.db.transaction(async (tx: TransactionType) => {
+    //             await operation(tx);
+    //         });
+    //     }
+    //     c.fe("ReservationRepository > reservationCreate");
+    //     return result;
+    // }
 
 
     async reservationGetById(id: string): Promise<Reservation | undefined> {
@@ -860,7 +861,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
-    async reservationGetList(searchParams: SearchParam[], pagerParams: PagerParams): Promise<[Reservation[], PagerParams]> {
+    async reservationGetList(searchParams: SearchParam[], pagerParams: PagerParams): Promise<[Reservation[], number]> {
         c.fs('ReservationRepository > reservationGetList');
         c.d(searchParams);
         c.d(pagerParams);
@@ -1058,7 +1059,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         c.d(reservations.length > 0 ? reservations[0] : []);
 
         c.fe('ReservationRepository > reservationGetList');
-        return [reservations, pagerParams];
+        return [reservations, countResult.count];
     }
 
 
@@ -1311,79 +1312,72 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
-    async reservationUpdate(id:string, reservation:Reservation, transaction?:TransactionType): Promise<Reservation> {
-        c.fs("ReservationRepository > reservationUpdate");
-        c.i(id);
-        c.d(reservation);
+    // async reservationUpdate(id:string, reservation:Reservation, transaction?:TransactionType): Promise<Reservation> {
+    //     c.fs("ReservationRepository > reservationUpdate");
+    //     c.i(id);
+    //     c.d(reservation);
 
-        const session = await auth();
+    //     const session = await auth();
 
-        if (!id || id === 'undefined') {
-            throw new Error('Reservation update failed. Id is required.');
-        }
+    //     if (!id || id === 'undefined') {
+    //         throw new Error('Reservation update failed. Id is required.');
+    //     }
 
-        if (!reservation) {
-            throw new Error('Reservation update failed. Reservation is required.');
-        }
+    //     if (!reservation) {
+    //         throw new Error('Reservation update failed. Reservation is required.');
+    //     }
 
-        const [user]: UserEntity[] = await this.dbClient.db.select()
-            .from(userTable).where(eq(userTable.id, session.user.id)).limit(1);
-        if (!user) throw new CustomError('Repository cannot find valid user.');
+    //     const [user]: UserEntity[] = await this.dbClient.db.select()
+    //         .from(userTable).where(eq(userTable.id, session.user.id)).limit(1);
+    //     if (!user) throw new CustomError('Repository cannot find valid user.');
 
-        reservation = await this.reservationPrepare(reservation);
+    //     reservation = await this.reservationPrepare(reservation);
 
-        // Use transaction
-        const operation = async (tx: TransactionType) => {
-            c.i('Starting transaction.');
+    //     // Use transaction
+    //     const operation = async (tx: TransactionType) => {
+    //         c.i('Starting transaction.');
 
-            c.i('Updating reservation.');
-            reservation.updatedBy = session.user.id;
-            const [createdId] = await tx.update(reservationTable).set(reservation as unknown as ReservationEntity)
-                .where(eq(reservationTable.id, id));
+    //         c.i('Updating reservation.');
+    //         reservation.updatedBy = session.user.id;
+    //         const [createdId] = await tx.update(reservationTable).set(reservation as unknown as ReservationEntity)
+    //             .where(eq(reservationTable.id, id));
 
-            c.i('For simplicity, delete all customers from reservations and insert new.');
-            await tx.delete(reservationCustomerTable).where(eq(reservationCustomerTable.reservationId, id));
+    //         c.i('For simplicity, delete all customers from reservations and insert new.');
+    //         await tx.delete(reservationCustomerTable).where(eq(reservationCustomerTable.reservationId, id));
 
-            if (reservation.customers && reservation.customers.length > 0) {
-                c.i('Customers exist. Prepare to insert.');
-                const newReservationCustomers = reservation.customers.map((c) => {
-                    return {
-                        reservationId: id,
-                        customerId: c.id,
-                        createdBy: session.user.id,
-                        updatedBy: session.user.id
-                    };
-                });
-                c.d(newReservationCustomers?.length);
-                //insert using transaction
-                await tx.insert(reservationCustomerTable).values(newReservationCustomers);
-            }
+    //         if (reservation.customers && reservation.customers.length > 0) {
+    //             c.i('Customers exist. Prepare to insert.');
+    //             const newReservationCustomers = reservation.customers.map((c) => {
+    //                 return {
+    //                     reservationId: id,
+    //                     customerId: c.id,
+    //                     createdBy: session.user.id,
+    //                     updatedBy: session.user.id
+    //                 };
+    //             });
+    //             c.d(newReservationCustomers?.length);
+    //             //insert using transaction
+    //             await tx.insert(reservationCustomerTable).values(newReservationCustomers);
+    //         }
 
-        };
+    //     };
 
-        if(transaction){
-            await operation(transaction);
-        }else{
-            await this.dbClient.db.transaction(async (tx:TransactionType) => {
-                await operation(tx);
-            });
-        }
-        //const updatedReservation = await this.reservationGetById(reservation.id);
-        c.fe("ReservationRepository > reservationUpdate");
-        return reservation;
-    }
+    //     if(transaction){
+    //         await operation(transaction);
+    //     }else{
+    //         await this.dbClient.db.transaction(async (tx:TransactionType) => {
+    //             await operation(tx);
+    //         });
+    //     }
+    //     //const updatedReservation = await this.reservationGetById(reservation.id);
+    //     c.fe("ReservationRepository > reservationUpdate");
+    //     return reservation;
+    // }
 
 
-    async roomAndReservationGetList(searchParams: SearchParam[]): Promise<Room[]> {
+    async roomAndReservationGetList(searchParams: Record<string, any>, sessionUser: SessionUser): Promise<[Room[], number]> {
         c.fs('ReservationRepository > roomAndReservationGetList');
         c.d(searchParams);
-        const session = await auth();
-        if (!session)
-            throw new CustomError('Repository cannot find valid session');
-        //retrieve current user
-        const [user]: UserEntity[] = await this.dbClient.db.select().from(userTable)
-            .where(eq(userTable.userName, session.user.name)).limit(1);
-        if (!user) throw new CustomError('Repository cannot find valid user.');
 
         const dataQuery = this.dbClient.db
             .select({
@@ -1400,8 +1394,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 or(
                     and(
                         eq(roomReservationTable.roomId, roomTable.id),
-                        lte(roomReservationTable.checkInDate, new Date(searchParams[0].searchValue)),
-                        gte(roomReservationTable.checkOutDate, new Date(searchParams[0].searchValue))
+                        lte(roomReservationTable.checkInDate, new Date(searchParams.searchCheckInDate)),
+                        gte(roomReservationTable.checkOutDate, new Date(searchParams.searchCheckOutDate))
                     ),
                     isNull(roomReservationTable.id)
                 )
@@ -1415,7 +1409,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     ne(configTable.value, 'CCL')
                 )
             ))
-            .where(eq(roomTable.location, user.location))
+            .where(eq(roomTable.location, sessionUser.location))
             .orderBy(asc(roomTypeTable.roomType), asc(roomTable.roomNo));
 
         c.d(dataQuery.toSQL());
@@ -1439,50 +1433,50 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         c.d(rooms.length > 0 ? rooms[0] : []);
 
         c.fs('ReservationRepository > roomAndReservationGetList');
-        return rooms;
+        return [rooms, 0];
     }
 
 
-    async roomChargeGetListById(reservationId: string): Promise<RoomCharge[]> {
-        c.fs('ReservationRepository > roomChargeGetListById');
-        const result = await this.dbClient.db.select()
-            .from(roomChargeTable)
-            .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomChargeTable.roomTypeId))
-            .innerJoin(roomTable, eq(roomTable.id, roomChargeTable.roomId))
-            .where(eq(roomChargeTable.reservationId, reservationId))
-            .orderBy(asc(roomChargeTable.startDate));
+    // async roomChargeGetListById(reservationId: string): Promise<RoomCharge[]> {
+    //     c.fs('ReservationRepository > roomChargeGetListById');
+    //     const result = await this.dbClient.db.select()
+    //         .from(roomChargeTable)
+    //         .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomChargeTable.roomTypeId))
+    //         .innerJoin(roomTable, eq(roomTable.id, roomChargeTable.roomId))
+    //         .where(eq(roomChargeTable.reservationId, reservationId))
+    //         .orderBy(asc(roomChargeTable.startDate));
 
-        const roomCharges: RoomCharge[] = result?.map((row: { roomCharge: RoomChargeEntity, roomType: RoomTypeEntity, room: RoomEntity }) => {
-            const rc = new RoomCharge();
-            rc.id = row.roomCharge.id;
-            rc.endDate = row.roomCharge.endDate;
-            rc.extraBedRate = Number(row.roomCharge.extraBedRate);
-            rc.noOfDays = Number(row.roomCharge.noOfDays);
-            rc.reservationId = row.roomCharge.reservationId;
-            rc.roomId = row.roomCharge.roomId;
-            rc.roomNo = row.room.roomNo;
-            rc.roomRate = Number(row.roomCharge.roomRate);
-            rc.roomSurcharge = Number(row.roomCharge.roomSurcharge);
-            rc.roomType = row.roomType.roomType;
-            rc.roomTypeId = row.roomCharge.roomTypeId;
-            rc.roomTypeText = row.roomType.roomTypeText;
-            rc.seasonSurcharge = Number(row.roomCharge.seasonSurcharge);
-            rc.singleRate = Number(row.roomCharge.singleRate);
-            rc.startDate = row.roomCharge.startDate;
-            rc.totalAmount = Number(row.roomCharge.totalAmount);
-            rc.totalRate = Number(row.roomCharge.totalRate);
-            rc.createdAtUTC = row.roomCharge.createdAtUTC;
-            rc.createdBy = row.roomCharge.createdBy;
-            rc.updatedAtUTC = row.roomCharge.updatedAtUTC;
-            rc.updatedBy = row.roomCharge.updatedBy;
-            return rc;
-        });
+    //     const roomCharges: RoomCharge[] = result?.map((row: { roomCharge: RoomChargeEntity, roomType: RoomTypeEntity, room: RoomEntity }) => {
+    //         const rc = new RoomCharge();
+    //         rc.id = row.roomCharge.id;
+    //         rc.endDate = row.roomCharge.endDate;
+    //         rc.extraBedRate = Number(row.roomCharge.extraBedRate);
+    //         rc.noOfDays = Number(row.roomCharge.noOfDays);
+    //         rc.reservationId = row.roomCharge.reservationId;
+    //         rc.roomId = row.roomCharge.roomId;
+    //         rc.roomNo = row.room.roomNo;
+    //         rc.roomRate = Number(row.roomCharge.roomRate);
+    //         rc.roomSurcharge = Number(row.roomCharge.roomSurcharge);
+    //         rc.roomType = row.roomType.roomType;
+    //         rc.roomTypeId = row.roomCharge.roomTypeId;
+    //         rc.roomTypeText = row.roomType.roomTypeText;
+    //         rc.seasonSurcharge = Number(row.roomCharge.seasonSurcharge);
+    //         rc.singleRate = Number(row.roomCharge.singleRate);
+    //         rc.startDate = row.roomCharge.startDate;
+    //         rc.totalAmount = Number(row.roomCharge.totalAmount);
+    //         rc.totalRate = Number(row.roomCharge.totalRate);
+    //         rc.createdAtUTC = row.roomCharge.createdAtUTC;
+    //         rc.createdBy = row.roomCharge.createdBy;
+    //         rc.updatedAtUTC = row.roomCharge.updatedAtUTC;
+    //         rc.updatedBy = row.roomCharge.updatedBy;
+    //         return rc;
+    //     });
 
-        c.d(roomCharges.length);
-        c.d(roomCharges.length > 0 ? roomCharges[0] : []);
-        c.fs('ReservationRepository > roomChargeGetListById');
-        return roomCharges;
-    }
+    //     c.d(roomCharges.length);
+    //     c.d(roomCharges.length > 0 ? roomCharges[0] : []);
+    //     c.fs('ReservationRepository > roomChargeGetListById');
+    //     return roomCharges;
+    // }
 
 
     async roomChargeUpdateList(reservationId:string, roomCharges:RoomCharge[], transaction?:TransactionType): Promise<boolean> {
@@ -1768,17 +1762,9 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
-    async roomScheduleGetList(searchParams: SearchParam[]): Promise<Room[]> {
+    async roomScheduleGetList(searchParams: SearchParam[], sessionUser: SessionUser): Promise<Room[]> {
         c.fs('ReservationRepository > roomScheduleGetList');
         c.d(searchParams);
-
-        const session = await auth();
-        if (!session)
-            throw new CustomError('Repository cannot find valid session');
-        //retrieve current user
-        const [user]: UserEntity[] = await this.dbClient.db.select().from(userTable)
-            .where(eq(userTable.userName, session.user.name)).limit(1);
-        if (!user) throw new CustomError('Repository cannot find valid user.');
 
         //build conditions first for join
         let start: Date, end: Date;
@@ -1835,8 +1821,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 isNull(configTable.id)
             ))
             .where(and(
-                eq(reservationTable.location, user.location),
-                eq(roomTable.location, user.location)
+                eq(reservationTable.location, sessionUser.location),
+                eq(roomTable.location, sessionUser.location)
             ));
 
         //c.d(dataQuery.toSQL());
@@ -1867,15 +1853,9 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
-    async roomTypeGetAll(location: string): Promise<RoomType[]> {
+    async roomTypeGetAll(location: string, sessionUser: SessionUser): Promise<RoomType[]> {
         c.fs('ReservationRepository > roomTypeGetAll');
-        const result: RoomTypeEntity[] = await this.dbClient.db.select()
-            .from(roomTypeTable).where(eq(roomTypeTable.location, location));
-        const roomTypes: RoomType[] = result.map(rte => {
-            const rt = new RoomType();
-            Object.assign(rt, rte);
-            return rt;
-        });
+        const roomTypes = await this.roomTypeRepository.findMany({location: SessionUser.location});
 
         c.d(roomTypes.length);
         c.d(roomTypes.length > 0 ? roomTypes[0] : []);
@@ -1884,74 +1864,74 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
-    async reservationUpdateDropOffInfo(id:string, carNo:string, driver:string, transaction?:TransactionType): Promise<void> {
-        c.fs('ReservationRepository > reservationUpdateDropOffInfo');
-        if (!id || id === 'undefined')
-            throw new Error('Car number update failed. Id is required.');
-        if (!carNo || carNo === 'undefined')
-            throw new Error('Car number update failed. Car number is required.');
+    // async reservationUpdateDropOffInfo(id:string, carNo:string, driver:string, transaction?:TransactionType): Promise<void> {
+    //     c.fs('ReservationRepository > reservationUpdateDropOffInfo');
+    //     if (!id || id === 'undefined')
+    //         throw new Error('Car number update failed. Id is required.');
+    //     if (!carNo || carNo === 'undefined')
+    //         throw new Error('Car number update failed. Car number is required.');
 
-        const session = await auth();
+    //     const session = await auth();
 
-        c.i('Retrieve reservation');
-        const [reservation]: ReservationEntity[] = await this.dbClient.db.select().from(reservationTable)
-            .where(eq(reservationTable.id, id)).limit(1);
-        c.d(reservation);
+    //     c.i('Retrieve reservation');
+    //     const [reservation]: ReservationEntity[] = await this.dbClient.db.select().from(reservationTable)
+    //         .where(eq(reservationTable.id, id)).limit(1);
+    //     c.d(reservation);
 
-        if (!reservation)
-            throw new Error('Cannot find reservation.');
+    //     if (!reservation)
+    //         throw new Error('Cannot find reservation.');
 
-        c.i('Update reservation');
-        let query = this.dbClient.db.update(reservationTable).set(
-            {
-                dropOffCarNo: carNo,
-                dropOffDriver: driver,
-                updatedBy: session.user.id
-            })
-            .where(eq(reservationTable.id, id));
+    //     c.i('Update reservation');
+    //     let query = this.dbClient.db.update(reservationTable).set(
+    //         {
+    //             dropOffCarNo: carNo,
+    //             dropOffDriver: driver,
+    //             updatedBy: session.user.id
+    //         })
+    //         .where(eq(reservationTable.id, id));
 
-        if(transaction)
-            await transaction.execute(query);
-        else
-            await query;
+    //     if(transaction)
+    //         await transaction.execute(query);
+    //     else
+    //         await query;
         
 
-        c.i('Return ReservationRepository > updateDropOffCarNo');
-    }
+    //     c.i('Return ReservationRepository > updateDropOffCarNo');
+    // }
 
 
-    async reservationUpdatePickUpInfo(id:string, carNo:string, driver:string, transaction?:TransactionType): Promise<void> {
-        c.i('ReservationRepository > updatePickUpCarNo');
-        if (!id || id === 'undefined')
-            throw new Error('Car number update failed. Id is required.');
-        if (!carNo || carNo === 'undefined')
-            throw new Error('Car number update failed. Car number is required.');
+    // async reservationUpdatePickUpInfo(id:string, carNo:string, driver:string, transaction?:TransactionType): Promise<void> {
+    //     c.i('ReservationRepository > updatePickUpCarNo');
+    //     if (!id || id === 'undefined')
+    //         throw new Error('Car number update failed. Id is required.');
+    //     if (!carNo || carNo === 'undefined')
+    //         throw new Error('Car number update failed. Car number is required.');
 
-        const session = await auth();
+    //     const session = await auth();
 
-        c.i('Retrieve reservation');
-        const [reservation]: ReservationEntity[] = await this.dbClient.db.select().from(reservationTable)
-            .where(eq(reservationTable.id, id)).limit(1);
-        c.d(reservation);
+    //     c.i('Retrieve reservation');
+    //     const [reservation]: ReservationEntity[] = await this.dbClient.db.select().from(reservationTable)
+    //         .where(eq(reservationTable.id, id)).limit(1);
+    //     c.d(reservation);
 
-        if (!reservation)
-            throw new Error('Cannot find reservation.');
+    //     if (!reservation)
+    //         throw new Error('Cannot find reservation.');
 
-        c.i('Update reservation');
-        let query = this.dbClient.db.update(reservationTable)
-            .set(
-                {
-                    pickUpCarNo: carNo,
-                    pickUpDriver: driver,
-                    updatedBy: session.user.id
-                })
-            .where(eq(reservationTable.id, id));
+    //     c.i('Update reservation');
+    //     let query = this.dbClient.db.update(reservationTable)
+    //         .set(
+    //             {
+    //                 pickUpCarNo: carNo,
+    //                 pickUpDriver: driver,
+    //                 updatedBy: session.user.id
+    //             })
+    //         .where(eq(reservationTable.id, id));
 
-        if(transaction)
-            await transaction.execute(query);
-        else
-            await query;
+    //     if(transaction)
+    //         await transaction.execute(query);
+    //     else
+    //         await query;
 
-        c.fe('ReservationRepository > reservationUpdateDropOffInfo');
-    }
+    //     c.fe('ReservationRepository > reservationUpdateDropOffInfo');
+    // }
 }

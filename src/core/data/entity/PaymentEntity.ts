@@ -1,7 +1,6 @@
-import ModelBase from "./ModelBase";
+import EntityBase from "./EntityBase";
 
-export default class Payment extends ModelBase{
-    public reservationId:string = '';
+export default class PaymentEntity extends EntityBase{
     public paymentDateUTC:Date = new Date();
     public description:string = "";
     public amount:number = 0;

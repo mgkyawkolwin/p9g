@@ -1,6 +1,6 @@
+import EntityBase from "./EntityBase";
 
-export default class RoomChargeEntity{
-    public id:string = '';
+export default class RoomChargeEntity extends EntityBase{
     public reservationId: string = '';
     public startDate:Date = null;
     public endDate:Date = null;
@@ -14,8 +14,4 @@ export default class RoomChargeEntity{
     public roomSurcharge:string = '';
     public noOfDays:number = 0;
     public totalAmount:string = '';
-    public createdAtUTC: Date = null;
-    public createdBy: string = '';
-    public updatedAtUTC: Date = null;
-    public updatedBy: string = '';
 }

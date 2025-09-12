@@ -1,7 +1,7 @@
-import IEntity from "@/core/data/repo/contracts/IEntity";
+import IEntity from "@/core/data/entity/IEntity";
+import EntityBase from "./EntityBase";
 
-export default class Customer implements IEntity {
-    public id : string = '';
+export default class Customer extends EntityBase {
     public address : string = '';
     public country: string = '';
     public dob: string = '';
@@ -11,8 +11,4 @@ export default class Customer implements IEntity {
     public nationalId: string = '';
     public passport: string = '';
     public phone: string = '';
-    public createdAtUTC: Date = undefined;
-    public createdBy: string = '';
-    public updatedAtUTC: Date = undefined;
-    public updatedBy: string = '';
 }

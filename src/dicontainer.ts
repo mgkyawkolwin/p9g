@@ -49,7 +49,7 @@ import Customer from './core/domain/models/Customer';
 import Bill from './core/domain/models/Bill';
 import User from './core/domain/models/User';
 import IQueryObjectTranformer from '@/core/lib/transformers/IQueryObjectTransformer';
-import QueryObjectTransformer from './core/lib/transformers/QueryObjectTransformer';
+import DrizzleQueryObjectTransformer from './core/lib/transformers/QueryObjectTransformer';
 import CustomerEntity from './core/data/entity/CustomerEntity';
 
 // create a DI container
@@ -58,7 +58,7 @@ const container = new Container();
 // Bind as singleton
 container.bind<IDatabaseClient<MySqlDbType>>(TYPES.IDatabase).to(MySqlDatabaseClient).inSingletonScope();
 container.bind<IMapper>(TYPES.IMapper).to(CustomMapper).inSingletonScope();
-container.bind<IQueryObjectTranformer<any,any>>(TYPES.IQueryObjectTransformer).to(QueryObjectTransformer).inSingletonScope();
+container.bind<IQueryObjectTranformer<any,any>>(TYPES.IQueryObjectTransformer).to(DrizzleQueryObjectTransformer).inSingletonScope();
 
 // Bind Services
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inSingletonScope();

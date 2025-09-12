@@ -1,8 +1,7 @@
-import IDomainModel from "./IDomainModel";
+import IEntity from "./IEntity";
 
-export default abstract class ModelBase implements IDomainModel{
+export default abstract class EntityBase implements IEntity{
    public id : string = '';
-   modelState: "unchanged"|"inserted"|"updated"|"deleted" = "unchanged"; 
    public createdAtUTC: Date = new Date();
    public createdBy: string = '';
    public updatedAtUTC: Date = undefined;

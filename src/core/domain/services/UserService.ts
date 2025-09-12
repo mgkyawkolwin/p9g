@@ -1,24 +1,19 @@
 import { injectable, inject } from 'inversify';
 
 import c from '@/core/loggers/console/ConsoleLogger';
-import type IUserRepository from '@/core/data/repo/contracts/IUserRepository';
 import type IUserService from "./contracts/IUserService";
-import { UserEntity } from "@/core/data/orm/drizzle/mysql/schema"
-import { PagerParams, SearchParam, TYPES } from '@/core/lib/types';
+import { PagerParams, TYPES } from '@/core/lib/types';
 import User from '../models/User';
 import SessionUser from '../dtos/SessionUser';
-import IMapper from '@/core/lib/mappers/IMapper';
-import type IQueryObjectTranformer from '@/core/lib/transformers/IQueryObjectTransformer';
-import { SQL } from 'drizzle-orm';
 import { CustomError } from '@/core/lib/errors';
+import type IRepository from '@/core/data/repo/contracts/IRepository';
 
 
 @injectable()
 export default class UserService implements IUserService {
 
   constructor(
-    @inject(TYPES.IUserRepository) private readonly userRepository: IUserRepository,
-    @inject(TYPES.IQueryObjectTransformer) private readonly queryObjectTransformer: IQueryObjectTranformer
+    @inject(TYPES.IUserRepository) private readonly userRepository: IRepository<User>
   ) {
 
   }
@@ -42,12 +37,9 @@ export default class UserService implements IUserService {
   }
 
 
-  async userFindMany(searchParams: object, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[User[], number]> {
+  async userFindMany(searchParams: Record<string,any>, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[User[], number]> {
     c.fs('UserService > userFindMany');
-    let condition = null;
-    if (searchParams)
-      condition = await this.queryObjectTransformer.transform<SQL, object>(searchParams);
-    const result = await this.userRepository.findMany(condition, null, pagerParams.pageIndex * pagerParams.pageSize, pagerParams.pageSize);
+    const result = await this.userRepository.findMany(searchParams, null, pagerParams.pageIndex * pagerParams.pageSize, pagerParams.pageSize);
     const users = result as any as User[];
     c.fe('UserService > userFindMany');
     return result;
@@ -58,9 +50,8 @@ export default class UserService implements IUserService {
     c.fs('UserService > userFindByEmailAndPassword');
     if(!email || !password)
       throw new CustomError('Email or password is missing.');
-    const condition = await this.queryObjectTransformer.transform<SQL, object>({email, password});
     // const result = await this.userRepository.findByEmailAndPassword(email, password);
-    const result = await this.userRepository.findOne(condition);
+    const result = await this.userRepository.findOne({email, password});
     c.fe('UserService > userFindByEmailAndPassword');
     return result;
   }
@@ -69,8 +60,7 @@ export default class UserService implements IUserService {
   async userFindByUserName(userName: string, sessionUser: SessionUser): Promise<User | null> {
     c.fs('UserService > userFindByUserName');
     // const result = await this.userRepository.findByUserName(userName);
-    const condition = await this.queryObjectTransformer.transform<SQL, object>({userName});
-    const result = await this.userRepository.findOne(condition);
+    const result = await this.userRepository.findOne({userName});
     c.fe('UserService > userFindByUserName');
     return result;
   }
@@ -81,8 +71,7 @@ export default class UserService implements IUserService {
     // const result = await this.userRepository.findByUserNameAndPassword(userName, password);
     if(!userName || !password)
       throw new CustomError('Username or password is missing.');
-    const condition = await this.queryObjectTransformer.transform<SQL, object>({userName, password});
-    const result = await this.userRepository.findOne(condition);
+    const result = await this.userRepository.findOne({userName, password});
     c.fe('UserService > userFindByUserNameAndPassword');
     return result;
   }
