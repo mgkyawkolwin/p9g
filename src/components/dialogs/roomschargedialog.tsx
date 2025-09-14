@@ -48,7 +48,7 @@ export default function RoomChargeDialog({
     }, [callbackFunctions]);
 
 
-    const handleRoomInputChange = (id: string, rowIndex: number, field: string, value: string | Date | boolean | undefined) => {
+    const handleRoomInputChange = (id: string, rowIndex: number, field: string, value: string | Date | boolean | number | undefined) => {
         setRoomReservations(prev => {
             const updatedRoomReservations : RoomReservation[] = prev.map((roomReservation:RoomReservation) =>
                 roomReservation.id === id
@@ -64,7 +64,7 @@ export default function RoomChargeDialog({
         });
     };
 
-    const handleChargeInputChange = (id:string, rowIndex: number, field: string, value: string | Date | boolean | undefined) => {
+    const handleChargeInputChange = (id:string, rowIndex: number, field: string, value: string | Date | boolean | number | undefined) => {
         if (selectedRoomReservation !== null) {
             setVisibleRoomCharges(prev =>
                 prev.map((roomCharge) =>
@@ -182,7 +182,7 @@ export default function RoomChargeDialog({
             cell: (row) => <DatePicker key={`${row.row.original.id}-checkInDate`}
                 selected={row.row.original.checkInDate ? new Date(row.row.original.checkInDate).convertToFakeLocalDate() : null}
                 onChange={(date: Date | null) => {
-                    handleRoomInputChange(row.row.original.id, row.row.index, "checkInDate", date.convertToUTCFromFakeLocalDate());
+                    handleRoomInputChange(row.row.original.id, row.row.index, "checkInDate", date ? date.convertToUTCFromFakeLocalDate() : null);
                 }}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
@@ -195,9 +195,9 @@ export default function RoomChargeDialog({
             accessorKey: "checkOutDate",
             header: 'Check Out',
             cell: (row) => <DatePicker key={`${row.row.original.id}-checkOutDate`}
-                selected={new Date(row.row.original.checkOutDate).convertToFakeLocalDate()}
+                selected={row.row.original.checkOutDate ? new Date(row.row.original.checkOutDate).convertToFakeLocalDate() : null}
                 onChange={(date: Date | null) => {
-                    handleRoomInputChange(row.row.original.id, row.row.index, "checkOutDate", date.convertToUTCFromFakeLocalDate());
+                    handleRoomInputChange(row.row.original.id, row.row.index, "checkOutDate", date ? date.convertToUTCFromFakeLocalDate() : null);
                 }}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
@@ -223,7 +223,7 @@ export default function RoomChargeDialog({
             accessorKey: "roomRate",
             header: 'Room Rate',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-roomRate`} // Crucial for maintaining focus
-                value={row.row.original.roomRate}
+                value={Number(row.row.original.roomRate)}
                 onChange={e => {
                     handleChargeInputChange(row.row.original.id, row.row.index, "roomRate", e.target.value);
                 }} />
@@ -232,40 +232,41 @@ export default function RoomChargeDialog({
             accessorKey: "singleRate",
             header: 'Single Rate',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-singleRate`} // Crucial for maintaining focus
-                value={row.row.original.singleRate}
+                value={Number(row.row.original.singleRate)}
                 onChange={e => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "singleRate", e.target.value);
+                    handleChargeInputChange(row.row.original.id, row.row.index, "singleRate", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
                 }} />
         },
         {
             accessorKey: "roomSurcharge",
             header: 'Room Surcharge',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-roomSurcharge`} // Crucial for maintaining focus
-                value={row.row.original.roomSurcharge}
+                value={Number(row.row.original.roomSurcharge)}
                 onChange={e => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "roomSurcharge", e.target.value);
+                    handleChargeInputChange(row.row.original.id, row.row.index, "roomSurcharge", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
                 }} />
         },
         {
             accessorKey: "seasonSurcharge",
             header: 'Season Surcharge',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-seasonSurcharge`} // Crucial for maintaining focus
-                value={row.row.original.seasonSurcharge}
+                value={Number(row.row.original.seasonSurcharge)}
                 onChange={e => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "seasonSurcharge", e.target.value);
+                    handleChargeInputChange(row.row.original.id, row.row.index, "seasonSurcharge", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
                 }} />
         },
         {
             accessorKey: "startDate",
             header: 'Start Date',
             cell: (row) => <DatePicker key={`${row.row.original.id}-startDate`}
-                selected={new Date(row.row.original.startDate).convertToFakeLocalDate()}
+                selected={row.row.original.startDate ? new Date(row.row.original.startDate).convertToFakeLocalDate() : null}
                 onChange={(date: Date | null) => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "startDate", date.convertToUTCFromFakeLocalDate());
+                    handleChargeInputChange(row.row.original.id, row.row.index, "startDate", date ? date.convertToUTCFromFakeLocalDate() : null);
                 }}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="sm" />} // Uses shadcn/ui Input
                 placeholderText="yyyy-mm-dd"
+                isClearable={true}
                 showIcon
             />
         },
@@ -273,40 +274,42 @@ export default function RoomChargeDialog({
             accessorKey: "endDate",
             header: 'End Date',
             cell: (row) => <DatePicker key={`${row.row.original.id}-endDate`}
-                selected={new Date(row.row.original.endDate).convertToFakeLocalDate()}
+                selected={row.row.original.endDate ? new Date(row.row.original.endDate).convertToFakeLocalDate() : null}
                 onChange={(date: Date | null) => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "endDate", date.convertToUTCFromFakeLocalDate());
+                    handleChargeInputChange(row.row.original.id, row.row.index, "endDate", date ? date.convertToUTCFromFakeLocalDate() : null);
                 }}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="sm" />} // Uses shadcn/ui Input
                 placeholderText="yyyy-mm-dd"
+                isClearable={true}
+                showIcon
             />
         },
         {
             accessorKey: "noOfDays",
             header: 'Days',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-noOfDays`} // Crucial for maintaining focus
-                value={row.row.original.noOfDays}
+                value={Number(row.row.original.noOfDays)}
                 onChange={e => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "noOfDays", e.target.value);
+                    handleChargeInputChange(row.row.original.id, row.row.index, "noOfDays", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
                 }} />
         },
         {
             accessorKey: "totalRate",
             header: 'Total Rate',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-totalRate`} // Crucial for maintaining focus
-                value={row.row.original.totalRate}
+                value={Number(row.row.original.totalRate)}
                 onChange={e => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "totalRate", e.target.value);
+                    handleChargeInputChange(row.row.original.id, row.row.index, "totalRate", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
                 }} />
         },
         {
             accessorKey: "totalAmount",
             header: 'Total Amount',
             cell: (row) => <InputCustom size={"sm"} key={`${row.row.original.id}-totalAmount`} // Crucial for maintaining focus
-                value={row.row.original.totalAmount}
+                value={Number(row.row.original.totalAmount)}
                 onChange={e => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "totalAmount", e.target.value);
+                    handleChargeInputChange(row.row.original.id, row.row.index, "totalAmount", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
                 }} />
         },
         {
@@ -337,7 +340,7 @@ export default function RoomChargeDialog({
                     }, [] as RoomCharge[]);
                     setRoomReservations(prev => prev.map((roomReservation:RoomReservation) => {
                         if (roomReservation.id === selectedRoomReservation.id) {
-                            roomReservation.roomCharges = updatedRoomCharges;
+                            roomReservation.roomCharges = roomReservation.roomCharges.concat(updatedRoomCharges.filter(rc => rc.modelState === 'deleted'));
                         }
                         return roomReservation;
                     }));
@@ -385,8 +388,8 @@ export default function RoomChargeDialog({
                 const rrs = rrResponse.data.map((roomReservation: RoomReservation) => (
                     {
                         ...roomReservation,
-                        checkInDateUTC: new Date(roomReservation.checkInDate),
-                        checkOutDateUTC: new Date(roomReservation.checkOutDate)
+                        checkInDate: new Date(roomReservation.checkInDate),
+                        checkOutDate: new Date(roomReservation.checkOutDate)
                     }
                 ));
                 setRoomReservations(rrs);

@@ -33,7 +33,7 @@ export default class CustomerService implements ICustomerService {
   }
 
 
-  async customerFindMany(searchParams: Record<string,any>, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[Customer[], Number]> {
+  async customerFindMany(searchParams: Record<string,any>, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[Customer[], number]> {
     c.fs('CustomerService > customerFindMany');
     return await this.customerRepository.findMany(searchParams, null, pagerParams.pageIndex * pagerParams.pageSize, pagerParams.pageSize);
   }

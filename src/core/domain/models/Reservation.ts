@@ -1,9 +1,9 @@
 import Bill from "./Bill";
 import Customer from "./Customer";
-import ModelBase from "./ModelBase";
+import DomainBase from "./DomainBase";
 
 
-export default class Reservation extends ModelBase{
+export default class Reservation extends DomainBase{
     public arrivalDateTime: Date = null;
     public arrivalFlight: string = "";
     public bills: Bill[] = [];
@@ -17,6 +17,7 @@ export default class Reservation extends ModelBase{
     public depositCurrency: string = 'KWR';
     public depositPaymentMode: string = 'BANK';
     public depositDateUTC: Date = null;
+    public discountAmount: number = 0;
     public dropOffCarNo: string = "";
     public dropOffDriver: string = "";
     public dropOfFee: number = 0;
@@ -25,9 +26,13 @@ export default class Reservation extends ModelBase{
     public dropOffType: string = '';
     public dropOffTypeId: string = '';
     public dropOffTypeText: string = '';
+    public dueAmount: number = 0;
     public isSingleOccupancy: boolean = false;
+    public location: string = '';
+    public netAmount: number = 0;
     public noOfDays: number = 0;
     public noOfGuests: number = 2;
+    public paidAmount: number = 0;
     public pickUpCarNo: string = "";
     public pickUpDriver: string = "";
     public pickUpFee: number = 0;
@@ -50,20 +55,9 @@ export default class Reservation extends ModelBase{
     public reservationType: string = 'GENERAL';
     public reservationTypeId: string  = '';
     public reservationTypeText: string  = '';
-    public tourCompany: string  = '';
-    public totalAmount: number = 0;
-    public paidAmount: number = 0;
-    public discountAmount: number = 0;
-    public netAmount: number = 0;
-    public dueAmount: number = 0;
     public tax: number = 0;
     public taxAmount: number = 0;
-    public location: string = '';
-
-    public calculateAllAmount() {
-        this.taxAmount = this.totalAmount * this.tax / 100;
-        this.netAmount = this.totalAmount + this.taxAmount - this.discountAmount - this.depositAmount;
-        this.dueAmount = this.totalAmount - this.paidAmount;
-    }
+    public tourCompany: string  = '';
+    public totalAmount: number = 0;
 }
 

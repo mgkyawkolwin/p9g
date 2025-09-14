@@ -1,6 +1,6 @@
-import ModelBase from "./ModelBase";
+import DomainBase from "./DomainBase";
 
-export default class Bill extends ModelBase{
+export default class Bill extends DomainBase{
     public dateUTC: Date = new Date();
     public reservationId: string;
     public itemName: string = "";

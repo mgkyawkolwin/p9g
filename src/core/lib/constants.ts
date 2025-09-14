@@ -3,6 +3,12 @@ export const AppUrl = {
     main : '/console/reservations'
 } as const;
 
+export const ConfigGroup = {
+    RESERVATION_STATUS: "RESERVATION_STATUS",
+    RESERVATION_TYPE: "RESERVATION_TYPE",
+    RIDE_TYPE: "RIDE_TYPE"
+}
+
 export const CurrencyList = ['KWR', 'MMK', 'THB', 'USD'] as const;
 
 export const CONSTANTS = {

@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-table";
 import { ButtonCustom } from "../uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
-import { billsView } from "@/app/(private)/console/reservations/actions"
+import { invoiceView } from "@/app/(private)/console/reservations/actions"
 import { toast } from "sonner"
 import Bill from "@/core/domain/models/Bill"
 import BillDataTable from "../uicustom/billdatatable"
@@ -115,7 +115,7 @@ export default function BillDialog({
     //setInvoice([]);
     const fetchInvoice = async () => {
         // setId(reservationId);
-        const response = await billsView(reservationId);
+        const response = await invoiceView(reservationId);
         if(response.message)
             toast(response.message);
         if(response.data){

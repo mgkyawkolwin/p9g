@@ -71,8 +71,8 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 
     //retrieve data from tuple
     c.fe('Actions > reservationGetList');
-    const [reservations, pager] = responseData.data;
-    return {error:false, message : message, data: reservations, pager: pager};
+    // const [reservations, pager] = responseData.data;
+    return {error:false, message : message, data: responseData.data.reservations, pager: responseData.data.pager};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
     return {error:true, message : "Reservation list retrieval failed."};

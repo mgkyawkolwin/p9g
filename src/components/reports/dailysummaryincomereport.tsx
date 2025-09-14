@@ -62,8 +62,8 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                             <th key={`headcell-${Math.random()}`} className="p-1">Room Charge</th>
                             <th key={`headcell-${Math.random()}`} className="p-1">Deposit</th>
                             <th key={`headcell-${Math.random()}`} className="p-1">Tax</th>
-                            <th key={`headcell-${Math.random()}`} className="p-1">Paid</th>
                             <th key={`headcell-${Math.random()}`} className="p-1">Discount</th>
+                            <th key={`headcell-${Math.random()}`} className="p-1">Paid</th>
                             <th key={`headcell-${Math.random()}`} className={`p-1 border-0 border-r-1 ${Theme.Style.tableHeadBorder}`}>Due</th>
 
                             <th key={`headcell-${Math.random()}`} className="p-1">KWR</th>

@@ -247,7 +247,7 @@ export default function BillEditDialog({
               setOpen(false);
           }}>Save Bill</ButtonCustom>
           <ButtonCustom onClick={() => {
-            setBills(prev => [...prev, { ...new Bill(), reservationId }]);
+            setBills(prev => [...prev, { ...new Bill(), reservationId, modelState: 'inserted' }]);
           }}>Add Row</ButtonCustom>
           <DialogClose asChild>
             <ButtonCustom variant="black" onClick={() => {

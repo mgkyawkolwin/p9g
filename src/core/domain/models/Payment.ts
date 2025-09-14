@@ -1,6 +1,6 @@
-import ModelBase from "./ModelBase";
+import DomainBase from "./DomainBase";
 
-export default class Payment extends ModelBase{
+export default class Payment extends DomainBase{
     public reservationId:string = '';
     public paymentDateUTC:Date = new Date();
     public description:string = "";

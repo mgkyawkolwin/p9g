@@ -95,7 +95,7 @@ export default function DataTable<TData, TValue>({
       //pagination,
     },
     autoResetPageIndex: true,
-    debugTable: true,
+    debugTable: false,
   });
 
 

@@ -1,6 +1,6 @@
-import ModelBase from "./ModelBase";
+import DomainBase from "./DomainBase";
 
-export default class ReservationCustomer extends ModelBase{
+export default class ReservationCustomer extends DomainBase{
     public reservationId: string = '';
     public customerId: string = '';
 }

@@ -11,7 +11,7 @@ export default interface IRepository<TDomain> {
   create<TTransaction extends ITransaction>(entity: TDomain, transaction?:TTransaction): Promise<TDomain>;
   createMany<TTransaction extends ITransaction>(entity: TDomain[], transaction?:TTransaction): Promise<void>;
   delete<TIdType,TTransaction extends ITransaction>(id: TIdType, transaction?:TTransaction): Promise<void>;
-  deleteMany<TCondition,TTransaction extends ITransaction>(condition: TCondition, transaction?:TTransaction): Promise<void>;
+  deleteWhere<TCondition,TTransaction extends ITransaction>(condition: TCondition, transaction?:TTransaction): Promise<void>;
   exists<TCondition>(condition: TCondition): Promise<boolean>;
   findAll(): Promise<TDomain[]>;
   findById<TIdType>(id: TIdType): Promise<TDomain | null>;

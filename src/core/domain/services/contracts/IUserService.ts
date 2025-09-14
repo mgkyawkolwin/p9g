@@ -1,4 +1,3 @@
-import { UserEntity } from "@/core/data/orm/drizzle/mysql/schema"
 import { PagerParams, SearchParam } from "@/core/lib/types";
 import User from "../../models/User";
 import SessionUser from "../../dtos/SessionUser";
@@ -12,7 +11,7 @@ export default interface IUserService {
     userFindByUserNameAndPassword(userName: string, password: string, sessionUser: SessionUser): Promise<User | null>;
     userFindByEmailAndPassword(email: string, password: string, sessionUser: SessionUser): Promise<User | null>;
     userFindById(id: string, sessionUser: SessionUser): Promise<User | null>;
-    userFindMany(searchParams: SearchParam[], pagerParams: PagerParams, sessionUser: SessionUser): Promise<[User[], number]>;
+    userFindMany(searchParams: Record<string, any>, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[User[], number]>;
     userUpdate(id: string, user: User, sessionUser: SessionUser): Promise<void>;
 
 }

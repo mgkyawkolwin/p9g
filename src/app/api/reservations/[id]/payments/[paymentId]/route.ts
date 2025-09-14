@@ -4,16 +4,19 @@ import { TYPES } from "@/core/lib/types";
 import c from "@/core/loggers/console/ConsoleLogger";
 import { HttpStatusCode } from "@/core/lib/constants";
 import IReservationService from "@/core/domain/services/contracts/IReservationService";
-import Bill from "@/core/domain/models/Bill";
-import { billValidator, paymentValidator } from "@/core/validators/zodschema";
 import { CustomError } from "@/core/lib/errors";
 import ILogService from "@/core/domain/services/contracts/ILogService";
+import { auth } from "@/app/auth";
 
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string, paymentId: string }> }) {
     try {
         c.fs("DELETE /api/reservations/[id]/payments/[paymentId]");
         c.d(JSON.stringify(request));
+
+        const session = await auth();
+        if (!session?.user)
+            throw new CustomError('Invalid session');
 
         //retrieve search params from request
         const p = await params;
@@ -32,7 +35,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
         //call service to retrieve data
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-        await reservationService.paymentDeleteById(id, paymentId);
+        await reservationService.paymentDeleteById(id, paymentId, session.user);
 
         return NextResponse.json({ status: HttpStatusCode.Ok });
     } catch (error) {

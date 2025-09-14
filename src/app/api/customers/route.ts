@@ -26,15 +26,15 @@ export async function GET(request: NextRequest) {
     c.d(JSON.stringify(searchParams));
 
     //validate search params
-    let searchFields: SearchParam[] = [];
+    // let searchFields: SearchParam[] = [];
     const searchValidatedFields = await searchSchema.safeParseAsync(searchParams);
     c.d(JSON.stringify(searchValidatedFields));
-    if (searchValidatedFields.success) {
-      //validation successful, build search objects
-      //convert raw params into searchParam array
-      searchFields = buildSearchParams(searchValidatedFields.data);
-      c.d(JSON.stringify(searchFields));
-    }
+    // if (searchValidatedFields.success) {
+    //   //validation successful, build search objects
+    //   //convert raw params into searchParam array
+    //   searchFields = buildSearchParams(searchValidatedFields.data);
+    //   c.d(JSON.stringify(searchFields));
+    // }
 
     //no need to validate pager params, if not valid, will use defaults
     const pagerValidatedFields = await pagerValidator.safeParseAsync(searchParams);
@@ -44,10 +44,12 @@ export async function GET(request: NextRequest) {
 
     //call service to retrieve data
     const customerService = container.get<ICustomerService>(TYPES.ICustomerService);
-    const result = await customerService.customerFindMany(searchFields, pager, session.user);
+    const result = await customerService.customerFindMany(searchValidatedFields.data, pager, session.user);
     c.d(JSON.stringify(result));
 
-    return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });
+    pager.records = result[1];
+    pager.pages = Math.ceil(pager.records / pager.pageSize);
+    return NextResponse.json({ data: {customers:result[0], pager: {...pager, records:result[1]}} }, { status: HttpStatusCode.Ok });
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     const logService = container.get<ILogService>(TYPES.ILogService);

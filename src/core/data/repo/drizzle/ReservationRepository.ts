@@ -1,8 +1,8 @@
-import { configTable, ReservationEntity, reservationTable, reservationCustomerTable, prepaidTable, promotionTable, customerTable, ConfigEntity, roomTable, roomReservationTable, RoomReservationEntity, ReservationCustomerEntity, billTable, BillEntity, userTable, paymentTable, PaymentEntity, roomChargeTable, roomRateTable, roomTypeTable, RoomChargeEntity, RoomTypeEntity, RoomEntity, RoomRateEntity, UserEntity } from "@/core/data/orm/drizzle/mysql/schema";
+import { configTable, reservationTable, reservationCustomerTable, prepaidTable, promotionTable, customerTable, roomTable, roomReservationTable, billTable, userTable, paymentTable, roomChargeTable, roomRateTable, roomTypeTable } from "@/core/data/orm/drizzle/mysql/schema";
 import IReservationRepository from "../contracts/IReservationRepository";
 import { inject, injectable } from "inversify";
 import type { IDatabaseClient } from "@/core/data/db/IDatabase";
-import { PagerParams, SearchParam, TYPES } from "@/core/lib/types";
+import { PagerParams, SearchFormFields, SearchParam, TYPES } from "@/core/lib/types";
 import { Repository } from "./Repository";
 import c from "@/core/loggers/console/ConsoleLogger";
 import { SQL, and, count, asc, desc, eq, ne, gte, between, lte, or, like, isNull, sum } from "drizzle-orm";
@@ -20,10 +20,18 @@ import RoomRate from "@/core/domain/models/RoomRate";
 import RoomType from "@/core/domain/models/RoomType";
 import { getUTCDateMidNight, getUTCDateTimeString } from "@/core/lib/utils";
 import SessionUser from "@/core/domain/dtos/SessionUser";
+import type IMapper from "@/core/lib/mappers/IMapper";
+import type IQueryObjectTranformer from "@/core/lib/transformers/IQueryObjectTransformer";
+import ReservationEntity from "../../entity/ReservationEntity";
+import UserEntity from "../../entity/UserEntity";
+import RoomReservationEntity from "../../entity/RoomReservationEntity";
+import RoomChargeEntity from "../../entity/RoomChargeEntity";
+import RoomTypeEntity from "../../entity/RoomTypeEntity";
+import RoomEntity from "../../entity/RoomEntity";
 
 
 @injectable()
-export default class ReservationRepository extends Repository<Reservation, typeof reservationTable> implements IReservationRepository {
+export default class ReservationRepository extends Repository<Reservation, ReservationEntity, typeof reservationTable> implements IReservationRepository {
 
     reservationTypeAlias = alias(configTable, 'reservation_type');
     reservationStatusAlias = alias(configTable, 'reservation_status');
@@ -31,9 +39,11 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     dropOffAlias = alias(configTable, 'dropOffAlias');
 
     constructor(
-        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabaseClient<any>
+        @inject(TYPES.IDatabase) protected readonly dbClient: IDatabaseClient<any>,
+        @inject(TYPES.IMapper) protected readonly mapper: IMapper,
+        @inject(TYPES.IQueryObjectTransformer) protected readonly transformer: IQueryObjectTranformer
     ) {
-        super(dbClient, reservationTable);
+        super(dbClient, reservationTable, mapper, Reservation, ReservationEntity, transformer);
     }
 
 
@@ -861,9 +871,9 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     }
 
 
-    async reservationGetList(searchParams: SearchParam[], pagerParams: PagerParams): Promise<[Reservation[], number]> {
+    async reservationGetList(searchParam: SearchFormFields, pagerParams: PagerParams): Promise<[Reservation[], number]> {
         c.fs('ReservationRepository > reservationGetList');
-        c.d(searchParams);
+        c.d(searchParam);
         c.d(pagerParams);
 
         const session = await auth();
@@ -918,86 +928,82 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             .offset(offset)
             .limit(pagerParams.pageSize);
 
-        if (searchParams && searchParams.length > 0) {
-            const conditions = searchParams
-                .map((searchParam: SearchParam) => {
-                    if (searchParam.searchColumn === 'arrivalDateTime') {
-                        const startDate = new Date(getUTCDateTimeString(searchParam.searchValue));
-                        const endDate = getUTCDateMidNight(new Date(searchParam.searchValue));
-                        return and(
-                            gte(reservationTable.arrivalDateTime, startDate),
-                            lte(reservationTable.arrivalDateTime, endDate)
-                        );
-                    }
-                    if (searchParam.searchColumn === 'departureDateTime') {
-                        const startDate = new Date(getUTCDateTimeString(searchParam.searchValue));
-                        const endDate = getUTCDateMidNight(new Date(searchParam.searchValue));
-                        return and(
-                            gte(reservationTable.departureDateTime, startDate),
-                            lte(reservationTable.departureDateTime, endDate)
-                        );
-                    }
-                    if (searchParam.searchColumn === 'remark') {
-                        return like(reservationTable.remark, `%${searchParam.searchValue}%`);
-                    }
-                    if (searchParam.searchColumn === 'reservationStatus') {
-                        return eq(reservationStatusAlias.value, searchParam.searchValue);
-                    }
-                    if (searchParam.searchColumn === 'reservationType') {
-                        return eq(reservationTypeAlias.value, searchParam.searchValue);
-                    }
-                    if (searchParam.searchColumn === 'checkInDate') {
-                        let d: Date = new Date(getUTCDateTimeString(searchParam.searchValue));
-                        return eq(reservationTable.checkInDate, d);
-                    }
-                    if (searchParam.searchColumn === 'checkOutDate') {
-                        let d: Date = new Date(getUTCDateTimeString(searchParam.searchValue));
-                        return eq(reservationTable.checkOutDate, d);
-                    }
-                    if (searchParam.searchColumn === 'createdFrom') {
-                        let d: Date = new Date(getUTCDateTimeString(searchParam.searchValue));
-                        return gte(reservationTable.createdAtUTC, d);
-                    }
-                    if (searchParam.searchColumn === 'createdUntil') {
-                        let d: Date = new Date(getUTCDateTimeString(searchParam.searchValue));
-                        d.setUTCHours(23, 59, 59, 999);
-                        return lte(reservationTable.createdAtUTC, d);
-                    }
-                    if (searchParam.searchColumn === 'checkInDateFrom') {
-                        let d: Date = new Date(getUTCDateTimeString(searchParam.searchValue));
-                        return gte(reservationTable.checkInDate, d);
-                    }
-                    if (searchParam.searchColumn === 'checkInDateUntil') {
-                        let d: Date = new Date(getUTCDateTimeString(searchParam.searchValue));
-                        return lte(reservationTable.checkInDate, d);
-                    }
-                    if (searchParam.searchColumn === 'name') {
-                        return or(
-                            like(customerTable.name, `%${searchParam.searchValue}%`),
-                            like(customerTable.englishName, `%${searchParam.searchValue}%`)
-                        );
-                    }
-                    if (searchParam.searchColumn === 'id') {
-                        return like(reservationTable.id, `%${searchParam.searchValue}%`);
-                    }
-                    if (searchParam.searchColumn === 'prepaidPackage') {
-                        return eq(prepaidTable.value, searchParam.searchValue);
-                    }
-                    if (searchParam.searchColumn === 'promotionPackage') {
-                        return eq(promotionTable.value, searchParam.searchValue);
-                    }
-                    if (searchParam.searchColumn === 'nationalId') {
-                        return like(customerTable.nationalId, `%${searchParam.searchValue}%`);
-                    }
-                    if (searchParam.searchColumn === 'passport') {
-                        return like(customerTable.passport, `%${searchParam.searchValue}%`);
-                    }
-                    if (searchParam.searchColumn === 'phone') {
-                        return like(customerTable.phone, `%${searchParam.searchValue}%`);
-                    }
-                    return undefined;
-                })
-                .filter((condition): condition is Exclude<typeof condition, undefined> => condition !== undefined);
+        if (searchParam && Object.entries(searchParam).length > 0) {
+            c.i('Building condtions');
+            // const conditions = Object.entries(searchParams)
+            //     .map((searchParam: Record<string, any>) => {
+            //         c.d(searchParam);
+                    
+            //         return undefined;
+            //     })
+            //     .filter((condition): condition is Exclude<typeof condition, undefined> => condition !== undefined);
+            const conditions = [];
+            if (searchParam.searchArrivalDateTime) {
+                const startDate = new Date(getUTCDateTimeString(searchParam.searchArrivalDateTime));
+                const endDate = getUTCDateMidNight(new Date(searchParam.searchArrivalDateTime));
+                conditions.push(and(
+                    gte(reservationTable.arrivalDateTime, startDate),
+                    lte(reservationTable.arrivalDateTime, endDate)
+                ));
+            }
+            if (searchParam.searchDepartureDateTime) {
+                c.i('xzkldfjl')
+                const startDate = new Date(getUTCDateTimeString(searchParam.searchDepartureDateTime));
+                const endDate = getUTCDateMidNight(new Date(searchParam.searchDepartureDateTime));
+                conditions.push( and(
+                    gte(reservationTable.departureDateTime, startDate),
+                    lte(reservationTable.departureDateTime, endDate)
+                ));
+            }
+            if (searchParam.searchRemark) {
+                conditions.push( like(reservationTable.remark, `%${searchParam.searchRemark}%`));
+            }
+            if (searchParam.searchReservationStatus) {
+                conditions.push( eq(reservationStatusAlias.value, searchParam.searchReservationStatus));
+            }
+            if (searchParam.searchReservationType) {
+                conditions.push( eq(reservationTypeAlias.value, searchParam.searchReservationType));
+            }
+            if (searchParam.searchCheckInDate) {
+                let d: Date = new Date(getUTCDateTimeString(searchParam.searchCheckInDate));
+                conditions.push( eq(reservationTable.checkInDate, d));
+            }
+            if (searchParam.searchCheckOutDate) {
+                let d: Date = new Date(getUTCDateTimeString(searchParam.searchCheckOutDate));
+                conditions.push( eq(reservationTable.checkOutDate, d));
+            }
+            if (searchParam.searchCheckInDateFrom) {
+                let d: Date = new Date(getUTCDateTimeString(searchParam.searchCheckInDateFrom));
+                conditions.push( gte(reservationTable.checkInDate, d));
+            }
+            if (searchParam.searchCheckInDateUntil) {
+                let d: Date = new Date(getUTCDateTimeString(searchParam.searchCheckInDateUntil));
+                conditions.push( lte(reservationTable.checkInDate, d));
+            }
+            if (searchParam.searchName) {
+                conditions.push( or(
+                    like(customerTable.name, `%${searchParam.searchName}%`),
+                    like(customerTable.englishName, `%${searchParam.searchName}%`)
+                ));
+            }
+            if (searchParam.searchId) {
+                conditions.push( like(reservationTable.id, `%${searchParam.searchId}%`));
+            }
+            if (searchParam.searchPrepaidPackage) {
+                conditions.push( eq(prepaidTable.value, searchParam.searchPrepaidPackage));
+            }
+            if (searchParam.searchPromotionPackage) {
+                conditions.push( eq(promotionTable.value, searchParam.searchPromotionPackage));
+            }
+            if (searchParam.searchNationalId) {
+                conditions.push( like(customerTable.nationalId, `%${searchParam.searchNationalId}%`));
+            }
+            if (searchParam.searchPassport) {
+                conditions.push( like(customerTable.passport, `%${searchParam.searchPassport}%`));
+            }
+            if (searchParam.searchPhone) {
+                conditions.push( like(customerTable.phone, `%${searchParam.searchPhone}%`));
+            }
 
             if (conditions.length > 0) {
                 countQuery.where(and(...conditions, eq(reservationTable.location, user.location)));
@@ -1064,94 +1070,94 @@ export default class ReservationRepository extends Repository<Reservation, typeo
 
 
 
-    reservationGetConditions(searchParams: SearchParam[]) {
-        c.fs('ReservationRepository > reservationGetConditions');
-        if (searchParams && searchParams.length > 0) {
-            const reservationTypeAlias = alias(configTable, 'reservation_type');
-            const reservationStatusAlias = alias(configTable, 'reservation_status');
-            const pickUpAlias = alias(configTable, 'pickUpAlias');
-            const dropOffAlias = alias(configTable, 'dropOffAlias');
+    // reservationGetConditions(searchParams: SearchParam[]) {
+    //     c.fs('ReservationRepository > reservationGetConditions');
+    //     if (searchParams && searchParams.length > 0) {
+    //         const reservationTypeAlias = alias(configTable, 'reservation_type');
+    //         const reservationStatusAlias = alias(configTable, 'reservation_status');
+    //         const pickUpAlias = alias(configTable, 'pickUpAlias');
+    //         const dropOffAlias = alias(configTable, 'dropOffAlias');
 
-            const conditions = searchParams
-                .map((searchParam: SearchParam) => {
-                    if (searchParam.searchColumn === 'reservationStatus') {
-                        return eq(reservationStatusAlias.value, searchParam.searchValue);
-                    }
-                    if (searchParam.searchColumn === 'reservationType') {
-                        return eq(reservationTypeAlias.value, searchParam.searchValue);
-                    }
-                    if (searchParam.searchColumn === 'checkInDateUTC') {
-                        return eq(reservationTable.checkInDate, new Date(searchParam.searchValue));
-                    }
-                    if (searchParam.searchColumn === 'checkOutDateUTC') {
-                        return eq(reservationTable.checkOutDate, new Date(searchParam.searchValue));
-                    }
-                    if (searchParam.searchColumn === 'createdFrom') {
-                        return gte(reservationTable.createdAtUTC, new Date(searchParam.searchValue));
-                    }
-                    if (searchParam.searchColumn === 'createdUntil') {
-                        let d: Date = new Date(searchParam.searchValue);
-                        d.setUTCHours(23, 59, 59, 999);
-                        return lte(reservationTable.createdAtUTC, d);
-                    }
-                    if (searchParam.searchColumn === 'name') {
-                        return like(customerTable.name, `%${searchParam.searchValue}%`);
-                    }
-                    if (searchParam.searchColumn === 'id') {
-                        return like(reservationTable.id, `%${searchParam.searchValue}%`);
-                    }
-                    return undefined;
-                })
-                .filter((condition): condition is Exclude<typeof condition, undefined> => condition !== undefined);
-            return conditions;
-        }
-        c.fe('ReservationRepository > reservationGetConditions');
-    }
-
-
-    reservationGetSelect() {
-        c.fs('ReservationRepository > reservationGetSelect');
-        const query = this.dbClient.db.select({
-            ...reservationTable,
-            customer: { ...customerTable },
-            reservationStatus: this.reservationStatusAlias.value,
-            reservationStatusText: this.reservationStatusAlias.text,
-            reservationType: this.reservationTypeAlias.value,
-            reservationTypeText: this.reservationTypeAlias.text,
-            pickUpType: this.pickUpAlias.value,
-            pickUpTypeText: this.pickUpAlias.text,
-            dropOffType: this.dropOffAlias.value,
-            dropOffTypeText: this.dropOffAlias.text,
-            promotionPackage: promotionTable.value,
-            promotionPackageText: promotionTable.text,
-            prepaidPackage: prepaidTable.value,
-            prepardPackageText: prepaidTable.text
-        });
-        c.fe('ReservationRepository > reservationGetSelect');
-    }
+    //         const conditions = searchParams
+    //             .map((searchParam: SearchParam) => {
+    //                 if (searchParam.searchColumn === 'reservationStatus') {
+    //                     return eq(reservationStatusAlias.value, searchParam.searchValue);
+    //                 }
+    //                 if (searchParam.searchColumn === 'reservationType') {
+    //                     return eq(reservationTypeAlias.value, searchParam.searchValue);
+    //                 }
+    //                 if (searchParam.searchColumn === 'checkInDateUTC') {
+    //                     return eq(reservationTable.checkInDate, new Date(searchParam.searchValue));
+    //                 }
+    //                 if (searchParam.searchColumn === 'checkOutDateUTC') {
+    //                     return eq(reservationTable.checkOutDate, new Date(searchParam.searchValue));
+    //                 }
+    //                 if (searchParam.searchColumn === 'createdFrom') {
+    //                     return gte(reservationTable.createdAtUTC, new Date(searchParam.searchValue));
+    //                 }
+    //                 if (searchParam.searchColumn === 'createdUntil') {
+    //                     let d: Date = new Date(searchParam.searchValue);
+    //                     d.setUTCHours(23, 59, 59, 999);
+    //                     return lte(reservationTable.createdAtUTC, d);
+    //                 }
+    //                 if (searchParam.searchColumn === 'name') {
+    //                     return like(customerTable.name, `%${searchParam.searchValue}%`);
+    //                 }
+    //                 if (searchParam.searchColumn === 'id') {
+    //                     return like(reservationTable.id, `%${searchParam.searchValue}%`);
+    //                 }
+    //                 return undefined;
+    //             })
+    //             .filter((condition): condition is Exclude<typeof condition, undefined> => condition !== undefined);
+    //         return conditions;
+    //     }
+    //     c.fe('ReservationRepository > reservationGetConditions');
+    // }
 
 
-    reservationGetQuery(q) {
-        c.fs('ReservationRepository > reservationGetQuery');
-        const reservationTypeAlias = alias(configTable, 'reservation_type');
-        const reservationStatusAlias = alias(configTable, 'reservation_status');
-        const pickUpAlias = alias(configTable, 'pickUpAlias');
-        const dropOffAlias = alias(configTable, 'dropOffAlias');
+    // reservationGetSelect() {
+    //     c.fs('ReservationRepository > reservationGetSelect');
+    //     const query = this.dbClient.db.select({
+    //         ...reservationTable,
+    //         customer: { ...customerTable },
+    //         reservationStatus: this.reservationStatusAlias.value,
+    //         reservationStatusText: this.reservationStatusAlias.text,
+    //         reservationType: this.reservationTypeAlias.value,
+    //         reservationTypeText: this.reservationTypeAlias.text,
+    //         pickUpType: this.pickUpAlias.value,
+    //         pickUpTypeText: this.pickUpAlias.text,
+    //         dropOffType: this.dropOffAlias.value,
+    //         dropOffTypeText: this.dropOffAlias.text,
+    //         promotionPackage: promotionTable.value,
+    //         promotionPackageText: promotionTable.text,
+    //         prepaidPackage: prepaidTable.value,
+    //         prepardPackageText: prepaidTable.text
+    //     });
+    //     c.fe('ReservationRepository > reservationGetSelect');
+    // }
 
-        let query = q
-            .from(reservationTable)
-            .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
-            .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
-            .leftJoin(promotionTable, eq(promotionTable.id, reservationTable.promotionPackageId))
-            .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
-            .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
-            .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
-            .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
-            ;
-        c.fe('ReservationRepository > reservationGetQuery');
-        return query;
-    }
+
+    // reservationGetQuery(q) {
+    //     c.fs('ReservationRepository > reservationGetQuery');
+    //     const reservationTypeAlias = alias(configTable, 'reservation_type');
+    //     const reservationStatusAlias = alias(configTable, 'reservation_status');
+    //     const pickUpAlias = alias(configTable, 'pickUpAlias');
+    //     const dropOffAlias = alias(configTable, 'dropOffAlias');
+
+    //     let query = q
+    //         .from(reservationTable)
+    //         .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
+    //         .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+    //         .leftJoin(promotionTable, eq(promotionTable.id, reservationTable.promotionPackageId))
+    //         .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
+    //         .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
+    //         .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
+    //         .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
+    //         .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
+    //         ;
+    //     c.fe('ReservationRepository > reservationGetQuery');
+    //     return query;
+    // }
 
 
     // async reservationMoveRoom(id: string, roomNo: string, transaction?:TransactionType): Promise<void> {
@@ -1220,96 +1226,96 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     // }
 
 
-    async reservationPrepare(reservation: Reservation) {
-        c.fs('ReservationRepository > reservationPrepare');
-        //retrieve and assign prepaidPackageId
-        const [prepaidPackage] = await this.dbClient.db.select().from(prepaidTable).where(
-            eq(prepaidTable.value, reservation.prepaidPackage)
-        ).limit(1);
-        if (prepaidPackage)
-            reservation.prepaidPackageId = prepaidPackage.id;
-        else
-            reservation.prepaidPackageId = null;
+    // async reservationPrepare(reservation: Reservation) {
+    //     c.fs('ReservationRepository > reservationPrepare');
+    //     //retrieve and assign prepaidPackageId
+    //     const [prepaidPackage] = await this.dbClient.db.select().from(prepaidTable).where(
+    //         eq(prepaidTable.value, reservation.prepaidPackage)
+    //     ).limit(1);
+    //     if (prepaidPackage)
+    //         reservation.prepaidPackageId = prepaidPackage.id;
+    //     else
+    //         reservation.prepaidPackageId = null;
 
-        //retrieve and assign promotionPackageId
-        const [promotionPackage] = await this.dbClient.db.select().from(promotionTable).where(
-            eq(promotionTable.value, reservation.promotionPackage)
-        ).limit(1);
-        if (promotionPackage)
-            reservation.promotionPackageId = promotionPackage.id;
-        else
-            reservation.promotionPackageId = null;
+    //     //retrieve and assign promotionPackageId
+    //     const [promotionPackage] = await this.dbClient.db.select().from(promotionTable).where(
+    //         eq(promotionTable.value, reservation.promotionPackage)
+    //     ).limit(1);
+    //     if (promotionPackage)
+    //         reservation.promotionPackageId = promotionPackage.id;
+    //     else
+    //         reservation.promotionPackageId = null;
 
-        //retrieve and assign reservationTypeId
-        const [reservationType] = await this.dbClient.db.select().from(configTable).where(
-            and(
-                eq(configTable.group, "RESERVATION_TYPE"),
-                eq(configTable.value, reservation.reservationType)
-            )
-        ).limit(1);
-        if (reservationType)
-            reservation.reservationTypeId = reservationType.id;
+    //     //retrieve and assign reservationTypeId
+    //     const [reservationType] = await this.dbClient.db.select().from(configTable).where(
+    //         and(
+    //             eq(configTable.group, "RESERVATION_TYPE"),
+    //             eq(configTable.value, reservation.reservationType)
+    //         )
+    //     ).limit(1);
+    //     if (reservationType)
+    //         reservation.reservationTypeId = reservationType.id;
 
-        //retrieve and assign reservationStatusId
-        const [reservationStatus] = await this.dbClient.db.select().from(configTable).where(
-            and(
-                eq(configTable.group, "RESERVATION_STATUS"),
-                eq(configTable.value, reservation.reservationStatus)
-            )
-        ).limit(1);
-        if (reservationStatus)
-            reservation.reservationStatusId = reservationStatus.id;
+    //     //retrieve and assign reservationStatusId
+    //     const [reservationStatus] = await this.dbClient.db.select().from(configTable).where(
+    //         and(
+    //             eq(configTable.group, "RESERVATION_STATUS"),
+    //             eq(configTable.value, reservation.reservationStatus)
+    //         )
+    //     ).limit(1);
+    //     if (reservationStatus)
+    //         reservation.reservationStatusId = reservationStatus.id;
 
-        //retrieve and assign reservationTypeId
-        const [pickUpType] = await this.dbClient.db.select().from(configTable).where(
-            and(
-                eq(configTable.group, "RIDE_TYPE"),
-                eq(configTable.value, reservation.pickUpType)
-            )
-        ).limit(1);
-        if (pickUpType)
-            reservation.pickUpTypeId = pickUpType.id;
-        else
-            reservation.pickUpTypeId = null;
+    //     //retrieve and assign reservationTypeId
+    //     const [pickUpType] = await this.dbClient.db.select().from(configTable).where(
+    //         and(
+    //             eq(configTable.group, "RIDE_TYPE"),
+    //             eq(configTable.value, reservation.pickUpType)
+    //         )
+    //     ).limit(1);
+    //     if (pickUpType)
+    //         reservation.pickUpTypeId = pickUpType.id;
+    //     else
+    //         reservation.pickUpTypeId = null;
 
-        //retrieve and assign reservationTypeId
-        const [dropOffType] = await this.dbClient.db.select().from(configTable).where(
-            and(
-                eq(configTable.group, "RIDE_TYPE"),
-                eq(configTable.value, reservation.dropOffType)
-            )
-        ).limit(1);
-        if (dropOffType)
-            reservation.dropOffTypeId = dropOffType.id;
-        else
-            reservation.dropOffTypeId = null;
-
-
-        c.d(reservation);
-        c.fe('ReservationRepository > reservationPrepare');
-        return reservation;
-    }
+    //     //retrieve and assign reservationTypeId
+    //     const [dropOffType] = await this.dbClient.db.select().from(configTable).where(
+    //         and(
+    //             eq(configTable.group, "RIDE_TYPE"),
+    //             eq(configTable.value, reservation.dropOffType)
+    //         )
+    //     ).limit(1);
+    //     if (dropOffType)
+    //         reservation.dropOffTypeId = dropOffType.id;
+    //     else
+    //         reservation.dropOffTypeId = null;
 
 
-    async reservationTranformData(result: Reservation[]) {
-        c.fs('ReservationRepository > reservationTranformData');
-        const reservations = result?.reduce((acc: Reservation[], current: any) => {
-            const { customer, ...reservation } = current;
-            let rsvn = acc.find(r => r.id === current.id);
-            if (!rsvn) {
-                rsvn = reservation;
-                rsvn!.customers = [];
-                acc.push(rsvn!);
-            }
-            if (customer)
-                rsvn?.customers?.push(customer);
+    //     c.d(reservation);
+    //     c.fe('ReservationRepository > reservationPrepare');
+    //     return reservation;
+    // }
 
-            return acc;
-        }, [] as Reservation[]);
 
-        c.fe('ReservationRepository > reservationTranformData');
-        return reservations;
-    }
+    // async reservationTranformData(result: Reservation[]) {
+    //     c.fs('ReservationRepository > reservationTranformData');
+    //     const reservations = result?.reduce((acc: Reservation[], current: any) => {
+    //         const { customer, ...reservation } = current;
+    //         let rsvn = acc.find(r => r.id === current.id);
+    //         if (!rsvn) {
+    //             rsvn = reservation;
+    //             rsvn!.customers = [];
+    //             acc.push(rsvn!);
+    //         }
+    //         if (customer)
+    //             rsvn?.customers?.push(customer);
+
+    //         return acc;
+    //     }, [] as Reservation[]);
+
+    //     c.fe('ReservationRepository > reservationTranformData');
+    //     return reservations;
+    // }
 
 
     // async reservationUpdate(id:string, reservation:Reservation, transaction?:TransactionType): Promise<Reservation> {
@@ -1394,8 +1400,8 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                 or(
                     and(
                         eq(roomReservationTable.roomId, roomTable.id),
-                        lte(roomReservationTable.checkInDate, new Date(searchParams.searchCheckInDate)),
-                        gte(roomReservationTable.checkOutDate, new Date(searchParams.searchCheckOutDate))
+                        lte(roomReservationTable.checkInDate, new Date(searchParams.date)),
+                        gte(roomReservationTable.checkOutDate, new Date(searchParams.date))
                     ),
                     isNull(roomReservationTable.id)
                 )
@@ -1479,62 +1485,62 @@ export default class ReservationRepository extends Repository<Reservation, typeo
     // }
 
 
-    async roomChargeUpdateList(reservationId:string, roomCharges:RoomCharge[], transaction?:TransactionType): Promise<boolean> {
-        c.fs('ReservationRepository > roomChargeUpdateList');
-        const session = await auth();
-        roomCharges.forEach(rc => {
-            rc.createdBy = session.user.id;
-            rc.updatedBy = session.user.id
-        })
-        const operation = async (tx: TransactionType) => {
-            await tx.delete(roomChargeTable).where(eq(roomChargeTable.reservationId, reservationId));
-            await tx.insert(roomChargeTable).values(roomCharges as unknown as RoomChargeEntity[]);
-            return true;
-        };
-        let result: boolean | PromiseLike<boolean>;
-        if(transaction){
-            result = await operation(transaction);
-        }else{
-            result = await this.dbClient.db.transaction(async (tx:TransactionType) => {
-                return await operation(tx);
-            });
-        }
-        c.fe('ReservationRepository > roomChargeUpdateList');
-        return result;
-    }
+    // async roomChargeUpdateList(reservationId:string, roomCharges:RoomCharge[], transaction?:TransactionType): Promise<boolean> {
+    //     c.fs('ReservationRepository > roomChargeUpdateList');
+    //     const session = await auth();
+    //     roomCharges.forEach(rc => {
+    //         rc.createdBy = session.user.id;
+    //         rc.updatedBy = session.user.id
+    //     })
+    //     const operation = async (tx: TransactionType) => {
+    //         await tx.delete(roomChargeTable).where(eq(roomChargeTable.reservationId, reservationId));
+    //         await tx.insert(roomChargeTable).values(roomCharges as unknown as RoomChargeEntity[]);
+    //         return true;
+    //     };
+    //     let result: boolean | PromiseLike<boolean>;
+    //     if(transaction){
+    //         result = await operation(transaction);
+    //     }else{
+    //         result = await this.dbClient.db.transaction(async (tx:TransactionType) => {
+    //             return await operation(tx);
+    //         });
+    //     }
+    //     c.fe('ReservationRepository > roomChargeUpdateList');
+    //     return result;
+    // }
 
 
-    async roomRateGetAll(location: string): Promise<RoomRate[]> {
-        c.fs('ReservationRepository > roomRateGetAll');
-        const result: RoomRateEntity[] = await this.dbClient.db.select()
-            .from(roomRateTable).where(eq(roomRateTable.location, location));
+    // async roomRateGetAll(location: string): Promise<RoomRate[]> {
+    //     c.fs('ReservationRepository > roomRateGetAll');
+    //     const result: RoomRateEntity[] = await this.dbClient.db.select()
+    //         .from(roomRateTable).where(eq(roomRateTable.location, location));
 
-        const roomRates: RoomRate[] = result.map((rr: RoomRateEntity) => {
-            let roomRate = new RoomRate();
-            roomRate.id = rr.id;
-            roomRate.extraBedRate = Number(rr.extraBedRate);
-            roomRate.location = rr.location;
-            roomRate.month = Number(rr.month);
-            roomRate.roomRate = Number(rr.roomRate);
-            roomRate.roomSurcharge = Number(rr.roomSurcharge);
-            roomRate.roomTypeId = rr.roomTypeId;
-            roomRate.seasonSurcharge = Number(rr.seasonSurcharge);
-            roomRate.singleRate = Number(rr.singleRate);
-            roomRate.createdAtUTC = rr.createdAtUTC;
-            roomRate.createdBy = rr.createdBy;
-            roomRate.updatedAtUTC = rr.updatedAtUTC;
-            roomRate.updatedBy = rr.updatedBy;
-            return roomRate;
-        });
+    //     const roomRates: RoomRate[] = result.map((rr: RoomRateEntity) => {
+    //         let roomRate = new RoomRate();
+    //         roomRate.id = rr.id;
+    //         roomRate.extraBedRate = Number(rr.extraBedRate);
+    //         roomRate.location = rr.location;
+    //         roomRate.month = Number(rr.month);
+    //         roomRate.roomRate = Number(rr.roomRate);
+    //         roomRate.roomSurcharge = Number(rr.roomSurcharge);
+    //         roomRate.roomTypeId = rr.roomTypeId;
+    //         roomRate.seasonSurcharge = Number(rr.seasonSurcharge);
+    //         roomRate.singleRate = Number(rr.singleRate);
+    //         roomRate.createdAtUTC = rr.createdAtUTC;
+    //         roomRate.createdBy = rr.createdBy;
+    //         roomRate.updatedAtUTC = rr.updatedAtUTC;
+    //         roomRate.updatedBy = rr.updatedBy;
+    //         return roomRate;
+    //     });
 
-        c.d(roomRates.length);
-        c.d(roomRates.length > 0 ? roomRates[0] : []);
-        c.fe('ReservationRepository > roomRateGetAll');
-        return roomRates;
-    }
+    //     c.d(roomRates.length);
+    //     c.d(roomRates.length > 0 ? roomRates[0] : []);
+    //     c.fe('ReservationRepository > roomRateGetAll');
+    //     return roomRates;
+    // }
 
 
-    async roomReservationGetListById(reservationId: string, includeChildren: boolean = false): Promise<RoomReservation[]> {
+    async roomReservationGetListById(reservationId: string, includeChildren: boolean = false): Promise<[RoomReservation[], number]> {
         c.fs('ReservationRepository > roomReservationGetListById');
         c.d(reservationId);
         const session = await auth();
@@ -1614,21 +1620,13 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         c.d(roomReservations.lengt);
         c.d(roomReservations.length > 0 ? roomReservations[0] : []);
         c.fe('ReservationRepository > roomReservationGetListById');
-        return roomReservations;
+        return [roomReservations, 0];
     }
 
 
-    async roomReservationUpdateList(reservationId:string, roomReservations:RoomReservation[], transaction?:TransactionType): Promise<boolean> {
+    async roomReservationUpdateList(reservationId:string, roomReservations:RoomReservation[], sessionUser:SessionUser, transaction?:TransactionType): Promise<void> {
         c.fs('ReservationRepository > roomReservationUpdateList');
         c.d(roomReservations);
-        const session = await auth();
-
-        if (!session)
-            throw new CustomError('Repository cannot find valid session');
-        //retrieve current user
-        const [user]: UserEntity[] = await this.dbClient.db.select().from(userTable)
-            .where(eq(userTable.userName, session.user.name)).limit(1);
-        if (!user) throw new CustomError('Repository cannot find valid user.');
         
         //retrieve original reservation
         const reservation: Reservation = await this.reservationGetById(reservationId);
@@ -1637,27 +1635,28 @@ export default class ReservationRepository extends Repository<Reservation, typeo
 
         //if list is empty, delete all room reservations and room charges
         if (roomReservations.length === 0) {
+            c.i('List is empty, removing existing records.');
             const operation = async (tx: TransactionType) => {
                 await tx.delete(roomChargeTable).where(eq(roomChargeTable.reservationId, reservationId));
                 await tx.delete(roomReservationTable).where(eq(roomReservationTable.reservationId, reservationId));
-                await tx.update(reservationTable).set({ totalAmount: '0', taxAmount:'0', roomNo: '', dueAmount:'0', updatedBy: session.user.id })
+                await tx.update(reservationTable).set({ totalAmount: '0', netAmount:'0', taxAmount:'0', roomNo: '', dueAmount:'0', updatedBy: sessionUser.id })
                     .where(eq(reservationTable.id, reservationId));
-                return true;
             };
             if(transaction){
-                return await operation(transaction);
+                await operation(transaction);
             }else{
                 return await this.dbClient.db.transaction(async (tx:TransactionType) => {
-                    return await operation(tx);
+                    await operation(tx);
                 });
             }
+            return;
         }
 
         const operation = async (tx: TransactionType) => {
-            //sort roomReservations by checkInDateUTC ascending
+            c.i('List is not empty, updating.');
             const sortedRoomReservations = roomReservations.sort((a, b) => a.checkInDate.getTime() - b.checkInDate.getTime());
 
-            //update total room charges and room no
+            c.i('Calculating charges');
             const totalRoomCharges = sortedRoomReservations.filter(rr => rr.modelState !== 'deleted')
             .flatMap(rr => rr.roomCharges.filter(rc => rc.modelState !== 'deleted'))
             .reduce((sum, rc) => sum + Number(rc.totalAmount), 0);
@@ -1665,10 +1664,10 @@ export default class ReservationRepository extends Repository<Reservation, typeo
             const netAmount = totalRoomCharges + taxAmount - reservation.depositAmount - reservation.discountAmount;
             const dueAmount = netAmount - Number(reservation.paidAmount);
 
+            c.i('Updating reservation');
             await tx.update(reservationTable).set(
-                { totalAmount: totalRoomCharges.toString(), taxAmount:taxAmount.toString(), netAmount: netAmount.toString(), dueAmount:dueAmount.toString(), roomNo: sortedRoomReservations[0].roomNo, updatedBy: session.user.id }
-            )
-                .where(eq(reservationTable.id, reservationId));
+                { totalAmount: totalRoomCharges.toString(), taxAmount:taxAmount.toString(), netAmount: netAmount.toString(), dueAmount:dueAmount.toString(), roomNo: sortedRoomReservations[0].roomNo, updatedBy: sessionUser.id }
+            ).where(eq(reservationTable.id, reservationId));
 
             for(const roomReservation of sortedRoomReservations) {
                 const [room] : RoomEntity[] = await this.dbClient.db.select().from(roomTable)
@@ -1677,6 +1676,7 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                     throw new CustomError('Room number is invalid in repository.');
 
                 if(roomReservation.modelState === "deleted"){
+                    c.i('Deleting data for room reservation.');
                     await tx.delete(roomChargeTable).where(
                         and(
                             eq(roomChargeTable.roomId, roomReservation.roomId),
@@ -1684,23 +1684,25 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                         ));
                     await tx.delete(roomReservationTable).where(eq(roomReservationTable.id, roomReservation.id));
                 }else if(roomReservation.modelState === "inserted"){
+                    c.i('Inserting data for room reservation.');
                     roomReservation.roomId = room.id;
-                    roomReservation.createdBy = session.user.id;
-                    roomReservation.updatedBy = session.user.id;
+                    roomReservation.createdBy = sessionUser.id;
+                    roomReservation.updatedBy = sessionUser.id;
                     const insertedId = await tx.insert(roomReservationTable).values(roomReservation as unknown as RoomReservationEntity).$returningId();
 
                     for(const roomCharge of roomReservation.roomCharges){
                         roomCharge.roomId = room.id;
                         roomCharge.roomTypeId = room.roomTypeId;
                         roomCharge.reservationId = reservationId;
-                        roomCharge.createdBy = session.user.id;
-                        roomCharge.updatedBy = session.user.id;
+                        roomCharge.createdBy = sessionUser.id;
+                        roomCharge.updatedBy = sessionUser.id;
                     }
                     if(roomReservation.roomCharges.length > 0)
                         await tx.insert(roomChargeTable).values(roomReservation.roomCharges as unknown as RoomChargeEntity[]);
                 }else if(roomReservation.modelState === "updated"){
+                    c.i('Updating data for room reservation.');
                     roomReservation.roomId = room.id;
-                    roomReservation.updatedBy = session.user.id;
+                    roomReservation.updatedBy = sessionUser.id;
                     await tx.update(roomReservationTable).set(roomReservation as unknown as RoomReservationEntity)
                         .where(eq(roomReservationTable.id, roomReservation.id));
 
@@ -1711,71 +1713,75 @@ export default class ReservationRepository extends Repository<Reservation, typeo
                             roomCharge.roomId = room.id;
                             roomCharge.roomTypeId = room.roomTypeId;
                             roomCharge.reservationId = reservationId;
-                            roomCharge.createdBy = session.user.id;
-                            roomCharge.updatedBy = session.user.id;
+                            roomCharge.createdBy = sessionUser.id;
+                            roomCharge.updatedBy = sessionUser.id;
                             await tx.insert(roomChargeTable).values(roomCharge as unknown as RoomChargeEntity);
                         }else if(roomCharge.modelState === "updated"){
                             roomCharge.roomId = room.id;
                             roomCharge.roomTypeId = room.roomTypeId;
                             roomCharge.reservationId = reservationId;
-                            roomCharge.updatedBy = session.user.id;
+                            roomCharge.updatedBy = sessionUser.id;
                             await tx.update(roomChargeTable).set(roomCharge as unknown as RoomChargeEntity)
                                 .where(eq(roomChargeTable.id, roomCharge.id));
                         }
                     }
                 }else{
+                    c.i('Handling room charges');
                     for(const roomCharge of roomReservation.roomCharges){
                         if(roomCharge.modelState === "deleted"){
+                            c.i('Deleting room charges');
                             await tx.delete(roomChargeTable).where(eq(roomChargeTable.id, roomCharge.id));
                         }else if(roomCharge.modelState === "inserted"){
+                            c.i('Inserting room charges');
                             roomCharge.roomId = room.id;
                             roomCharge.roomTypeId = room.roomTypeId;
                             roomCharge.reservationId = reservationId;
-                            roomCharge.createdBy = session.user.id;
-                            roomCharge.updatedBy = session.user.id;
+                            roomCharge.createdBy = sessionUser.id;
+                            roomCharge.updatedBy = sessionUser.id;
                             await tx.insert(roomChargeTable).values(roomCharge as unknown as RoomChargeEntity);
                         }else if(roomCharge.modelState === "updated"){
+                            c.i('Updating room charges');
                             roomCharge.roomId = room.id;
                             roomCharge.roomTypeId = room.roomTypeId;
                             roomCharge.reservationId = reservationId;
-                            roomCharge.updatedBy = session.user.id;
+                            roomCharge.updatedBy = sessionUser.id;
                             await tx.update(roomChargeTable).set(roomCharge as unknown as RoomChargeEntity)
                                 .where(eq(roomChargeTable.id, roomCharge.id));
                         }
                     }
                 }
             }
-            return true;
+            //return true;
         };
 
-        let result: boolean | PromiseLike<boolean>;
         if(transaction){
-            result = await operation(transaction);
+            await operation(transaction);
         }else{
-            result = await this.dbClient.db.transaction(async (tx:TransactionType) => {
+            await this.dbClient.db.transaction(async (tx:TransactionType) => {
                 await operation(tx);
             });
         }
 
         c.fe('ReservationRepository > roomReservationUpdateList');
-        return result;
     }
 
 
-    async roomScheduleGetList(searchParams: SearchParam[], sessionUser: SessionUser): Promise<Room[]> {
+    async roomScheduleGetList(searchParams: Record<string, any>, sessionUser: SessionUser): Promise<[Room[], number]> {
         c.fs('ReservationRepository > roomScheduleGetList');
         c.d(searchParams);
 
         //build conditions first for join
         let start: Date, end: Date;
-        searchParams.forEach((searchParam: SearchParam) => {
-            if (searchParam.searchColumn === 'checkInDateFrom') {
-                start = new Date(searchParam.searchValue);
-            }
-            if (searchParam.searchColumn === 'checkInDateUntil') {
-                end = new Date(searchParam.searchValue);
-            }
-        });
+        // searchParams.forEach((searchParam: SearchParam) => {
+        //     if (searchParam.searchColumn === 'checkInDateFrom') {
+        //         start = new Date(searchParam.searchCheckInDateFrom);
+        //     }
+        //     if (searchParam.searchColumn === 'checkInDateUntil') {
+        //         end = new Date(searchParam.searchValue);
+        //     }
+        // });
+        start = new Date(searchParams.searchCheckInDateFrom);
+        end = new Date(searchParams.searchCheckInDateUntil);
 
 
         const dataQuery = this.dbClient.db
@@ -1849,19 +1855,19 @@ export default class ReservationRepository extends Repository<Reservation, typeo
         c.d(rooms.length);
         c.d(rooms.length > 0 ? rooms[0] : []);
         c.fe('ReservationRepository > roomScheduleGetList');
-        return rooms;
+        return [rooms, 0];
     }
 
 
-    async roomTypeGetAll(location: string, sessionUser: SessionUser): Promise<RoomType[]> {
-        c.fs('ReservationRepository > roomTypeGetAll');
-        const roomTypes = await this.roomTypeRepository.findMany({location: SessionUser.location});
+    // async roomTypeGetAll(location: string, sessionUser: SessionUser): Promise<RoomType[]> {
+    //     c.fs('ReservationRepository > roomTypeGetAll');
+    //     const roomTypes = await this.roomTypeRepository.findMany({location: SessionUser.location});
 
-        c.d(roomTypes.length);
-        c.d(roomTypes.length > 0 ? roomTypes[0] : []);
-        c.fe('ReservationRepository > roomTypeGetAll');
-        return roomTypes;
-    }
+    //     c.d(roomTypes.length);
+    //     c.d(roomTypes.length > 0 ? roomTypes[0] : []);
+    //     c.fe('ReservationRepository > roomTypeGetAll');
+    //     return roomTypes;
+    // }
 
 
     // async reservationUpdateDropOffInfo(id:string, carNo:string, driver:string, transaction?:TransactionType): Promise<void> {

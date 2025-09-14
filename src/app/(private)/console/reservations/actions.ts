@@ -74,8 +74,8 @@ export async function reservationGetList(formState: FormState, formData: FormDat
 
     //retrieve data from tuple
     c.fe('Actions > reservationGetList');
-    const [reservations, pager] = responseData.data;
-    return { error: false, message: "", data: reservations, pager: pager };
+    // const [reservations, pager] = responseData.data;
+    return { error: false, message: "", data: responseData.data.reservations, pager: responseData.data.pager};
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return { error: true, message: "Reservation list retrieval failed." };
@@ -140,7 +140,7 @@ export async function billsGet(id: string): Promise<FormState> {
     c.d(responseData.data?.bills?.length > 0 ? responseData.data.bills[0] : []);
 
     c.fe('Actions > billsGet');
-    return { error: false, message: "", data: responseData.bills, formData: null };
+    return { error: false, message: "", data: responseData.data.bills, formData: null };
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return { error: true, message: 'Failed to add bills.', data: null, formData: null };
@@ -192,7 +192,7 @@ export async function billsSave(id: string, bills: Bill[]): Promise<FormState> {
 }
 
 
-export async function billsView(id: string): Promise<FormState> {
+export async function invoiceView(id: string): Promise<FormState> {
   try {
     c.fs('Actions > billsView');
     c.d(id);
@@ -214,10 +214,9 @@ export async function billsView(id: string): Promise<FormState> {
       return { error: true, message: `Failed to get invoices. ${responseData.message}`, data: null, formData: null };
     }
 
-    c.d(responseData.data?.invoice);
     //update user success
     c.fe('Actions > billsView');
-    return { error: false, message: "", data: responseData.invoice, formData: null };
+    return { error: false, message: "", data: responseData.data.invoice, formData: null };
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return { error: true, message: 'Failed to get invoices.', data: null, formData: null };

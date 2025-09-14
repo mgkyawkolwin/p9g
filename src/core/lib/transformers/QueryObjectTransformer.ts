@@ -15,7 +15,7 @@ export default class DrizzleQueryObjectTransformer implements IQueryObjectTranfo
             continue;
           }
     
-          const columnName = tableMapping?.[key];
+          const columnName = tableMapping?.[key] ? tableMapping?.[key] : key;
     
           // Handle special suffix patterns first
           if (key.endsWith('From') || key.endsWith('Until')) {
@@ -97,7 +97,7 @@ export default class DrizzleQueryObjectTransformer implements IQueryObjectTranfo
         
         // Handle strings with LIKE pattern
         if (typeof value === 'string') {
-          return sql`${sql.identifier(columnName)} LIKE ${`%${value}%`}`;
+          return sql`(${sql.identifier(columnName)} = ${`${value}`} OR ${sql.identifier(columnName)} LIKE ${`%${value}%`})`;
         }
         
         // Handle numbers and booleans with equality
@@ -119,6 +119,6 @@ export default class DrizzleQueryObjectTransformer implements IQueryObjectTranfo
        * Helper to create order by SQL
        */
       orderBy<TResult>(orderBy: Record<string, any>): TResult {
-        return sql`ORDER BY ${sql.identifier(orderBy.column)} ${sql.raw(orderBy.direction.toUpperCase())}` as TResult;
+        return sql`${sql.identifier(orderBy.column)} ${sql.raw(orderBy.direction.toUpperCase())}` as TResult;
       }
 }

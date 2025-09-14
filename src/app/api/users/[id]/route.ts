@@ -6,18 +6,26 @@ import c from "@/core/loggers/console/ConsoleLogger";
 import { HttpStatusCode } from "@/core/lib/constants";
 import { CustomError } from "@/core/lib/errors";
 import ILogService from "@/core/domain/services/contracts/ILogService";
+import { auth } from "@/app/auth";
 
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         c.fs("GET /api/users/[id]");
         c.d(JSON.stringify(await params));
+
+        const session = await auth();
+        if (!session?.user)
+            throw new CustomError('Invalid session');
+
         const { id } = await params;
         const service = container.get<IUserService>(TYPES.IUserService);
-        const result = await service.userFindById(parseInt(id));
+        const result = await service.userFindById(id, session.user);
         if (!result) {
             return NextResponse.json({ message: "Not found." }, { status: HttpStatusCode.NotFound });
         }
+
+        c.fe("GET /api/users/[id]");
         return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
@@ -31,22 +39,26 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 }
 
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: number }> }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         c.fs('PUT /api/users/[id]');
+
+        const session = await auth();
+        if (!session?.user)
+            throw new CustomError('Invalid session');
+
         const body = await request.json();
         const { id } = await params;
         const service = container.get<IUserService>(TYPES.IUserService);
         // find existing user
-        const user = await service.userFindById(id);
+        const user = await service.userFindById(id, session.user);
         if (!user) {
             return NextResponse.json({ message: "Not found." }, { status: HttpStatusCode.NotFound });
         }
         // update user
-        const updatedUser = await service.userUpdate(id, body);
-        if (!updatedUser) {
-            return NextResponse.json({ message: "Update failed." }, { status: HttpStatusCode.NotFound });
-        }
+        await service.userUpdate(id, body, session.user);
+
+        c.fe('PUT /api/users/[id]');
         return NextResponse.json({ message: "Updated" }, { status: HttpStatusCode.Created });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
@@ -61,15 +73,19 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
 
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: number }> }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         c.fs('DELETE /api/users/[id]');
+
+        const session = await auth();
+        if (!session?.user)
+            throw new CustomError('Invalid session');
+
         const { id } = await params;
         const service = container.get<IUserService>(TYPES.IUserService);
-        const result = await service.userDelete(id);
-        if (!result) {
-            return NextResponse.json({ message: "Fail delete." }, { status: 404 });
-        }
+        await service.userDelete(id, session.user);
+        
+        c.fe('DELETE /api/users/[id]');
         return NextResponse.json({ message: "Deleted" }, { status: 200 });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));

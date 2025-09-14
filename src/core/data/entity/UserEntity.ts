@@ -1,6 +1,6 @@
-import DomainBase from "./DomainBase";
+import EntityBase from "./EntityBase";
 
-export default class User extends DomainBase{
+export default class User extends EntityBase{
     public name: string = '';
     public userName: string = '';
     public email: string = '';

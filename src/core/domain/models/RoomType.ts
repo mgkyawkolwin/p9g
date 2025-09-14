@@ -1,6 +1,6 @@
-import ModelBase from "./ModelBase";
+import DomainBase from "./DomainBase";
 
-export default class RoomType extends ModelBase{
+export default class RoomType extends DomainBase{
     public roomType: string = '';
     public roomTypeText: string = '';
     public maxOccupancy: number = 0;

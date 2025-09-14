@@ -3,55 +3,61 @@ import { RegularExpressions } from '../lib/regularExpressions';
 
 
 export const billValidator = z.object({
-  id: z.coerce.string().nullish().catch(undefined).optional(),
+  id: z.coerce.string().length(36),
   reservationId: z.coerce.string(),
   dateUTC: z.coerce.date(),
   itemName: z.coerce.string(),
   unitPrice: z.coerce.number(),
   quantity: z.coerce.number(),
   amount: z.coerce.number(),
-  currency: z.coerce.string(),
+  currency: z.coerce.string().nullish().catch(undefined),
   isPaid: z.coerce.boolean(),
   paidOnUTC: z.coerce.date().nullish().catch(undefined).optional(),
   paymentType: z.coerce.string(),
-  paymentMode: z.coerce.string()
+  paymentMode: z.coerce.string(),
+  modelState: z.string()
 });
 
 
 export const customerValidator = z.object({
-  id: z.string().nullish().catch(undefined).optional(),
-  name: z.string().nullish().catch(undefined).optional(),
-  englishName: z.string().nullish().catch(undefined).optional(),
-  nationalId: z.string().nullish().catch(undefined).optional(),
-  passport: z.string().nullish().catch(undefined).optional(),
-  phone: z.string().nullish().catch(undefined).optional(),
-  email: z.string().nullish().catch(undefined).optional(),
-  country: z.string().nullish().catch(undefined).optional(),
+  id: z.string().length(36),
+  name: z.string().nullish().optional(),
+  englishName: z.string().nullish().optional(),
+  nationalId: z.string().nullish().optional(),
+  passport: z.string().nullish().optional(),
+  phone: z.string().nullish().optional(),
+  email: z.string().nullish().optional(),
+  country: z.string().nullish().optional(),
   dob: z.string().nullish().catch(undefined).optional(),
-  address: z.string().nullish().catch(undefined).optional()
+  address: z.string().nullish().optional(),
+  modelState: z.string().optional()
 });
 
 export const userInsertSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   password: z.string().min(1, 'Password is required'),
   email: z.string().min(1, 'Email is required'),
+  modelState: z.string().optional()
 });
 
 export const userSignInSchema = z.object({
   userName: z.string().min(1, 'Username is required'),
   password: z.string().min(1, 'Password is required'),
+  modelState: z.string().optional()
 });
 
 export const userCreateSchema = z.object({
   userName: z.string().min(1, 'Name is required'),
   email: z.string().min(1, 'Email is required'),
+  modelState: z.string().optional()
 });
 
 export const userUpdateSchema = z.object({
   id: z.coerce.number(),
   userName: z.string().min(1, 'Name is required'),
   email: z.string().min(1, 'Email is required'),
-  password: z.string().min(1, 'Password is required')
+  password: z.string().min(1, 'Password is required'),
+  modelState: z.string()
 });
 
 
@@ -59,12 +65,12 @@ export const pagerValidator = z.object({
   orderBy: z.string().regex(RegExp('[a-zA-Z]'),'Invalid orderBy column.').optional(),
   orderDirection: z.string().regex(RegExp('asc|desc'),'Invalid search column.').optional(),
   pageIndex: z.coerce.number().optional(),
-  pageSize: z.coerce.number().optional(),
+  pageSize: z.coerce.number().optional()
 });
 
 
 export const paymentValidator = z.object({
-  id: z.string().length(36).nullish().catch(undefined).optional(),
+  id: z.string().length(36),
   reservationId: z.string().length(36),
   paymentDateUTC: z.coerce.date(),
   amount: z.coerce.number(),
@@ -72,17 +78,18 @@ export const paymentValidator = z.object({
   currency: z.string().length(3),
   paymentMode: z.string().min(1),
   paymentType: z.string().min(1),
-  remark: z.string().nullish().catch(undefined).optional()
+  remark: z.string().nullish().optional(),
+  modelState: z.string()
 });
 
 
 
 export const reservationValidator = z.object({
-  id: z.coerce.string().min(36,"Id is required").nullish().catch(undefined).optional(),
-  arrivalDateTime: z.coerce.date().nullish().catch(undefined).optional(),
-  arrivalFlight: z.coerce.string().optional(),
-  checkInDate: z.coerce.date({message:"Check-in date is either missing or incorrect format."}),
-  checkOutDate: z.coerce.date({message:"Check-out date is either missing or incorrect format."}),
+  id: z.coerce.string().length(36),
+  arrivalDateTime: z.coerce.date(),
+  arrivalFlight: z.coerce.string().nullish(),
+  checkInDate: z.coerce.date(),
+  checkOutDate: z.coerce.date(),
   customers: z.preprocess(
     (val) => {
       if (typeof val === "string") {
@@ -100,28 +107,30 @@ export const reservationValidator = z.object({
     })
   ).optional()
   ),
-  departureDateTime: z.coerce.date().nullish().catch(undefined).optional(),
-  departureFlight: z.coerce.string().optional(),
-  depositAmount: z.coerce.number().optional(),
-  depositAmountInCurrency: z.coerce.number().optional(),
-  depositCurrency: z.coerce.string().nullish().catch(undefined).optional(),
-  depositDateUTC: z.coerce.date().nullish().catch(undefined).optional(),
+  departureDateTime: z.coerce.date(),
+  departureFlight: z.coerce.string().nullish(),
+  depositAmount: z.coerce.number(),
+  depositAmountInCurrency: z.coerce.number(),
+  depositCurrency: z.coerce.string().nullish(),
+  depositDateUTC: z.coerce.date().nullish().catch(undefined),
   discountAmount: z.coerce.number(),
-  depositPaymentMode: z.coerce.string().nullish().catch(undefined).optional(),
-  dropOffType: z.coerce.string().optional(),
+  depositPaymentMode: z.coerce.string().nullish(),
+  dropOffType: z.coerce.string().nullish(),
   isSingleOccupancy: z.coerce.boolean(),
-  location: z.coerce.string(),
-  noOfDays: z.coerce.number().gt(0, { message: "Number of days must be greater than 0" }),
-  noOfGuests: z.coerce.number().gt(0, { message: "Number of guests must be greater than 0" }),
-  pickUpType: z.coerce.string().optional(),
-  prepaidPackage: z.coerce.string().optional(),
-  promotionPackage: z.coerce.string().optional(),
-  remark: z.coerce.string().optional(),
-  reservationStatus: z.string().optional(),
-  reservationType: z.string().optional(),
-  roomNo: z.coerce.string().optional(),
+  location: z.coerce.string().optional(),
+  noOfDays: z.coerce.number().gt(0),
+  noOfGuests: z.coerce.number().gt(0),
+  paidAmount: z.coerce.number(),
+  pickUpType: z.coerce.string().nullish(),
+  prepaidPackage: z.coerce.string().nullish(),
+  promotionPackage: z.coerce.string().nullish(),
+  remark: z.coerce.string().nullish().catch(undefined),
+  reservationStatus: z.string().nullish(),
+  reservationType: z.string().nullish(),
+  roomNo: z.coerce.string().nullish(),
   tax: z.coerce.number(),
-  tourCompany: z.coerce.string().optional(),
+  tourCompany: z.coerce.string().nullish(),
+  modelState: z.coerce.string(),
 });
 
 
@@ -129,7 +138,6 @@ export const roomChargeValidator = z.object({
   id: z.string().length(36).nullish().catch(undefined).optional(),
   endDate: z.coerce.date(),
   extraBedRate: z.coerce.number(),
-  modelState: z.string(),
   noOfDays: z.coerce.number(),
   reservationId: z.string().length(36),
   roomId: z.string().optional(),
@@ -141,6 +149,7 @@ export const roomChargeValidator = z.object({
   startDate: z.coerce.date(),
   totalRate: z.coerce.number(),
   totalAmount: z.coerce.number(),
+  modelState: z.string().optional()
 });
 
 
@@ -153,7 +162,7 @@ export const roomReservationValidator = z.object({
   reservationId: z.string().length(36),
   roomId: z.string().length(36).nullish().catch(undefined).optional(),
   roomNo: z.string(),
-  modelState: z.string()
+  modelState: z.string().optional()
 });
 
 
@@ -181,7 +190,7 @@ export const searchSchema = z.object({
   searchReservationStatus: z.string().optional(),
   searchReservationType: z.string().optional(),
   searchUserName: z.string().optional(),
-
+  modelState: z.string().optional()
 });
 
 

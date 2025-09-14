@@ -42,25 +42,38 @@ export default class CustomMapper implements IMapper{
         // Common mapping logic
         Object.keys(result).forEach((key) => {
             const destKey = key as keyof TDestination;
+            const sourceValue = (source as any)[key];
+            const sourceType = typeof sourceValue;
+            const destValue = result[destKey];
+            const destType = typeof destValue;
             
             if (source.hasOwnProperty(key)) {
-                const sourceValue = (source as any)[key];
-                const destValue = result[destKey];
-                const destType = typeof destValue;
-                
-                if (destType === 'number') {
+                if (destType === sourceType){
+                    (result as any)[key] = sourceValue;
+                }else if (destType === 'number') {
                     const numValue = Number(sourceValue);
                     (result as any)[key] = isNaN(numValue) ? 0 : numValue;
                 } else if (destType === 'boolean') {
                     (result as any)[key] = Boolean(sourceValue);
                 } else if (destType === 'string') {
-                    (result as any)[key] = sourceValue ? String(sourceValue) : undefined;
+                    (result as any)[key] = sourceValue != null && sourceValue != undefined ? String(sourceValue) : '';
                 } else if (destValue instanceof Date) {
                     (result as any)[key] = sourceValue ? new Date(sourceValue) : undefined;
                 }  else if (destType === typeof sourceValue) {
                     (result as any)[key] = sourceValue;
                 }else{
                     (result as any)[key] = sourceValue;
+                }
+            }else{
+                //source does not have destination property, assign default values
+                if (destType === 'number') {
+                    (result as any)[key] = 0;
+                } else if (destType === 'boolean') {
+                    (result as any)[key] = false;
+                } else if (destType === 'string') {
+                    (result as any)[key] = '';
+                }else{
+                    (result as any)[key] = undefined;
                 }
             }
         });

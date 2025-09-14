@@ -8,12 +8,18 @@ import { buildSearchParams } from "@/core/lib/utils";
 import IReservationService from "@/core/domain/services/contracts/IReservationService";
 import { CustomError } from "@/core/lib/errors";
 import ILogService from "@/core/domain/services/contracts/ILogService";
+import { auth } from "@/app/auth";
 
 
 export async function GET(request: NextRequest) {
   try {
     c.fs("GET /api/roomsechedules");
     c.d(JSON.stringify(request));
+
+    const session = await auth();
+    if (!session?.user)
+      throw new CustomError('Invalid session');
+
     let searchParams: SearchParam[] = [];
 
     c.i('Converting url search params into form object.')
@@ -22,19 +28,20 @@ export async function GET(request: NextRequest) {
 
     c.i('Validating search form object.');
     const validatedSearchFields = await searchSchema.safeParseAsync(searchFormData);
-    if (validatedSearchFields.success) {
-      c.i('Search param validation successful. Build search params.');
-      searchParams = buildSearchParams(validatedSearchFields.data);
-      c.d(searchParams);
-    }
+    // if (validatedSearchFields.success) {
+    //   c.i('Search param validation successful. Build search params.');
+    //   searchParams = buildSearchParams(validatedSearchFields.data);
+    //   c.d(searchParams);
+    // }
 
     //call service to retrieve data
     c.i('Calling reservation service');
     const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-    const result = await reservationService.roomScheduleGetList(searchParams);
+    const result = await reservationService.roomScheduleGetList(validatedSearchFields.data, session.user);
     c.d(JSON.stringify(result));
 
-    return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });
+    c.fe("GET /api/roomsechedules");
+    return NextResponse.json({ data: result[0] }, { status: HttpStatusCode.Ok });
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     const logService = container.get<ILogService>(TYPES.ILogService);

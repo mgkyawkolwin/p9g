@@ -6,16 +6,24 @@ import {
 } from "@tanstack/react-table";
 import SimpleDataTable from "./simpledatatable";
 import Reservation from "@/core/domain/models/Reservation";
+import { getReservationStatusColorClass } from "@/core/lib/utils";
 
 
 export const columns: ColumnDef<Reservation>[] = [
   {
-    accessorKey: "id",
-    header: "ID",
-    accessorFn: (row) => {
-      return row.id.substring(0,8);
-    }
-  },
+        accessorKey: "customReservationInfo",
+        header: "ID",
+        accessorFn: (row) => {
+          return <span>
+            <a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />
+            <span className={`font-bold ${getReservationStatusColorClass(row.reservationStatusText)}`}>{row.reservationStatusText}</span><br />
+            <span>{row.reservationTypeText}</span>
+            {row.prepaidPackageText ? <span className="font-bold text-[#ff00ff] dark:text-[#ff00ff]"><br />{row.prepaidPackageText}</span> : ''}
+            {row.promotionPackageText ? <span className="font-bold text-[#dd5500] dark:text-[#ff9911]"><br />{row.promotionPackageText}</span> : ''}
+          </span>;
+        },
+        cell: (row) => row.getValue(),
+      },
   {
     accessorKey: "reservationStatusText",
     header: 'Status',

@@ -67,13 +67,13 @@ export async function customerGetList(formState : FormState, formData: FormData)
 
     //success
     c.i("Updated list retrieval successful.");
-    c.d(responseData.data?.users?.length);
-    c.d(responseData.data?.users?.length > 0 ? responseData.data?.users[0] : []);
+    c.d(responseData.data?.customers?.length);
+    c.d(responseData.data?.customers?.length > 0 ? responseData.data?.customers[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > customerGetList');
-    const [users, pager] = responseData.data;
-    return {error:false, message : message, data: users, pager: pager};
+    // const [users, pager] = responseData.data;
+    return {error:false, message : message, data: responseData.data.customers, pager: responseData.data.pager};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
     return {error:true, message : "Customer list retrieval failed."};

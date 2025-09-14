@@ -133,7 +133,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                             />
                         </div>
                         <InputWithLabel name="arrivalFlight" label="Arrival Flight" variant="form" size={"xs"} labelPosition="top"
-                            value={reservation?.arrivalFlight} onChange={(e) => setReservation(prev => ({ ...prev, arrivalFlight: e.target.value }))} />
+                            value={reservation?.arrivalFlight ? reservation?.arrivalFlight : ''} onChange={(e) => setReservation(prev => ({ ...prev, arrivalFlight: e.target.value }))} />
                         <SelectWithLabel name="pickUpType" label="Pick Up" variant="form" size={"sm"} labelPosition="top" items={SelectListForm.TRANSPORTATION}
                             value={reservation?.pickUpType ? reservation?.pickUpType : 'DEFAULT'} onValueChange={value => setReservation(prev => ({ ...prev, pickUpType: value === 'DEFAULT' ? '' : value }))} />
                     </div>
@@ -169,7 +169,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                             />
                         </div>
                         <InputWithLabel name="departureFlight" label="Dep Flight" variant="form" size={"xs"} labelPosition="top"
-                            value={reservation?.departureFlight} onChange={(e) => setReservation(prev => ({ ...prev, departureFlight: e.target.value }))} />
+                            value={reservation?.departureFlight ? reservation?.departureFlight : ''} onChange={(e) => setReservation(prev => ({ ...prev, departureFlight: e.target.value }))} />
                         <SelectWithLabel name="dropOffType" label="Drop Off" variant="form" size={"sm"} labelPosition="top" items={SelectListForm.TRANSPORTATION}
                             value={reservation?.dropOffType ? reservation?.dropOffType : 'DEFAULT'} onValueChange={value => setReservation(prev => ({ ...prev, dropOffType: value === 'DEFAULT' ? '' : value }))} />
                     </div>
@@ -241,7 +241,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                 calculateDiscount({noOfGuests:days});
                                 }} />
                         <InputWithLabel name="roomNo" label="Room No" variant="form" size={"xs"} labelPosition="top"
-                            value={reservation?.roomNo} onChange={(e) => setReservation(prev => ({ ...prev, roomNo: e.target.value }))} />
+                            value={reservation?.roomNo ?? ''} onChange={(e) => setReservation(prev => ({ ...prev, roomNo: e.target.value }))} />
                         <CheckboxCustom id="checkbox" name="isSingleOccupancy"
                         checked={reservation.isSingleOccupancy ? true : false} onCheckedChange={(checked:boolean) => {
                             setReservation(prev => ({...prev, isSingleOccupancy: checked}))

@@ -8,12 +8,17 @@ import Bill from "@/core/domain/models/Bill";
 import { billValidator, paymentValidator } from "@/core/validators/zodschema";
 import { CustomError } from "@/core/lib/errors";
 import ILogService from "@/core/domain/services/contracts/ILogService";
+import { auth } from "@/app/auth";
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         c.fs("GET /api/reservations/[id]/payments");
         c.d(JSON.stringify(request));
+
+        const session = await auth();
+        if (!session?.user)
+            throw new CustomError('Invalid session');
 
         //retrieve search params from request
         const p = await params;
@@ -27,10 +32,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
         //call service to retrieve data
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-        const result = await reservationService.paymentGetListById(id);
+        const result = await reservationService.paymentGetListById(id, session.user);
 
         c.i('Return GET /api/reservations/[id]/payments');
-        return NextResponse.json({ payments: result }, { status: HttpStatusCode.Ok });
+        return NextResponse.json({ payments: result[0] }, { status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
         const logService = container.get<ILogService>(TYPES.ILogService);
@@ -48,6 +53,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         c.fs("POST /api/reservations/[id]/payments");
         c.d(JSON.stringify(request));
 
+        const session = await auth();
+        if (!session?.user)
+            throw new CustomError('Invalid session');
 
         //retrieve search params from request
         const p = await params;
@@ -77,7 +85,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         c.d(payments);
         //call service to retrieve data
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-        await reservationService.paymentUpdateList(id, payments);
+        await reservationService.paymentUpdateList(id, payments, session.user);
 
 
         c.i('Return POST /api/reservations/[id]/payments');

@@ -39,12 +39,12 @@ export async function getTopReservationsAction(): Promise<FormState> {
     //c.d(reservationData);
 
     //retrieve data from tuple
-    const [reservations] = responseData.data;
+    // const [reservations] = responseData.data;
     c.d(responseData.data?.reservations?.length);
     c.d(responseData.data?.reservations?.length > 0 ? responseData.data.reservations[0] : []);
 
     c.fe('Actions > getTopReservationsAction');
-    const successresponse = {error:false, message : message, data: {reservations: reservations}};
+    const successresponse = {error:false, message : message, data: {reservations: responseData.data.reservations}};
     //c.d(successresponse);
     return successresponse;
   }catch(error){

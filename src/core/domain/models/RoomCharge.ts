@@ -1,7 +1,7 @@
-import ModelBase from "./ModelBase";
+import DomainBase from "./DomainBase";
 import { v4 as uuidv4 } from 'uuid';
 
-export default class RoomCharge extends ModelBase{
+export default class RoomCharge extends DomainBase{
     public reservationId: string = '';
     public startDate:Date = null;
     public endDate:Date = null;

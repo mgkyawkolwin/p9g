@@ -1,7 +1,7 @@
 import IEntity from "@/core/data/entity/IEntity";
-import ModelBase from "./ModelBase";
+import DomainBase from "./DomainBase";
 
-export default class Customer extends ModelBase {
+export default class Customer extends DomainBase {
     public address: string = '';
     public country: string = '';
     public dob: string = '';

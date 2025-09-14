@@ -55,7 +55,7 @@ export default class RoomRateEngine{
                 roomCharge.startDate = md.periodStart;
                 roomCharge.endDate = md.periodEnd;
                 roomCharge.noOfDays = Number(md.noOfDays);
-                if(reservation.prepaidPackageId && reservation.prepaidPackageId.trim() !== ''){
+                if(reservation.prepaidPackage && reservation.prepaidPackage.trim() !== ''){
                     roomCharge.roomRate = 0;
                     roomCharge.roomSurcharge = Number(rate.roomSurcharge);
                     roomCharge.seasonSurcharge = Number(rate.seasonSurcharge);

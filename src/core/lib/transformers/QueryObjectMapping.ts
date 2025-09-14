@@ -1,4 +1,5 @@
 export const queryObjectMapping = {
+    date: 'date',
     searchArrivalDateTime: 'arrivalDateTime',
     searchCheckInDate: 'checkInDate',
     searchCheckInDateFrom: 'checkInDateFrom',
@@ -7,7 +8,6 @@ export const queryObjectMapping = {
     searchCreatedDateFrom: 'createdDateFrom',
     searchCreatedDateUntil: 'createdDateUntil',
     searchDepartureDateTime: 'departureDateTime',
-    date: 'date',
     searchDate: 'date',
     searchEmail: 'email',
     searchId: 'id',
