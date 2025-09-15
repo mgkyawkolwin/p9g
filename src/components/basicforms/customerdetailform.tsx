@@ -41,18 +41,18 @@ export default function CustomerDetailForm({ customer, resetDataToggle, onDataCh
                 value={localCustomer?.englishName ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, englishName: e.target.value }))} />
             <div className="flex flex-col gap-2">
                 <Label className="text-[10pt]">DOB</Label>
-                <DatePicker
+                <DatePicker className="flex"
                     selected={localCustomer?.dob ? new Date(localCustomer?.dob) : null}
                     onChange={(date: Date | null) => {
                         setLocalCustomer(prev => ({
                             ...prev,
-                            dob: date.toLocaleDateString()
+                            dob: date ? date.toLocaleDateString() : ''
                         }));
 
                     }}
                     onBlur={() => onDataChanged(localCustomer)}
                     dateFormat="yyyy-MM-dd"
-                    customInput={<InputCustom variant="form" size="md" />} // Uses shadcn/ui Input
+                    customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
                     placeholderText="yyyy-mm-dd"
                     isClearable={true}
                     showIcon

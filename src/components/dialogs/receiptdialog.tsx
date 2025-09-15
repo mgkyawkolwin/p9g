@@ -86,7 +86,7 @@ export default function ReceiptDialog({
       <Dialog open={open} onOpenChange={setOpen} >
           <DialogContent className="flex flex-col min-h-[80vh] min-w-[90vw] ">
             <DialogHeader>
-              <DialogTitle>Payments</DialogTitle>
+              <DialogTitle></DialogTitle>
             </DialogHeader>
               <div ref={receiptRef} id="printable-receipt" className="flex w-auto">
               <ReceiptTable reservation={reservation} roomCharges={roomCharges}/>

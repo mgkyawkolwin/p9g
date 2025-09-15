@@ -2,7 +2,7 @@ import EntityBase from "./EntityBase";
 
 export default class BillEntity extends EntityBase{
     public dateUTC: Date = new Date();
-    public reservationId: string;
+    public reservationId: string = '';
     public itemName: string = "";
     public quantity: number = 0;
     public unitPrice: number = 0;

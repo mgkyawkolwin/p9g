@@ -81,20 +81,30 @@ export default class ReservationService implements IReservationService {
         c.i('Preparing data based on model state.');
         const updateList = bills.filter(b => b.modelState == 'updated');
         const insertList = bills.filter(b => b.modelState == "inserted");
+        const deleteList = bills.filter(b => b.modelState == "deleted");
         c.i(`Update counts: ${updateList.length}`);
         c.i(`Insert counts: ${insertList.length}`);
+        c.i(`Delete counts: ${deleteList.length}`);
 
         c.i('Updating update information.');
         updateList.forEach(bill => {
+            bill.updatedAtUTC = new Date();
             bill.updatedBy = sessionUser.id;
         });
 
         insertList.forEach(bill => {
+            bill.createdAtUTC = new Date();
             bill.createdBy = sessionUser.id;
+            bill.updatedAtUTC = new Date();
             bill.updatedBy = sessionUser.id;
         });
 
         await this.dbClient.db.transaction(async (tx: any) => {
+            c.i('Deleting bills');
+            for(const bill of deleteList){
+                await this.billRepository.delete(bill.id);
+            }
+
             c.i('Updating bills.');
             for (const bill of updateList) {
                 await this.billRepository.update(bill.id, bill, tx);
@@ -195,19 +205,30 @@ export default class ReservationService implements IReservationService {
     async paymentUpdateList(reservationId: string, payments: Payment[], sessionUser: SessionUser): Promise<void> {
         c.fs('ReservationService > paymentUpdateList');
         // await this.reservationRepository.paymentUpdateList(reservationId, payments);
-        const updateList = payments.filter(p => typeof p.id !== 'undefined');
-        const insertList = payments.filter(p => typeof p.id === 'undefined');
+        const updateList = payments.filter(p => p.modelState === 'updated');
+        const insertList = payments.filter(p => p.modelState === 'inserted');
+        const deleteList = payments.filter(p => p.modelState === 'deleted');
+        c.i(`Update counts: ${updateList.length}`);
+        c.i(`Insert counts: ${insertList.length}`);
+        c.i(`Delete counts: ${deleteList.length}`);
 
-        updateList.forEach(bill => {
-            bill.updatedBy = sessionUser.id;
+        updateList.forEach(payment => {
+            payment.updatedAtUTC = new Date();
+            payment.updatedBy = sessionUser.id;
         });
 
-        insertList.forEach(bill => {
-            bill.createdBy = sessionUser.id;
-            bill.updatedBy = sessionUser.id;
+        insertList.forEach(payment => {
+            payment.createdAtUTC = new Date();
+            payment.createdBy = sessionUser.id;
+            payment.updatedAtUTC = new Date();
+            payment.updatedBy = sessionUser.id;
         });
 
         await this.dbClient.db.transaction(async (tx: TransactionType) => {
+            c.i('Deleting payments');
+            for(const payment of deleteList){
+                await this.paymentRepository.delete(payment.id);
+            }
 
             c.i('Updating payments');
             for(const payment of updateList){
@@ -290,10 +311,10 @@ export default class ReservationService implements IReservationService {
         pagerParams.orderBy = "checkInDate";
         pagerParams.orderDirection = "desc";
         if (list === 'checkin') {
-            return await this.reservationRepository.reservationGetList(searchParams, pagerParams);
+            return await this.reservationRepository.reservationGetList(searchParams, pagerParams, list);
         }
         else if (list === 'checkout') {
-            return await this.reservationRepository.reservationGetList(searchParams, pagerParams);
+            return await this.reservationRepository.reservationGetList(searchParams, pagerParams, list);
         }
         else if (list === 'top') {
             pagerParams.orderBy = 'createdAtUTC';
@@ -721,9 +742,10 @@ export default class ReservationService implements IReservationService {
     }
 
 
-    async roomChargeGetListById(reservationId: string, sessionUser: SessionUser): Promise<[RoomCharge[], number]> {
+    async roomChargeGetListById(reservationId: string, sessionUser: SessionUser): Promise<RoomCharge[]> {
         c.fs('ReservationService > roomChargeGetListById');
-        return await this.roomChargeRepository.findMany({ reservationId: reservationId });
+        // TO DO: to retrieve room no and assign to roomCharge
+        return await this.reservationRepository.roomChargeGetListById(reservationId, sessionUser);
     }
 
 

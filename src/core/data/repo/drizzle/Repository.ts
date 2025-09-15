@@ -51,10 +51,12 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
 
   async createMany<TTransaction extends ITransaction>(domains: TDomain[], transaction?: TTransaction): Promise<void> {
     c.fs("Repository > createMany");
+    c.d(domains);
     const entities : TEntity[] = [];
     for(const domain of domains){
       entities.push(await this.mapper.map(domain, this.entityClass));
     }
+    c.d(entities);
     const query = this.dbClient.db.insert(this.table).values(entities);
     if (transaction)
       await transaction.execute(query);

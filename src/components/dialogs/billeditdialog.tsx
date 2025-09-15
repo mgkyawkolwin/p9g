@@ -47,17 +47,26 @@ export default function BillEditDialog({
   }, [callbackFunctions]);
 
 
-  const handleInputChange = (rowIndex: number, field: string, value: string | Date | boolean | undefined, compute: boolean = false) => {
+  const handleInputChange = (rowIndex: number, field: string, value: string | Date | boolean | number | undefined, compute: boolean = false) => {
     if (compute)
       setBills(prev =>
         prev.map((bill, index) =>
-          index === rowIndex ? { ...bill, [field]: value, amount: bill.unitPrice && bill.quantity ? bill.unitPrice * bill.quantity : 0 } : bill
+          index === rowIndex ? { 
+            ...bill, 
+            [field]: value, 
+            amount: bill.unitPrice && bill.quantity ? bill.unitPrice * bill.quantity : 0 ,
+            modelState: bill.modelState == "inserted" ? "inserted" : "updated" 
+          } : bill
         )
       );
     else {
       setBills(prev =>
         prev.map((bill, index) =>
-          index === rowIndex ? { ...bill, [field]: value } : bill
+          index === rowIndex ? { 
+            ...bill, 
+            [field]: value,
+            modelState: bill.modelState == "inserted" ? "inserted" : "updated" 
+          } : bill
         )
       );
     }
@@ -123,9 +132,9 @@ export default function BillEditDialog({
       cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-unitPrice`} // Crucial for maintaining focus
         value={row.row.original.unitPrice}
         onChange={e => {
-          handleInputChange(row.row.index, "unitPrice", e.target.value);
+          handleInputChange(row.row.index, "unitPrice", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
         }} onBlur={e => {
-          handleInputChange(row.row.index, "unitPrice", e.target.value, true);
+          handleInputChange(row.row.index, "unitPrice", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value), true);
         }} />
     },
     {
@@ -134,9 +143,9 @@ export default function BillEditDialog({
       cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-quantity`} // Crucial for maintaining focus
         value={row.row.original.quantity}
         onChange={e => {
-          handleInputChange(row.row.index, "quantity", e.target.value);
+          handleInputChange(row.row.index, "quantity", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
         }} onBlur={e => {
-          handleInputChange(row.row.index, "quantity", e.target.value, true);
+          handleInputChange(row.row.index, "quantity", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value), true);
         }} />
     },
     {
@@ -191,7 +200,8 @@ export default function BillEditDialog({
 
 
   function getActionButton(id: string | undefined, reservationId: string, rowIndex: number) {
-    if (id && id.trim().length != 0) {
+    const bill = bills.find(b => b.id === id);
+    if (bill && bill.modelState !== 'inserted') {
       return <ButtonCustom type="button" variant={"red"} size={"sm"}
         onClick={async () => {
           const result = await billDelete(reservationId, id);
@@ -240,14 +250,14 @@ export default function BillEditDialog({
           <BillDataTable columns={columns} data={bills} />
         </div>
         <DialogFooter>
-          <ButtonCustom type="submit" onClick={async () => {
+          <ButtonCustom type="submit" variant="green" onClick={async () => {
             const response = await billsSave(reservationId, bills);
             toast(response.message);
             if (!response.error)
               setOpen(false);
           }}>Save Bill</ButtonCustom>
           <ButtonCustom onClick={() => {
-            setBills(prev => [...prev, { ...new Bill(), reservationId, modelState: 'inserted' }]);
+            setBills(prev => [...prev, { ...new Bill(), reservationId }]);
           }}>Add Row</ButtonCustom>
           <DialogClose asChild>
             <ButtonCustom variant="black" onClick={() => {

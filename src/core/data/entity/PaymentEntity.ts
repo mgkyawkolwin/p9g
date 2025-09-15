@@ -2,6 +2,7 @@ import EntityBase from "./EntityBase";
 
 export default class PaymentEntity extends EntityBase{
     public paymentDateUTC:Date = new Date();
+    public reservationId: string = '';
     public description:string = "";
     public amount:number = 0;
     public amountInCurrency:number = 0;

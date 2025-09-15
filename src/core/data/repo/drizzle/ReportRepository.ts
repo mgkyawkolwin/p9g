@@ -334,15 +334,15 @@ export default class ReportRepository implements IReportRepository {
                     }
                 }
 
-                report.totalBankKWR = report.totalRoomChargeBankKWR + report.totalDepositBankKWR + report.totalDropOffBankKWR + report.totalPickUpBankKWR;
-                report.totalBankMMK = report.totalRoomChargeBankMMK + report.totalDepositBankMMK + report.totalDropOffBankMMK + report.totalPickUpBankMMK;
-                report.totalBankTHB = report.totalRoomChargeBankTHB + report.totalDepositBankTHB + report.totalDropOffBankTHB + report.totalPickUpBankTHB;
-                report.totalBankUSD = report.totalRoomChargeBankUSD + report.totalDepositBankUSD + report.totalDropOffBankUSD + report.totalPickUpBankUSD;
+                report.totalBankKWR = report.totalRoomChargeBankKWR + report.totalDepositBankKWR + report.totalDropOffBankKWR + report.totalPickUpBankKWR + report.totalBillBankKWR;
+                report.totalBankMMK = report.totalRoomChargeBankMMK + report.totalDepositBankMMK + report.totalDropOffBankMMK + report.totalPickUpBankMMK + report.totalBillBankMMK;
+                report.totalBankTHB = report.totalRoomChargeBankTHB + report.totalDepositBankTHB + report.totalDropOffBankTHB + report.totalPickUpBankTHB + report.totalBillBankTHB;
+                report.totalBankUSD = report.totalRoomChargeBankUSD + report.totalDepositBankUSD + report.totalDropOffBankUSD + report.totalPickUpBankUSD + report.totalBillBankUSD;
 
-                report.totalCashKWR = report.totalRoomChargeCashKWR + report.totalDepositCashKWR + report.totalDropOffCashKWR + report.totalPickUpCashKWR;
-                report.totalCashMMK = report.totalRoomChargeCashMMK + report.totalDepositCashMMK + report.totalDropOffCashMMK + report.totalPickUpCashMMK;
-                report.totalCashTHB = report.totalRoomChargeCashTHB + report.totalDepositCashTHB + report.totalDropOffCashTHB + report.totalPickUpCashTHB;
-                report.totalCashUSD = report.totalRoomChargeCashUSD + report.totalDepositCashUSD + report.totalDropOffCashUSD + report.totalPickUpCashUSD;
+                report.totalCashKWR = report.totalRoomChargeCashKWR + report.totalDepositCashKWR + report.totalDropOffCashKWR + report.totalPickUpCashKWR + report.totalBillCashKWR;
+                report.totalCashMMK = report.totalRoomChargeCashMMK + report.totalDepositCashMMK + report.totalDropOffCashMMK + report.totalPickUpCashMMK + report.totalBillCashMMK;
+                report.totalCashTHB = report.totalRoomChargeCashTHB + report.totalDepositCashTHB + report.totalDropOffCashTHB + report.totalPickUpCashTHB + report.totalBillCashTHB;
+                report.totalCashUSD = report.totalRoomChargeCashUSD + report.totalDepositCashUSD + report.totalDropOffCashUSD + report.totalPickUpCashUSD + report.totalBillCashUSD;
 
                 report.totalKWR = report.totalBankKWR + report.totalCashKWR;
                 report.totalMMK = report.totalBankMMK + report.totalCashMMK;

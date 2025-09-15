@@ -28,6 +28,7 @@ import RoomReservationEntity from "../../entity/RoomReservationEntity";
 import RoomChargeEntity from "../../entity/RoomChargeEntity";
 import RoomTypeEntity from "../../entity/RoomTypeEntity";
 import RoomEntity from "../../entity/RoomEntity";
+import { ConfigGroup } from "@/core/lib/constants";
 
 
 @injectable()
@@ -871,7 +872,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
     }
 
 
-    async reservationGetList(searchParam: SearchFormFields, pagerParams: PagerParams): Promise<[Reservation[], number]> {
+    async reservationGetList(searchParam: SearchFormFields, pagerParams: PagerParams, list?: string): Promise<[Reservation[], number]> {
         c.fs('ReservationRepository > reservationGetList');
         c.d(searchParam);
         c.d(pagerParams);
@@ -928,6 +929,18 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .offset(offset)
             .limit(pagerParams.pageSize);
 
+        const conditions = [];
+    
+        if(list === 'checkin' || list === 'checkout'){
+            const [reservationStatus] = await this.dbClient.db.select().from(configTable)
+            .where(and(
+                eq(configTable.group, ConfigGroup.RESERVATION_STATUS),
+                eq(configTable.value, 'CCL')
+            )).limit(1);
+            if(!reservationStatus) throw new CustomError('Reservation repository cannot find reservation status');
+            conditions.push(ne(reservationTable.reservationStatusId, reservationStatus.id));
+        }
+
         if (searchParam && Object.entries(searchParam).length > 0) {
             c.i('Building condtions');
             // const conditions = Object.entries(searchParams)
@@ -937,7 +950,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             //         return undefined;
             //     })
             //     .filter((condition): condition is Exclude<typeof condition, undefined> => condition !== undefined);
-            const conditions = [];
+            
             if (searchParam.searchArrivalDateTime) {
                 const startDate = new Date(getUTCDateTimeString(searchParam.searchArrivalDateTime));
                 const endDate = getUTCDateMidNight(new Date(searchParam.searchArrivalDateTime));
@@ -1004,14 +1017,11 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             if (searchParam.searchPhone) {
                 conditions.push( like(customerTable.phone, `%${searchParam.searchPhone}%`));
             }
+        }
 
-            if (conditions.length > 0) {
-                countQuery.where(and(...conditions, eq(reservationTable.location, user.location)));
-                dataQuery.where(and(...conditions, eq(reservationTable.location, user.location)));
-            } else {
-                countQuery.where(eq(reservationTable.location, user.location));
-                dataQuery.where(eq(reservationTable.location, user.location));
-            }
+        if (conditions.length > 0) {
+            countQuery.where(and(...conditions, eq(reservationTable.location, user.location)));
+            dataQuery.where(and(...conditions, eq(reservationTable.location, user.location)));
         } else {
             countQuery.where(eq(reservationTable.location, user.location));
             dataQuery.where(eq(reservationTable.location, user.location));
@@ -1443,46 +1453,46 @@ export default class ReservationRepository extends Repository<Reservation, Reser
     }
 
 
-    // async roomChargeGetListById(reservationId: string): Promise<RoomCharge[]> {
-    //     c.fs('ReservationRepository > roomChargeGetListById');
-    //     const result = await this.dbClient.db.select()
-    //         .from(roomChargeTable)
-    //         .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomChargeTable.roomTypeId))
-    //         .innerJoin(roomTable, eq(roomTable.id, roomChargeTable.roomId))
-    //         .where(eq(roomChargeTable.reservationId, reservationId))
-    //         .orderBy(asc(roomChargeTable.startDate));
+    async roomChargeGetListById(reservationId: string): Promise<RoomCharge[]> {
+        c.fs('ReservationRepository > roomChargeGetListById');
+        const result = await this.dbClient.db.select()
+            .from(roomChargeTable)
+            .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomChargeTable.roomTypeId))
+            .innerJoin(roomTable, eq(roomTable.id, roomChargeTable.roomId))
+            .where(eq(roomChargeTable.reservationId, reservationId))
+            .orderBy(asc(roomChargeTable.startDate));
 
-    //     const roomCharges: RoomCharge[] = result?.map((row: { roomCharge: RoomChargeEntity, roomType: RoomTypeEntity, room: RoomEntity }) => {
-    //         const rc = new RoomCharge();
-    //         rc.id = row.roomCharge.id;
-    //         rc.endDate = row.roomCharge.endDate;
-    //         rc.extraBedRate = Number(row.roomCharge.extraBedRate);
-    //         rc.noOfDays = Number(row.roomCharge.noOfDays);
-    //         rc.reservationId = row.roomCharge.reservationId;
-    //         rc.roomId = row.roomCharge.roomId;
-    //         rc.roomNo = row.room.roomNo;
-    //         rc.roomRate = Number(row.roomCharge.roomRate);
-    //         rc.roomSurcharge = Number(row.roomCharge.roomSurcharge);
-    //         rc.roomType = row.roomType.roomType;
-    //         rc.roomTypeId = row.roomCharge.roomTypeId;
-    //         rc.roomTypeText = row.roomType.roomTypeText;
-    //         rc.seasonSurcharge = Number(row.roomCharge.seasonSurcharge);
-    //         rc.singleRate = Number(row.roomCharge.singleRate);
-    //         rc.startDate = row.roomCharge.startDate;
-    //         rc.totalAmount = Number(row.roomCharge.totalAmount);
-    //         rc.totalRate = Number(row.roomCharge.totalRate);
-    //         rc.createdAtUTC = row.roomCharge.createdAtUTC;
-    //         rc.createdBy = row.roomCharge.createdBy;
-    //         rc.updatedAtUTC = row.roomCharge.updatedAtUTC;
-    //         rc.updatedBy = row.roomCharge.updatedBy;
-    //         return rc;
-    //     });
+        const roomCharges: RoomCharge[] = result?.map((row: { roomCharge: RoomChargeEntity, roomType: RoomTypeEntity, room: RoomEntity }) => {
+            const rc = new RoomCharge();
+            rc.id = row.roomCharge.id;
+            rc.endDate = row.roomCharge.endDate;
+            rc.extraBedRate = Number(row.roomCharge.extraBedRate);
+            rc.noOfDays = Number(row.roomCharge.noOfDays);
+            rc.reservationId = row.roomCharge.reservationId;
+            rc.roomId = row.roomCharge.roomId;
+            rc.roomNo = row.room.roomNo;
+            rc.roomRate = Number(row.roomCharge.roomRate);
+            rc.roomSurcharge = Number(row.roomCharge.roomSurcharge);
+            rc.roomType = row.roomType.roomType;
+            rc.roomTypeId = row.roomCharge.roomTypeId;
+            rc.roomTypeText = row.roomType.roomTypeText;
+            rc.seasonSurcharge = Number(row.roomCharge.seasonSurcharge);
+            rc.singleRate = Number(row.roomCharge.singleRate);
+            rc.startDate = row.roomCharge.startDate;
+            rc.totalAmount = Number(row.roomCharge.totalAmount);
+            rc.totalRate = Number(row.roomCharge.totalRate);
+            rc.createdAtUTC = row.roomCharge.createdAtUTC;
+            rc.createdBy = row.roomCharge.createdBy;
+            rc.updatedAtUTC = row.roomCharge.updatedAtUTC;
+            rc.updatedBy = row.roomCharge.updatedBy;
+            return rc;
+        });
 
-    //     c.d(roomCharges.length);
-    //     c.d(roomCharges.length > 0 ? roomCharges[0] : []);
-    //     c.fs('ReservationRepository > roomChargeGetListById');
-    //     return roomCharges;
-    // }
+        c.d(roomCharges.length);
+        c.d(roomCharges.length > 0 ? roomCharges[0] : []);
+        c.fs('ReservationRepository > roomChargeGetListById');
+        return roomCharges;
+    }
 
 
     // async roomChargeUpdateList(reservationId:string, roomCharges:RoomCharge[], transaction?:TransactionType): Promise<boolean> {
@@ -1540,16 +1550,9 @@ export default class ReservationRepository extends Repository<Reservation, Reser
     // }
 
 
-    async roomReservationGetListById(reservationId: string, includeChildren: boolean = false): Promise<[RoomReservation[], number]> {
+    async roomReservationGetListById(reservationId: string, includeChildren: boolean = false, sessionUser: SessionUser): Promise<[RoomReservation[], number]> {
         c.fs('ReservationRepository > roomReservationGetListById');
         c.d(reservationId);
-        const session = await auth();
-        if (!session)
-            throw new CustomError('Repository cannot find valid session.');
-        //retrieve current user
-        const [user]: UserEntity[] = await this.dbClient.db.select().from(userTable)
-            .where(eq(userTable.userName, session.user.name)).limit(1);
-        if (!user) throw new CustomError('Repository cannot find valid user.');
 
         const result = await this.dbClient.db
             .select()
@@ -1562,8 +1565,8 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             ))
             .where(and(
                 eq(roomReservationTable.reservationId, reservationId),
-                eq(roomTypeTable.location, user.location),
-                eq(roomTable.location, user.location)
+                eq(roomTypeTable.location, sessionUser.location),
+                eq(roomTable.location, sessionUser.location)
             )).orderBy(asc(roomReservationTable.checkInDate), asc(roomChargeTable.startDate));
 
         const roomReservations = result?.reduce((acc: RoomReservation[], row: { roomReservation: RoomReservationEntity, roomCharge: RoomChargeEntity, roomType: RoomTypeEntity, room: RoomEntity }) => {

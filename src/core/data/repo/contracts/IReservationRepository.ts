@@ -27,13 +27,13 @@ export default interface IReservationRepository extends IRepository<Reservation>
     // reservationCreate(reservation:Reservation, sessionUser: SessionUser) : Promise<Reservation>;
     // reservationCreate(reservation:Reservation, transaction:TransactionType, sessionUser: SessionUser) : Promise<Reservation>;
     reservationGetById(id:string): Promise<Reservation|null>;
-    reservationGetList(searchParams:Record<string, any>, pagerParams:PagerParams): Promise<[Reservation[], number]>;
+    reservationGetList(searchParams:Record<string, any>, pagerParams:PagerParams, list?: string): Promise<[Reservation[], number]>;
     // reservationMoveRoom(id:string, roomNo:string, sessionUser: SessionUser):Promise<void>;
     // reservationMoveRoom(id:string, roomNo:string, transaction:TransactionType, sessionUser: SessionUser):Promise<void>;
     // reservationUpdate(id:string, reservation:Reservation, sessionUser: SessionUser) : Promise<Reservation>;
     // reservationUpdate(id:string, reservation:Reservation, transaction:TransactionType, sessionUser: SessionUser) : Promise<Reservation>;
     roomAndReservationGetList(searchParams:Record<string, any>, sessionUser: SessionUser) : Promise<[Room[], number]>;
-    // roomChargeGetListById(reservationId:string, sessionUser: SessionUser) : Promise<[RoomCharge[], number]>;
+    roomChargeGetListById(reservationId:string, sessionUser: SessionUser) : Promise<RoomCharge[]>;
     // roomChargeUpdateList(reservationId:string, roomCharges:RoomCharge[], sessionUser: SessionUser):Promise<void>;
     // roomChargeUpdateList(reservationId:string, roomCharges:RoomCharge[], transaction:TransactionType, sessionUser: SessionUser):Promise<void>;
     // roomRateGetAll(location:string, sessionUser: SessionUser):Promise<[RoomRate[], number]>;

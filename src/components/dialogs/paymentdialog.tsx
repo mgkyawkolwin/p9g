@@ -48,17 +48,25 @@ export default function PaymentDialog({
 
 
 
-  const handleInputChange = (rowIndex: number, field: string, value: string | Date | boolean | undefined, compute: boolean = false) => {
+  const handleInputChange = (rowIndex: number, field: string, value: string | Date | boolean | number | undefined, compute: boolean = false) => {
     if (compute)
       setPayments(prev =>
         prev.map((payment, index) =>
-          index === rowIndex ? { ...payment, [field]: value } : payment
+          index === rowIndex ? { 
+            ...payment, 
+            [field]: value,
+            modelState: payment.modelState == "inserted" ? "inserted" : "updated" 
+          } : payment
         )
       );
     else {
       setPayments(prev =>
-        prev.map((bill, index) =>
-          index === rowIndex ? { ...bill, [field]: value } : bill
+        prev.map((payment, index) =>
+          index === rowIndex ? { 
+            ...payment, 
+            [field]: value,
+            modelState: payment.modelState == "inserted" ? "inserted" : "updated" 
+          } : payment
         )
       );
     }
@@ -95,7 +103,7 @@ export default function PaymentDialog({
       cell: (row) => <InputCustom size={"sm"} key={`${row.row.original.id}-amount`} // Crucial for maintaining focus
         value={row.row.original.amount}
         onChange={e => {
-          handleInputChange(row.row.index, "amount", e.target.value);
+          handleInputChange(row.row.index, "amount", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
         }} />
     },
     {
@@ -104,7 +112,7 @@ export default function PaymentDialog({
       cell: (row) => <InputCustom size={"sm"} key={`${row.row.original.id}-amountInCurrency`} // Crucial for maintaining focus
         value={row.row.original.amountInCurrency}
         onChange={e => {
-          handleInputChange(row.row.index, "amountInCurrency", e.target.value);
+          handleInputChange(row.row.index, "amountInCurrency", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
         }} />
     },
     {
@@ -174,7 +182,8 @@ export default function PaymentDialog({
 
 
   function getActionButton(id: string | undefined, reservationId: string, rowIndex: number) {
-    if (id && id.trim().length != 0) {
+    const payment = payments.find(p => p.id === id);
+    if (payment && payment?.modelState !== 'inserted') {
       return <ButtonCustom type="button" variant={"red"} size={"sm"}
         onClick={async () => {
           const result = await paymentsDelete(reservationId, id);
@@ -200,14 +209,16 @@ export default function PaymentDialog({
           <BillDataTable columns={columns} data={payments} />
         </div>
         <DialogFooter>
-          <ButtonCustom type="button" onClick={async () => {
+          <ButtonCustom type="button" variant="green" onClick={async () => {
             const response = await paymentsSave(reservationId, payments);
             toast(response.message);
             if (!response.error)
               setOpen(false);
           }}>Save Payment</ButtonCustom>
           <ButtonCustom type="button" onClick={() => {
-            setPayments(prev => [...prev, { ...new Payment(), reservationId }]);
+            const payment = new Payment();
+            payment.reservationId = reservationId;
+            setPayments(prev => [...prev, payment]);
           }}>Add Row</ButtonCustom>
           <DialogClose asChild>
             <ButtonCustom type="button" variant="black" onClick={() => {

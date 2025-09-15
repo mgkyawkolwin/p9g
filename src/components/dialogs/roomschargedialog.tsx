@@ -16,6 +16,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import RoomReservation from "@/core/domain/models/RoomReservation";
 import RoomCharge from "@/core/domain/models/RoomCharge";
 import SimpleDataTable from "../tables/simpledatatable";
+import { calculateDayDifference } from "@/core/lib/utils";
 
 
 interface DataTableProps {
@@ -50,7 +51,7 @@ export default function RoomChargeDialog({
 
     const handleRoomInputChange = (id: string, rowIndex: number, field: string, value: string | Date | boolean | number | undefined) => {
         setRoomReservations(prev => {
-            const updatedRoomReservations : RoomReservation[] = prev.map((roomReservation:RoomReservation) =>
+            const updatedRoomReservations: RoomReservation[] = prev.map((roomReservation: RoomReservation) =>
                 roomReservation.id === id
                     ? {
                         ...roomReservation, // Preserve existing fields
@@ -64,23 +65,27 @@ export default function RoomChargeDialog({
         });
     };
 
-    const handleChargeInputChange = (id:string, rowIndex: number, field: string, value: string | Date | boolean | number | undefined) => {
+    const handleChargeInputChange = (id: string, rowIndex: number, field: string, value: string | Date | boolean | number | undefined) => {
         if (selectedRoomReservation !== null) {
             setVisibleRoomCharges(prev =>
                 prev.map((roomCharge) =>
-                    roomCharge.id === id ? { ...roomCharge, 
-                        [field]: value, 
-                        modelState: roomCharge.modelState == "inserted" ? "inserted" : "updated"  } : roomCharge
+                    roomCharge.id === id ? {
+                        ...roomCharge,
+                        [field]: value,
+                        modelState: roomCharge.modelState == "inserted" ? "inserted" : "updated"
+                    } : roomCharge
                 )
             );
 
             setRoomReservations(prev =>
                 prev.map((roomReservation) => {
                     if (roomReservation.id === selectedRoomReservation.id) {
-                        const updatedCharges : RoomCharge[] = roomReservation.roomCharges.map((roomCharge:RoomCharge) =>
-                            roomCharge.id === id ? { ...roomCharge, 
-                                [field]: value, 
-                                modelState: roomCharge.modelState == "inserted" ? "inserted" : "updated" } : roomCharge
+                        const updatedCharges: RoomCharge[] = roomReservation.roomCharges.map((roomCharge: RoomCharge) =>
+                            roomCharge.id === id ? {
+                                ...roomCharge,
+                                [field]: value,
+                                modelState: roomCharge.modelState == "inserted" ? "inserted" : "updated"
+                            } : roomCharge
                         );
                         return { ...roomReservation, roomCharges: updatedCharges };
                     }
@@ -90,7 +95,57 @@ export default function RoomChargeDialog({
 
             setVisibleRoomReservations(roomReservations.filter(rr => rr.modelState !== "deleted"));
 
-            
+
+        }
+    };
+
+    const computeRateAndAmount = (id: string) => {
+        if (selectedRoomReservation !== null) {
+            setVisibleRoomCharges(prev =>
+                prev.map((roomCharge: RoomCharge) : RoomCharge => {
+                    const totalRate = roomCharge.roomRate + roomCharge.singleRate + roomCharge.roomSurcharge + roomCharge.seasonSurcharge;
+                    let noOfDays = 0;
+                    if (roomCharge.startDate !== null && roomCharge.endDate !== null)
+                        noOfDays = calculateDayDifference(new Date(roomCharge.startDate), new Date(roomCharge.endDate));
+                    const totalAmount = totalRate * noOfDays;
+                    return roomCharge.id === id ? {
+                        ...roomCharge,
+                        noOfDays: noOfDays,
+                        totalRate: totalRate,
+                        totalAmount: totalAmount,
+                        modelState: roomCharge.modelState == "inserted" ? "inserted" : "updated"
+                    } : roomCharge
+                }
+                )
+            );
+
+            setRoomReservations(prev =>
+                prev.map((roomReservation) => {
+                    if (roomReservation.id === selectedRoomReservation.id) {
+                        const updatedCharges: RoomCharge[] = roomReservation.roomCharges.map((roomCharge: RoomCharge) : RoomCharge => {
+                            const totalRate = roomCharge.roomRate + roomCharge.singleRate + roomCharge.roomSurcharge + roomCharge.seasonSurcharge;
+                            let noOfDays = 0;
+                            if (roomCharge.startDate != null && roomCharge.endDate != null)
+                                noOfDays = calculateDayDifference(new Date(roomCharge.startDate), new Date(roomCharge.endDate));
+                            const totalAmount = totalRate * noOfDays;
+                            return roomCharge.id === id ? {
+                                ...roomCharge,
+                                noOfDays: noOfDays,
+                                totalRate: totalRate,
+                                totalAmount: totalAmount,
+                                modelState: roomCharge.modelState == "inserted" ? "inserted" : "updated"
+                            } : roomCharge
+                        }
+                        );
+                        return { ...roomReservation, roomCharges: updatedCharges };
+                    }
+                    return roomReservation;
+                })
+            );
+
+            setVisibleRoomReservations(roomReservations.filter(rr => rr.modelState !== "deleted"));
+
+
         }
     };
 
@@ -111,7 +166,7 @@ export default function RoomChargeDialog({
             newCharge.reservationId = reservationId;
 
             setRoomReservations(prev =>
-                prev.map((roomReservation:RoomReservation) => {
+                prev.map((roomReservation: RoomReservation) => {
                     if (roomReservation.id === selectedRoomReservation.id) {
                         newCharge.roomTypeId = roomReservation.roomTypeId;
                         newCharge.roomId = roomReservation.roomId;
@@ -128,7 +183,7 @@ export default function RoomChargeDialog({
     };
 
 
-    const handleCheckboxChange = (id:string, rowIndex: number, checked: boolean) => {
+    const handleCheckboxChange = (id: string, rowIndex: number, checked: boolean) => {
         if (checked) {
             const selectedReservation = roomReservations.find(rr => rr.id === id);
             setSelectedRoomReservation(selectedReservation);
@@ -157,7 +212,7 @@ export default function RoomChargeDialog({
             accessorKey: "roomNo",
             header: 'Room No',
             cell: (row) => <InputCustom size={"sm"} key={`${row.row.original.id}-itemName`} // Crucial for maintaining focus
-                value={row.row.original.roomNo ? row.row.original.roomNo : ''}  
+                value={row.row.original.roomNo ? row.row.original.roomNo : ''}
                 onChange={e => {
                     handleRoomInputChange(row.row.original.id, row.row.index, "roomNo", e.target.value || e.target.value?.trim() !== '' ? e.target.value : undefined);
                 }} />
@@ -224,6 +279,7 @@ export default function RoomChargeDialog({
             header: 'Room Rate',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-roomRate`} // Crucial for maintaining focus
                 value={Number(row.row.original.roomRate)}
+                onBlur={ e => {computeRateAndAmount(row.row.original.id)}}
                 onChange={e => {
                     handleChargeInputChange(row.row.original.id, row.row.index, "roomRate", e.target.value);
                 }} />
@@ -233,6 +289,7 @@ export default function RoomChargeDialog({
             header: 'Single Rate',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-singleRate`} // Crucial for maintaining focus
                 value={Number(row.row.original.singleRate)}
+                onBlur={ e => {computeRateAndAmount(row.row.original.id)}}
                 onChange={e => {
                     handleChargeInputChange(row.row.original.id, row.row.index, "singleRate", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
                 }} />
@@ -242,6 +299,7 @@ export default function RoomChargeDialog({
             header: 'Room Surcharge',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-roomSurcharge`} // Crucial for maintaining focus
                 value={Number(row.row.original.roomSurcharge)}
+                onBlur={ e => {computeRateAndAmount(row.row.original.id)}}
                 onChange={e => {
                     handleChargeInputChange(row.row.original.id, row.row.index, "roomSurcharge", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
                 }} />
@@ -251,6 +309,7 @@ export default function RoomChargeDialog({
             header: 'Season Surcharge',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-seasonSurcharge`} // Crucial for maintaining focus
                 value={Number(row.row.original.seasonSurcharge)}
+                onBlur={ e => {computeRateAndAmount(row.row.original.id)}}
                 onChange={e => {
                     handleChargeInputChange(row.row.original.id, row.row.index, "seasonSurcharge", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
                 }} />
@@ -262,7 +321,9 @@ export default function RoomChargeDialog({
                 selected={row.row.original.startDate ? new Date(row.row.original.startDate).convertToFakeLocalDate() : null}
                 onChange={(date: Date | null) => {
                     handleChargeInputChange(row.row.original.id, row.row.index, "startDate", date ? date.convertToUTCFromFakeLocalDate() : null);
+                    computeRateAndAmount(row.row.original.id);
                 }}
+                // onBlur={ e => {computeRateAndAmount(row.row.original.id)}}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="sm" />} // Uses shadcn/ui Input
                 placeholderText="yyyy-mm-dd"
@@ -277,7 +338,9 @@ export default function RoomChargeDialog({
                 selected={row.row.original.endDate ? new Date(row.row.original.endDate).convertToFakeLocalDate() : null}
                 onChange={(date: Date | null) => {
                     handleChargeInputChange(row.row.original.id, row.row.index, "endDate", date ? date.convertToUTCFromFakeLocalDate() : null);
+                    computeRateAndAmount(row.row.original.id);
                 }}
+                // onBlur={ e => {computeRateAndAmount(row.row.original.id)}}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="sm" />} // Uses shadcn/ui Input
                 placeholderText="yyyy-mm-dd"
@@ -290,6 +353,7 @@ export default function RoomChargeDialog({
             header: 'Days',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-noOfDays`} // Crucial for maintaining focus
                 value={Number(row.row.original.noOfDays)}
+                onBlur={ e => {computeRateAndAmount(row.row.original.id)}}
                 onChange={e => {
                     handleChargeInputChange(row.row.original.id, row.row.index, "noOfDays", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
                 }} />
@@ -299,6 +363,7 @@ export default function RoomChargeDialog({
             header: 'Total Rate',
             cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-totalRate`} // Crucial for maintaining focus
                 value={Number(row.row.original.totalRate)}
+                onBlur={ e => {computeRateAndAmount(row.row.original.id)}} 
                 onChange={e => {
                     handleChargeInputChange(row.row.original.id, row.row.index, "totalRate", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value));
                 }} />
@@ -326,55 +391,54 @@ export default function RoomChargeDialog({
 
     function getRoomChargeActionButton(id: string, reservationId: string, rowIndex: number) {
         return <ButtonCustom type="button" variant={"red"} size={"sm"}
-                onClick={async () => {
-                    const updatedRoomCharges = visibleRoomCharges.reduce((acc:RoomCharge[], rc:RoomCharge) => {
-                        if(rc.id === id){
-                            if(rc.modelState !== "inserted"){
-                                rc.modelState = "deleted";
-                                acc.push(rc);
-                            }
-                        }else{
+            onClick={async () => {
+                const updatedRoomCharges = visibleRoomCharges.reduce((acc: RoomCharge[], rc: RoomCharge) => {
+                    if (rc.id === id) {
+                        if (rc.modelState !== "inserted") {
+                            rc.modelState = "deleted";
                             acc.push(rc);
                         }
-                        return acc;
-                    }, [] as RoomCharge[]);
-                    setRoomReservations(prev => prev.map((roomReservation:RoomReservation) => {
-                        if (roomReservation.id === selectedRoomReservation.id) {
-                            roomReservation.roomCharges = roomReservation.roomCharges.concat(updatedRoomCharges.filter(rc => rc.modelState === 'deleted'));
-                        }
-                        return roomReservation;
-                    }));
-                    setVisibleRoomCharges(updatedRoomCharges.filter(rc => rc.modelState !== "deleted"));
-                }}>Delete</ButtonCustom>;
+                    } else {
+                        acc.push(rc);
+                    }
+                    return acc;
+                }, [] as RoomCharge[]);
+                setRoomReservations(prev => prev.map((roomReservation: RoomReservation) => {
+                    if (roomReservation.id === selectedRoomReservation.id) {
+                        roomReservation.roomCharges = roomReservation.roomCharges.concat(updatedRoomCharges.filter(rc => rc.modelState === 'deleted'));
+                    }
+                    return roomReservation;
+                }));
+                setVisibleRoomCharges(updatedRoomCharges.filter(rc => rc.modelState !== "deleted"));
+            }}>Delete</ButtonCustom>;
     }
 
 
     function getRoomReservationActionButton(id: string, reservationId: string, rowIndex: number) {
         return <ButtonCustom type="button" variant={"red"} size={"sm"}
-                onClick={async () => {
-                    const updatedRoomReservations = roomReservations.reduce((acc:RoomReservation[], rr:RoomReservation) => {
-                        if(rr.id === id){
-                            if(rr.modelState !== "inserted"){
-                                rr.modelState = "deleted";
-                                acc.push(rr);
-                            }
-                        }else{
+            onClick={async () => {
+                const updatedRoomReservations = roomReservations.reduce((acc: RoomReservation[], rr: RoomReservation) => {
+                    if (rr.id === id) {
+                        if (rr.modelState !== "inserted") {
+                            rr.modelState = "deleted";
                             acc.push(rr);
                         }
-                            
-                        return acc;
-                    },[] as RoomReservation[]);
-
-                    setRoomReservations(updatedRoomReservations);
-
-                    setVisibleRoomReservations(updatedRoomReservations.filter(rr => rr.modelState !== "deleted"));
-
-                    if(selectedRoomReservation && id === selectedRoomReservation.id)
-                    {
-                        setSelectedRoomReservation(null);
-                        setVisibleRoomCharges([]);
+                    } else {
+                        acc.push(rr);
                     }
-                }}>Delete</ButtonCustom>;
+
+                    return acc;
+                }, [] as RoomReservation[]);
+
+                setRoomReservations(updatedRoomReservations);
+
+                setVisibleRoomReservations(updatedRoomReservations.filter(rr => rr.modelState !== "deleted"));
+
+                if (selectedRoomReservation && id === selectedRoomReservation.id) {
+                    setSelectedRoomReservation(null);
+                    setVisibleRoomCharges([]);
+                }
+            }}>Delete</ButtonCustom>;
     }
 
 
@@ -432,13 +496,13 @@ export default function RoomChargeDialog({
                 <DialogFooter className="">
                     <ButtonCustom onClick={addRoom}>Add Room</ButtonCustom>
                     <ButtonCustom onClick={addCharge}>Add Charge</ButtonCustom>
-                    <ButtonCustom type="button" variant="green" 
-                    onClick={async () => {
-                        const response = await roomReservationUpdateList(reservationId, roomReservations);
-                        toast(response.message);
-                        if (!response.error)
-                            setOpen(false);
-                    }}>Save</ButtonCustom>
+                    <ButtonCustom type="button" variant="green"
+                        onClick={async () => {
+                            const response = await roomReservationUpdateList(reservationId, roomReservations);
+                            toast(response.message);
+                            if (!response.error)
+                                setOpen(false);
+                        }}>Save</ButtonCustom>
                     <DialogClose asChild>
                         <ButtonCustom variant="black" onClick={() => {
 

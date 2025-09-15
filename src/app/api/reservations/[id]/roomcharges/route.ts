@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         const result = await reservationService.roomChargeGetListById(id, session.user);
 
         c.i('Return GET /api/reservations/[id]/roomcharges');
-        return NextResponse.json({ roomCharges: result[0] }, { status: HttpStatusCode.Ok });
+        return NextResponse.json({ roomCharges: result }, { status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
         const logService = container.get<ILogService>(TYPES.ILogService);
