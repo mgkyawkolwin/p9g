@@ -10,9 +10,9 @@ import { Label } from "@/components/ui/label";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { InputCustom } from "@/components/uicustom/inputcustom";
-import DailySummaryPersonReportRow from "@/core/domain/dtos/reports/DailySummaryPersonReportRow";
+import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
 import DailySummaryPersonReport from "@/components/reports/dailysummarypersonreport";
-import { getUTCDateTimeMidNightString, getUTCDateTimeString } from "@/core/lib/utils";
+import { getUTCDateTimeMidNightString, getUTCDateTimeString } from "@/lib/utils";
 
 export default function DailySummaryPersonReportPage() {
 

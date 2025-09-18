@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { container } from "@/dicontainer";
-import IUserService from "@/core/domain/services/contracts/IUserService";
-import { TYPES } from "@/core/lib/types";
-import c from "@/core/loggers/console/ConsoleLogger";
-import { HttpStatusCode } from "@/core/lib/constants";
-import { CustomError } from "@/core/lib/errors";
-import ILogService from "@/core/domain/services/contracts/ILogService";
+import IUserService from "@/core/services/contracts/IUserService";
+import { TYPES } from "@/lib/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { HttpStatusCode } from "@/lib/constants";
+import { CustomError } from "@/lib/errors";
+import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
 
 

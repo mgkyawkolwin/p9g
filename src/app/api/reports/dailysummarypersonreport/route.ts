@@ -1,11 +1,11 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import { TYPES } from "@/core/lib/types";
-import c from "@/core/loggers/console/ConsoleLogger";
-import { HttpStatusCode } from "@/core/lib/constants";
-import { CustomError } from "@/core/lib/errors";
-import ILogService from "@/core/domain/services/contracts/ILogService";
-import IReportService from "@/core/domain/services/contracts/IReportService";
+import { TYPES } from "@/lib/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { HttpStatusCode } from "@/lib/constants";
+import { CustomError } from "@/lib/errors";
+import ILogService from "@/core/services/contracts/ILogService";
+import IReportService from "@/core/services/contracts/IReportService";
 
 
 export async function GET(request: NextRequest) {

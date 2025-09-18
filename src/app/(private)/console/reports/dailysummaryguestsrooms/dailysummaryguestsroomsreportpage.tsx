@@ -5,14 +5,14 @@ import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { getDailySummaryGuestsRoomsReport } from "./actions";
 import React from "react";
 import { Loader } from "@/components/uicustom/loader";
-import DailySummaryGuestsRoomsReportRow from "@/core/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
+import DailySummaryGuestsRoomsReportRow from "@/core/models/dto/reports/DailySummaryGuestsRoomsReportrow";
 import DailySummaryGuestsRoomsReport from "@/components/reports/dailysummaryguestsroomsreport";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 import { Label } from "@/components/ui/label";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { InputCustom } from "@/components/uicustom/inputcustom";
-import { getUTCDateTimeMidNightString, getUTCDateTimeString } from "@/core/lib/utils";
+import { getUTCDateTimeMidNightString, getUTCDateTimeString } from "@/lib/utils";
 
 export default function DailySummaryGuestsRoomsReportPage() {
 

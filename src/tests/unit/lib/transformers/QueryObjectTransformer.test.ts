@@ -1,7 +1,7 @@
 import RoomChargeEntity from '@/core/data/entity/RoomChargeEntity';
-import RoomCharge from '@/core/domain/models/RoomCharge';
-import CustomMapper from '@/core/lib/mappers/custommapper/CustomMapper';
-import DrizzleQueryObjectTransformer from '@/core/lib/transformers/QueryObjectTransformer';
+import RoomCharge from '@/core/models/domain/RoomCharge';
+import CustomMapper from '@/lib/mappers/custommapper/CustomMapper';
+import DrizzleQueryObjectTransformer from '@/lib/transformers/QueryObjectTransformer';
 import { SQL } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
 

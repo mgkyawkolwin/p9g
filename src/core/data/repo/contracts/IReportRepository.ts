@@ -1,8 +1,8 @@
-import DailySummaryGuestsRoomsReportRow from "@/core/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
+import DailySummaryGuestsRoomsReportRow from "@/core/models/dto/reports/DailySummaryGuestsRoomsReportrow";
 import IRepository from "./IRepository";
-import Customer from "@/core/domain/models/Customer";
-import DailySummaryIncomeReportRow from "@/core/domain/dtos/reports/DailySummaryIncomeReportRow";
-import DailySummaryPersonReportRow from "@/core/domain/dtos/reports/DailySummaryPersonReportRow";
+import Customer from "@/core/models/domain/Customer";
+import DailySummaryIncomeReportRow from "@/core/models/dto/reports/DailySummaryIncomeReportRow";
+import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
 
 export default interface IReportRepository{
 

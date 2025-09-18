@@ -29,6 +29,13 @@
       "when": 1756962480780,
       "tag": "0003_cynical_tinkerer",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1758102652746,
+      "tag": "0004_chief_blazing_skull",
+      "breakpoints": true
     }
   ]
 }

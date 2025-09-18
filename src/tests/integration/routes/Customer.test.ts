@@ -3,10 +3,10 @@ import { describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
 import { GET } from '@/app/api/customers/[id]/route';
 import { NextRequest } from 'next/server';
 import { container } from '@/dicontainer';
-import CustomerService from '@/core/domain/services/CustomerService';
+import CustomerService from '@/core/services/CustomerService';
 import CustomerRepository from '@/core/data/repo/drizzle/CustomerRepository';
-import { TYPES } from '@/core/lib/types';
-import Customer from '@/core/domain/models/Customer';
+import { TYPES } from '@/lib/types';
+import Customer from '@/core/models/domain/Customer';
 import { createMocks } from 'node-mocks-http';
 
 // Mock the auth() function

@@ -1,14 +1,13 @@
 'use server';
-import { billValidator, pagerValidator, paymentValidator, roomChargeValidator, roomReservationValidator, searchSchema } from '@/core/validators/zodschema';
-import { FormState } from "@/core/lib/types";
-import c from "@/core/loggers/console/ConsoleLogger";
-import { buildQueryString } from "@/core/lib/utils";
-import Bill from '@/core/domain/models/Bill';
+import { billValidator, pagerValidator, paymentValidator, roomChargeValidator, roomReservationValidator, searchValidator } from '@/core/validators/zodschema';
+import { FormState } from "@/lib/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { buildQueryString } from "@/lib/utils";
+import Bill from '@/core/models/domain/Bill';
 import { headers } from 'next/headers';
-import { auth } from '@/app/auth';
-import Payment from '@/core/domain/models/Payment';
-import RoomReservation from '@/core/domain/models/RoomReservation';
-import RoomCharge from '@/core/domain/models/RoomCharge';
+import Payment from '@/core/models/domain/Payment';
+import RoomReservation from '@/core/models/domain/RoomReservation';
+import RoomCharge from '@/core/models/domain/RoomCharge';
 
 export async function reservationGetList(formState: FormState, formData: FormData): Promise<FormState> {
   try {
@@ -39,7 +38,7 @@ export async function reservationGetList(formState: FormState, formData: FormDat
 
     //validate and parse search input
     c.i("Parsing search fields from from entries.");
-    const searchFields = searchSchema.safeParse(formObject);
+    const searchFields = searchValidator.safeParse(formObject);
     c.d(searchFields);
 
     //table pager field validatd, build query string

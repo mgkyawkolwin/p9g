@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
 import { InputWithLabel } from "@/components/uicustom/inputwithlabel";
 import { Loader } from "@/components/uicustom/loader";
-import { FormState } from "@/core/lib/types";
+import { FormState } from "@/lib/types";
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 

@@ -1,13 +1,13 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import IUserService from "@/core/domain/services/contracts/IUserService";
-import { TYPES, SearchParam } from "@/core/lib/types";
-import c from "@/core/loggers/console/ConsoleLogger";
-import { pagerValidator, searchSchema } from "@/core/validators/zodschema";
-import { HttpStatusCode } from "@/core/lib/constants";
-import { buildSearchParams, getPagerWithDefaults } from "@/core/lib/utils";
-import { CustomError } from "@/core/lib/errors";
-import ILogService from "@/core/domain/services/contracts/ILogService";
+import IUserService from "@/core/services/contracts/IUserService";
+import { TYPES, SearchParam } from "@/lib/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { pagerValidator, searchValidator } from "@/core/validators/zodschema";
+import { HttpStatusCode } from "@/lib/constants";
+import { buildSearchParams, getPagerWithDefaults } from "@/lib/utils";
+import { CustomError } from "@/lib/errors";
+import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
 
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     //validate search params
     // let searchFields: SearchParam[] = [];
-    const searchValidatedFields = await searchSchema.safeParseAsync(searchParams);
+    const searchValidatedFields = await searchValidator.safeParseAsync(searchParams);
     c.d(JSON.stringify(searchValidatedFields));
     // if (searchValidatedFields.success) {
     //   //validation successful, build search objects

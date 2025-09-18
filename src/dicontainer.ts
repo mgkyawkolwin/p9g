@@ -1,68 +1,61 @@
 import { Container } from 'inversify';
-//import { interfaces, Controller } from 'inversify-express-utils';
 import "reflect-metadata";
-import '@/core/lib/extensions/dateextensions';
+import '@/lib/extensions/dateextensions';
 
-import IUserService from '@/core/domain/services/contracts/IUserService';
-import UserService from '@/core/domain/services/UserService';
-import { IDatabaseClient } from '@/core/data/db/IDatabase';
+import IUserService from '@/core/services/contracts/IUserService';
+import UserService from '@/core/services/UserService';
+import { IDatabaseClient } from '@/lib/db/IDatabase';
 import { MySqlDatabaseClient, MySqlDbType } from '@/core/data/db/mysql/MySqlDatabase';
-import { TYPES } from './core/lib/types';
-import IAuthService from './core/domain/services/contracts/IAuthService';
-import AuthService from './core/domain/services/AuthService';
-import ICustomerService from './core/domain/services/contracts/ICustomerService';
-import CustomerService from './core/domain/services/CustomerService';
+import { TYPES } from './lib/types';
+import IAuthService from './core/services/contracts/IAuthService';
+import AuthService from './core/services/AuthService';
+import ICustomerService from './core/services/contracts/ICustomerService';
+import CustomerService from './core/services/CustomerService';
 import IReservationRepository from './core/data/repo/contracts/IReservationRepository';
 import ReservationRepository from './core/data/repo/drizzle/ReservationRepository';
-import ReservationService from './core/domain/services/ReservationService';
-import IReservationService from './core/domain/services/contracts/IReservationService';
+import ReservationService from './core/services/ReservationService';
+import IReservationService from './core/services/contracts/IReservationService';
 import IReportRepository from './core/data/repo/contracts/IReportRepository';
 import ReportRepository from './core/data/repo/drizzle/ReportRepository';
-import IReportService from './core/domain/services/contracts/IReportService';
-import ReportService from './core/domain/services/ReportService';
-import ILogService from './core/domain/services/contracts/ILogService';
-import LogService from './core/domain/services/LogService';
-// import IRoomChargeRepository from './core/data/repo/contracts/IRoomChargeRepository';
-// import RoomChargeRepository from './core/data/repo/drizzle/RoomChargeRepository';
-// import RoomReservationRepository from './core/data/repo/drizzle/RoomReservationRepository';
-// import IRoomReservationRepository from './core/data/repo/contracts/IRoomReservationRepository';
-// import RoomCharge from './core/domain/models/RoomCharge';
+import IReportService from './core/services/contracts/IReportService';
+import ReportService from './core/services/ReportService';
+import ILogService from './core/services/contracts/ILogService';
+import LogService from './core/services/LogService';
 import { billTable, configTable, customerTable, logErrorTable, paymentTable, prepaidTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from './core/data/orm/drizzle/mysql/schema';
-import { Repository } from './core/data/repo/drizzle/Repository';
-import IRepository from './core/data/repo/contracts/IRepository';
-import CustomMapper from './core/lib/mappers/custommapper/CustomMapper';
-import IMapper from './core/lib/mappers/IMapper';
-import RoomReservation from './core/domain/models/RoomReservation';
-import RoomChargeEntity from '@/core/data/entity/RoomChargeEntity';
-import RoomCharge from './core/domain/models/RoomCharge';
-import Room from './core/domain/models/Room';
-import Reservation from './core/domain/models/Reservation';
-import Customer from './core/domain/models/Customer';
-import Bill from './core/domain/models/Bill';
-import User from './core/domain/models/User';
-import IQueryObjectTranformer from '@/core/lib/transformers/IQueryObjectTransformer';
-import DrizzleQueryObjectTransformer from './core/lib/transformers/QueryObjectTransformer';
-import CustomerEntity from './core/data/entity/CustomerEntity';
-import BillEntity from './core/data/entity/BillEntity';
-import ReservationEntity from './core/data/entity/ReservationEntity';
-import RoomEntity from './core/data/entity/RoomEntity';
-import RoomReservationEntity from './core/data/entity/RoomReservationEntity';
-import UserNew from './app/(private)/console/users/new/usernew';
-import UserEntity from './core/data/entity/UserEntity';
-import LogError from './core/domain/models/LogError';
-import LogErrorEntity from './core/data/entity/LogErrorEntity';
-import Config from './core/domain/models/Config';
-import ConfigEntity from './core/data/entity/ConfigEntity';
-import Payment from './core/domain/models/Payment';
-import PaymentEntity from './core/data/entity/PaymentEntity';
-import ReservationCustomer from './core/domain/models/ReservationCustomer';
-import ReservationCustomerEntity from './core/data/entity/ReservationCustomerEntity';
-import RoomRate from './core/domain/models/RoomRate';
-import RoomRateEntity from './core/data/entity/RoomRateEntity';
-import RoomType from './core/domain/models/RoomType';
-import RoomTypeEntity from './core/data/entity/RoomTypeEntity';
-import PrepaidEntity from './core/data/entity/PrepaidEntity';
-import PromotionEntity from './core/data/entity/PromotionEntity';
+import { Repository } from './lib/repository/drizzle/Repository';
+import IRepository from '@/lib/repository/IRepository';
+import CustomMapper from './lib/mappers/custommapper/CustomMapper';
+import IMapper from './lib/mappers/IMapper';
+import RoomReservation from './core/models/domain/RoomReservation';
+import RoomChargeEntity from './core/models/entity/RoomChargeEntity';
+import RoomCharge from './core/models/domain/RoomCharge';
+import Room from './core/models/domain/Room';
+import Customer from './core/models/domain/Customer';
+import Bill from './core/models/domain/Bill';
+import User from './core/models/domain/User';
+import IQueryTranformer from '@/lib/transformers/IQueryTransformer';
+import CustomerEntity from './core/models/entity/CustomerEntity';
+import BillEntity from './core/models/entity/BillEntity';
+import RoomEntity from './core/models/entity/RoomEntity';
+import RoomReservationEntity from './core/models/entity/RoomReservationEntity';
+import UserEntity from './core/models/entity/UserEntity';
+import LogError from './core/models/domain/LogError';
+import LogErrorEntity from './core/models/entity/LogErrorEntity';
+import Config from './core/models/domain/Config';
+import ConfigEntity from './core/models/entity/ConfigEntity';
+import Payment from './core/models/domain/Payment';
+import PaymentEntity from './core/models/entity/PaymentEntity';
+import ReservationCustomer from './core/models/domain/ReservationCustomer';
+import ReservationCustomerEntity from './core/models/entity/ReservationCustomerEntity';
+import RoomRate from './core/models/domain/RoomRate';
+import RoomRateEntity from './core/models/entity/RoomRateEntity';
+import RoomType from './core/models/domain/RoomType';
+import RoomTypeEntity from './core/models/entity/RoomTypeEntity';
+import PrepaidEntity from './core/models/entity/PrepaidEntity';
+import PromotionEntity from './core/models/entity/PromotionEntity';
+import { DrizzleQueryTransformer } from './lib/transformers/drizzle/DrizzleQueryTransformer';
+import { eq, SQL } from 'drizzle-orm';
+import { MySqlSelect } from 'drizzle-orm/mysql-core';
 
 // create a DI container
 const container = new Container();
@@ -70,7 +63,7 @@ const container = new Container();
 // Bind as singleton
 container.bind<IDatabaseClient<MySqlDbType>>(TYPES.IDatabase).to(MySqlDatabaseClient).inSingletonScope();
 container.bind<IMapper>(TYPES.IMapper).to(CustomMapper).inSingletonScope();
-container.bind<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer).to(DrizzleQueryObjectTransformer).inSingletonScope();
+container.bind<IQueryTranformer>(TYPES.IQueryTransformer).to(DrizzleQueryTransformer).inSingletonScope();
 
 // Bind Services
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inSingletonScope();
@@ -81,15 +74,16 @@ container.bind<IReservationService>(TYPES.IReservationService).to(ReservationSer
 container.bind<IUserService>(TYPES.IUserService).to(UserService).inSingletonScope();
 
 // Bind Repositories
-// container.bind<IRepository<BillEntity>>(TYPES.IRoomChargeRepository).to(Repository<BillEntity, typeof billTable>);
 container.bind<IRepository<Bill>>(TYPES.IBillRepository).toDynamicValue(context => {
     return new Repository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         billTable,
+        { ...billTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         Bill,
         BillEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
@@ -97,117 +91,123 @@ container.bind<IRepository<Config>>(TYPES.IConfigRepository).toDynamicValue(cont
     return new Repository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         configTable,
+        { ...configTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         Config,
         ConfigEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
-// container.bind<ICustomerRepository>(TYPES.ICustomerRepository).to(CustomerRepository);
 container.bind<IRepository<Customer>>(TYPES.ICustomerRepository).toDynamicValue(context => {
     return new Repository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         customerTable,
+        { ...customerTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         Customer,
         CustomerEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
-// container.bind<ILogRepository>(TYPES.ILogRepository).to(LogRepository);
 container.bind<IRepository<LogError>>(TYPES.ILogRepository).toDynamicValue(context => {
     return new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         logErrorTable,
+        { ...logErrorTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         LogError,
         LogErrorEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
-// container.bind<ILogRepository>(TYPES.ILogRepository).to(LogRepository);
 container.bind<IRepository<Payment>>(TYPES.IPaymentRepository).toDynamicValue(context => {
     return new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         paymentTable,
+        { ...paymentTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         Payment,
         PaymentEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
 container.bind<IRepository<PrepaidEntity>>(TYPES.IPrepaidRepository).toDynamicValue(context => {
     return new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         prepaidTable,
+        { ...prepaidTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         PrepaidEntity,
         PrepaidEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
 container.bind<IRepository<PromotionEntity>>(TYPES.IPromotionRepository).toDynamicValue(context => {
     return new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         prepaidTable,
+        { ...prepaidTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         PromotionEntity,
         PromotionEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
 container.bind<IReportRepository>(TYPES.IReportRepository).to(ReportRepository);
-// container.bind<IRepository<Reservation>>(TYPES.IReservationRepository).toDynamicValue(context => {
-//     return new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-//         roomChargeTable,
-//         context.get<IMapper>(TYPES.IMapper),
-//         Reservation,
-//         RoomChargeEntity
-//     )
-// });
 
 container.bind<IReservationRepository>(TYPES.IReservationRepository).to(ReservationRepository);
-// container.bind<IReservationRepository>(TYPES.IReservationRepository).toDynamicValue(context => {
-//     return new ReservationRepository(
-//         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-//         reservationTable,
-//         context.get<IMapper>(TYPES.IMapper)
-//     )
-// });
 
-// container.bind<ILogRepository>(TYPES.ILogRepository).to(LogRepository);
 container.bind<IRepository<ReservationCustomer>>(TYPES.IReservationCustomerRepository).toDynamicValue(context => {
     return new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         reservationCustomerTable,
+        { ...reservationCustomerTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         ReservationCustomer,
         ReservationCustomerEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
-// container.bind<IRoomRepository>(TYPES.IRoomRepository).to(RoomRepository);
 container.bind<IRepository<Room>>(TYPES.IRoomRepository).toDynamicValue(context => {
     return new Repository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         roomTable,
+        { ...roomTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         Room,
         RoomEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
-// container.bind<IRepository<RoomChargeEntity>>(TYPES.IRoomChargeRepository).to(Repository<RoomChargeEntity, typeof roomChargeTable>);
+
 container.bind<IRepository<RoomCharge>>(TYPES.IRoomChargeRepository).toDynamicValue(context => {
     return new Repository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         roomChargeTable,
+        { 
+            ...roomChargeTable,
+            roomNo: roomTable.roomNo,
+            roomType: roomTypeTable.roomType,
+            roomTypeText: roomTypeTable.roomTypeText
+        },
+        (q) => {
+            return q.innerJoin(roomTypeTable, eq(roomTypeTable.id, roomChargeTable.roomTypeId))
+                .innerJoin(roomTable, eq(roomTable.id, roomChargeTable.roomId));
+        },
         context.get<IMapper>(TYPES.IMapper),
         RoomCharge,
         RoomChargeEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
@@ -215,10 +215,12 @@ container.bind<IRepository<RoomRate>>(TYPES.IRoomRateRepository).toDynamicValue(
     return new Repository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         roomRateTable,
+        { ...roomRateTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         RoomRate,
         RoomRateEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
@@ -226,22 +228,33 @@ container.bind<IRepository<RoomReservation>>(TYPES.IRoomReservationRepository).t
     return new Repository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         roomReservationTable,
+        {
+            ...roomReservationTable,
+            roomNo: roomTable.roomNo,
+            roomType: roomTypeTable.roomType,
+            roomTypeId: roomTypeTable.id
+        },
+        (q: MySqlSelect) => {
+            return q.innerJoin(roomTable, eq(roomTable.id, roomReservationTable.roomId))
+                .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomTable.roomTypeId));
+        },
         context.get<IMapper>(TYPES.IMapper),
         RoomReservation,
         RoomReservationEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
-// container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
 container.bind<IRepository<User>>(TYPES.IUserRepository).toDynamicValue(context => {
     return new Repository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         userTable,
+        { ...userTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         User,
         UserEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 
@@ -249,10 +262,12 @@ container.bind<IRepository<RoomType>>(TYPES.IRoomTypeRepository).toDynamicValue(
     return new Repository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         roomTypeTable,
+        { ...roomTypeTable },
+        (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         RoomType,
         RoomTypeEntity,
-        context.get<IQueryObjectTranformer>(TYPES.IQueryObjectTransformer)
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
     )
 });
 

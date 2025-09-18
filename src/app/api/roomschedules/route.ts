@@ -1,13 +1,13 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import { TYPES, SearchParam } from "@/core/lib/types";
-import c from "@/core/loggers/console/ConsoleLogger";
-import { searchSchema } from "@/core/validators/zodschema";
-import { HttpStatusCode } from "@/core/lib/constants";
-import { buildSearchParams } from "@/core/lib/utils";
-import IReservationService from "@/core/domain/services/contracts/IReservationService";
-import { CustomError } from "@/core/lib/errors";
-import ILogService from "@/core/domain/services/contracts/ILogService";
+import { TYPES, SearchParam } from "@/lib/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { searchValidator } from "@/core/validators/zodschema";
+import { HttpStatusCode } from "@/lib/constants";
+import { buildSearchParams } from "@/lib/utils";
+import IReservationService from "@/core/services/contracts/IReservationService";
+import { CustomError } from "@/lib/errors";
+import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
 
 
@@ -20,14 +20,12 @@ export async function GET(request: NextRequest) {
     if (!session?.user)
       throw new CustomError('Invalid session');
 
-    let searchParams: SearchParam[] = [];
-
     c.i('Converting url search params into form object.')
     const searchFormData = Object.fromEntries(request.nextUrl.searchParams);
     c.d(JSON.stringify(searchFormData));
 
     c.i('Validating search form object.');
-    const validatedSearchFields = await searchSchema.safeParseAsync(searchFormData);
+    const validatedSearchFields = await searchValidator.safeParseAsync(searchFormData);
     // if (validatedSearchFields.success) {
     //   c.i('Search param validation successful. Build search params.');
     //   searchParams = buildSearchParams(validatedSearchFields.data);

@@ -1,9 +1,8 @@
 'use client';
 
 import ReservationDetailNewForm from "@/components/forms/reservationdetailnewform";
-import { InputWithLabel } from "@/components/uicustom/inputwithlabel";
 import { Loader } from "@/components/uicustom/loader";
-import React, { useActionState, useEffect } from "react";
+import React from "react";
 import { toast } from "sonner";
 import ReservationTopList from "@/components/groups/reservationtoplist";
 import { ButtonCustom } from "@/components/uicustom/buttoncustom";
@@ -11,8 +10,8 @@ import CustomerInformationForm from "@/components/forms/customerinformationform"
 import { getTopReservationsAction, searchCustomer } from "./actions";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import CustomerChooseTable from "@/components/tables/customerchoosetable";
-import Customer from "@/core/domain/models/Customer";
-import Reservation from "@/core/domain/models/Reservation";
+import Customer from "@/core/models/domain/Customer";
+import Reservation from "@/core/models/domain/Reservation";
 import CustomerNewForm from "@/components/forms/customernewform";
 import { InputCustom } from "@/components/uicustom/inputcustom";
 import { Label } from "@/components/ui/label";

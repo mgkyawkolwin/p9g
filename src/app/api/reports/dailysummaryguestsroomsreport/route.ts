@@ -1,15 +1,15 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import { TYPES, SearchParam } from "@/core/lib/types";
-import c from "@/core/loggers/console/ConsoleLogger";
-import { customerValidator, pagerValidator, searchSchema } from "@/core/validators/zodschema";
-import { HttpStatusCode } from "@/core/lib/constants";
-import { buildSearchParams, getPagerWithDefaults } from "@/core/lib/utils";
-import ICustomerService from "@/core/domain/services/contracts/ICustomerService";
-import Customer from "@/core/domain/models/Customer";
-import { CustomError } from "@/core/lib/errors";
-import ILogService from "@/core/domain/services/contracts/ILogService";
-import IReportService from "@/core/domain/services/contracts/IReportService";
+import { TYPES, SearchParam } from "@/lib/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { customerValidator, pagerValidator, searchValidator } from "@/core/validators/zodschema";
+import { HttpStatusCode } from "@/lib/constants";
+import { buildSearchParams, getPagerWithDefaults } from "@/lib/utils";
+import ICustomerService from "@/core/services/contracts/ICustomerService";
+import Customer from "@/core/models/domain/Customer";
+import { CustomError } from "@/lib/errors";
+import ILogService from "@/core/services/contracts/ILogService";
+import IReportService from "@/core/services/contracts/IReportService";
 
 
 export async function GET(request: NextRequest) {

@@ -4,7 +4,7 @@ import { MySqlDatabaseClient } from '@/core/data/db/mysql/MySqlDatabase';
 import * as schema from '@/core/data/orm/drizzle/mysql/schema';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/app/auth';  // Adjust the import path
-import Customer from '@/core/domain/models/Customer';
+import Customer from '@/core/models/domain/Customer';
 
 // Mock the auth() function
 vi.mock('@/app/auth', () => ({

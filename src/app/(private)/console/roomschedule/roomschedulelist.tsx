@@ -10,8 +10,8 @@ import { ButtonCustom } from "@/components/uicustom/buttoncustom";
 import ScheduleFlexGrid from "@/components/uicustom/scheduleflexgrid";
 import { SelectWithLabel } from "@/components/uicustom/selectwithlabel";
 import { InputCustom } from "@/components/uicustom/inputcustom";
-import { SelectList } from "@/core/lib/constants";
-import { getCurrentMonthFirstDate, getCurrentMonthLastDate, getFirstDate, getLastDate } from "@/core/lib/utils";
+import { SelectList } from "@/lib/constants";
+import { getCurrentMonthFirstDate, getCurrentMonthLastDate, getFirstDate, getLastDate } from "@/lib/utils";
 
 export default function RoomScheduleList() {
 

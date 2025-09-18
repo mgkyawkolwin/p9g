@@ -2,7 +2,7 @@ import { injectable } from 'inversify';
 import { MySql2Database, drizzle} from 'drizzle-orm/mysql2';
 import mysql from 'mysql2/promise';
 
-import { IDatabaseClient } from '../IDatabase';
+import { IDatabaseClient } from '../../../../lib/db/IDatabase';
 import * as schema from '@/core/data/orm/drizzle/mysql/schema';
 
 export type MySqlDbType = MySql2Database<typeof schema>;

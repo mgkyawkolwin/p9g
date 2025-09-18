@@ -1,9 +1,9 @@
 import { vi } from 'vitest';
-import Customer from '@/core/domain/models/Customer';
+import Customer from '@/core/models/domain/Customer';
 import { container } from '@/dicontainer';
-import ICustomerService from '@/core/domain/services/contracts/ICustomerService';
-import { PagerParams, TYPES } from '@/core/lib/types';
-import SessionUser from '@/core/domain/dtos/SessionUser';
+import ICustomerService from '@/core/services/contracts/ICustomerService';
+import { PagerParams, TYPES } from '@/lib/types';
+import SessionUser from '@/core/models/dto/SessionUser';
 import IRepository from '@/core/data/repo/contracts/IRepository';
 
 

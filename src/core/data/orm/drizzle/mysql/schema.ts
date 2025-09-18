@@ -38,7 +38,7 @@ export const customerTable = mysqlTable("customer", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
   name: varchar("name", { length: 255 }),
   englishName: varchar("englishName", { length: 255 }).notNull(),
-  dob: date("dob"),
+  dob: varchar("dob", {length: 50}),
   passport: varchar("passport", { length: 50 }),
   nationalId: varchar("nationalId", { length: 50 }),
   address: varchar("address", { length: 255 }),

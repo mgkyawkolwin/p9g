@@ -1,9 +1,9 @@
 'use server';
 
 import { userUpdateSchema } from '@/core/validators/zodschema';
-import c from "@/core/loggers/console/ConsoleLogger";
-import { FormState } from "@/core/lib/types";
-import { HttpStatusCode } from "@/core/lib/constants";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { FormState } from "@/lib/types";
+import { HttpStatusCode } from "@/lib/constants";
 import { headers } from 'next/headers';
 
 export async function userGet(id : number): Promise<FormState> {

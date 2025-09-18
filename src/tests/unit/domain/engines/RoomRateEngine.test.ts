@@ -1,10 +1,10 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { userTable } from '@/core/data/orm/drizzle/mysql/schema';
-import RoomRateEngine, { MonthDetail } from '@/core/domain/engines/RoomRateEngine';
-import Reservation from '@/core/domain/models/Reservation';
-import RoomReservation from '@/core/domain/models/RoomReservation';
-import RoomType from '@/core/domain/models/RoomType';
-import RoomRate from '@/core/domain/models/RoomRate';
+import RoomRateEngine, { MonthDetail } from '@/core/models/engines/RoomRateEngine';
+import Reservation from '@/core/models/domain/Reservation';
+import RoomReservation from '@/core/models/domain/RoomReservation';
+import RoomType from '@/core/models/domain/RoomType';
+import RoomRate from '@/core/models/domain/RoomRate';
 import { reservationCheckIn } from '@/app/(private)/console/checkin/actions';
 
 describe('RoomRateEngine', () => {

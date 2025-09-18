@@ -1,8 +1,8 @@
 'use server';
-import { searchSchema } from '@/core/validators/zodschema';
-import { FormState } from "@/core/lib/types";
-import c from "@/core/loggers/console/ConsoleLogger";
-import { buildQueryString } from "@/core/lib/utils";
+import { searchValidator } from '@/core/validators/zodschema';
+import { FormState } from "@/lib/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { buildQueryString } from "@/lib/utils";
 import { headers } from 'next/headers';
 
 export async function roomScheduleGetList(formState : FormState, formData: FormData): Promise<FormState> {
@@ -15,7 +15,7 @@ export async function roomScheduleGetList(formState : FormState, formData: FormD
     );
 
     c.i('Validating search fields.');
-    const validatedSearchFields = await searchSchema.safeParseAsync(formObject);
+    const validatedSearchFields = await searchValidator.safeParseAsync(formObject);
 
     if(!validatedSearchFields.success){
       c.i('Search fields validation failed. Return response.');

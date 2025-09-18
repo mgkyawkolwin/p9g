@@ -4,7 +4,7 @@ import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import { InputWithLabel } from "@/components/uicustom/inputwithlabel";
 import { Button } from "@/components/ui/button";
-import { FormState } from "@/core/lib/types";
+import { FormState } from "@/lib/types";
 import { Loader } from "@/components/uicustom/loader";
 
 export default function SignIn({action} : { action: (state : FormState, formData : FormData) => Promise<FormState> }) {

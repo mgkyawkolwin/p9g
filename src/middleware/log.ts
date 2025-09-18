@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { WinstonLoger } from "@/core/loggers/winston/WinstonLogger";
+import { WinstonLoger } from "@/lib/loggers/winston/WinstonLogger";
 
 export const config = {
     runtime: 'nodejs', // Explicit Node.js runtime

@@ -1,6 +1,6 @@
 import RoomChargeEntity from '@/core/data/entity/RoomChargeEntity';
-import RoomCharge from '@/core/domain/models/RoomCharge';
-import CustomMapper from '@/core/lib/mappers/custommapper/CustomMapper';
+import RoomCharge from '@/core/models/domain/RoomCharge';
+import CustomMapper from '@/lib/mappers/custommapper/CustomMapper';
 import { describe, expect, it } from 'vitest';
 
 describe('CustomMapper', () => {

@@ -1,11 +1,11 @@
 "use client";
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
 import { roomReservationGetList } from "./actions";
 import React from "react";
-import { Loader } from "@/components/uicustom/loader";
-import RoomChangeListTable from "@/components/tables/roomchangelisttable";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import RoomChangeListTable from "@/app/components/tables/roomchangelisttable";
 
 export default function RoomChangeList() {
 

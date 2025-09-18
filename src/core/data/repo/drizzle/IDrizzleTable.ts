@@ -4,4 +4,5 @@ import { Column, Table } from "drizzle-orm";
 export default interface IDrizzleTable extends Table{
   // Add other common columns if needed
   id:Column;
+
 }

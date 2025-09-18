@@ -1,15 +1,15 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import { TYPES, SearchParam } from "@/core/lib/types";
-import c from "@/core/loggers/console/ConsoleLogger";
-import { pagerValidator, reservationValidator, searchSchema } from "@/core/validators/zodschema";
-import { HttpStatusCode } from "@/core/lib/constants";
-import { buildSearchParams, getPagerWithDefaults } from "@/core/lib/utils";
-import IReservationService from "@/core/domain/services/contracts/IReservationService";
-import Reservation from "@/core/domain/models/Reservation";
-import { CustomError } from "@/core/lib/errors";
+import { TYPES, SearchParam } from "@/lib/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { pagerValidator, reservationValidator, searchValidator } from "@/core/validators/zodschema";
+import { HttpStatusCode } from "@/lib/constants";
+import { getPagerWithDefaults } from "@/lib/utils";
+import IReservationService from "@/core/services/contracts/IReservationService";
+import Reservation from "@/core/models/domain/Reservation";
+import { CustomError } from "@/lib/errors";
 import { auth } from "@/app/auth";
-import ILogService from "@/core/domain/services/contracts/ILogService";
+import ILogService from "@/core/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest) {
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     //validate search params
     // let searchFields: SearchParam[] = [];
-    const searchValidatedFields = await searchSchema.safeParseAsync(searchParams);
+    const searchValidatedFields = await searchValidator.safeParseAsync(searchParams);
     c.d(JSON.stringify(searchValidatedFields));
     // if (searchValidatedFields.success) {
     //   c.i('Search param is valid. Building search fields.');

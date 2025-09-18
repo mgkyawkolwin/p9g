@@ -1,7 +1,9 @@
-import { IDatabaseClient } from '@/core/data/db/IDatabase';
-import { configTable, customerTable, reservationCustomerTable, reservationTable, roomChargeTable, roomTable } from '@/core/data/orm/drizzle/mysql/schema';
-import { TYPES } from '@/core/lib/types';
-import { calculateDayDifference } from '@/core/lib/utils';
+import { IDatabaseClient } from '@/lib/db/IDatabase';
+import { configTable, customerTable, reservationCustomerTable, reservationTable, roomChargeTable, roomReservationTable, roomTable } from '@/core/data/orm/drizzle/mysql/schema';
+import IRepository from '@/core/data/repo/contracts/IRepository';
+import RoomReservation from '@/core/models/domain/RoomReservation';
+import { TYPES } from '@/lib/types';
+import { calculateDayDifference } from '@/lib/utils';
 import { container } from '@/dicontainer';
 import { eq } from 'drizzle-orm';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
@@ -30,11 +32,15 @@ describe('Utils', () => {
         //     }
         // );
 
-        const result = await db.db.select({}).from(roomChargeTable)
-        .innerJoin(roomTable, eq(roomTable.id, roomChargeTable.roomId))
+        const result = await db.db.select().from(roomReservationTable)
         .limit(10);
 
-        console.log(result);
+        console.log(result); 
+
+        const repo = container.get<IRepository<RoomReservation>>(TYPES.IRoomReservationRepository);
+
+        const result2 = await repo.findMany(null, null, 0, 10);
+        console.log(result2);
 
         expect(2).toEqual(2);
     });

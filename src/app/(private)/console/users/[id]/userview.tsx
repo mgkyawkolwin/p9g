@@ -1,7 +1,7 @@
 // app/CustomerList.tsx
 "use client";
 
-import User from "@/core/domain/models/User";
+import User from "@/core/models/domain/User";
 import { use, useEffect, useState } from "react";
 import { userGet } from "@/app/(private)/console/users/[id]/actions";
 import { toast } from "sonner";

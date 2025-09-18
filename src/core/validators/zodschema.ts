@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { RegularExpressions } from '../lib/regularExpressions';
+import { RegularExpressions } from '../../lib/regularExpressions';
 
 
 export const billValidator = z.object({
@@ -166,24 +166,24 @@ export const roomReservationValidator = z.object({
 });
 
 
-export const searchSchema = z.object({
-  searchId: z.string().nullish().catch(undefined).optional(),
-  searchRoomNo: z.string().nullish().catch(undefined).optional(),
-  searchArrivalDateTime: z.string().nullish().catch(undefined).optional(),
-  searchCreatedDateFrom: z.string().nullish().catch(undefined).optional(),
-  searchCreatedDateUntil: z.string().nullish().catch(undefined).optional(),
-  searchCheckInDate: z.string().nullish().catch(undefined).optional(),
-  searchCheckInDateFrom: z.string().nullish().catch(undefined).optional(),
-  searchCheckInDateUntil: z.string().nullish().catch(undefined).optional(),
-  searchCheckOutDate: z.string().nullish().catch(undefined).optional(),
-  searchDate: z.string().nullish().catch(undefined).optional(),
-  date: z.string().nullish().catch(undefined).optional(),
-  searchDepartureDateTime: z.string().nullish().catch(undefined).optional(),
-  searchEmail: z.string().nullish().catch(undefined).optional(),
-  searchName: z.string().nullish().catch(undefined).optional(),
-  searchNationalId: z.string().nullish().catch(undefined).optional(),
-  searchPassport: z.string().nullish().catch(undefined).optional(),
-  searchPhone: z.string().nullish().catch(undefined).optional(),
+export const searchValidator = z.object({
+  searchId: z.string().optional(),
+  searchRoomNo: z.string().optional(),
+  searchArrivalDateTime: z.coerce.string().optional(),
+  searchCreatedDateFrom: z.coerce.string().optional(),
+  searchCreatedDateUntil: z.coerce.string().optional(),
+  searchCheckInDate: z.coerce.string().optional(),
+  searchCheckInDateFrom: z.coerce.string().optional(),
+  searchCheckInDateUntil: z.coerce.string().optional(),
+  searchCheckOutDate: z.coerce.string().optional(),
+  searchDate: z.coerce.string().optional(),
+  date: z.coerce.string().optional(),
+  searchDepartureDateTime: z.coerce.string().optional(),
+  searchEmail: z.string().optional(),
+  searchName: z.string().optional(),
+  searchNationalId: z.string().optional(),
+  searchPassport: z.string().optional(),
+  searchPhone: z.string().optional(),
   searchPrepaidPackage: z.string().optional(),
   searchPromotionPackage: z.string().optional(),
   searchRemark: z.string().optional(),
@@ -192,6 +192,3 @@ export const searchSchema = z.object({
   searchUserName: z.string().optional(),
   modelState: z.string().optional()
 });
-
-
-

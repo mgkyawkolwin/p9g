@@ -1,9 +1,9 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { signOut } from "@/app/auth";
-import c from '@/core/loggers/console/ConsoleLogger';
-import { FormState } from '@/core/lib/types';
-import { AppUrl } from '@/core/lib/constants';
+import c from '@/lib/loggers/console/ConsoleLogger';
+import { FormState } from '@/lib/types';
+import { AppUrl } from '@/lib/constants';
 
 export async function signOutAction() : Promise<FormState>{
   c.i("Action > singOutAction");

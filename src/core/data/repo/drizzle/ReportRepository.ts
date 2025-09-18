@@ -1,23 +1,23 @@
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
 import { billTable, configTable, customerTable, paymentTable, reservationTable, roomTable, userTable } from "@/core/data/orm/drizzle/mysql/schema";
-import { Repository } from "./Repository";
-import { TYPES } from "@/core/lib/types";
-import { type IDatabaseClient } from "@/core/data/db/IDatabase";
-import Customer from "@/core/domain/models/Customer";
+import { Repository } from "../../../../lib/repository/drizzle/Repository";
+import { TYPES } from "@/lib/types";
+import { type IDatabaseClient } from "@/lib/db/IDatabase";
+import Customer from "@/core/models/domain/Customer";
 import IReportRepository from "../contracts/IReportRepository";
-import DailySummaryGuestsRoomsReportRow from "@/core/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
-import { getDateRange } from "@/core/lib/utils";
+import DailySummaryGuestsRoomsReportRow from "@/core/models/dto/reports/DailySummaryGuestsRoomsReportrow";
+import { getDateRange } from "@/lib/utils";
 import { and, count, eq, gt, gte, lt, lte, ne, sum } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
-import { CustomError } from "@/core/lib/errors";
-import c from "@/core/loggers/console/ConsoleLogger";
+import { CustomError } from "@/lib/errors";
+import c from "@/lib/loggers/console/ConsoleLogger";
 import { auth } from "@/app/auth";
-import DailySummaryIncomeReportRow from "@/core/domain/dtos/reports/DailySummaryIncomeReportRow";
-import Bill from "@/core/domain/models/Bill";
-import Payment from "@/core/domain/models/Payment";
-import Reservation from "@/core/domain/models/Reservation";
-import DailySummaryPersonReportRow from "@/core/domain/dtos/reports/DailySummaryPersonReportRow";
+import DailySummaryIncomeReportRow from "@/core/models/dto/reports/DailySummaryIncomeReportRow";
+import Bill from "@/core/models/domain/Bill";
+import Payment from "@/core/models/domain/Payment";
+import Reservation from "@/core/models/domain/Reservation";
+import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
 
 
 @injectable()

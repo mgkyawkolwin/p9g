@@ -1,13 +1,13 @@
 import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/dicontainer";
-import { TYPES } from "@/core/lib/types";
-import c from "@/core/loggers/console/ConsoleLogger";
-import { HttpStatusCode } from "@/core/lib/constants";
-import IReservationService from "@/core/domain/services/contracts/IReservationService";
-import Bill from "@/core/domain/models/Bill";
+import { TYPES } from "@/lib/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { HttpStatusCode } from "@/lib/constants";
+import IReservationService from "@/core/services/contracts/IReservationService";
+import Bill from "@/core/models/domain/Bill";
 import { billValidator, paymentValidator } from "@/core/validators/zodschema";
-import { CustomError } from "@/core/lib/errors";
-import ILogService from "@/core/domain/services/contracts/ILogService";
+import { CustomError } from "@/lib/errors";
+import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
 
 
