@@ -1,7 +1,7 @@
 import Payment from "@/core/models/domain/Payment";
 import Reservation from "@/core/models/domain/Reservation";
 import RoomCharge from "@/core/models/domain/RoomCharge";
-import { Theme } from "@/lib/constants";
+import { Theme } from "@/core/constants";
 
 export default function ReceiptTable({ reservation, roomCharges }: { reservation: Reservation, roomCharges: RoomCharge[] }) {
     const formatter = new Intl.NumberFormat('en-US', {

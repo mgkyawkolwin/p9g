@@ -1,4 +1,4 @@
-import { PagerParams, SearchParam } from "@/lib/types";
+import { PagerParams, SearchParam } from "@/core/types";
 import { SQL } from "drizzle-orm";
 
 export default interface IBaseService<TEntity> {

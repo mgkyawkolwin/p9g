@@ -2,7 +2,7 @@
 
 import { userUpdateSchema } from '@/core/validators/zodschema';
 import c from "@/lib/loggers/console/ConsoleLogger";
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/types";
 import { headers } from 'next/headers';
 
 export async function userGet(id : number): Promise<FormState> {

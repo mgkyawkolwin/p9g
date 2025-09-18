@@ -1,8 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
-import { container } from "@/dicontainer";
-import { TYPES } from "@/lib/types";
+import { container } from "@/core/di/dicontainer";
+import { TYPES } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
-import { HttpStatusCode } from "@/lib/constants";
+import { HttpStatusCode } from "@/core/constants";
 import IReservationService from "@/core/services/contracts/IReservationService";
 import Bill from "@/core/models/domain/Bill";
 import { billValidator, paymentValidator } from "@/core/validators/zodschema";

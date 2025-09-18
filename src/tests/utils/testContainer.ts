@@ -1,7 +1,7 @@
 import { Container } from 'inversify';
 import { IDatabaseClient } from '@/lib/db/IDatabase';
-import { MySqlDatabaseClient, MySqlDbType } from '@/core/data/db/mysql/MySqlDatabase';
-import { TYPES } from '@/lib/types';
+import { MySqlDatabaseClient, MySqlDbType } from '@/core/db/mysql/MySqlDatabase';
+import { TYPES } from '@/core/types';
 import { vi } from 'vitest';
 import ICustomerService from '@/core/services/contracts/ICustomerService';
 import CustomerService from '@/core/services/CustomerService';

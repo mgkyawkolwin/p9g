@@ -2,8 +2,8 @@
 import { redirect } from 'next/navigation';
 import { signIn } from "@/app/auth";
 import c from '@/lib/loggers/console/ConsoleLogger';
-import { AppUrl } from '@/lib/constants';
-import { FormState } from '@/lib/types';
+import { AppUrl } from '@/core/constants';
+import { FormState } from '@/core/types';
 
 
 export async function signInAction(state : FormState, formData:FormData){

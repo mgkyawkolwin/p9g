@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { userCreateSchema } from '@/core/validators/zodschema';
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { headers } from 'next/headers';
 

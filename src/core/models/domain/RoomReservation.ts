@@ -1,6 +1,5 @@
-import DomainBase from "./DomainBase";
+import DomainBase from "@/lib/models/domain/DomainBase";
 import RoomCharge from "./RoomCharge";
-import { v4 as uuidv4 } from 'uuid';
 
 export default class RoomReservation extends DomainBase{
     public roomId: string = '';

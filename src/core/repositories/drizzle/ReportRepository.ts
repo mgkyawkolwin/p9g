@@ -1,10 +1,8 @@
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
-import { billTable, configTable, customerTable, paymentTable, reservationTable, roomTable, userTable } from "@/core/data/orm/drizzle/mysql/schema";
-import { Repository } from "../../../../lib/repository/drizzle/Repository";
-import { TYPES } from "@/lib/types";
+import { billTable, configTable, customerTable, paymentTable, reservationTable, roomTable, userTable } from "@/core/orms/drizzle/mysql/schema";
+import { TYPES } from "@/core/types";
 import { type IDatabaseClient } from "@/lib/db/IDatabase";
-import Customer from "@/core/models/domain/Customer";
 import IReportRepository from "../contracts/IReportRepository";
 import DailySummaryGuestsRoomsReportRow from "@/core/models/dto/reports/DailySummaryGuestsRoomsReportrow";
 import { getDateRange } from "@/lib/utils";

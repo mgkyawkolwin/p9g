@@ -3,7 +3,7 @@ import argon2 from 'argon2';
 
 import IAuthService from "./contracts/IAuthService";
 import type IUserService from './contracts/IUserService';
-import { TYPES } from '@/lib/types';
+import { TYPES } from '@/core/types';
 import c from '@/lib/loggers/console/ConsoleLogger';
 import User from '../models/domain/User';
 

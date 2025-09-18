@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import CustomerRepository from '@/core/data/repo/drizzle/CustomerRepository';
-import { MySqlDatabaseClient } from '@/core/data/db/mysql/MySqlDatabase';
-import * as schema from '@/core/data/orm/drizzle/mysql/schema';
+import { MySqlDatabaseClient } from '@/core/db/mysql/MySqlDatabase';
+import * as schema from '@/core/orms/drizzle/mysql/schema';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/app/auth';  // Adjust the import path
 import Customer from '@/core/models/domain/Customer';

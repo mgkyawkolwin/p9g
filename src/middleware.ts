@@ -2,7 +2,7 @@
 import { NextResponse, NextRequest } from "next/server"
 import {auth} from "@/app/auth";
 import c from "@/lib/loggers/console/ConsoleLogger";
-import { HttpStatusCode } from "./lib/constants";
+import { HttpStatusCode } from "./core/constants";
 
 export async function middleware(request : NextRequest) {
   try {

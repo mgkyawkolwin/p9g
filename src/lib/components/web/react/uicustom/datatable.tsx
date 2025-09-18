@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/components/web/react/ui/button";
 
 import {
   ColumnDef,
@@ -20,7 +20,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/lib/components/web/react/ui/dropdown-menu"
 
 import {
   Table,
@@ -30,10 +30,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/lib/components/web/react/ui/table";
 import { SelectWithLabel } from "./selectwithlabel";
-import { FormState } from "@/lib/types";
-import { Theme } from "@/lib/constants";
+import { FormState } from "@/core/types";
+import { Theme } from "@/core/constants";
 
 
 interface DataTableProps<TData, TValue> {

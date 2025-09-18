@@ -1,9 +1,9 @@
 import { NextResponse, NextRequest } from "next/server";
-import { container } from "@/dicontainer";
-import { TYPES } from "@/lib/types";
+import { container } from "@/core/di/dicontainer";
+import { TYPES } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { reservationValidator } from "@/core/validators/zodschema";
-import { HttpStatusCode } from "@/lib/constants";
+import { HttpStatusCode } from "@/core/constants";
 import IReservationService from "@/core/services/contracts/IReservationService";
 import Reservation from "@/core/models/domain/Reservation";
 import { CustomError } from "@/lib/errors";

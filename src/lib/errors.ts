@@ -1,4 +1,4 @@
-import { HttpStatusCode } from "./constants";
+import { HttpStatusCode } from "../core/constants";
 
 // lib/errors/custom-error.ts
 export class CustomError extends Error {

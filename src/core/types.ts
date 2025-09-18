@@ -4,13 +4,13 @@
 export type APIResponse = {
   status : number, 
   message : string,
-  data? : undefined | null | any//| Reservation | Reservation[] | {reservation: Reservation} | {reservations: Reservation[]}
+  data? : any
 };
 
 export type FormState = {
   error : boolean,
   message : string,
-  data? : any, //Reservation | Reservation[] | {reservations: Reservation[]},
+  data? : any,
   formData? : FormData | null,
   pager?: PagerParams,
   reload?: boolean

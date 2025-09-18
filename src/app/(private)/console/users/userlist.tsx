@@ -3,7 +3,7 @@ import { useActionState, useEffect } from "react";
 
 import { userGetList } from "@/app/(private)/console/users/actions";
 import { toast } from "sonner";
-import UserListTable from "@/components/tables/userlisttable";
+import UserListTable from "@/app/components/tables/userlisttable";
 import React from "react";
 
 export default function UserList() {

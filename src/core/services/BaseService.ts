@@ -2,9 +2,9 @@
 import { SQL } from "drizzle-orm";
 import { injectable } from "inversify";
 import "reflect-metadata";
-import { PagerParams, SearchParam } from "@/lib/types";
+import { PagerParams, SearchParam } from "@/core/types";
 import IBaseService from "./contracts/IBaseService";
-import type IRepository from "@/core/data/repo/contracts/IRepository";
+import type IRepository from "@/lib/repositories/IRepository";
 
 
 @injectable()

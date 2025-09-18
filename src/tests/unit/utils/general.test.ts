@@ -1,8 +1,8 @@
 import { IDatabaseClient } from '@/lib/db/IDatabase';
-import { configTable, customerTable, reservationCustomerTable, reservationTable, roomChargeTable, roomReservationTable, roomTable } from '@/core/data/orm/drizzle/mysql/schema';
+import { configTable, customerTable, reservationCustomerTable, reservationTable, roomChargeTable, roomReservationTable, roomTable } from '@/core/orms/drizzle/mysql/schema';
 import IRepository from '@/core/data/repo/contracts/IRepository';
 import RoomReservation from '@/core/models/domain/RoomReservation';
-import { TYPES } from '@/lib/types';
+import { TYPES } from '@/core/types';
 import { calculateDayDifference } from '@/lib/utils';
 import { container } from '@/dicontainer';
 import { eq } from 'drizzle-orm';

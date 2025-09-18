@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { SelectWithLabel } from "@/components/uicustom/selectwithlabel"
+import { SelectWithLabel } from "@/lib/components/web/react/uicustom/selectwithlabel"
 
 const selectData = new Map([
   ["NORMAL", "NORMAL"],

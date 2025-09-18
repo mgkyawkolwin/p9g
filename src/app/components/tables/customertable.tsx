@@ -5,7 +5,7 @@ import {
   ColumnDef
 } from "@tanstack/react-table";
 import DataTable from "../../../lib/components/web/react/uicustom/datatable";
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/types";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import Customer from "@/core/models/domain/Customer"
 import CustomerEditForm from "../forms/customereditform";

@@ -18,9 +18,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/lib/components/web/react/ui/table"
 import c from "@/lib/loggers/console/ConsoleLogger";
-import { Theme } from "@/lib/constants";
+import { Theme } from "@/core/constants";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

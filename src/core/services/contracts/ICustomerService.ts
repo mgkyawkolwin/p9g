@@ -1,5 +1,5 @@
 import Customer from "@/core/models/domain/Customer";
-import { PagerParams, SearchParam } from "@/lib/types";
+import { PagerParams, SearchParam } from "@/core/types";
 import SessionUser from "../../models/dto/SessionUser";
 
 

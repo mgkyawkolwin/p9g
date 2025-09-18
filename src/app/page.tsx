@@ -1,7 +1,7 @@
 'use server';
 
 import {auth} from "@/app/auth";
-import { AppUrl } from "@/lib/constants";
+import { AppUrl } from "@/core/constants";
 import { redirect } from 'next/navigation';
 
 export default async function Home() {

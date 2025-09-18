@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/components/web/react/ui/button";
 import { ArrowUpDown } from "lucide-react";
 
 import {
@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table"
 
 import DataTable from "../../../lib/components/web/react/uicustom/datatable";
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/types";
 import User from "@/core/models/domain/User";
 
 

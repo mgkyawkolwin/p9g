@@ -1,4 +1,4 @@
-import { PagerParams, SearchParam } from "@/lib/types";
+import { PagerParams } from "@/core/types";
 import User from "../../models/domain/User";
 import SessionUser from "../../models/dto/SessionUser";
 

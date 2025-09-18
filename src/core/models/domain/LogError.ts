@@ -1,4 +1,4 @@
-import DomainBase from "./DomainBase";
+import DomainBase from "@/lib/models/domain/DomainBase";
 
 export default class LogError extends DomainBase{
     datetime:Date = null;

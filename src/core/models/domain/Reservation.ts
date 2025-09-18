@@ -1,6 +1,6 @@
 import Bill from "./Bill";
 import Customer from "./Customer";
-import DomainBase from "./DomainBase";
+import DomainBase from "@/lib/models/domain/DomainBase";
 
 
 export default class Reservation extends DomainBase{

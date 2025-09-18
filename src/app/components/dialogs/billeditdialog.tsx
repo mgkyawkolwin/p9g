@@ -12,7 +12,7 @@ import { toast } from "sonner"
 import Bill from "@/core/models/domain/Bill"
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom"
 import { SelectCustom } from "../../../lib/components/web/react/uicustom/selectcustom"
-import { SelectList } from "@/lib/constants"
+import { SelectList } from "@/core/constants"
 import BillDataTable from "../../../lib/components/web/react/uicustom/billdatatable"
 import { Checkbox } from "../../../lib/components/web/react/ui/checkbox";
 import DatePicker from "react-datepicker";

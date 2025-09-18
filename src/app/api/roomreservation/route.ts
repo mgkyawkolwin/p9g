@@ -1,9 +1,9 @@
 import { NextResponse, NextRequest } from "next/server";
-import { container } from "@/dicontainer";
-import { TYPES, SearchParam } from "@/lib/types";
+import { container } from "@/core/di/dicontainer";
+import { TYPES, SearchParam } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { searchValidator } from "@/core/validators/zodschema";
-import { HttpStatusCode } from "@/lib/constants";
+import { HttpStatusCode } from "@/core/constants";
 import IReservationService from "@/core/services/contracts/IReservationService";
 import { CustomError } from "@/lib/errors";
 import ILogService from "@/core/services/contracts/ILogService";

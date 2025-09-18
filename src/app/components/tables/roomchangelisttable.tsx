@@ -4,17 +4,14 @@ import * as React from "react";
 import {
   ColumnDef
 } from "@tanstack/react-table";
-import DataTable from "../../../lib/components/web/react/uicustom/datatable";
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/types";
 import { useRouter } from "next/navigation";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
 import { moveRoom } from "@/app/(private)/console/roomchange/actions";
 import { toast } from "sonner";
-import Room from "@/core/models/domain/Room";
 import SimpleDataTable from "../../../lib/components/web/react/uicustom/simpledatatable";
-import RoomReservationDto from "@/core/models/dto/RoomReservationDto";
 
 
 interface DataTableProps {

@@ -2,7 +2,7 @@
 import * as React from "react";
 import { InputWithLabel } from "../../../lib/components/web/react/uicustom/inputwithlabel";
 import { SelectWithLabel } from "../../../lib/components/web/react/uicustom/selectwithlabel";
-import { SelectListSearch } from "@/lib/constants";
+import { SelectListSearch } from "@/core/constants";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";

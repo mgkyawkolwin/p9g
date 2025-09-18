@@ -1,4 +1,4 @@
-import { PagerParams, SearchParam } from "@/lib/types";
+import { PagerParams, SearchParam } from "@/core/types";
 import Reservation from "@/core/models/domain/Reservation";
 import Room from "@/core/models/domain/Room";
 import Bill from "@/core/models/domain/Bill";
@@ -14,7 +14,6 @@ export default interface IReservationService {
     billGetListById(reservationId: string, sessionUser: SessionUser): Promise<[Bill[], number]>;
     billUpdateList(reservationId: string, bills: Bill[], sessionUser: SessionUser): Promise<void>;
     invoiceGet(reservationId: string, sessionUser: SessionUser): Promise<Invoice>;
-    // patch(id:string, operation : string, sessionUser: SessionUser): Promise<void>;
     paymentDeleteById(reservationId: string, paymentId: string, sessionUser: SessionUser): Promise<void>;
     paymentGetListById(reservationId: string, sessionUser: SessionUser): Promise<[Payment[], number]>;
     paymentUpdateList(reservationId: string, payments: Payment[], sessionUser: SessionUser): Promise<void>;
@@ -24,11 +23,8 @@ export default interface IReservationService {
     reservationCheckOut(id: string, sessionUser: SessionUser): Promise<void>;
     reservationCreate(reservation: Reservation, sessionUser: SessionUser): Promise<Reservation>;
     reservationGetById(id: string, sessionUser: SessionUser): Promise<Reservation | null>;
-    // reservationGetListCheckIn(searchParams: SearchParam[], pagerParams : PagerParams, sessionUser: SessionUser): Promise<[Reservation[], number]>;
-    // reservationGetListCheckOut(searchParams: SearchParam[], pagerParams : PagerParams, sessionUser: SessionUser): Promise<[Reservation[], number]>;
     reservationGetList(searchParams: Record<string, any>, pagerParams: PagerParams, list: string, sessionUser: SessionUser): Promise<[Reservation[], number]>;
     reservationMoveRoom(id: string, roomNo: string, sessionUser: SessionUser): Promise<void>;
-    // reservationGetListTop(pagerParams : PagerParams, sessionUser: SessionUser): Promise<[Reservation[], number]>;
     reservationUpdate(id: string, reservation: Reservation, sessionUser: SessionUser): Promise<void>;
     roomChargeGetListById(reservationId: string, sessionUser: SessionUser): Promise<RoomCharge[]>;
     roomReservationGetList(searchParam: Record<string, any>, sessionUser: SessionUser): Promise<RoomReservationDto[]>;

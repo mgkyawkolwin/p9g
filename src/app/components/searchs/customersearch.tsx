@@ -1,7 +1,7 @@
 
 import * as React from "react";
 import { InputWithLabel } from "../../../lib/components/web/react/uicustom/inputwithlabel";
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/types";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import CustomerNewForm from "../forms/customernewform";
 import Customer from "@/core/models/domain/Customer";

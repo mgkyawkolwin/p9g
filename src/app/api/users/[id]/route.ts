@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { container } from "@/dicontainer";
+import { container } from "@/core/di/dicontainer";
 import IUserService from "@/core/services/contracts/IUserService";
-import { TYPES } from "@/lib/types";
+import { TYPES } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
-import { HttpStatusCode } from "@/lib/constants";
+import { HttpStatusCode } from "@/core/constants";
 import { CustomError } from "@/lib/errors";
 import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";

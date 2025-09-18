@@ -1,8 +1,8 @@
 import DailySummaryGuestsRoomsReportRow from "../models/dto/reports/DailySummaryGuestsRoomsReportrow";
 import IReportService from "./contracts/IReportService";
 import { injectable, inject } from 'inversify';
-import { TYPES } from '@/lib/types';
-import type IReportRepository from "@/core/data/repo/contracts/IReportRepository";
+import { TYPES } from '@/core/types';
+import type IReportRepository from "@/core/repositories/contracts/IReportRepository";
 import DailySummaryIncomeReportRow from "../models/dto/reports/DailySummaryIncomeReportRow";
 import DailySummaryPersonReportRow from "../models/dto/reports/DailySummaryPersonReportRow";
 import c from "@/lib/loggers/console/ConsoleLogger";

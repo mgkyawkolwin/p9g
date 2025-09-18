@@ -3,7 +3,7 @@
 import '@/lib/extensions/dateextensions';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/lib/components/web/react/ui/sonner";
 import GlobalErrorHandler from "./globalerrorhandler";
 import ThemeProviderWrapper from "./(private)/themeproviderwrapper";
 

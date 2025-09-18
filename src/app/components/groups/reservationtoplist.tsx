@@ -1,7 +1,7 @@
 "use client";
 
-import ReservationTopTable from "@/components/tables/reservationtoptable";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
+import ReservationTopTable from "@/app/components/tables/reservationtoptable";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
 import Reservation from "@/core/models/domain/Reservation";
 
 export default function ReservationTopList({data} : {data:Reservation[]}) {

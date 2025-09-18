@@ -2,11 +2,11 @@ import { injectable, inject } from 'inversify';
 
 import c from '@/lib/loggers/console/ConsoleLogger';
 import type IUserService from "./contracts/IUserService";
-import { PagerParams, TYPES } from '@/lib/types';
+import { PagerParams, TYPES } from '@/core/types';
 import User from '../models/domain/User';
 import SessionUser from '../models/dto/SessionUser';
 import { CustomError } from '@/lib/errors';
-import type IRepository from '@/core/data/repo/contracts/IRepository';
+import type IRepository from '@/lib/repositories/IRepository';
 import { and, eq } from '@/lib/transformers/types';
 
 

@@ -1,16 +1,17 @@
 'use client';
 
-import { Label } from "@/components/ui/label"
+import { Label } from "@/lib/components/web/react/ui/label"
 import {
     RadioGroup,
     RadioGroupItem,
-} from "@/components/ui/radio-group"
+} from "@/lib/components/web/react/ui/radio-group"
 import { SelectWithLabel } from "../../../lib/components/web/react/uicustom/selectwithlabel";
 import { InputWithLabel } from "../../../lib/components/web/react/uicustom/inputwithlabel";
 import { Textarea } from "../../../lib/components/web/react/ui/textarea";
 import React from "react";
-import { calculateDayDifference, getCheckInDate, getCheckOutDate} from "@/lib/utils";
-import { SelectList, SelectListForm } from "@/lib/constants";
+import { calculateDayDifference} from "@/lib/utils";
+import { getCheckInDate, getCheckOutDate } from "@/core/helpers";
+import { SelectList, SelectListForm } from "@/core/constants";
 import Reservation from "@/core/models/domain/Reservation";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
 

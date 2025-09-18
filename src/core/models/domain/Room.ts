@@ -1,6 +1,6 @@
 import RoomReservation from "./RoomReservation";
 import Reservation from "./Reservation";
-import DomainBase from "./DomainBase";
+import DomainBase from "@/lib/models/domain/DomainBase";
 
 export default class Room extends DomainBase{
     public roomNo: string = '';

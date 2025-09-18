@@ -1,9 +1,9 @@
-import { PagerParams, SearchFormFields, SearchParam } from "@/lib/types";
-import IRepository from "@/lib/repository/IRepository";
+import { PagerParams, SearchFormFields, SearchParam } from "@/core/types";
+import IRepository from "@/lib/repositories/IRepository";
 import Reservation from "@/core/models/domain/Reservation";
 import Room from "@/core/models/domain/Room";
 import RoomReservation from "@/core/models/domain/RoomReservation";
-import { TransactionType } from "@/core/data/db/mysql/MySqlDatabase";
+import { TransactionType } from "@/core/db/mysql/MySqlDatabase";
 import SessionUser from "@/core/models/dto/SessionUser";
 import RoomReservationDto from "@/core/models/dto/RoomReservationDto";
 

@@ -3,19 +3,19 @@ import { SQL, and, count, asc, desc, eq, gt, gte, inArray, lt, lte, or, like, Ta
 import { AnyMySqlSelectQueryBuilder, MySqlColumn, MySqlJoin, MySqlJoinType, MySqlSelect, MySqlSelectQueryBuilder, MySqlTable, MySqlTableWithColumns } from "drizzle-orm/mysql-core";
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
-import IRepository from "@/lib/repository/IRepository";
+import IRepository from "@/lib/repositories/IRepository";
 import { type IDatabaseClient } from "@/lib/db/IDatabase";
-import IDrizzleTable from "@/core/data/repo/drizzle/IDrizzleTable";
+import IDrizzleTable from "@/core/repositories/drizzle/IDrizzleTable";
 import c from "@/lib/loggers/console/ConsoleLogger";
-import IEntity from "../../entity/IEntity";
+import IEntity from "@/lib/models/entity/IEntity";
 import { CustomError } from "@/lib/errors";
 import ITransaction from "../../db/ITransaction";
 import type IMapper from "@/lib/mappers/IMapper";
-import { TYPES } from "@/lib/types";
+import { TYPES } from "@/core/types";
 import IDomainModel from "@/lib/models/domain/IDomainModel";
 import type IQueryTranformer from "@/lib/transformers/IQueryTransformer";
 import { AnyCondition } from "@/lib/transformers/types";
-import { buildAnyCondition } from "@/lib/helpers";
+import { buildAnyCondition } from "@/core/helpers";
 
 
 @injectable()

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/components/web/react/ui/button";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -18,7 +18,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/lib/components/web/react/ui/dropdown-menu"
 
 import {
   Table,
@@ -27,8 +27,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Theme } from "@/lib/constants";
+} from "@/lib/components/web/react/ui/table";
+import { Theme } from "@/core/constants";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

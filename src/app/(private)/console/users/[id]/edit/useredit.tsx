@@ -1,11 +1,11 @@
 "use client";
 import { useActionState, useEffect, useState } from "react";
 //Local Imports
-import { FormState } from "@/lib/types";
-import { Loader } from "@/components/uicustom/loader";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import { InputWithLabel } from "@/components/uicustom/inputwithlabel";
-import { Button } from "@/components/ui/button";
+import { FormState } from "@/core/types";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
+import { InputWithLabel } from "@/lib/components/web/react/uicustom/inputwithlabel";
+import { Button } from "@/lib/components/web/react/ui/button";
 import { toast } from "sonner";
 import User from "@/core/models/domain/User";
 
@@ -53,7 +53,7 @@ export default function UserEdit({ params }:{ params:{ id:number, getFunc:(id:nu
         <GroupContent>
         <form action={formAction}>
           <div className="flex flex-col gap-4">
-              <InputWithLabel label="User ID" type="number" name="id" readOnly defaultValue={user?.id} />
+              <InputWithLabel label="User ID" type="number" name="id" readOnly />
               <InputWithLabel label="User Name"  name="userName" defaultValue={user?.userName ?? ""} />
               <InputWithLabel label="Email" type="email" name="email" defaultValue={user?.email} />
               <div className="flex flex-1 gap-x-4">

@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
-import { Theme } from "@/lib/constants"
+import { Theme } from "@/core/constants"
 
 function Group({ className, ...props }: React.ComponentProps<"div">) {
   return (

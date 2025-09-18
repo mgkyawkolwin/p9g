@@ -2,12 +2,12 @@ import { injectable, inject } from 'inversify';
 
 import c from '@/lib/loggers/console/ConsoleLogger';
 import type ICustomerService from "./contracts/ICustomerService";
-import { PagerParams, SearchFormFields, TYPES } from '@/lib/types';
+import { PagerParams, SearchFormFields, TYPES } from '@/core/types';
 import Customer from '../models/domain/Customer';
 import SessionUser from '../models/dto/SessionUser';
 import { CustomError } from '@/lib/errors';
-import type IRepository from '@/core/data/repo/contracts/IRepository';
-import { buildAnyCondition } from '@/lib/helpers';
+import type IRepository from '@/lib/repositories/IRepository';
+import { buildAnyCondition } from '@/core/helpers';
 
 
 @injectable()

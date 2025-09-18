@@ -1,5 +1,4 @@
-import IEntity from "@/core/data/entity/IEntity";
-import DomainBase from "./DomainBase";
+import DomainBase from "@/lib/models/domain/DomainBase";
 
 export default class Customer extends DomainBase {
     public address: string = '';

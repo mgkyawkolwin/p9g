@@ -1,5 +1,5 @@
 import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
-import { Theme } from "@/lib/constants";
+import { Theme } from "@/core/constants";
 
 export default function DailySummaryPersonReport({ reportRows }: { reportRows: DailySummaryPersonReportRow[] }) {
     const formatter = new Intl.NumberFormat('en-US', {

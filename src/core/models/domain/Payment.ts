@@ -1,4 +1,4 @@
-import DomainBase from "./DomainBase";
+import DomainBase from "@/lib/models/domain/DomainBase";
 
 export default class Payment extends DomainBase{
     public reservationId:string = '';

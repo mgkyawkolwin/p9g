@@ -9,7 +9,7 @@ import BillDataTable from "../../../lib/components/web/react/uicustom/billdatata
 import Bill from "@/core/models/domain/Bill"
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
 import { SelectCustom } from "../../../lib/components/web/react/uicustom/selectcustom"
-import { SelectList } from "@/lib/constants"
+import { SelectList } from "@/core/constants"
 
 
 

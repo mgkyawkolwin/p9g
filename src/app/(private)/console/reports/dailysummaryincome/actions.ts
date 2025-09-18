@@ -1,5 +1,5 @@
 'use server';
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { headers } from 'next/headers';
 

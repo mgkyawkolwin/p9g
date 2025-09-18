@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-table";
 import SimpleDataTable from "../../../lib/components/web/react/uicustom/simpledatatable";
 import Reservation from "@/core/models/domain/Reservation";
-import { getReservationStatusColorClass } from "@/lib/utils";
+import { getReservationStatusColorClass } from "@/core/helpers";
 
 
 export const columns: ColumnDef<Reservation>[] = [

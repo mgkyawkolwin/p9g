@@ -1,6 +1,6 @@
 'use client';
 
-import { Label } from "@/components/ui/label";
+import { Label } from "@/lib/components/web/react/ui/label";
 import { InputWithLabel } from "../../../lib/components/web/react/uicustom/inputwithlabel";
 import { Textarea } from "../../../lib/components/web/react/ui/textarea";
 import React from "react";

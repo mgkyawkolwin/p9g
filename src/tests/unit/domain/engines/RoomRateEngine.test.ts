@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { userTable } from '@/core/data/orm/drizzle/mysql/schema';
+import { userTable } from '@/core/orms/drizzle/mysql/schema';
 import RoomRateEngine, { MonthDetail } from '@/core/models/engines/RoomRateEngine';
 import Reservation from '@/core/models/domain/Reservation';
 import RoomReservation from '@/core/models/domain/RoomReservation';

@@ -1,4 +1,4 @@
-import DomainBase from "./DomainBase";
+import DomainBase from "@/lib/models/domain/DomainBase";
 
 export default class User extends DomainBase{
     public name: string = '';

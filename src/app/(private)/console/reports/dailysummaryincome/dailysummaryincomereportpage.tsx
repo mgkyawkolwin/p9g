@@ -1,16 +1,16 @@
 "use client";
 import { toast } from "sonner";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
 import { getDailySummaryIncomeReport } from "./actions";
 import React from "react";
-import { Loader } from "@/components/uicustom/loader";
-import { ButtonCustom } from "@/components/uicustom/buttoncustom";
-import DailySummaryIncomeReport from "@/components/reports/dailysummaryincomereport";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
+import DailySummaryIncomeReport from "@/app/components/reports/dailysummaryincomereport";
 import DailySummaryIncomeReportRow from "@/core/models/dto/reports/DailySummaryIncomeReportRow";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Label } from "@/components/ui/label";
-import { InputCustom } from "@/components/uicustom/inputcustom";
+import { Label } from "@/lib/components/web/react/ui/label";
+import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
 import { getUTCDateTimeMidNightString, getUTCDateTimeString } from "@/lib/utils";
 
 export default function DailySummaryIncomeReportPage() {

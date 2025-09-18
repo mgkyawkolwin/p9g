@@ -3,7 +3,7 @@
 import Room from '@/core/models/domain/Room';
 import React from 'react';
 import RoomReservation from '@/core/models/domain/RoomReservation';
-import { Theme } from '@/lib/constants';
+import { Theme } from '@/core/constants';
 
 const reservationColors = [
   'bg-red-400', 'bg-blue-400', 'bg-green-400',

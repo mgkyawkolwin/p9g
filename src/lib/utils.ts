@@ -1,9 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { SearchParam, PagerParams, SearchFormFields } from "./types";
+import { SearchParam, PagerParams, SearchFormFields } from "../core/types";
 import { CustomError } from "./errors";
-
-
 
 
 /**
@@ -14,24 +12,17 @@ import { CustomError } from "./errors";
 export function buildQueryString(input : SearchFormFields | PagerParams): string{
   const queryString = new URLSearchParams(
     Object.entries(input)
-      //.filter(([_, value]) => value !== undefined && value !== null && value !== '')
       .map(([key, value]) => [key, String(value)])
   ).toString();
   return queryString;
 }
 
 /**
- * Build SearchParam array from the querystring, which will be used in repository filtering.
- * Query string field should be start with search (e.g. searchName) to be distinguished from
- * entity values. Only known list will be converted into SearchParam.
- * 
- * Note: Intendted to be used in API route.
- * @param {Object} queryStringObject - Query string object with key/value.
- * @returns {SearchParam[]} - Array of SearchParam.
+ * Calculate the day difference between start date and end date.
+ * @param startDate 
+ * @param endDate 
+ * @returns 
  */
-
-
-
 export function calculateDayDifference(startDate:Date, endDate: Date){
   return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 }
@@ -47,42 +38,30 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-
-export function getCheckInDate(arrivalDate: Date){
-  const checkInDate = new Date(arrivalDate);
-  checkInDate.setUTCHours(0,0,0,0);
-  if(arrivalDate.getUTCHours() >= 0 && arrivalDate.getUTCHours() <= 5){
-    return checkInDate;
-  }else{
-    checkInDate.setUTCDate(checkInDate.getUTCDate() + 1);
-    return checkInDate;
-  }
-}
-
-
-export function getCheckOutDate(departureDate: Date){
-  const checkOutDate = new Date(departureDate);
-  checkOutDate.setUTCHours(0,0,0,0);
-  if(departureDate.getUTCHours() >= 0 && departureDate.getUTCHours() <= 5){
-    checkOutDate.setUTCDate(checkOutDate.getUTCDate() - 1);
-    return checkOutDate;
-  }else{
-    return checkOutDate;
-  }
-}
-
-
-export function getCurrentMonthFirstDate(): Date{
+/**
+ * Get the first date of the current month at time 00:00:00.000
+ * @returns 
+ */
+export function getUTCCurrentMonthFirstDate(): Date{
   const today = new Date();
-  return new Date(today.getUTCFullYear(), today.getUTCMonth(), 1);
+  return new Date(Date.UTC(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0));
 }
 
-
+/**
+ * Get the last date of the current month at time 23:59:59.999
+ * @returns 
+ */
 export function getCurrentMonthLastDate(): Date{
   const today = new Date();
-  return new Date(today.getUTCFullYear(), today.getUTCMonth() + 1, 0,23,59,59,999);
+  return new Date(Date.UTC(today.getFullYear(), today.getMonth() + 1, 0,23,59,59,999));
 }
 
+/**
+ * Get the date array between start date and end date.
+ * @param startDate 
+ * @param endDate 
+ * @returns 
+ */
 export function getDateRange(startDate: string, endDate: string): Date[] {
   const start = new Date(startDate);
   const end = new Date(endDate);
@@ -109,116 +88,84 @@ export function getDateRange(startDate: string, endDate: string): Date[] {
 }
 
 
-export function getFirstDate(year: number, month: number): Date{
-  return new Date(year, month, 1);
+/**
+ * Get the date with Local Time set at mid night from the input date.
+ * @param date 
+ * @returns 
+ */
+export function getLocalDateMidNight(date:Date){
+  const midNightDate = new Date(date);
+  midNightDate.setHours(23,59,59,999);
+  return midNightDate;
 }
 
-// export function getFakeLocalDateTimeFromUTCDateTime(date:Date):Date{
-//   const fakeLocalDate = new Date(date.toISOString().replace('T',' ').slice(0,16));
-//   return fakeLocalDate;
-// }
+/**
+ * Get the first date of a month in local date at 00:00:00.000 time.
+ * 
+ * @param year 
+ * @param month 
+ * @returns 
+ */
+export function getLocalFirstDate(year: number, month: number): Date{
+  return new Date(year, month, 1, 0, 0, 0, 0);
+}
 
 
-export function getLastDate(year: number, month: number): Date{
+/**
+ * Get last date of a month in local date at 23:59:59.999 time.
+ * @param year 
+ * @param month 
+ * @returns 
+ */
+export function getLocalLastDate(year: number, month: number): Date{
   return new Date(year,month + 1, 0, 23, 59, 59, 999);
 }
 
-// export function getUTCDateFromFakeLocalDate(date:Date):Date{
-//   return new Date(date.toLocaleString('sv-SE').slice(0,10) + 'T00:00:00.000Z');
-// }
+/**
+ * Get first date of a month in UTC at 00:00:00.000 time.
+ * @param year 
+ * @param month 
+ * @returns 
+ */
+export function getUTCFirstDate(year: number, month: number): Date{
+  return new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
+}
 
-// export function getUTCDateTimeFromFakeLocalDateTime(date:Date):Date{
-//   return new Date(date.toLocaleString('sv-SE').replace(' ','T') + '.000Z');
-// }
+/**
+ * Get last date of a month in UTC at 23:59:59.999 time.
+ * @param year 
+ * @param month 
+ * @returns 
+ */
+export function getUTCLastDate(year: number, month: number): Date{
+  return new Date(Date.UTC(year,month + 1, 0, 23, 59, 59, 999));
+}
 
+/**
+ * Get the date with UTC time set at mid night from the input date.
+ * @param date 
+ * @returns 
+ */
 export function getUTCDateMidNight(date:Date){
   const midNightDate = new Date(date);
   midNightDate.setUTCHours(23,59,59,999);
   return midNightDate;
 }
 
-
+/**
+ * Convert the input date string into datetime string in UTC format.
+ * @param dateString in UTC format (1900-01-01)
+ * @returns 1900-01-01T00:00:00.000Z
+ */
 export function getUTCDateTimeString(dateString:string){
   return `${dateString}T00:00:00.000Z`;
 }
 
-
+/**
+ * Convert the input date string into mid-night datetime string in UTC format.
+ * @param dateString in UTC format(1900-01-01)
+ * @returns 1900-01-01T23:59:59.999Z
+ */
 export function getUTCDateTimeMidNightString(dateString:string){
   return `${dateString}T23:59:59.999Z`;
-}
-/**
- * Get local date string to display in client browser.
- */
-// export function getLocalDateString(){
-//   const now = new Date();//this is local time
-//   // Adjust for timezone offset (critical step!)
-//   const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
-//   const localISOFormatDate = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 10);
-//   return localISOFormatDate;
-// }
-
-
-/**
- * Convert local date string to UTC date in ISO format
- * @param dateString date value in local timezone
- * @returns UTC date value in ISO format
- */
-// export function getUTCISODateString(dateString: string):string{
-//   //c.d(dateString);
-//   const now = new Date(dateString);
-//   //c.d(now.toISOString().slice(0,10));
-//   return now.toISOString();
-// }
-
-
-/**
- * Convert local date string to UTC date in ISO format
- * @param dateString date value in local timezone
- * @returns UTC date value in ISO format
- */
-// export function getUTCISODateTimeString(dateTimeString: string):string{c.i('xxx')
-//   c.d(dateTimeString);
-//   const now = new Date(dateTimeString);
-//   c.d(now.toISOString());
-//   return now.toISOString();
-// }
-
-
-/**
- * Get local datetime string to display in client browser.
- */
-// export function getLocalDateTimeString(){
-//   const now = new Date();//this is local time
-//   // Adjust for timezone offset (critical step!), wihtout adjustment , toISOString will output UTC/GMT datetime
-//   const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
-//   const localISOFormatDateTime = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 16);
-//   return localISOFormatDateTime;
-// }
-
-
-/**
- * Build pagination PagerParams with default fields if fields are invalid.
- * @param inputObject - Any Object
- * @returns Original object with pager fields default.
- */
-export function getPagerWithDefaults(inputObject : PagerParams) : PagerParams {
-  return {
-    ...inputObject,
-    orderBy : inputObject.orderBy ?? 'id',
-    orderDirection : inputObject.orderDirection ?? 'asc',
-    pageIndex : inputObject.pageIndex ?? 1,
-    pageSize : inputObject.pageSize ?? 10
-  }
-}
-
-
-export function getReservationStatusColorClass(status:string){
-  if(status === 'NEW')
-    return `text-[#333333] dark:text-[#dddddd]`;
-  else if(status === 'CIN')
-    return `text-[#008800] dark:text-[#00ff00]`;
-  else if(status === 'OUT')
-    return `text-[#888888] dark:text-[#888888]`;
-  else if(status === 'CCL')
-    return `text-[#cc0000] dark:text-[#ff0000]`;
 }

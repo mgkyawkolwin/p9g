@@ -1,10 +1,10 @@
 import { NextResponse, NextRequest } from "next/server";
-import { container } from "@/dicontainer";
-import { TYPES, SearchParam } from "@/lib/types";
+import { container } from "@/core/di/dicontainer";
+import { TYPES, SearchParam } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { customerValidator, pagerValidator, searchValidator } from "@/core/validators/zodschema";
-import { HttpStatusCode } from "@/lib/constants";
-import { getPagerWithDefaults } from "@/lib/utils";
+import { HttpStatusCode } from "@/core/constants";
+import { getPagerWithDefaults } from "@/core/helpers";
 import ICustomerService from "@/core/services/contracts/ICustomerService";
 import Customer from "@/core/models/domain/Customer";
 import { CustomError } from "@/lib/errors";

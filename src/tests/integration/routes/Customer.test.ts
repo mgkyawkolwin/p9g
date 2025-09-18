@@ -5,7 +5,7 @@ import { NextRequest } from 'next/server';
 import { container } from '@/dicontainer';
 import CustomerService from '@/core/services/CustomerService';
 import CustomerRepository from '@/core/data/repo/drizzle/CustomerRepository';
-import { TYPES } from '@/lib/types';
+import { TYPES } from '@/core/types';
 import Customer from '@/core/models/domain/Customer';
 import { createMocks } from 'node-mocks-http';
 

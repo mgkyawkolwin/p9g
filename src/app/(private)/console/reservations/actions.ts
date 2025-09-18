@@ -1,6 +1,6 @@
 'use server';
 import { billValidator, pagerValidator, paymentValidator, roomChargeValidator, roomReservationValidator, searchValidator } from '@/core/validators/zodschema';
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
 import Bill from '@/core/models/domain/Bill';

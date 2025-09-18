@@ -7,7 +7,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/lib/components/web/react/ui/select";
 import { cn } from "@/lib/utils";
 
 import { cva, type VariantProps } from "class-variance-authority";

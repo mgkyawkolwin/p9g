@@ -4,9 +4,9 @@ import * as React from "react"
 import { Calendar as CalendarIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { InputCustom } from "@/components/uicustom/inputcustom"
+import { Button } from "@/lib/components/web/react/ui/button"
+import { Calendar } from "@/lib/components/web/react/ui/calendar"
+import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom"
 
 import { DayPicker } from "react-day-picker"
 
@@ -14,7 +14,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/lib/components/web/react/ui/popover"
 import { cva, type VariantProps } from "class-variance-authority";
 
 const datepickerVariants = cva(

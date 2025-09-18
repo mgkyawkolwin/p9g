@@ -5,7 +5,7 @@ import {
   ColumnDef
 } from "@tanstack/react-table";
 import DataTable from "../../../lib/components/web/react/uicustom/datatable";
-import { FormState } from "@/lib/types";
+import { FormState } from "@/core/types";
 import { useRouter } from "next/navigation";
 import Reservation from "@/core/models/domain/Reservation";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
@@ -16,7 +16,7 @@ import PaymentDialog from "../dialogs/paymentdialog";
 import ReceiptDialog from "../dialogs/receiptdialog";
 import { reservationCancel } from "@/app/(private)/console/reservations/actions";
 import { toast } from "sonner";
-import { getReservationStatusColorClass } from "@/lib/utils";
+import { getReservationStatusColorClass } from "@/core/helpers";
 import RoomChargeDialog from "../dialogs/roomschargedialog";
 
 
@@ -78,8 +78,8 @@ export default function ReservationListTable({
       header: "Arrival / Departure",
       accessorFn: (row) => {
         return <span>
-          {row.arrivalDateTime ? new Date(row.arrivalDateTime).toISODateTimeString() : ''} {row.arrivalFlight} {row.pickUpTypeText}<br />
-          {row.departureDateTime ? new Date(row.departureDateTime).toISODateTimeString() : ''} {row.departureFlight} {row.dropOffTypeText}</span>;
+          {row.arrivalDateTime ? new Date(row.arrivalDateTime).toISODateTimeDisplayString() : ''} {row.arrivalFlight} {row.pickUpTypeText}<br />
+          {row.departureDateTime ? new Date(row.departureDateTime).toISODateTimeDisplayString() : ''} {row.departureFlight} {row.dropOffTypeText}</span>;
       },
       cell: (row) => row.getValue(),
     },

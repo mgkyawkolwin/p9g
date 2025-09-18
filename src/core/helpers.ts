@@ -1,5 +1,6 @@
-import { and, AnyCondition, eq, gte, like, lte, or } from "./transformers/types";
-import { getUTCDateMidNight } from "./utils";
+import { and, AnyCondition, eq, gte, like, lte, or } from "../lib/transformers/types";
+import { getUTCDateMidNight } from "../lib/utils";
+import { PagerParams } from "./types";
 
 export function buildAnyCondition(queryObject: any): AnyCondition | null {
     if(!queryObject) return null;
@@ -84,3 +85,102 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
     
     return conditions.length >1 ? and(...conditions) : conditions[0];
 }
+/**
+ * Get local date string to display in client browser.
+ */
+// export function getLocalDateString(){
+//   const now = new Date();//this is local time
+//   // Adjust for timezone offset (critical step!)
+//   const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
+//   const localISOFormatDate = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 10);
+//   return localISOFormatDate;
+// }
+/**
+ * Convert local date string to UTC date in ISO format
+ * @param dateString date value in local timezone
+ * @returns UTC date value in ISO format
+ */
+// export function getUTCISODateString(dateString: string):string{
+//   //c.d(dateString);
+//   const now = new Date(dateString);
+//   //c.d(now.toISOString().slice(0,10));
+//   return now.toISOString();
+// }
+/**
+ * Convert local date string to UTC date in ISO format
+ * @param dateString date value in local timezone
+ * @returns UTC date value in ISO format
+ */
+// export function getUTCISODateTimeString(dateTimeString: string):string{c.i('xxx')
+//   c.d(dateTimeString);
+//   const now = new Date(dateTimeString);
+//   c.d(now.toISOString());
+//   return now.toISOString();
+// }
+/**
+ * Get local datetime string to display in client browser.
+ */
+// export function getLocalDateTimeString(){
+//   const now = new Date();//this is local time
+//   // Adjust for timezone offset (critical step!), wihtout adjustment , toISOString will output UTC/GMT datetime
+//   const timezoneOffset = now.getTimezoneOffset() * 60000; // Convert minutes to ms
+//   const localISOFormatDateTime = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 16);
+//   return localISOFormatDateTime;
+// }
+/**
+ * Build pagination PagerParams with default fields if fields are invalid.
+ * @param inputObject - Any Object
+ * @returns Original object with pager fields default.
+ */
+export function getPagerWithDefaults(inputObject: PagerParams): PagerParams {
+  return {
+    ...inputObject,
+    orderBy: inputObject.orderBy ?? 'id',
+    orderDirection: inputObject.orderDirection ?? 'asc',
+    pageIndex: inputObject.pageIndex ?? 1,
+    pageSize: inputObject.pageSize ?? 10
+  };
+}export function getReservationStatusColorClass(status: string) {
+  if (status === 'NEW')
+    return `text-[#333333] dark:text-[#dddddd]`;
+  else if (status === 'CIN')
+    return `text-[#008800] dark:text-[#00ff00]`;
+  else if (status === 'OUT')
+    return `text-[#888888] dark:text-[#888888]`;
+  else if (status === 'CCL')
+    return `text-[#cc0000] dark:text-[#ff0000]`;
+}
+/**
+ * Get check-in date based on arrival date.
+ * @param arrivalDate
+ * @returns
+ */
+
+export function getCheckInDate(arrivalDate: Date) {
+  const checkInDate = new Date(arrivalDate);
+  checkInDate.setUTCHours(0, 0, 0, 0);
+  if (arrivalDate.getUTCHours() >= 0 && arrivalDate.getUTCHours() <= 5) {
+    return checkInDate;
+  } else {
+    checkInDate.setUTCDate(checkInDate.getUTCDate() + 1);
+    return checkInDate;
+  }
+}
+/**
+ * Get checkout date based on departure date.
+ * @param departureDate
+ * @returns
+ */
+
+
+export function getCheckOutDate(departureDate: Date) {
+  const checkOutDate = new Date(departureDate);
+  checkOutDate.setUTCHours(0, 0, 0, 0);
+  if (departureDate.getUTCHours() >= 0 && departureDate.getUTCHours() <= 5) {
+    checkOutDate.setUTCDate(checkOutDate.getUTCDate() - 1);
+    return checkOutDate;
+  } else {
+    return checkOutDate;
+  }
+}
+
