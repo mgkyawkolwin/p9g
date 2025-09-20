@@ -2,12 +2,12 @@
 import { useActionState, useEffect } from "react";
 
 import { toast } from "sonner";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
 import { reservationGetList } from "./actions";
 import React from "react";
-import { Loader } from "@/components/uicustom/loader";
-import DropOffListSearch from "@/components/searchs/dropofflistsearch";
-import DropOffListTable from "@/components/tables/dropofflisttable";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import DropOffListSearch from "@/app/components/searchs/dropofflistsearch";
+import DropOffListTable from "@/app/components/tables/dropofflisttable";
 
 export default function DropOffList() {
 

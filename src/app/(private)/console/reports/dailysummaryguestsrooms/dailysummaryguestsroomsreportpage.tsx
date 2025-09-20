@@ -1,18 +1,18 @@
 "use client";
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
 import { getDailySummaryGuestsRoomsReport } from "./actions";
 import React from "react";
-import { Loader } from "@/components/uicustom/loader";
-import DailySummaryGuestsRoomsReportRow from "@/core/domain/dtos/reports/DailySummaryGuestsRoomsReportrow";
-import DailySummaryGuestsRoomsReport from "@/components/reports/dailysummaryguestsroomsreport";
-import { ButtonCustom } from "@/components/uicustom/buttoncustom";
-import { Label } from "@/components/ui/label";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import DailySummaryGuestsRoomsReportRow from "@/core/models/dto/reports/DailySummaryGuestsRoomsReportrow";
+import DailySummaryGuestsRoomsReport from "@/app/components/reports/dailysummaryguestsroomsreport";
+import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
+import { Label } from "@/lib/components/web/react/ui/label";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { InputCustom } from "@/components/uicustom/inputcustom";
-import { getUTCDateTimeMidNightString, getUTCDateTimeString } from "@/core/lib/utils";
+import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
+import { getISODateTimeMidNightString, getISODateTimeString } from "@/lib/utils";
 
 export default function DailySummaryGuestsRoomsReportPage() {
 
@@ -65,7 +65,7 @@ export default function DailySummaryGuestsRoomsReportPage() {
                 </div>
                 <ButtonCustom onClick={async () => {
                   setIsLoading(true);
-                  const response = await getDailySummaryGuestsRoomsReport(fromDate ? getUTCDateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getUTCDateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '');
+                  const response = await getDailySummaryGuestsRoomsReport(fromDate ? getISODateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getISODateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '');
                   setIsLoading(false);
                   if (response.message)
                     toast(response.message);

@@ -1,12 +1,12 @@
 "use client";
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
 import { reservationGetList } from "./actions";
 import React from "react";
-import { Loader } from "@/components/uicustom/loader";
-import CheckInListSearch from "@/components/searchs/checkinlistsearch";
-import CheckInListTable from "@/components/tables/checkinlisttable";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import CheckInListSearch from "@/app/components/searchs/checkinlistsearch";
+import CheckInListTable from "@/app/components/tables/checkinlisttable";
 
 export default function CheckInList() {
   

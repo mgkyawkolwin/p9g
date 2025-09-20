@@ -1,9 +1,9 @@
 'use server';
 
-import { customerValidator } from '@/core/validation/zodschema';
-import { FormState } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import Customer from '@/core/domain/models/Customer';
+import { customerValidator } from '@/core/validators/zodschema';
+import { FormState } from "@/core/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import Customer from '@/core/models/domain/Customer';
 import { headers } from 'next/headers';
 
 

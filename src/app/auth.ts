@@ -7,7 +7,7 @@ const formCredentials = Credentials({
       id:{},
       name:{},
       role:{},
-      location:{}
+      location:{},sex:{}
     },
     authorize: async (credentials) => {
       // console.log('Authorize callback');

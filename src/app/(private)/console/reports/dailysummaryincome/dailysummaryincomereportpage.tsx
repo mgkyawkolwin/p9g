@@ -1,17 +1,17 @@
 "use client";
 import { toast } from "sonner";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
 import { getDailySummaryIncomeReport } from "./actions";
 import React from "react";
-import { Loader } from "@/components/uicustom/loader";
-import { ButtonCustom } from "@/components/uicustom/buttoncustom";
-import DailySummaryIncomeReport from "@/components/reports/dailysummaryincomereport";
-import DailySummaryIncomeReportRow from "@/core/domain/dtos/reports/DailySummaryIncomeReportRow";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
+import DailySummaryIncomeReport from "@/app/components/reports/dailysummaryincomereport";
+import DailySummaryIncomeReportRow from "@/core/models/dto/reports/DailySummaryIncomeReportRow";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Label } from "@/components/ui/label";
-import { InputCustom } from "@/components/uicustom/inputcustom";
-import { getUTCDateTimeMidNightString, getUTCDateTimeString } from "@/core/lib/utils";
+import { Label } from "@/lib/components/web/react/ui/label";
+import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
+import { getISODateTimeMidNightString, getISODateTimeString } from "@/lib/utils";
 
 export default function DailySummaryIncomeReportPage() {
   
@@ -62,7 +62,7 @@ export default function DailySummaryIncomeReportPage() {
                 </div>
               <ButtonCustom onClick={async () => {
                 setIsLoading(true);
-                const response = await getDailySummaryIncomeReport(fromDate ? getUTCDateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getUTCDateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '');
+                const response = await getDailySummaryIncomeReport(fromDate ? getISODateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getISODateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '');
                 setIsLoading(false);
                 if(response.message)
                   toast(response.message);

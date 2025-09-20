@@ -3,10 +3,10 @@
 import { useGlobalErrorHandler } from "./hooks/useGlobalErrorHandler";
 import { useGlobalPromiseRejectionHandler } from "./hooks/useGlobalPromiseRejectionHandler";
 
-export default function GlobalErrorHandler(){
+export default function GlobalErrorHandler() {
 
-    useGlobalErrorHandler();
+  useGlobalErrorHandler();
   useGlobalPromiseRejectionHandler();
 
-    return ("")
+  return ("")
 }

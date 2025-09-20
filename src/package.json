@@ -1,6 +1,6 @@
 {
   "name": "p9g",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "overrides": {
     "react": "^19.0.0"
@@ -18,6 +18,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@automapper/classes": "^8.8.1",
     "@automapper/core": "^8.8.1",
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.9.0",

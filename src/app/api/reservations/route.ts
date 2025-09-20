@@ -1,15 +1,15 @@
 import { NextResponse, NextRequest } from "next/server";
-import { container } from "@/dicontainer";
-import { TYPES, SearchParam } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import { pagerValidator, reservationValidator, searchSchema } from "@/core/validation/zodschema";
-import { HttpStatusCode } from "@/core/lib/constants";
-import { buildSearchParams, getPagerWithDefaults } from "@/core/lib/utils";
-import IReservationService from "@/core/domain/services/contracts/IReservationService";
-import Reservation from "@/core/domain/models/Reservation";
-import { CustomError } from "@/core/lib/errors";
+import { container } from "@/core/di/dicontainer";
+import { TYPES, SearchParam } from "@/core/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { pagerValidator, reservationValidator, searchValidator } from "@/core/validators/zodschema";
+import { HttpStatusCode } from "@/core/constants";
+import { getPagerWithDefaults } from "@/core/helpers";
+import IReservationService from "@/core/services/contracts/IReservationService";
+import Reservation from "@/core/models/domain/Reservation";
+import { CustomError } from "@/lib/errors";
 import { auth } from "@/app/auth";
-import ILogService from "@/core/domain/services/contracts/ILogService";
+import ILogService from "@/core/services/contracts/ILogService";
 
 
 export async function GET(request: NextRequest) {
@@ -17,19 +17,23 @@ export async function GET(request: NextRequest) {
     c.fs("GET /api/reservations");
     c.d(JSON.stringify(request));
 
+    const session = await auth();
+    if (!session?.user)
+      throw new CustomError('Invalid session');
+
     //retrieve search params from request
     const searchParams = Object.fromEntries(request.nextUrl.searchParams);
     c.d(JSON.stringify(searchParams));
 
     //validate search params
-    let searchFields: SearchParam[] = [];
-    const searchValidatedFields = await searchSchema.safeParseAsync(searchParams);
+    // let searchFields: SearchParam[] = [];
+    const searchValidatedFields = await searchValidator.safeParseAsync(searchParams);
     c.d(JSON.stringify(searchValidatedFields));
-    if (searchValidatedFields.success) {
-      c.i('Search param is valid. Building search fields.');
-      searchFields = buildSearchParams(searchValidatedFields.data);
-      c.d(JSON.stringify(searchFields));
-    }
+    // if (searchValidatedFields.success) {
+    //   c.i('Search param is valid. Building search fields.');
+    //   searchFields = buildSearchParams(searchValidatedFields.data);
+    //   c.d(JSON.stringify(searchFields));
+    // }
 
     //no need to validate pager params, if not valid, will use defaults
     const pagerValidatedFields = await pagerValidator.safeParseAsync(searchParams);
@@ -39,10 +43,13 @@ export async function GET(request: NextRequest) {
 
     //call service to retrieve data
     const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-    const result = await reservationService.reservationGetList(searchFields, pager, searchParams.list);
+    const result = await reservationService.reservationGetList(searchValidatedFields.data, pager, searchParams.list, session.user);
     //c.d(JSON.stringify(result));
+    pager.records = result[1];
+    pager.pages = Math.ceil(pager.records / pager.pageSize);
 
-    return NextResponse.json({ data: result }, { status: 200 });
+    c.fe("GET /api/reservations");
+    return NextResponse.json({ data: {reservations:result[0], pager:pager} }, { status: 200 });
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     const logService = container.get<ILogService>(TYPES.ILogService);
@@ -77,13 +84,13 @@ export async function POST(request: NextRequest) {
     // update user
     c.i("Calling service.");
     const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-    const createdReservation = await reservationService.reservationCreate(validatedReservation.data as unknown as Reservation);
+    const createdReservation = await reservationService.reservationCreate(validatedReservation.data as unknown as Reservation, session.user);
     if (!createdReservation) {
       c.d("Reservaton creation failed. Return result.");
       return NextResponse.json({ message: "Create failed." }, { status: HttpStatusCode.ServerError });
     }
 
-    c.i("Everything is fine. Return final result.");
+    c.fe("POST api/reservations");
     return NextResponse.json({ message: "Created", data: createdReservation }, { status: HttpStatusCode.Created });
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
