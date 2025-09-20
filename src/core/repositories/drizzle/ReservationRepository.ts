@@ -5,7 +5,7 @@ import type { IDatabaseClient } from "@/lib/db/IDatabase";
 import { PagerParams, SearchFormFields, SearchParam, TYPES } from "@/core/types";
 import { Repository } from "../../../lib/repositories/drizzle/Repository";
 import c from "@/lib/loggers/console/ConsoleLogger";
-import { SQL, and, count, asc, desc, eq, ne, gte, between, lte, or, like, isNull, sum } from "drizzle-orm";
+import { SQL, and, count, asc, desc, eq, ne, gte, between, lte, or, like, isNull, sum, lt, gt } from "drizzle-orm";
 import Reservation from "@/core/models/domain/Reservation";
 import { TransactionType } from "@/core/db/mysql/MySqlDatabase";
 import { alias } from "drizzle-orm/mysql-core";
@@ -14,7 +14,7 @@ import RoomReservation from "@/core/models/domain/RoomReservation";
 import { auth } from "@/app/auth";
 import { CustomError } from "@/lib/errors";
 import RoomCharge from "@/core/models/domain/RoomCharge";
-import { getUTCDateMidNight, getUTCDateTimeString } from "@/lib/utils";
+import { getUTCDateMidNight, getISODateTimeString } from "@/lib/utils";
 import SessionUser from "@/core/models/dto/SessionUser";
 import type IMapper from "@/lib/mappers/IMapper";
 import type IQueryTranformer from "@/lib/transformers/IQueryTransformer";
@@ -206,7 +206,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             c.i('Building condtions');
 
             if (searchFormFields.searchArrivalDateTime) {
-                const startDate = new Date(getUTCDateTimeString(searchFormFields.searchArrivalDateTime));
+                const startDate = new Date(getISODateTimeString(searchFormFields.searchArrivalDateTime));
                 const endDate = getUTCDateMidNight(new Date(searchFormFields.searchArrivalDateTime));
                 conditions.push(and(
                     gte(reservationTable.arrivalDateTime, startDate),
@@ -214,7 +214,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 ));
             }
             if (searchFormFields.searchDepartureDateTime) {
-                const startDate = new Date(getUTCDateTimeString(searchFormFields.searchDepartureDateTime));
+                const startDate = new Date(getISODateTimeString(searchFormFields.searchDepartureDateTime));
                 const endDate = getUTCDateMidNight(new Date(searchFormFields.searchDepartureDateTime));
                 conditions.push(and(
                     gte(reservationTable.departureDateTime, startDate),
@@ -231,19 +231,19 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 conditions.push(eq(reservationTypeAlias.value, searchFormFields.searchReservationType));
             }
             if (searchFormFields.searchCheckInDate) {
-                let d: Date = new Date(getUTCDateTimeString(searchFormFields.searchCheckInDate));
+                let d: Date = new Date(getISODateTimeString(searchFormFields.searchCheckInDate));
                 conditions.push(eq(reservationTable.checkInDate, d));
             }
             if (searchFormFields.searchCheckOutDate) {
-                let d: Date = new Date(getUTCDateTimeString(searchFormFields.searchCheckOutDate));
+                let d: Date = new Date(getISODateTimeString(searchFormFields.searchCheckOutDate));
                 conditions.push(eq(reservationTable.checkOutDate, d));
             }
             if (searchFormFields.searchCheckInDateFrom) {
-                let d: Date = new Date(getUTCDateTimeString(searchFormFields.searchCheckInDateFrom));
+                let d: Date = new Date(getISODateTimeString(searchFormFields.searchCheckInDateFrom));
                 conditions.push(gte(reservationTable.checkInDate, d));
             }
             if (searchFormFields.searchCheckInDateUntil) {
-                let d: Date = new Date(getUTCDateTimeString(searchFormFields.searchCheckInDateUntil));
+                let d: Date = new Date(getISODateTimeString(searchFormFields.searchCheckInDateUntil));
                 conditions.push(lte(reservationTable.checkInDate, d));
             }
             if (searchFormFields.searchName) {
@@ -269,6 +269,23 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             }
             if (searchFormFields.searchPhone) {
                 conditions.push(like(customerTable.phone, `%${searchFormFields.searchPhone}%`));
+            }
+            if (searchFormFields.searchCreatedDateFrom) {
+                conditions.push(gte(reservationTable.createdAtUTC, new Date(searchFormFields.searchCreatedDateFrom)));
+            }
+            if (searchFormFields.searchCreatedDateUntil) {
+                conditions.push(lte(reservationTable.createdAtUTC, new Date(searchFormFields.searchCreatedDateUntil)));
+            }
+            if (searchFormFields.searchExistingReservations) {
+                const [config] = await this.dbClient.db.select().from(configTable)
+                .where(and(eq(configTable.group, ConfigGroup.RESERVATION_STATUS), eq(configTable.value, 'CCL'))).limit(1);
+                if(!config) throw new CustomError('Reservation repository cannot find config');
+                conditions.push(
+                    and(
+                        lt(reservationTable.checkInDate, new Date(searchFormFields.searchExistingReservations)),
+                        gt(reservationTable.checkOutDate, new Date(searchFormFields.searchExistingReservations)),
+                        ne(reservationTable.reservationStatusId, config.id)
+                    ));
             }
         }
 

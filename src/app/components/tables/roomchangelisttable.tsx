@@ -120,7 +120,7 @@ export default function RoomChangeListTable({
           </DialogContent>
         </Dialog>
       </section>
-      <input type="hidden" name="date" value={new Date().toISODateString()} />
+      <input type="hidden" name="date" value={new Date().toISOFormatDateString()} />
     </>
   )
 }

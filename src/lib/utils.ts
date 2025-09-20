@@ -142,6 +142,17 @@ export function getUTCLastDate(year: number, month: number): Date{
 }
 
 /**
+ * Get the date with UTC time set at morning from the input date.
+ * @param date 
+ * @returns 
+ */
+export function getUTCDate(date:Date){
+  const d = new Date(date);
+  d.setUTCHours(0,0,0,0);
+  return d;
+}
+
+/**
  * Get the date with UTC time set at mid night from the input date.
  * @param date 
  * @returns 
@@ -153,19 +164,19 @@ export function getUTCDateMidNight(date:Date){
 }
 
 /**
- * Convert the input date string into datetime string in UTC format.
+ * Create the ISO date string by padding time string.
  * @param dateString in UTC format (1900-01-01)
  * @returns 1900-01-01T00:00:00.000Z
  */
-export function getUTCDateTimeString(dateString:string){
+export function getISODateTimeString(dateString:string){
   return `${dateString}T00:00:00.000Z`;
 }
 
 /**
- * Convert the input date string into mid-night datetime string in UTC format.
+ * Create the ISO date string by padding midnight time string.
  * @param dateString in UTC format(1900-01-01)
  * @returns 1900-01-01T23:59:59.999Z
  */
-export function getUTCDateTimeMidNightString(dateString:string){
+export function getISODateTimeMidNightString(dateString:string){
   return `${dateString}T23:59:59.999Z`;
 }

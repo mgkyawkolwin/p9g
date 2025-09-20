@@ -42,6 +42,7 @@ export type SearchFormFields = {
   date? : string | undefined,
   searchDate? : string | undefined,
   searchEmail?: string | undefined,
+  searchExistingReservations?: string | undefined,
   searchId? : string | undefined,
   searchName? : string | undefined,
   searchNationalId? : string | undefined,

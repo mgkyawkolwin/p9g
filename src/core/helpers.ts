@@ -30,11 +30,14 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
         conditions.push(eq('checkOutDate', queryStringObject.searchCheckOutDate));
     }
     if (queryStringObject.searchCreatedDateFrom && queryStringObject.searchCreatedDateUntil) {
-        conditions.push(gte('createdAtUTC', queryStringObject.searchCreatedDateFrom));
+        conditions.push(and(
+            gte('createdAtUTC', queryStringObject.searchCreatedDateFrom),
+            lte('createdAtUTC', queryStringObject.searchCreatedDateUntil)
+    ));
     } else if (queryStringObject.searchCreatedDateFrom) {
         conditions.push(gte('createdAtUTC', queryStringObject.searchCreatedDateFrom));
     } else if (queryStringObject.searchCreatedDateUntil) {
-        conditions.push(eq('createdAtUTC', queryStringObject.searchCreatedDateUntil));
+        conditions.push(lte('createdAtUTC', queryStringObject.searchCreatedDateUntil));
     }
     if (queryStringObject.searchDate) {
         conditions.push(eq('date', queryStringObject.searchDate));

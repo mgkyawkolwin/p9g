@@ -17,11 +17,13 @@ import { AnyCondition } from "@/lib/transformers/types";
 import { buildAnyCondition } from "@/core/helpers";
 import { Repository } from "./Repository";
 import { unstable_cache } from 'next/cache';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag} from 'next/cache';
 
 
 @injectable()
 export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEntity, TTable extends IDrizzleTable> extends Repository<TDomain, TEntity, TTable> {
+
+    protected readonly tableName: string;
 
     constructor(
         protected readonly dbClient: IDatabaseClient<any>,
@@ -34,244 +36,229 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
         protected readonly transformer: IQueryTranformer
     ) {
         super(dbClient, table, defaultColumns, defaultJoin, mapper, domainClass, entityClass, transformer);
+        const symbols = Object.getOwnPropertySymbols(this.table);
+        const nameSymbol = symbols.find(sym => sym.toString() === 'Symbol(drizzle:Name)');
+        this.tableName = this.table[nameSymbol];
     }
 
-    private getCacheKey(id?: number): string[] {
+    private getCacheKey(tag?: string): string[] {
         console.log('getcachekey');
-        return id
-            ? [`${this.table.id}-${id}`]
-            : [`${this.table.id}-all`];
+        
+        return tag
+            ? [`${this.tableName}:${tag}`, `${this.tableName}`]
+            : [`${this.tableName}`];
     }
 
 
-    private getCacheTags(id?: number): string[] {
-        console.log('getcachetags');
-        return id
-            ? [`${this.table.id}:${id}`, `${this.table.id}`]
-            : [`${this.table.id}`];
+    private getCacheTags(tag?: string): string[] {
+        console.log(`getCacheTags - ${tag}`);
+        return tag
+            ? [`${this.tableName}:${tag}`, `${this.tableName}`]
+            : [`${this.tableName}`];
     }
 
     async create<TTransaction extends ITransaction>(domain: TDomain, transaction?: TTransaction): Promise<TDomain> {
-        c.fs("Repository > create");
-        c.d(domain as any);
+        c.fs("CacheRepository > create");
+        
+        domain = await super.create(domain, transaction);
 
-        if (!domain) throw new CustomError('Repository cannot create empty object.');
-
-        c.i("Mapping to entity.");
-        const entity = await this.mapper.mapAsync(domain, this.entityClass);
-        c.d(entity);
-        if (!entity) throw new CustomError('Entity mapping failed in repository');
-
-        c.i('Inserting entity.');
-        const query = this.dbClient.db.insert(this.table).values(entity).$returningId();
-        let result;
-        if (transaction)
-            [result] = await transaction.execute(query);
-        else
-            [result] = await query;
-        c.d(result)
         await Promise.all([
-            revalidateTag(`${this.table.id}:${result.id}`),
-            revalidateTag(`${this.table.id}`)
+            revalidateTag(`${this.tableName}`)
         ]);
-        c.fe("Repository > create");
+        c.fe("CacheRepository > create");
         return domain;
     }
 
 
     async createMany<TTransaction extends ITransaction>(domains: TDomain[], transaction?: TTransaction): Promise<void> {
-        c.fs("Repository > createMany");
-        c.d(domains);
+        c.fs("CacheRepository > createMany");
+        
+        super.createMany(domains, transaction);
 
-        if (!domains || domains?.length == 0) throw new CustomError('Repository cannot create empty objects.');
-
-        const entities: TEntity[] = [];
-        for (const domain of domains) {
-            entities.push(await this.mapper.mapAsync(domain, this.entityClass));
-        }
-        c.d(entities);
-        if (!entities || entities?.length === 0) throw new CustomError('Entities mapping failed in repository');
-
-        const query = this.dbClient.db.insert(this.table).values(entities);
-        if (transaction)
-            await transaction.execute(query);
-        else
-            await query;
         await Promise.all([
-            revalidateTag(`${this.table.id}`)
+            revalidateTag(`${this.tableName}`)
         ]);
-        c.fe("Repository > createMany");
+
+        c.fe("CacheRepository > createMany");
     }
 
 
     async executeQuery<TTransaction extends ITransaction>(query: string, transaction?: TTransaction): Promise<TDomain[]> {
-        c.fs('Repository > executeQuery');
-        c.d(`query: ${query}`);
-        const q = sql`${query}`;
-        let entities;
+        c.fs('CacheRepository > executeQuery');
+        const startTime = performance.now();
 
-        if (transaction)
-            entities = await transaction.execute(q);
-        else
-            entities = await this.dbClient.db.execute(q);
+        const cachedData = await unstable_cache(
+            async () => {
+                const domains = await super.executeQuery(query);
+                console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+                return domains;
+            },
+            this.getCacheKey(query),
+            {
+                tags: this.getCacheTags(query),
+                revalidate: 3600
+            }
+        )();
 
-        c.fe('Repository > executeQuery');
-        const domains: TDomain[] = entities.map((entity: TEntity) => this.mapper.map(entity, this.domainClass));
-        return domains;
+        console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+
+        return cachedData;
     }
 
 
     async findAll(): Promise<TDomain[]> {
-        c.fs('Repository > findAll');
+        c.fs('CacheRepository > findAll');
+        const startTime = performance.now();
 
-        // Build base query
-        let query = this.dbClient.db
-            .select()
-            .from(this.table);
-
-        // Execute query
-        const entities = await query;
-        const domains: TDomain[] = [];
-        for (const entity of entities) {
-            domains.push(await this.mapper.mapAsync(entity, this.domainClass));
-        }
-        c.fe('Repository > findAll');
-        return domains;
-    }
-
-
-    async findById<TIdType>(id: TIdType): Promise<TDomain | null> {
-        c.fs('Repository > findById');
-        c.d(`id: ${id}`);
-        let cachestatus = 'CACHE HIT';
         const cachedData = await unstable_cache(
             async () => {
-                cachestatus = 'CACHE MISS';
-                return await super.findById(id);
+                const domains = await super.findAll();
+                console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+                return domains;
             },
             this.getCacheKey(),
             {
                 tags: this.getCacheTags(),
-                revalidate: 10
+                revalidate: 3600
             }
         )();
+
+        console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+
+        return cachedData;
+    }
+
+
+    async findById<TIdType>(id: TIdType): Promise<TDomain | null> {
+        c.fs('CacheRepository > findById');
+        const startTime = performance.now();
+        
+        const cachedData = await unstable_cache(
+            async () => {
+                const domain = await super.findById(id);
+                console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+                return domain;
+            },
+            this.getCacheKey(String(id)),
+            {
+                tags: this.getCacheTags(String(id)),
+                revalidate: 3600
+            }
+        )();
+
+        console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
 
         return cachedData;
     }
 
 
     async findOne<TQuery>(query: TQuery): Promise<TDomain | null> {
-        c.fs('Repository > findOne');
-        if (!query) throw new CustomError('Condition is required to find one in repository.');
+        c.fs('CacheRepository > findOne');
+        const startTime = performance.now();
 
-        const whereQuery = await this.transformer.transformAsync<SQL>(query as AnyCondition);
-        if (!whereQuery) throw new CustomError('Query transformation failed in repository');
+        const cachedData = await unstable_cache(
+            async () => {
+                const domain = await super.findOne(query);
+                console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+                return domain;
+            },
+            this.getCacheKey(JSON.stringify(query)),
+            {
+                tags: this.getCacheTags(JSON.stringify(query)),
+                revalidate: 3600
+            }
+        )();
 
-        let q = this.dbClient.db.select(this.defaultColumns).from(this.table)
+        console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
 
-        q = this.defaultJoin(q);
-
-        q = q.where(whereQuery).limit(1);
-
-        const [entity] = await q;
-
-        if (!entity) return null;
-        c.d(entity);
-        const domain = await this.mapper.mapAsync(entity, this.domainClass) as TDomain;
-        c.d(domain);
-        c.fe('Repository > findOne');
-        return domain;
+        return cachedData;
     }
 
 
     async findMany<TQuery, TOrder>(query?: TQuery, sort?: TOrder, offset?: number, limit?: number): Promise<[TDomain[], number]> {
-        c.fs('Repository > findMany');
-        let dataQuery = this.dbClient.db.select(this.defaultColumns).from(this.table);
-        let countQuery = this.dbClient.db.select({ count: count(this.table.id) }).from(this.table);
+        c.fs('CacheRepository > findMany');
+        const startTime = performance.now();
 
-        dataQuery = this.defaultJoin(dataQuery);
-
-        if (query) {
-            const whereQuery = await this.transformer.transformAsync<SQL>(query as AnyCondition);
-            console.log(whereQuery);
-            if (whereQuery) {
-                dataQuery = dataQuery.where(whereQuery);
-                countQuery = countQuery.where(whereQuery);
+        const cachedData = await unstable_cache(
+            async () => {
+                const domain = await super.findMany(query, sort, offset, limit);
+                console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+                return domain;
+            },
+            this.getCacheKey(JSON.stringify(query)+JSON.stringify(sort)+offset+limit),
+            {
+                tags: this.getCacheTags(JSON.stringify(query)+JSON.stringify(sort)+offset+limit),
+                revalidate: 3600
             }
-        }
+        )();
 
-        if (sort) {
-            const orderBy = await this.transformer.transformAsync<SQL>(sort as AnyCondition);
-            dataQuery = dataQuery.orderBy(orderBy);
-        }
+        console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
 
-        if (offset) dataQuery = dataQuery.offset(offset);
-        if (limit) dataQuery = dataQuery.limit(limit);
-        c.d(dataQuery.toSQL());
-
-        const [countResult, entities] = await Promise.all([
-            countQuery.execute(),
-            dataQuery.execute()
-        ]);
-        c.d(entities);
-        const domains: TDomain[] = [];
-        for (const entity of entities) {
-            domains.push(await this.mapper.mapAsync(entity, this.domainClass));
-        }
-        c.fe('Repository > findMany');
-        return [domains, countResult[0]?.count];
+        return cachedData;
     }
 
 
     async update<TIdType, TTransaction extends ITransaction>(id: TIdType, entity: TDomain, transaction?: TTransaction): Promise<void> {
-        c.fs('Reository > update');
+        c.fs('CacheRepository > update');
         c.d(entity);
         super.update(id, entity, transaction);
 
         await Promise.all([
-            revalidateTag(`${this.table.id}:${id}`),
-            revalidateTag(`${this.table.id}`)
+            revalidateTag(`${this.tableName}`),
+            revalidateTag(`${this.tableName}:${id}`)
         ]);
 
-        c.fe('Reository > update');
+        c.fe('CacheRepository > update');
     }
 
 
     async delete<TIdType, TTransaction extends ITransaction>(id: TIdType, transaction?: TTransaction): Promise<void> {
-        c.fs('Reository > delete');
+        c.fs('CacheRepository > delete');
         c.d(`Id: ${id}`);
         super.delete(id, transaction);
 
         await Promise.all([
-            revalidateTag(`${this.table.id}:${id}`),
-            revalidateTag(`${this.table.id}`)
+            revalidateTag(`${this.tableName}`),
+            revalidateTag(`${this.tableName}:${id}`)
         ]);
 
-        c.fe('Reository > delete');
+        c.fe('CacheRepository > delete');
     }
 
 
     async deleteWhere<TQuery, TTransaction extends ITransaction>(query: TQuery, transaction?: TTransaction): Promise<void> {
-        c.fs('Reository > deleteMany');
+        c.fs('CacheRepository > deleteMany');
 
-        const whereQuery = await this.transformer.transformAsync<SQL>(query as AnyCondition);
-        const q = this.dbClient.db.delete(this.table).where(whereQuery);
+        await super.deleteWhere(query, transaction);
 
-        if (transaction)
-            await transaction.execute(q);
-        else
-            await q.execute();
-        c.fe('Reository > deleteMany');
+        await Promise.all([
+            revalidateTag(`${this.tableName}`)
+        ]);
+
+        c.fe('CacheRepository > deleteMany');
     }
 
 
     async exists<TQuery>(query: TQuery): Promise<boolean> {
-        c.fs('Reository > exits');
-        if (!query) throw new CustomError('Condition is required.');
-        const whereQuery = await this.transformer.transformAsync<SQL>(query as AnyCondition);
-        const [entity] = await this.dbClient.db.select().from(this.table).where(whereQuery).limit(1);
-        c.fe('Reository > exits');
-        return !!entity;
+        c.fs('CacheRepository > exits');
+        const startTime = performance.now();
+
+        const cachedData = await unstable_cache(
+            async () => {
+                const domain = await super.exists(query);
+                console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+                return domain;
+            },
+            this.getCacheKey(JSON.stringify(query)),
+            {
+                tags: this.getCacheTags(JSON.stringify(query)),
+                revalidate: 3600
+            }
+        )();
+
+        console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+
+        return cachedData;
     }
 
 }

@@ -4,13 +4,16 @@ declare global {
     convertToFakeLocalDate(): Date,
     convertToUTCFromFakeLocalDate(): Date,
     convertToUTCFromFakeLocalDateTime(): Date,
-    toISODateString(): string;
+    toISOFormatDateString(): string;
     toISODateTimeDisplayString(): string;
+    toISOFormatDateTimeString(): string;
+    toISOFormatDateTimeMidNightString(): string;
   }
 
   interface String {
-    toISODateString(): String;
-    toISODateTimeString(): String;
+    trimISODateString(): string;
+    padISOTimeString(): string;
+    padISOMidNightTimeString(): string;
   }
 }
 

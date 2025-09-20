@@ -88,8 +88,8 @@ export default function ReservationListTable({
       header: "Check-In / Check-Out",
       accessorFn: (row) => {
         return <span>
-          {new Date(row.checkInDate!).toISODateString()}<br />
-          {new Date(row.checkOutDate!).toISODateString()}<br />
+          {new Date(row.checkInDate!).toISOFormatDateString()}<br />
+          {new Date(row.checkOutDate!).toISOFormatDateString()}<br />
           {row.noOfDays} days, {row.noOfGuests ? row.noOfGuests + ' pax(s)' : ''}, {row.roomNo}</span>;
       },
       cell: (row) => row.getValue(),

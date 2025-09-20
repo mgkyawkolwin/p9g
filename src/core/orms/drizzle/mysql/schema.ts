@@ -41,6 +41,7 @@ export const customerTable = mysqlTable("customer", {
   dob: varchar("dob", {length: 50}),
   passport: varchar("passport", { length: 50 }),
   nationalId: varchar("nationalId", { length: 50 }),
+  gender: varchar("gender", {length: 10}),
   address: varchar("address", { length: 255 }),
   country: varchar("country", { length: 50 }),
   phone: varchar("phone", { length: 50 }),

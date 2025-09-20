@@ -51,10 +51,14 @@ export default function CustomerChooseTable({
       header: 'English Name',
     },
     {
+      accessorKey: "gender",
+      header: 'Gender',
+    },
+    {
       accessorKey: "dob",
       header: 'DOB',
       cell: row => {
-        return row.getValue() ? new Date(String(row.getValue())).toISODateString() : ''
+        return row.getValue() ? new Date(String(row.getValue())).toISOFormatDateString() : ''
       }
     },
     {

@@ -1,8 +1,22 @@
 /**
  * Convert the UTC date into ISO date format string.
  */
-Date.prototype.toISODateString = function (): string {
-    return this.toISOString().substring(0, 10);
+Date.prototype.toISOFormatDateString = function (): string {
+    return this.toLocaleDateString('sv-SE');
+}
+
+/**
+ * Convert the UTC date into ISO date format string.
+ */
+Date.prototype.toISOFormatDateTimeString = function (): string {
+    return this.toLocaleDateString('sv-SE').substring(0, 10) + 'T00:00:00.000Z';
+}
+
+/**
+ * Convert the UTC date into ISO date format string.
+ */
+Date.prototype.toISOFormatDateTimeMidNightString = function (): string {
+    return this.toLocaleDateString('sv-SE').substring(0, 10) + 'T23:59:59.999Z';
 }
 
 /**

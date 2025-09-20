@@ -56,6 +56,7 @@ import PromotionEntity from '@/core/models/entity/PromotionEntity';
 import { DrizzleQueryTransformer } from '@/lib/transformers/drizzle/DrizzleQueryTransformer';
 import { eq, SQL } from 'drizzle-orm';
 import { MySqlSelect } from 'drizzle-orm/mysql-core';
+import { CacheRepository } from '@/lib/repositories/drizzle/CacheRepository';
 
 // create a DI container
 const container = new Container();
@@ -75,7 +76,7 @@ container.bind<IUserService>(TYPES.IUserService).to(UserService).inSingletonScop
 
 // Bind Repositories
 container.bind<IRepository<Bill>>(TYPES.IBillRepository).toDynamicValue(context => {
-    return new Repository(
+    return new CacheRepository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         billTable,
         { ...billTable },
@@ -88,7 +89,7 @@ container.bind<IRepository<Bill>>(TYPES.IBillRepository).toDynamicValue(context 
 });
 
 container.bind<IRepository<Config>>(TYPES.IConfigRepository).toDynamicValue(context => {
-    return new Repository(
+    return new CacheRepository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         configTable,
         { ...configTable },
@@ -101,7 +102,7 @@ container.bind<IRepository<Config>>(TYPES.IConfigRepository).toDynamicValue(cont
 });
 
 container.bind<IRepository<Customer>>(TYPES.ICustomerRepository).toDynamicValue(context => {
-    return new Repository(
+    return new CacheRepository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         customerTable,
         { ...customerTable },
@@ -114,7 +115,7 @@ container.bind<IRepository<Customer>>(TYPES.ICustomerRepository).toDynamicValue(
 });
 
 container.bind<IRepository<LogError>>(TYPES.ILogRepository).toDynamicValue(context => {
-    return new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+    return new CacheRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         logErrorTable,
         { ...logErrorTable },
         (q) => q,
@@ -126,7 +127,7 @@ container.bind<IRepository<LogError>>(TYPES.ILogRepository).toDynamicValue(conte
 });
 
 container.bind<IRepository<Payment>>(TYPES.IPaymentRepository).toDynamicValue(context => {
-    return new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+    return new CacheRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         paymentTable,
         { ...paymentTable },
         (q) => q,
@@ -138,7 +139,7 @@ container.bind<IRepository<Payment>>(TYPES.IPaymentRepository).toDynamicValue(co
 });
 
 container.bind<IRepository<PrepaidEntity>>(TYPES.IPrepaidRepository).toDynamicValue(context => {
-    return new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+    return new CacheRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         prepaidTable,
         { ...prepaidTable },
         (q) => q,
@@ -150,7 +151,7 @@ container.bind<IRepository<PrepaidEntity>>(TYPES.IPrepaidRepository).toDynamicVa
 });
 
 container.bind<IRepository<PromotionEntity>>(TYPES.IPromotionRepository).toDynamicValue(context => {
-    return new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+    return new CacheRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         prepaidTable,
         { ...prepaidTable },
         (q) => q,
@@ -166,7 +167,7 @@ container.bind<IReportRepository>(TYPES.IReportRepository).to(ReportRepository);
 container.bind<IReservationRepository>(TYPES.IReservationRepository).to(ReservationRepository);
 
 container.bind<IRepository<ReservationCustomer>>(TYPES.IReservationCustomerRepository).toDynamicValue(context => {
-    return new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+    return new CacheRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         reservationCustomerTable,
         { ...reservationCustomerTable },
         (q) => q,
@@ -178,7 +179,7 @@ container.bind<IRepository<ReservationCustomer>>(TYPES.IReservationCustomerRepos
 });
 
 container.bind<IRepository<Room>>(TYPES.IRoomRepository).toDynamicValue(context => {
-    return new Repository(
+    return new CacheRepository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         roomTable,
         { ...roomTable },
@@ -191,7 +192,7 @@ container.bind<IRepository<Room>>(TYPES.IRoomRepository).toDynamicValue(context 
 });
 
 container.bind<IRepository<RoomCharge>>(TYPES.IRoomChargeRepository).toDynamicValue(context => {
-    return new Repository(
+    return new CacheRepository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         roomChargeTable,
         { 
@@ -212,7 +213,7 @@ container.bind<IRepository<RoomCharge>>(TYPES.IRoomChargeRepository).toDynamicVa
 });
 
 container.bind<IRepository<RoomRate>>(TYPES.IRoomRateRepository).toDynamicValue(context => {
-    return new Repository(
+    return new CacheRepository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         roomRateTable,
         { ...roomRateTable },
@@ -225,7 +226,7 @@ container.bind<IRepository<RoomRate>>(TYPES.IRoomRateRepository).toDynamicValue(
 });
 
 container.bind<IRepository<RoomReservation>>(TYPES.IRoomReservationRepository).toDynamicValue(context => {
-    return new Repository(
+    return new CacheRepository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         roomReservationTable,
         {
@@ -246,7 +247,7 @@ container.bind<IRepository<RoomReservation>>(TYPES.IRoomReservationRepository).t
 });
 
 container.bind<IRepository<User>>(TYPES.IUserRepository).toDynamicValue(context => {
-    return new Repository(
+    return new CacheRepository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         userTable,
         { ...userTable },
@@ -259,7 +260,7 @@ container.bind<IRepository<User>>(TYPES.IUserRepository).toDynamicValue(context 
 });
 
 container.bind<IRepository<RoomType>>(TYPES.IRoomTypeRepository).toDynamicValue(context => {
-    return new Repository(
+    return new CacheRepository(
         context.get<IDatabaseClient<any>>(TYPES.IDatabase),
         roomTypeTable,
         { ...roomTypeTable },

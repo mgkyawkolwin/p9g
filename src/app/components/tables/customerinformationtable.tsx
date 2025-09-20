@@ -62,7 +62,7 @@ export default function CustomerInformationTable({
         )
       },
       cell: row => {
-        return row.getValue() ? new Date(String(row.getValue())).toISODateString() : ''
+        return row.getValue() ? new Date(String(row.getValue())).toISOFormatDateString() : ''
       }
     },
     {

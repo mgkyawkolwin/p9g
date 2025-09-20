@@ -8,6 +8,7 @@ import SessionUser from '../models/dto/SessionUser';
 import { CustomError } from '@/lib/errors';
 import type IRepository from '@/lib/repositories/IRepository';
 import { buildAnyCondition } from '@/core/helpers';
+import { asc } from '@/lib/transformers/types';
 
 
 @injectable()
@@ -41,7 +42,7 @@ export default class CustomerService implements ICustomerService {
   async customerFindMany(searchFormFields: SearchFormFields, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[Customer[], number]> {
     c.fs('CustomerService > customerFindMany');
     const anyCondition = buildAnyCondition(searchFormFields);
-    return await this.customerRepository.findMany(anyCondition, null, (pagerParams.pageIndex - 1) * pagerParams.pageSize, pagerParams.pageSize);
+    return await this.customerRepository.findMany(anyCondition, asc("name"), (pagerParams.pageIndex - 1) * pagerParams.pageSize, pagerParams.pageSize);
   }
 
 

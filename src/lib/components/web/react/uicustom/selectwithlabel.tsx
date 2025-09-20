@@ -60,8 +60,9 @@ export function SelectWithLabel({
   ...props} : SelectWithLabelProps) {
   
   return (
-    <div className={cn('flex gap-2 items-start', labelPosition == "left" ? "flex-row" : "flex-col" )}>
-        <Label className={cn(selectVariants({ variant, size, className }))}>{label}</Label>
+    <div className={cn('flex gap-1', labelPosition == "left" ? "flex-row" : "flex-col" )}>
+        {/* <Label className={cn(selectVariants({ variant, size, className }))}>{label}</Label> */}
+        <Label className={cn(className,labelPosition === "top" ? "mb-1" : "","whitespace-nowrap")}>{label}</Label>
         <Select {...props}>
             <SelectTrigger className={cn(selectVariants({ variant, size, className }))}>
                 <SelectValue placeholder="Choose" />

@@ -42,6 +42,12 @@ export const SelectList = {
 
     CURRENCY: new Map<string,string>(CurrencyList.map(cl => [cl, cl])),
 
+    GENDER: new Map<string, string>([
+        ["Unknown","Unknown"],
+        ["Male","Male"],
+        ["Female","Female"]
+    ]),
+
     MONTH: new Map<string, string>([
         ["0","JAN"],
         ["1","FEB"],
@@ -106,6 +112,10 @@ export const SelectListForm = {
     CURRENCY: new Map<string,string>([
         ["DEFAULT", "Choose"], 
         ...SelectList.CURRENCY.entries()
+    ]),
+
+    GENDER: new Map<string,string>([
+        ...SelectList.GENDER.entries()
     ]),
 
     PREPAID_PACKAGES: new Map<string,string>([

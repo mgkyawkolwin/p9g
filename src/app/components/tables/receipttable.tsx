@@ -46,7 +46,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                                 {reservation.prepaidPackageId && charge.seasonSurcharge > 0 ? <span>Season Surcharge: {formatter.format(charge.seasonSurcharge)}<br /></span> : ''}
                                 {charge.singleRate > 0 ? <span>Single Charge: {formatter.format(charge.singleRate)}<br /></span> : ''}
 
-                                ( {charge.startDate.toISODateString()} - {charge.endDate.toISODateString()} )
+                                ( {charge.startDate.toISOFormatDateString()} - {charge.endDate.toISOFormatDateString()} )
                             </div>;
 
                             return <tr key={index} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>

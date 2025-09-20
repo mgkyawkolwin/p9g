@@ -68,6 +68,10 @@ export default function CustomerTable({
       }
     },
     {
+      accessorKey: "gender",
+      header: "Gender"
+    },
+    {
       accessorKey: "dob",
       header: "DOB",
       cell: ({ row }) => {

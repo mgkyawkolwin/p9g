@@ -21,6 +21,8 @@ import { buildAnyCondition } from "@/core/helpers";
 @injectable()
 export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, TTable extends IDrizzleTable> implements IRepository<TDomain> {
 
+  
+
   constructor(
     protected readonly dbClient: IDatabaseClient<any>,
     protected readonly table: TTable,
@@ -31,7 +33,7 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
     protected readonly entityClass: new () => TEntity,
     protected readonly transformer: IQueryTranformer
   ) {
-
+    
   }
 
 
@@ -39,12 +41,12 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
     c.fs("Repository > create");
     c.d(domain as any);
 
-    if(!domain) throw new CustomError('Repository cannot create empty object.');
+    if (!domain) throw new CustomError('Repository cannot create empty object.');
 
     c.i("Mapping to entity.");
     const entity = await this.mapper.mapAsync(domain, this.entityClass);
     c.d(entity);
-    if(!entity) throw new CustomError('Entity mapping failed in repository');
+    if (!entity) throw new CustomError('Entity mapping failed in repository');
 
     c.i('Inserting entity.');
     const query = this.dbClient.db.insert(this.table).values(entity).$returningId();
@@ -63,14 +65,14 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
     c.fs("Repository > createMany");
     c.d(domains);
 
-    if(!domains || domains?.length == 0) throw new CustomError('Repository cannot create empty objects.');
+    if (!domains || domains?.length == 0) throw new CustomError('Repository cannot create empty objects.');
 
     const entities: TEntity[] = [];
     for (const domain of domains) {
       entities.push(await this.mapper.mapAsync(domain, this.entityClass));
     }
     c.d(entities);
-    if(!entities || entities?.length === 0) throw new CustomError('Entities mapping failed in repository');
+    if (!entities || entities?.length === 0) throw new CustomError('Entities mapping failed in repository');
 
     const query = this.dbClient.db.insert(this.table).values(entities);
     if (transaction)
@@ -102,14 +104,14 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
     c.fs('Repository > findAll');
 
     // Build base query
-    let query = this.dbClient.db
+    const query = this.dbClient.db
       .select()
       .from(this.table);
 
     // Execute query
     const entities = await query;
     const domains: TDomain[] = [];
-    for(const entity of entities){
+    for (const entity of entities) {
       domains.push(await this.mapper.mapAsync(entity, this.domainClass));
     }
     c.fe('Repository > findAll');
@@ -121,7 +123,7 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
     c.fs('Repository > findById');
     c.d(`id: ${id}`);
 
-    if(!id) throw new CustomError('Id is required to find.');
+    if (!id) throw new CustomError('Id is required to find.');
 
     let query = this.dbClient.db.select(this.defaultColumns).from(this.table);
     query = this.defaultJoin(query);
@@ -141,12 +143,12 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
     if (!query) throw new CustomError('Condition is required to find one in repository.');
 
     const whereQuery = await this.transformer.transformAsync<SQL>(query as AnyCondition);
-    if(!whereQuery) throw new CustomError('Query transformation failed in repository');
+    if (!whereQuery) throw new CustomError('Query transformation failed in repository');
 
     let q = this.dbClient.db.select(this.defaultColumns).from(this.table)
-    
+
     q = this.defaultJoin(q);
-    
+
     q = q.where(whereQuery).limit(1);
 
     const [entity] = await q;
@@ -191,7 +193,7 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
     ]);
     c.d(entities);
     const domains: TDomain[] = [];
-    for(const entity of entities){
+    for (const entity of entities) {
       domains.push(await this.mapper.mapAsync(entity, this.domainClass));
     }
     c.fe('Repository > findMany');

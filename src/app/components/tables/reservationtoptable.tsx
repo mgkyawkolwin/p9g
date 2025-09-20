@@ -54,7 +54,7 @@ export const columns: ColumnDef<Reservation>[] = [
   {
     id: "checkInOutDate",
     accessorFn: (row) => {
-      return <span>{new Date(String(row.checkInDate)).toISODateString()} <br/> {new Date(String(row.checkOutDate)).toISODateString()}</span>;
+      return <span>{new Date(String(row.checkInDate)).toISOFormatDateString()} <br/> {new Date(String(row.checkOutDate)).toISOFormatDateString()}</span>;
     },
     header: 'Check-In / Check-Out',
     cell: (row) => {

@@ -12,7 +12,7 @@ import { Label } from "@/lib/components/web/react/ui/label";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
-import { getUTCDateTimeMidNightString, getUTCDateTimeString } from "@/lib/utils";
+import { getISODateTimeMidNightString, getISODateTimeString } from "@/lib/utils";
 
 export default function DailySummaryGuestsRoomsReportPage() {
 
@@ -65,7 +65,7 @@ export default function DailySummaryGuestsRoomsReportPage() {
                 </div>
                 <ButtonCustom onClick={async () => {
                   setIsLoading(true);
-                  const response = await getDailySummaryGuestsRoomsReport(fromDate ? getUTCDateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getUTCDateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '');
+                  const response = await getDailySummaryGuestsRoomsReport(fromDate ? getISODateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getISODateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '');
                   setIsLoading(false);
                   if (response.message)
                     toast(response.message);
