@@ -1,15 +1,15 @@
-import { container } from '@/dicontainer';
-import { HttpStatusCode } from '@/core/lib/constants';
-import { TYPES } from '@/core/lib/types';
-import IAuthService from '@/core/domain/services/contracts/IAuthService';
+import { container } from '@/core/di/dicontainer';
+import { HttpStatusCode } from '@/core/constants';
+import { TYPES } from '@/core/types';
+import IAuthService from '@/core/services/contracts/IAuthService';
 import { NextRequest, NextResponse } from 'next/server'
-import { userSignInSchema } from '@/core/validation/zodschema';
+import { userSignInSchema } from '@/core/validators/zodschema';
 
-import c from '@/core/logger/console/ConsoleLogger';
+import c from '@/lib/loggers/console/ConsoleLogger';
 import { auth, signIn } from '@/app/auth';
-import { CustomError } from '@/core/lib/errors';
-import LogError from '@/core/domain/models/LogError';
-import ILogService from '@/core/domain/services/contracts/ILogService';
+import { CustomError } from '@/lib/errors';
+import LogError from '@/core/models/domain/LogError';
+import ILogService from '@/core/services/contracts/ILogService';
 
 export async function POST(request: NextRequest) {
   try{

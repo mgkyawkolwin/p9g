@@ -1,8 +1,8 @@
 'use server';
-import { searchSchema } from '@/core/validation/zodschema';
-import { FormState } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import { buildQueryString } from "@/core/lib/utils";
+import { searchValidator } from '@/core/validators/zodschema';
+import { FormState } from "@/core/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { buildQueryString } from "@/lib/utils";
 import { headers } from 'next/headers';
 
 
@@ -21,7 +21,7 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
 
     //validate and parse search input
     c.i("Parsing search fields from from entries.");
-    const searchFields = searchSchema.safeParse(formObject);
+    const searchFields = searchValidator.safeParse(formObject);
     c.d(searchFields);
 
     //table pager field validatd, build query string
@@ -50,7 +50,8 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
 
     //success
     c.i("Room reservation list retrieval successful.");
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.roomReservations?.length);
+    c.d(responseData.data?.roomReservations?.length > 0 ? responseData.data.roomReservations[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > roomReservationGetList');

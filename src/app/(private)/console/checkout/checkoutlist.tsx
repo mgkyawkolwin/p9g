@@ -2,12 +2,12 @@
 import { useActionState, useEffect } from "react";
 
 import { toast } from "sonner";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
 import { reservationGetList } from "./actions";
 import React from "react";
-import { Loader } from "@/components/uicustom/loader";
-import CheckOutListSearch from "@/components/searchs/checkoutlistsearch";
-import CheckOutListTable from "@/components/tables/checkoutlisttable";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import CheckOutListSearch from "@/app/components/searchs/checkoutlistsearch";
+import CheckOutListTable from "@/app/components/tables/checkoutlisttable";
 
 export default function CheckOutList() {
 

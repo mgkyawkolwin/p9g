@@ -1,0 +1,63 @@
+import Bill from "./Bill";
+import Customer from "./Customer";
+import DomainBase from "@/lib/models/domain/DomainBase";
+
+
+export default class Reservation extends DomainBase{
+    public arrivalDateTime: Date = null;
+    public arrivalFlight: string = "";
+    public bills: Bill[] = [];
+    public checkInDate: Date = null;
+    public checkOutDate: Date = null;
+    public customers: Customer[] = [];
+    public departureDateTime: Date = null;
+    public departureFlight: string = "";
+    public depositAmount: number = 0;
+    public depositAmountInCurrency: number = 0;
+    public depositCurrency: string = 'KWR';
+    public depositPaymentMode: string = 'BANK';
+    public depositDateUTC: Date = null;
+    public discountAmount: number = 0;
+    public dropOffCarNo: string = "";
+    public dropOffDriver: string = "";
+    public dropOfFee: number = 0;
+    public dropOffFeeCurrency: string = 'KWR';
+    public dropOffFeePaidOnUTC: Date = null;
+    public dropOffType: string = '';
+    public dropOffTypeId: string = '';
+    public dropOffTypeText: string = '';
+    public dueAmount: number = 0;
+    public isSingleOccupancy: boolean = false;
+    public location: string = '';
+    public netAmount: number = 0;
+    public noOfDays: number = 0;
+    public noOfGuests: number = 2;
+    public paidAmount: number = 0;
+    public pickUpCarNo: string = "";
+    public pickUpDriver: string = "";
+    public pickUpFee: number = 0;
+    public pickUpFeeCurrency: string = 'KWR';
+    public pickUpFeePaidOnUTC: Date = null;
+    public pickUpType: string  = '';
+    public pickUpTypeId: string  = '';
+    public pickUpTypeText: string  = '';
+    public prepaidPackage: string  = '';
+    public prepaidPackageId: string  = '';
+    public prepaidPackageText: string  = '';
+    public promotionPackage: string  = '';
+    public promotionPackageId: string  = '';
+    public promotionPackageText: string  = '';
+    public remark: string = "";
+    public roomNo: string = "";
+    public reservationStatus: string = 'NEW';
+    public reservationStatusId: string  = '';
+    public reservationStatusText: string  = '';
+    public reservationType: string = 'GENERAL';
+    public reservationTypeId: string  = '';
+    public reservationTypeText: string  = '';
+    public tax: number = 0;
+    public taxAmount: number = 0;
+    public tourCompany: string  = '';
+    public totalAmount: number = 0;
+}
+

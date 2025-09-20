@@ -1,10 +1,10 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import { InputWithLabel } from "@/components/uicustom/inputwithlabel";
-import { Loader } from "@/components/uicustom/loader";
-import { FormState } from "@/core/lib/types";
+import { Button } from "@/lib/components/web/react/ui/button";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
+import { InputWithLabel } from "@/lib/components/web/react/uicustom/inputwithlabel";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import { FormState } from "@/core/types";
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 

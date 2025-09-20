@@ -1,16 +1,21 @@
 import { NextResponse, NextRequest } from "next/server";
-import { container } from "@/dicontainer";
-import { TYPES } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import { HttpStatusCode } from "@/core/lib/constants";
-import IReservationService from "@/core/domain/services/contracts/IReservationService";
-import { CustomError } from "@/core/lib/errors";
-import ILogService from "@/core/domain/services/contracts/ILogService";
+import { container } from "@/core/di/dicontainer";
+import { TYPES } from "@/core/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { HttpStatusCode } from "@/core/constants";
+import IReservationService from "@/core/services/contracts/IReservationService";
+import { CustomError } from "@/lib/errors";
+import ILogService from "@/core/services/contracts/ILogService";
+import { auth } from "@/app/auth";
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     c.fs("PATCH /api/reservations/[id]/pickup");
     c.d(JSON.stringify(request));
+
+    const session = await auth();
+    if (!session?.user)
+      throw new CustomError('Invalid session');
 
     const searchParams = Object.fromEntries(request.nextUrl.searchParams);
 
@@ -28,7 +33,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     //call service to retrieve data
     const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-    await reservationService.reservationUpdatePickUpInfo(id, body.carNo, body.driver);
+    await reservationService.reservationUpdatePickUpInfo(id, body.carNo, body.driver, session.user);
 
 
     c.i('Return PATCH /api/reservations/[id]/pickup');

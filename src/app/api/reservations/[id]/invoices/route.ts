@@ -1,19 +1,22 @@
 import { NextResponse, NextRequest } from "next/server";
-import { container } from "@/dicontainer";
-import { TYPES } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import { HttpStatusCode } from "@/core/lib/constants";
-import IReservationService from "@/core/domain/services/contracts/IReservationService";
-import Bill from "@/core/domain/models/Bill";
-import { billValidator } from "@/core/validation/zodschema";
-import { CustomError } from "@/core/lib/errors";
-import ILogService from "@/core/domain/services/contracts/ILogService";
+import { container } from "@/core/di/dicontainer";
+import { TYPES } from "@/core/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { HttpStatusCode } from "@/core/constants";
+import IReservationService from "@/core/services/contracts/IReservationService";
+import { CustomError } from "@/lib/errors";
+import ILogService from "@/core/services/contracts/ILogService";
+import { auth } from "@/app/auth";
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         c.fs("GET /api/reservations/[id]/invoices");
         c.d(JSON.stringify(request));
+
+        const session = await auth();
+        if (!session?.user)
+            throw new CustomError('Invalid session');
 
         //retrieve search params from request
         const p = await params;
@@ -27,10 +30,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
         //call service to retrieve data
         const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-        const result = await reservationService.billsView(id);
+        const invoice = await reservationService.invoiceGet(id, session.user);
 
         c.i('Return GET /api/reservations/[id]/invoice');
-        return NextResponse.json({ invoice: result }, { status: HttpStatusCode.Ok });
+        return NextResponse.json({ data: { invoice: invoice } }, { status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
         const logService = container.get<ILogService>(TYPES.ILogService);

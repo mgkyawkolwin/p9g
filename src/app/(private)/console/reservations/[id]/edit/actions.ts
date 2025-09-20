@@ -1,10 +1,10 @@
 'use server';
-import { reservationValidator } from '@/core/validation/zodschema';
-import { FormState } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import { buildQueryString } from "@/core/lib/utils";
+import { reservationValidator } from '@/core/validators/zodschema';
+import { FormState } from "@/core/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { buildQueryString } from "@/lib/utils";
 import { headers } from 'next/headers';
-import Reservation from '@/core/domain/models/Reservation';
+import Reservation from '@/core/models/domain/Reservation';
 
 export async function getTopReservationsAction(): Promise<FormState> {
   try{
@@ -39,11 +39,12 @@ export async function getTopReservationsAction(): Promise<FormState> {
     //c.d(reservationData);
 
     //retrieve data from tuple
-    const [reservations] = responseData.data;
-    c.d(reservations?.length);
+    // const [reservations] = responseData.data;
+    c.d(responseData.data?.reservations?.length);
+    c.d(responseData.data?.reservations?.length > 0 ? responseData.data.reservations[0] : []);
 
     c.fe('Actions > getTopReservationsAction');
-    const successresponse = {error:false, message : message, data: {reservations: reservations}};
+    const successresponse = {error:false, message : message, data: {reservations: responseData.data.reservations}};
     //c.d(successresponse);
     return successresponse;
   }catch(error){
@@ -105,7 +106,8 @@ export async function searchCustomer(search:string){
     }
 
     c.i("Retrieve users successful.");
-    c.d(responseData);
+    c.d(responseData.data?.customers?.length);
+    c.d(responseData.data?.customers?.length > 0 ? responseData.data.customers[0] : []);
     const [customers] = responseData.data;
 
     c.fe("Action > searchCustomer");

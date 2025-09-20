@@ -1,7 +1,7 @@
 'use server';
 
-import {Header} from '@/components/layouts/header';
-import {Footer} from '@/components/layouts/footer';
+import {Header} from '@/app/components/layouts/header';
+import {Footer} from '@/app/components/layouts/footer';
 import nextPackageJson from 'next/package.json';
 import packageJson from '@/package.json';
 import { auth } from '../auth';

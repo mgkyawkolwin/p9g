@@ -1,21 +1,20 @@
 'use client';
 
-import { InputWithLabel } from "@/components/uicustom/inputwithlabel";
-import { Loader } from "@/components/uicustom/loader";
-import React, { useActionState, useEffect } from "react";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import React from "react";
 import { toast } from "sonner";
-import ReservationTopList from "@/components/groups/reservationtoplist";
-import { ButtonCustom } from "@/components/uicustom/buttoncustom";
-import CustomerInformationForm from "@/components/forms/customerinformationform";
+import ReservationTopList from "@/app/components/groups/reservationtoplist";
+import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
+import CustomerInformationForm from "@/app/components/forms/customerinformationform";
 import { getTopReservationsAction, searchCustomer, getReservation } from "./actions";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import CustomerChooseTable from "@/components/tables/customerchoosetable";
-import ReservationDetailEditForm from "@/components/forms/reservationdetaileditform";
-import Customer from "@/core/domain/models/Customer";
-import Reservation from "@/core/domain/models/Reservation";
-import CustomerNewForm from "@/components/forms/customernewform";
-import { Label } from "@/components/ui/label";
-import { InputCustom } from "@/components/uicustom/inputcustom";
+import { Dialog, DialogContent, DialogTitle } from "@/lib/components/web/react/ui/dialog";
+import CustomerChooseTable from "@/app/components/tables/customerchoosetable";
+import ReservationDetailEditForm from "@/app/components/forms/reservationdetaileditform";
+import Customer from "@/core/models/domain/Customer";
+import Reservation from "@/core/models/domain/Reservation";
+import CustomerNewForm from "@/app/components/forms/customernewform";
+import { Label } from "@/lib/components/web/react/ui/label";
+import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
 
 export default function ReservationEdit({ id }: { id: string }) {
 

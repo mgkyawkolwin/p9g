@@ -1,14 +1,13 @@
 'use server';
-import { billValidator, pagerValidator, paymentValidator, roomChargeValidator, roomReservationValidator, searchSchema } from '@/core/validation/zodschema';
-import { FormState } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import { buildQueryString } from "@/core/lib/utils";
-import Bill from '@/core/domain/models/Bill';
+import { billValidator, pagerValidator, paymentValidator, roomChargeValidator, roomReservationValidator, searchValidator } from '@/core/validators/zodschema';
+import { FormState } from "@/core/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { buildQueryString } from "@/lib/utils";
+import Bill from '@/core/models/domain/Bill';
 import { headers } from 'next/headers';
-import { auth } from '@/app/auth';
-import Payment from '@/core/domain/models/Payment';
-import RoomReservation from '@/core/domain/models/RoomReservation';
-import RoomCharge from '@/core/domain/models/RoomCharge';
+import Payment from '@/core/models/domain/Payment';
+import RoomReservation from '@/core/models/domain/RoomReservation';
+import RoomCharge from '@/core/models/domain/RoomCharge';
 
 export async function reservationGetList(formState: FormState, formData: FormData): Promise<FormState> {
   try {
@@ -39,7 +38,7 @@ export async function reservationGetList(formState: FormState, formData: FormDat
 
     //validate and parse search input
     c.i("Parsing search fields from from entries.");
-    const searchFields = searchSchema.safeParse(formObject);
+    const searchFields = searchValidator.safeParse(formObject);
     c.d(searchFields);
 
     //table pager field validatd, build query string
@@ -69,12 +68,13 @@ export async function reservationGetList(formState: FormState, formData: FormDat
 
     //success
     c.i("Updated list retrieval successful.");
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.reservations?.length);
+    c.d(responseData.data?.reservations?.length > 0 ? responseData.data.reservations[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > reservationGetList');
-    const [reservations, pager] = responseData.data;
-    return { error: false, message: "", data: reservations, pager: pager };
+    // const [reservations, pager] = responseData.data;
+    return { error: false, message: "", data: responseData.data.reservations, pager: responseData.data.pager};
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return { error: true, message: "Reservation list retrieval failed." };
@@ -127,17 +127,19 @@ export async function billsGet(id: string): Promise<FormState> {
       }
     });
 
-    const result = await response.json();
+    const responseData = await response.json();
 
     //update user failed
     if (!response.ok) {
-      c.e(result.message);
-      return { error: true, message: `Failed to get bills. ${result.message}`, data: null, formData: null };
+      c.e(responseData.message);
+      return { error: true, message: `Failed to get bills. ${responseData.message}`, data: null, formData: null };
     }
-    c.d(result.bills);
+    
+    c.d(responseData.data?.bills?.length);
+    c.d(responseData.data?.bills?.length > 0 ? responseData.data.bills[0] : []);
 
     c.fe('Actions > billsGet');
-    return { error: false, message: "", data: result.bills, formData: null };
+    return { error: false, message: "", data: responseData.data.bills, formData: null };
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return { error: true, message: 'Failed to add bills.', data: null, formData: null };
@@ -189,7 +191,7 @@ export async function billsSave(id: string, bills: Bill[]): Promise<FormState> {
 }
 
 
-export async function billsView(id: string): Promise<FormState> {
+export async function invoiceView(id: string): Promise<FormState> {
   try {
     c.fs('Actions > billsView');
     c.d(id);
@@ -203,16 +205,17 @@ export async function billsView(id: string): Promise<FormState> {
       }
     });
 
-    const result = await response.json();
+    const responseData = await response.json();
 
     //update user failed
     if (!response.ok) {
-      c.e(result.message);
-      return { error: true, message: `Failed to get invoices. ${result.message}`, data: null, formData: null };
+      c.e(responseData.message);
+      return { error: true, message: `Failed to get invoices. ${responseData.message}`, data: null, formData: null };
     }
+
     //update user success
     c.fe('Actions > billsView');
-    return { error: false, message: "", data: result.invoice, formData: null };
+    return { error: false, message: "", data: responseData.data.invoice, formData: null };
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
     return { error: true, message: 'Failed to get invoices.', data: null, formData: null };

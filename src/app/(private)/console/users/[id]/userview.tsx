@@ -1,13 +1,13 @@
 // app/CustomerList.tsx
 "use client";
 
-import User from "@/core/domain/models/User";
+import User from "@/core/models/domain/User";
 import { use, useEffect, useState } from "react";
 import { userGet } from "@/app/(private)/console/users/[id]/actions";
 import { toast } from "sonner";
-import { Loader } from "@/components/uicustom/loader";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import { InputWithLabel } from "@/components/uicustom/inputwithlabel";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
+import { InputWithLabel } from "@/lib/components/web/react/uicustom/inputwithlabel";
 
 export default function UserView({ params }: { params: Promise<{ id: number }> }) {
   const { id } = use(params);
@@ -38,7 +38,7 @@ export default function UserView({ params }: { params: Promise<{ id: number }> }
       </GroupTitle>
       <GroupContent>
         <div className="flex flex-col gap-4">
-          <InputWithLabel label="User ID"  name="id" defaultValue={user?.id} />
+          <InputWithLabel label="User ID"  name="id" />
           <InputWithLabel label="User Name"  name="userName" defaultValue={user?.userName ?? ""} />
           <InputWithLabel label="Email" type="email" name="email" defaultValue={user?.email} />
           

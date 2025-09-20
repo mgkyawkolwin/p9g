@@ -1,0 +1,91 @@
+"use client"
+
+import * as React from "react";
+import { Calendar as CalendarIcon } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+import { Button } from "@/lib/components/web/react/ui/button"
+import { Calendar } from "@/lib/components/web/react/ui/calendar"
+import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom"
+
+import { DayPicker } from "react-day-picker"
+
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/lib/components/web/react/ui/popover"
+import { cva, type VariantProps } from "class-variance-authority";
+import { Label } from "@/lib/components/web/react/ui/label"
+
+const datepickerCustomVariants = cva(
+    "w-auto border-gray-300 bg-[#eeeeee]",
+    {
+        variants: {
+            variant: {
+                default: "min-h-4",
+                form: "min-h-3"
+            },
+            size: {
+                default: "h-9",
+                sm: "max-h-7 text-[10pt]"
+            },
+        },
+        defaultVariants: {
+            variant: "default",
+            size: "default",
+        },
+    }
+);
+
+console.log(datepickerCustomVariants);
+
+interface DatePickerCustomProps
+    extends Omit<React.ComponentProps<typeof DayPicker>, 'size'>,
+    VariantProps<typeof datepickerCustomVariants> {
+    label?: string;
+    labelPosition?: "top" | "left";
+}
+
+export function DatePickerCustomWithLabel({
+    label = 'Label',
+    labelPosition = 'left',
+    variant,
+    size
+}: DatePickerCustomProps) {
+    const [date, setDate] = React.useState<Date>()
+
+    return (
+        <div className={cn(
+            "flex w-auto gap-2 items-center",
+            labelPosition === "top" ? "flex-col items-start" : "flex-row"
+        )}>
+            <Label className={cn("whitespace-nowrap", labelPosition === "top" ? "mb-1" : "")}>{label}</Label>
+            <div className="flex">
+                <InputCustom type="date" className="text-center" variant={variant} size={size} placeholder="yyyy-mm-dd" value={date?.toDateString()} />
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant={"ghost"}
+                            className={cn(
+                                "size-fit",
+                                !date && "text-muted-foreground"
+                            )}
+                        >
+                            <CalendarIcon className="h-8 w-8" />
+
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                        <Calendar
+                            mode="single"
+                            selected={date}
+                            onSelect={setDate}
+                            initialFocus
+                        />
+                    </PopoverContent>
+                </Popover>
+            </div>
+        </div>
+    )
+}

@@ -1,6 +1,6 @@
 'use server';
-import { FormState } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
+import { FormState } from "@/core/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
 import { headers } from 'next/headers';
 
 export async function getDailySummaryPersonReport(startDate:string, endDate:string): Promise<FormState> {
@@ -27,7 +27,8 @@ export async function getDailySummaryPersonReport(startDate:string, endDate:stri
 
     //success
     c.i("Report retrieval successful.");
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.length);
+    c.d(responseData.data?.length > 0 ? responseData.data[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > getDailySummaryPersonReport');

@@ -2,13 +2,13 @@
 import { useActionState, useEffect } from "react";
 
 import { toast } from "sonner";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import CustomerSearch from "@/components/searchs/customersearch";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
+import CustomerSearch from "@/app/components/searchs/customersearch";
 // import CustomerTable from "@/components/tables/customertable";
 import { customerGetList } from "./actions";
 import React from "react";
-import { Loader } from "@/components/uicustom/loader";
-import CustomerTable from "@/components/tables/customertable";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import CustomerTable from "@/app/components/tables/customertable";
 
 export default function CustomerList() {
 

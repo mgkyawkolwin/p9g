@@ -2,12 +2,12 @@
 
 import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
-import ReservationListTable from "@/components/tables/reservationlisttable";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
-import ReservationListSearch from "@/components/searchs/reservationlistsearch";
+import ReservationListTable from "@/app/components/tables/reservationlisttable";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
+import ReservationListSearch from "@/app/components/searchs/reservationlistsearch";
 import { reservationGetList } from "./actions";
 import React from "react";
-import { Loader } from "@/components/uicustom/loader";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
 
 
 export default function ReservationList() {

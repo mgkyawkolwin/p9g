@@ -1,10 +1,9 @@
 'use server';
 
-import { redirect } from 'next/navigation';
-import { customerValidator, pagerValidator, searchSchema } from '@/core/validation/zodschema';
-import { FormState } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import { buildQueryString } from "@/core/lib/utils";
+import { customerValidator, pagerValidator, searchValidator } from '@/core/validators/zodschema';
+import { FormState } from "@/core/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { buildQueryString } from "@/lib/utils";
 import { headers } from 'next/headers';
 
 export async function customerGetList(formState : FormState, formData: FormData): Promise<FormState> {
@@ -38,7 +37,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
 
     //validate and parse search input
     c.i("Parsing search fields from from entries.");
-    const searchFields = searchSchema.safeParse(formObject);
+    const searchFields = searchValidator.safeParse(formObject);
     c.d(searchFields);
 
     //table pager field validatd, build query string
@@ -67,12 +66,13 @@ export async function customerGetList(formState : FormState, formData: FormData)
 
     //success
     c.i("Updated list retrieval successful.");
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.customers?.length);
+    c.d(responseData.data?.customers?.length > 0 ? responseData.data?.customers[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > customerGetList');
-    const [users, pager] = responseData.data;
-    return {error:false, message : message, data: users, pager: pager};
+    // const [users, pager] = responseData.data;
+    return {error:false, message : message, data: responseData.data.customers, pager: responseData.data.pager};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
     return {error:true, message : "Customer list retrieval failed."};

@@ -2,22 +2,22 @@
 import { useActionState, useEffect } from "react";
 
 import { toast } from "sonner";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
 import { roomScheduleGetList } from "./actions";
 import React from "react";
-import { Loader } from "@/components/uicustom/loader";
-import { ButtonCustom } from "@/components/uicustom/buttoncustom";
-import ScheduleFlexGrid from "@/components/uicustom/scheduleflexgrid";
-import { SelectWithLabel } from "@/components/uicustom/selectwithlabel";
-import { InputCustom } from "@/components/uicustom/inputcustom";
-import { SelectList } from "@/core/lib/constants";
-import { getCurrentMonthFirstDate, getCurrentMonthLastDate, getFirstDate, getLastDate } from "@/core/lib/utils";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
+import ScheduleFlexGrid from "@/lib/components/web/react/uicustom/scheduleflexgrid";
+import { SelectWithLabel } from "@/lib/components/web/react/uicustom/selectwithlabel";
+import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
+import { SelectList } from "@/core/constants";
+import { getUTCCurrentMonthFirstDate, getCurrentMonthLastDate, getUTCFirstDate, getUTCLastDate } from "@/lib/utils";
 
 export default function RoomScheduleList() {
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
-  const [dateFrom, setDateFrom] = React.useState(getCurrentMonthFirstDate().toISOString());
+  const [dateFrom, setDateFrom] = React.useState(getUTCCurrentMonthFirstDate().toISOString());
   const [dateTo, setDateTo] = React.useState(getCurrentMonthLastDate().toISOString());
   const [month, setMonth] = React.useState(String(new Date().getMonth()));
   const [year, setYear] = React.useState(String(new Date().getFullYear())); 
@@ -57,8 +57,8 @@ export default function RoomScheduleList() {
                 <SelectWithLabel label='Choose' items={SelectList.MONTH} defaultValue={month} onValueChange={value => setMonth(value)} />
                 <InputCustom value={year} onChange={e => setYear(e.target.value)} />
                 <ButtonCustom type="button" onClick={() => {
-                  setDateFrom(getFirstDate(Number(year),Number(month)).toISOString());
-                  setDateTo(getLastDate(Number(year),Number(month)).toISOString());
+                  setDateFrom(getUTCFirstDate(Number(year),Number(month)).toISOString());
+                  setDateTo(getUTCLastDate(Number(year),Number(month)).toISOString());
                   setSubmit(!submit);
                 }}>View</ButtonCustom>
               </div>

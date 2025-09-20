@@ -1,9 +1,9 @@
 'use server';
 
-import { pagerValidator, searchSchema, userUpdateSchema } from '@/core/validation/zodschema';
-import { FormState } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import { buildQueryString } from "@/core/lib/utils";
+import { pagerValidator, searchValidator, userUpdateSchema } from '@/core/validators/zodschema';
+import { FormState } from "@/core/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { buildQueryString } from "@/lib/utils";
 import { headers } from 'next/headers';
 
 export async function userGetList(formState : FormState, formData: FormData): Promise<FormState> {
@@ -23,7 +23,7 @@ export async function userGetList(formState : FormState, formData: FormData): Pr
       c.d(queryString);
     }
     //validate and parse search input
-    const searchFields = searchSchema.safeParse(Object.fromEntries(formData.entries()));
+    const searchFields = searchValidator.safeParse(Object.fromEntries(formData.entries()));
     c.d(JSON.stringify(searchFields));
 
     //table pager field validatd, build query string
@@ -46,7 +46,8 @@ export async function userGetList(formState : FormState, formData: FormData): Pr
 
     //success
     const responseData = await response.json();
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.users?.length);
+    c.d(responseData.data?.users?.length > 0 ? responseData.data.users[0] : []);
 
     //retrieve data from tuple
     const [users, pager] = responseData.data;

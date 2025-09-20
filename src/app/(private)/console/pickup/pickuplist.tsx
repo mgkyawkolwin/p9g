@@ -2,12 +2,12 @@
 import { useActionState, useEffect } from "react";
 
 import { toast } from "sonner";
-import { Group, GroupContent, GroupTitle } from "@/components/uicustom/group";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
 import { reservationGetList } from "./actions";
 import React from "react";
-import { Loader } from "@/components/uicustom/loader";
-import PickUpListSearch from "@/components/searchs/pickuplistsearch";
-import PickUpListTable from "@/components/tables/pickuplisttable";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import PickUpListSearch from "@/app/components/searchs/pickuplistsearch";
+import PickUpListTable from "@/app/components/tables/pickuplisttable";
 
 export default function PickUpList() {
 

@@ -1,8 +1,8 @@
 'use server';
-import { searchSchema } from '@/core/validation/zodschema';
-import { FormState } from "@/core/lib/types";
-import c from "@/core/logger/console/ConsoleLogger";
-import { buildQueryString } from "@/core/lib/utils";
+import { searchValidator } from '@/core/validators/zodschema';
+import { FormState } from "@/core/types";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { buildQueryString } from "@/lib/utils";
 import { headers } from 'next/headers';
 
 export async function roomScheduleGetList(formState : FormState, formData: FormData): Promise<FormState> {
@@ -15,7 +15,7 @@ export async function roomScheduleGetList(formState : FormState, formData: FormD
     );
 
     c.i('Validating search fields.');
-    const validatedSearchFields = await searchSchema.safeParseAsync(formObject);
+    const validatedSearchFields = await searchValidator.safeParseAsync(formObject);
 
     if(!validatedSearchFields.success){
       c.i('Search fields validation failed. Return response.');
@@ -45,7 +45,8 @@ export async function roomScheduleGetList(formState : FormState, formData: FormD
 
     //success
     c.i("Room schedule list retrieval successful.");
-    c.d(JSON.stringify(responseData));
+    c.d(responseData.data?.length);
+    c.d(responseData.data?.length > 0 ? responseData.data[0] : []);
 
     //retrieve data from tuple
     c.fe('Actions > roomScheduleGetList');
