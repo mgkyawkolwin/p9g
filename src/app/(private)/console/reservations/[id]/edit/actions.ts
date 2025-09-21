@@ -108,7 +108,7 @@ export async function searchCustomer(search:string){
     c.i("Retrieve users successful.");
     c.d(responseData.data?.customers?.length);
     c.d(responseData.data?.customers?.length > 0 ? responseData.data.customers[0] : []);
-    const [customers] = responseData.data;
+    const customers = responseData.data.customers;
 
     c.fe("Action > searchCustomer");
     return {error:false, data:customers};

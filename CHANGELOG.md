@@ -77,3 +77,13 @@ N/A
 
 ### Removed
 N/A
+
+## Version 3.0.0
+- Fine tuning the whole application
+- add gender for customer
+- remove cancel status in reservation lists
+- add search by created date at reservation list
+- add search for existing reservations at reservation list
+
+## Version 3.0.1
+- Fix customer cannot find error in edit reservation page
