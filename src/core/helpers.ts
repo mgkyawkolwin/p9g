@@ -52,7 +52,13 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
         conditions.push(or(eq('id', queryStringObject.searchId), like('id', `%${queryStringObject.searchId}%`)));
     }
     if (queryStringObject.searchName) {
-        conditions.push(or(eq('name', queryStringObject.searchName), like('name', `${queryStringObject.searchName}`)));
+        conditions.push(
+            or(
+                eq('name', queryStringObject.searchName), 
+                like('name', `${queryStringObject.searchName}`),
+                eq('englishName', queryStringObject.searchName), 
+                like('englishName', `${queryStringObject.searchName}`)
+            ));
     }
     if (queryStringObject.searchNationalId) {
         conditions.push(or(eq('nationalId', queryStringObject.searchNationalId), like('nationalId', `%${queryStringObject.searchNationalId}%`)));
