@@ -21,7 +21,7 @@ import IReportService from '@/core/services/contracts/IReportService';
 import ReportService from '@/core/services/ReportService';
 import ILogService from '@/core/services/contracts/ILogService';
 import LogService from '@/core/services/LogService';
-import { billTable, configTable, customerTable, logErrorTable, paymentTable, prepaidTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
+import { billTable, configTable, customerTable, logErrorTable, paymentTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
 import { Repository } from '@/lib/repositories/drizzle/Repository';
 import IRepository from '@/lib/repositories/IRepository';
 import CustomMapper from '@/lib/mappers/custommapper/CustomMapper';
@@ -152,8 +152,8 @@ container.bind<IRepository<PrepaidEntity>>(TYPES.IPrepaidRepository).toDynamicVa
 
 container.bind<IRepository<PromotionEntity>>(TYPES.IPromotionRepository).toDynamicValue(context => {
     return new CacheRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        prepaidTable,
-        { ...prepaidTable },
+        promotionTable,
+        { ...promotionTable },
         (q) => q,
         context.get<IMapper>(TYPES.IMapper),
         PromotionEntity,

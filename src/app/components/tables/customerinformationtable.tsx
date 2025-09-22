@@ -141,7 +141,7 @@ export default function CustomerInformationTable({
       cell: ({ row }) => {
         return <div>
           <ButtonCustom variant={"red"} size={"sm"} onClick={() => {
-            setData(data.filter(customer => customer.id !== row.getValue('id')));
+            setData(data.filter((customer, index, array) => index !== row.index));
           }}>Remove</ButtonCustom>
         </div>
       }

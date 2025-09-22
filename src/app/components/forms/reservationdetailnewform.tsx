@@ -9,10 +9,11 @@ import { toast } from "sonner";
 import Customer from "@/core/models/domain/Customer";
 import Reservation from "@/core/models/domain/Reservation";
 import { Loader } from "../../../lib/components/web/react/uicustom/loader";
+import {v4 as uuidv4} from 'uuid';
 
 interface ReservationDetailNewFormProps {
     customers?: Customer[];
-    onReservationSaved: () => void;
+    onReservationSaved: (copy: boolean) => void;
 }
 
 export default function ReservationDetailNewForm({ customers, onReservationSaved }: ReservationDetailNewFormProps) {
@@ -35,7 +36,10 @@ export default function ReservationDetailNewForm({ customers, onReservationSaved
         r.customers = customers.map(c => ({ id: c.id } as Customer));
         const response = await saveReservationAction(r as unknown as Reservation);
         if (response.message) toast(response.message);
-        if (!response.error && onReservationSaved) onReservationSaved();
+        if (!response.error && onReservationSaved){ 
+            onReservationSaved(true);
+            setReservation(prev => ({...r, id: uuidv4()}));
+        }
         setIsPending(false);
     }
 
@@ -47,7 +51,7 @@ export default function ReservationDetailNewForm({ customers, onReservationSaved
         const response = await saveReservationAction(JSON.parse(JSON.stringify(r)) as unknown as Reservation);
         if (response.message) toast(response.message);
         if (!response.error && onReservationSaved) {
-            onReservationSaved();
+            onReservationSaved(false);
             setReservation(new Reservation());
         }
         setIsPending(false);
