@@ -45,12 +45,12 @@ export default function ReservationNew() {
   };
 
 
-  const handleReservationSaved = async () => {
+  const handleReservationSaved = async (copy:boolean) => {
     const response = await getTopReservationsAction();
     if(response.message) toast(response.message);
     if(!response.error && response.data.reservations){
       setNewReservations(response.data.reservations);
-      setSelectedCustomerList([]);
+      if(!copy) setSelectedCustomerList([]);
     }
   };
 
@@ -61,7 +61,7 @@ export default function ReservationNew() {
         <Loader isLoading={isPending} />
         <section aria-label="Search" className="flex flex-row h-fit items-center gap-x-4">
           <Label>Search</Label>
-          <InputCustom size="lg" defaultValue={customerName} onBlur={(e) => setCustomerName(e.target.value)}></InputCustom>
+          <InputCustom size="lg" value={customerName} onChange={(e) => setCustomerName(e.target.value)}></InputCustom>
           <input type="hidden" name="searchName" value={customerName} />
           <ButtonCustom type="button" variant={"black"} onClick={async () => {
             setIsPending(true);
@@ -69,6 +69,7 @@ export default function ReservationNew() {
             if(response.error){
               toast(response.message);
             }else{
+              if(response.data?.length > 0) setCustomerName("");
               setCustomerList(response.data);
               setIsDialogOpen(true);
             }

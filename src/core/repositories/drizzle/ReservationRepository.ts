@@ -59,7 +59,6 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
             customer: { ...customerTable },
-            bill: { ...billTable },
             reservationStatus: reservationStatusAlias.value,
             reservationStatusText: reservationStatusAlias.text,
             reservationType: reservationTypeAlias.value,
@@ -82,7 +81,6 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
             .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
-            .leftJoin(billTable, eq(billTable.reservationId, reservationTable.id))
             .where(eq(reservationTable.id, id));
 
         const dataqueryresult = await dataQuery;
@@ -112,16 +110,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 acc.push(rsvn!);
             }
             if (customer) {
-                let c = rsvn.customers.find(c => c.id == customer.id);
-                if (!c) {
-                    rsvn?.customers?.push(customer);
-                }
-            }
-            if (bill) {
-                let b = rsvn.bills.find(b => b.id === bill.id);
-                if (!b) {
-                    rsvn?.bills.push(bill);
-                }
+                rsvn?.customers?.push(customer);
             }
 
             return acc;

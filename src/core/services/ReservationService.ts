@@ -348,7 +348,7 @@ export default class ReservationService implements IReservationService {
         if(reservation.promotionPackage){
             c.i('Retrieveing promotion package id');
             const prromotionPackage = await this.promotionRepository.findOne(eq("value", reservation.promotionPackage));
-            if(!prromotionPackage) throw new CustomError('Reservation service cannot find prepaid package');
+            if(!prromotionPackage) throw new CustomError('Reservation service cannot find promotion package');
             reservation.promotionPackageId = prromotionPackage.id;
         }
 
@@ -534,7 +534,7 @@ export default class ReservationService implements IReservationService {
         if(reservation.promotionPackage){
             c.i('Retrieveing promotion package id');
             const prromotionPackage = await this.promotionRepository.findOne(eq("value", reservation.promotionPackage));
-            if(!prromotionPackage) throw new CustomError('Reservation service cannot find prepaid package');
+            if(!prromotionPackage) throw new CustomError('Reservation service cannot find promotion package');
             reservation.promotionPackageId = prromotionPackage.id;
         }else{
             reservation.promotionPackageId = null;
