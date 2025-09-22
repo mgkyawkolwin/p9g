@@ -1,6 +1,6 @@
 {
   "name": "p9g",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "private": true,
   "overrides": {
     "react": "^19.0.0"
