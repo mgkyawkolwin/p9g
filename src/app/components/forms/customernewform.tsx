@@ -18,7 +18,7 @@ interface CustomerNewFormProps {
 export default function CustomerNewForm({ onSaved, openCallback }: CustomerNewFormProps) {
     
     const [resetDataToggle, setResetDataToggle] = React.useState(false);
-    const [customer, setCustomer] = React.useState(new Customer());
+    const [customer, setCustomer] = React.useState<Customer>({...new Customer(), modelState: "inserted"});
     const [open, setOpen] = React.useState(false);
 
 
@@ -28,7 +28,7 @@ export default function CustomerNewForm({ onSaved, openCallback }: CustomerNewFo
 
     const openDialog = (open: boolean) => {
         setOpen(open);
-        setCustomer(new Customer());
+        setCustomer({...new Customer(), modelState: "inserted"});
     };
 
     React.useEffect(() => {

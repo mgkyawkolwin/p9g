@@ -133,7 +133,7 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                         </tr>
                     </thead>
                     <tbody>
-                        {reportRows?.length === 0 && <tr><td colSpan={6}>No Data</td></tr>}
+                        {reportRows?.length === 0 && <tr className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}><td className="p-2" colSpan={6}>No Data</td></tr>}
                         {reportRows.map((rp, index) => {
                             totalCheckInReservations += Number(rp.totalCheckInReservations);
                             totalRoomCharge += Number(rp.totalRoomCharge);

@@ -34,7 +34,7 @@ export default function DailySummaryGuestsRoomsReport({ reportRows }: { reportRo
                         </tr>
                     </thead>
                     <tbody>
-                        {reportRows?.length === 0 && <tr><td className={`${Theme.Style.tableCellText}`} colSpan={6}>No Data</td></tr>}
+                        {reportRows?.length === 0 && <tr className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}><td className={`p-2 ${Theme.Style.tableCellText}`} colSpan={6}>No Data</td></tr>}
                         {reportRows.map((rp, index) => {
                             totalGuestCheckIn = totalGuestCheckIn + Number(rp.guestsCheckIn);
                             totalGuestCheckOut = totalGuestCheckOut + Number(rp.guestsCheckOut);

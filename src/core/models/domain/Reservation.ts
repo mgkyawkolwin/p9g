@@ -41,6 +41,7 @@ export default class Reservation extends DomainBase{
     public pickUpType: string  = '';
     public pickUpTypeId: string  = '';
     public pickUpTypeText: string  = '';
+    public prepaidCode: string = '';
     public prepaidPackage: string  = '';
     public prepaidPackageId: string  = '';
     public prepaidPackageText: string  = '';

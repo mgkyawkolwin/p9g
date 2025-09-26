@@ -6,6 +6,7 @@ import { HttpStatusCode } from "@/core/constants";
 import { CustomError } from "@/lib/errors";
 import ILogService from "@/core/services/contracts/ILogService";
 import IReportService from "@/core/services/contracts/IReportService";
+import { auth } from "@/app/auth";
 
 
 export async function GET(request: NextRequest) {
@@ -13,13 +14,17 @@ export async function GET(request: NextRequest) {
     c.fs("GET /api/reports/dailysummaryguestsroomsreport");
     c.d(JSON.stringify(request));
 
+    const session = await auth();
+    if (!session?.user)
+      throw new CustomError('Invalid session');
+
     //retrieve search params from request
     const searchParams = Object.fromEntries(request.nextUrl.searchParams);
     c.d(JSON.stringify(searchParams));
 
     //call service to retrieve data
     const reportService = container.get<IReportService>(TYPES.IReportService);
-    const result = await reportService.getDailySummaryGuestsRoomsReport(searchParams.startDate, searchParams.endDate);
+    const result = await reportService.getDailySummaryGuestsRoomsReport(searchParams.startDate, searchParams.endDate, session.user);
     c.d(JSON.stringify(result));
 
     return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });

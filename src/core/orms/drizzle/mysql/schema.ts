@@ -75,6 +75,51 @@ export const paymentTable = mysqlTable("payment", {
   updatedBy: char("updatedBy", {length: 36}).notNull()
 });
 
+// export const prepaidCodeTable = mysqlTable("prepaidCode", {
+//   id: char("id", {length: 36}).primaryKey(),
+//   prepaidCode: char("prepaidCode", {length: 8}).notNull(),
+//   totalDays: int("totalDays").notNull(),
+//   usedDays: int("usedDays").notNull(),
+//   balanceDays: int('balanceDays').notNull(),
+//   startDate: datetime("startDate", {mode: 'date', fsp: 3}).notNull(),
+//   endDate: datetime("endDate", {mode: 'date', fsp: 3}).notNull(),
+//   renewDate: datetime("renewDate").notNull(),
+//   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
+//   createdBy: char("createdBy", {length: 36}).notNull(),
+//   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+//   updatedBy: char("updatedBy", {length: 36}).notNull()
+// });
+
+// export const prepaidCodeRenewHistoryTable = mysqlTable("prepaidCodeHistory", {
+//   id: char("id", {length: 36}).primaryKey(),
+//   reservationId: char("reservationId", {length: 36}).notNull(),
+//   prepaidCodeId: char("prepaidCodeId", {length: 8}).primaryKey(),
+//   totalDays: int("totalDays").notNull(),
+//   usedDays: int("usedDays").notNull(),
+//   balanceDays: int('balanceDays').notNull(),
+//   startDate: datetime("startDate", {mode: 'date', fsp: 3}).notNull(),
+//   endDate: datetime("endDate", {mode: 'date', fsp: 3}).notNull(),
+//   renewDate: datetime("renewDate").notNull(),
+//   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
+//   createdBy: char("createdBy", {length: 36}).notNull(),
+//   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+//   updatedBy: char("updatedBy", {length: 36}).notNull()
+// });
+
+// export const prepaidCodeUsageHistoryTable = mysqlTable("prepaidCodeUsageHistory", {
+//   id: char("id", {length: 36}).primaryKey(),
+//   prepaidCodeId: char("prepaidCodeId", {length: 8}).primaryKey(),
+//   totalDays: int("totalDays").notNull(),
+//   usedDays: int("usedDays").notNull(),
+//   balanceDays: int('balanceDays').notNull(),
+//   startDate: datetime("startDate", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
+//   endDate: datetime("endDate", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
+//   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
+//   createdBy: char("createdBy", {length: 36}).notNull(),
+//   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+//   updatedBy: char("updatedBy", {length: 36}).notNull()
+// });
+
 export const prepaidTable = mysqlTable("prepaid", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
   value: varchar("value", {length: 50}).notNull(),
@@ -121,6 +166,7 @@ export const reservationTable = mysqlTable("reservation", {
   pickUpFeePaidOnUTC: datetime("pickUpFeePaidOnUTC"),
   pickUpCarNo: varchar("pickUpCarNo", {length: 10}),
   pickUpDriver: varchar("pickUpDriver", {length:50}),
+  prepaidCode: char('prepaidCode', {length: 8}),
   prepaidPackageId: char("prepaidPackageId", {length: 36}).references(() => prepaidTable.id),
   promotionPackageId: char("promotionPackageId", {length: 36}).references(() => promotionTable.id),
   dropOffTypeId: char("dropOffTypeId", {length: 36}).references(() => configTable.id),

@@ -24,10 +24,11 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
                             <th className="text-right">Guests Check-Out</th>
                             <th className="text-right">Guests Total</th>
                             <th className="p-2 text-right">Reservation Total</th>
+                            <th className="p-2 text-right">Rooms Total (Reserved)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {reportRows?.length === 0 && <tr><td className={`${Theme.Style.tableCellText}`} colSpan={6}>No Data</td></tr>}
+                        {reportRows?.length === 0 && <tr className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}><td className={`p-2 ${Theme.Style.tableCellText}`} colSpan={6}>No Data</td></tr>}
                         {reportRows.map((rp, index) => {
                             totalGuestCheckIn = totalGuestCheckIn + Number(rp.guestsCheckIn);
                             totalGuestCheckOut = totalGuestCheckOut + Number(rp.guestsCheckOut);
@@ -39,6 +40,7 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
                                 <td className="text-right">{rp.guestsCheckOut}</td>
                                 <td className="text-right">{rp.guestsTotal}</td>
                                 <td className="p-2 text-right">{rp.reservationTotal}</td>
+                                <td className="p-2 text-right">{rp.roomsTotal}</td>
                             </tr>;
                         })}
                     </tbody>
@@ -48,6 +50,7 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
                             <th>Total</th>
                             <th className="text-right">{totalGuestCheckIn}</th>
                             <th className="text-right">{totalGuestCheckOut}</th>
+                            <th className=""></th>
                             <th className=""></th>
                             <th className=""></th>
                         </tr>

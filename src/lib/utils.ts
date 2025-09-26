@@ -39,6 +39,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Get cache key based on based key and tag.
+ * @param baseKey 
+ * @param tag 
+ * @returns 
+ */
+export function getCacheKey(baseKey: string, tag?: string): string {
+        return tag
+            ? `${baseKey}:${tag}`
+            : `${baseKey}`;
+}
+
+/**
  * Get the first date of the current month at time 00:00:00.000
  * @returns 
  */

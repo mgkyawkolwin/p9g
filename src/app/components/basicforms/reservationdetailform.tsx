@@ -1,24 +1,25 @@
 'use client';
 
-import { Label } from "@/lib/components/web/react/ui/label"
+import { SelectList, SelectListForm } from "@/core/constants";
+import { getCheckInDate, getCheckOutDate } from "@/core/helpers";
+import Reservation from "@/core/models/domain/Reservation";
+import { Label } from "@/lib/components/web/react/ui/label";
 import {
     RadioGroup,
     RadioGroupItem,
-} from "@/lib/components/web/react/ui/radio-group"
-import { SelectWithLabel } from "../../../lib/components/web/react/uicustom/selectwithlabel";
-import { InputWithLabel } from "../../../lib/components/web/react/uicustom/inputwithlabel";
-import { Textarea } from "../../../lib/components/web/react/ui/textarea";
+} from "@/lib/components/web/react/ui/radio-group";
+import { calculateDayDifference } from "@/lib/utils";
 import React from "react";
-import { calculateDayDifference} from "@/lib/utils";
-import { getCheckInDate, getCheckOutDate } from "@/core/helpers";
-import { SelectList, SelectListForm } from "@/core/constants";
-import Reservation from "@/core/models/domain/Reservation";
+import { Textarea } from "../../../lib/components/web/react/ui/textarea";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
+import { InputWithLabel } from "../../../lib/components/web/react/uicustom/inputwithlabel";
+import { SelectWithLabel } from "../../../lib/components/web/react/uicustom/selectwithlabel";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { CheckboxCustom } from "../../../lib/components/web/react/uicustom/CheckboxCustom";
-
+import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
+import {v4 as uuidv4} from 'uuid';
 
 
 interface ReservationDetailFormInterface {
@@ -78,6 +79,9 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                             <div className="flex items-center gap-2">
                                 <RadioGroupItem className="border-[#bbb]" value="MEMBER" id="r2" />
                                 <Label htmlFor="r2">Member</Label>
+                                <InputCustom name="prepaidCode" variant="form" size="full"
+                                value={reservation?.prepaidCode ? reservation?.prepaidCode : ''}
+                                onChange={e => setReservation(prev => ({...prev, prepaidCode: e.target.value ? e.target.value : ""}))} />
                             </div>
                             <div className="flex items-center gap-2">
                                 <RadioGroupItem className="border-[#bbb]" value="TOUR" id="r3" />
@@ -248,6 +252,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                             setReservation(prev => ({...prev, isSingleOccupancy: checked}))
                         }} />
                         <Label htmlFor="checkbox">Single Occupancy</Label>
+                        <ButtonCustom size="sm" onClick={() => setReservation(prev => ({...prev, roomNo: uuidv4().substring(0,8)}))}>Generate</ButtonCustom>
                     </div>
                     <div className="flex gap-2 items-end">
                         <InputWithLabel name="depositAmount" label="Deposit" variant="form" size={"xs"} labelPosition="top" 

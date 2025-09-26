@@ -59,6 +59,7 @@ export type SearchFormFields = {
 export const TYPES = {
   IAuthService : Symbol.for('IAuthService'),
   IBillRepository : Symbol.for('IBillRepository'),
+  ICacheAdapter : Symbol.for('ICacheAdapter'),
   IConfigRepository : Symbol.for('IConfigRepository'),
   ICustomerRepository : Symbol.for('ICustomerRepository'),
   ICustomerService : Symbol.for('ICustomerService'),

@@ -6,6 +6,7 @@ import type IReportRepository from "@/core/repositories/contracts/IReportReposit
 import DailySummaryIncomeReportRow from "../models/dto/reports/DailySummaryIncomeReportRow";
 import DailySummaryPersonReportRow from "../models/dto/reports/DailySummaryPersonReportRow";
 import c from "@/lib/loggers/console/ConsoleLogger";
+import SessionUser from "../models/dto/SessionUser";
 
 @injectable()
 export default class ReportService implements IReportService{
@@ -15,21 +16,21 @@ export default class ReportService implements IReportService{
     }
 
 
-    async getDailySummaryGuestsRoomsReport(startDate: string, endDate: string): Promise<DailySummaryGuestsRoomsReportRow[]> {
+    async getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]> {
         c.fs('ReportService > getDailySummaryGuestsRoomsReport');
-        return await this.reportRepository.getDailySummaryGuestsRoomsReport(startDate, endDate);
+        return await this.reportRepository.getDailySummaryGuestsRoomsReport(startDate, endDate, sessionUser);
     }
 
 
-    async getDailySummaryIncomeReport(startDate: string, endDate: string): Promise<DailySummaryIncomeReportRow[]> {
+    async getDailySummaryIncomeReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
         c.fs('ReportService > getDailySummaryIncomeReport');
-        return await this.reportRepository.getDailySummaryIncomeReport(startDate, endDate);
+        return await this.reportRepository.getDailySummaryIncomeReport(startDate, endDate, sessionUser);
     }
 
 
-    async getDailySummaryPersonReport(startDate: string, endDate: string): Promise<DailySummaryPersonReportRow[]> {
+    async getDailySummaryPersonReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]> {
         c.fs('ReportService > getDailySummaryPersonReport');
-        return await this.reportRepository.getDailySummaryPersonReport(startDate, endDate);
+        return await this.reportRepository.getDailySummaryPersonReport(startDate, endDate, sessionUser);
     }
 
 }

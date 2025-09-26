@@ -26,8 +26,7 @@ import RoomType from "../models/domain/RoomType";
 import ReservationCustomer from "../models/domain/ReservationCustomer";
 import PrepaidEntity from "@/core/models/entity/PrepaidEntity";
 import PromotionEntity from "@/core/models/entity/PromotionEntity";
-import {and, desc, eq, ne} from "@/lib/transformers/types";
-import { buildAnyCondition } from "@/core/helpers";
+import {and, asc, desc, eq, ne} from "@/lib/transformers/types";
 import RoomReservationDto from "../models/dto/RoomReservationDto";
 
 @injectable()
@@ -370,7 +369,6 @@ export default class ReservationService implements IReservationService {
         if(reservation.roomNo){
             c.i('Retrieveing room info');
             room = await this.roomRepository.findOne(eq("roomNo", reservation.roomNo));
-            if(!room) throw new CustomError('Invalid room no');
         }
 
         const result = this.dbClient.db.transaction(async (tx: any) => {
@@ -394,12 +392,11 @@ export default class ReservationService implements IReservationService {
                     return rc;
                 });
                 c.d(newReservationCustomers?.length);
-                //insert using transaction
+                
                 await this.reservationCustomerRepository.createMany(newReservationCustomers, tx);
             }
-
-            //insert room reservations
-            if (reservation.roomNo) {
+            
+            if (reservation.roomNo && room) {
                 c.i('Creating room reservation');
                 const rrResult = await this.roomReservationCreate(createdReservation, sessionUser, tx);
                 if (!rrResult)
@@ -583,12 +580,12 @@ export default class ReservationService implements IReservationService {
                     rc.updatedBy = sessionUser.id;
                     return rc;
                 });
-                //insert using transaction
                 await this.reservationCustomerRepository.createMany(newReservationCustomers, tx as any);
             }
 
 
-            if (reservation.roomNo && originalReservation.roomNo !== reservation.roomNo) {
+            const room = await this.roomRepository.findOne(eq("roomNo", reservation.roomNo));
+            if (room && reservation.roomNo && originalReservation.roomNo !== reservation.roomNo) {
 
                 c.i('vital changed, delete all room reservations and room charges');
                 await this.roomReservationRepository.deleteWhere(eq("reservationId", reservation.id), tx as any);
@@ -674,7 +671,7 @@ export default class ReservationService implements IReservationService {
 
     async roomChargeGetListById(reservationId: string, sessionUser: SessionUser): Promise<RoomCharge[]> {
         c.fs('ReservationService > roomChargeGetListById');
-        const [result] = await this.roomChargeRepository.findMany(eq("reservationId", reservationId));
+        const [result] = await this.roomChargeRepository.findMany(eq("reservationId", reservationId), asc("startDate"));
         return result;
     }
 

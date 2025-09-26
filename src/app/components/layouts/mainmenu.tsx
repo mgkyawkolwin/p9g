@@ -1,12 +1,13 @@
 'use client';
 
+import { clearCache } from '@/app/actions';
 import Link from 'next/link';
 
 export function MainMenu() {
 
   return (
     <div className='flex gap-x-6 items-center'>
-     
+
       <Link
         href="/console/reservations/new"
         className="text-sm font-medium text-white hover:text-blue-600"
@@ -62,30 +63,41 @@ export function MainMenu() {
         Customers
       </Link>
       <nav>
-    <ul className="flex space-x-4">
-      <li className="relative">
-        <div className="group inline-block">
-        <Link
-        href="#"
-        className="text-sm font-medium text-white hover:text-blue-600"
-      >
-        Reports
-      </Link>
-          <ul className="absolute left-0 mt-0 w-48 text-white bg-[#333] shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-          <li><a href="/console/reports/dailysummaryperson" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Person)</a></li>
-            <li><a href="/console/reports/dailysummaryguestsrooms" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Guests & Rooms)</a></li>
-            <li><a href="/console/reports/dailysummaryincome" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Income)</a></li>
-          </ul>
-        </div>
-      </li>
-    </ul>
-  </nav>
-      <Link
-        href="/console/reports"
-        className="text-sm font-medium text-white hover:text-blue-600"
-      >
-        Settings
-      </Link>
+        <ul className="flex space-x-4">
+          <li className="relative">
+            <div className="group inline-block">
+              <Link
+                href="#"
+                className="text-sm font-medium text-white hover:text-blue-600"
+              >
+                Reports
+              </Link>
+              <ul className="absolute left-0 mt-0 w-48 text-white bg-[#333] shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <li><a href="/console/reports/dailysummaryperson" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Person)</a></li>
+                <li><a href="/console/reports/dailysummaryguestsrooms" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Guests & Rooms)</a></li>
+                <li><a href="/console/reports/dailysummaryincome" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Income)</a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <nav>
+        <ul className="flex space-x-4">
+          <li className="relative">
+            <div className="group inline-block">
+              <Link
+                href="#"
+                className="text-sm font-medium text-white hover:text-blue-600"
+              >
+                Settings
+              </Link>
+              <ul className="absolute left-0 mt-0 w-48 text-white bg-[#333] shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <li><a href="#" onClick={async () => {await clearCache()}} className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Clear Cache</a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 }

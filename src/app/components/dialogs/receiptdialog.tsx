@@ -2,19 +2,18 @@
 
 import * as React from "react";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog"
 import { roomChargeGetListById } from "@/app/(private)/console/reservations/actions"
 import { toast } from "sonner";
 import ReceiptTable from "../tables/receipttable";
 import RoomCharge from "@/core/models/domain/RoomCharge";
 import Reservation from "@/core/models/domain/Reservation";
 import { getReservation } from "@/app/(private)/console/reservations/[id]/edit/actions";
-import { useReactToPrint } from 'react-to-print';
 
 
-interface DataTableProps{
+interface DataTableProps {
   reservationId: string;
-  callbackFunctions:(func: {
+  callbackFunctions: (func: {
     openDialog: (open: boolean) => void;
   }) => void;
 }
@@ -24,7 +23,9 @@ export default function ReceiptDialog({
   callbackFunctions
 }: DataTableProps) {
 
-  const receiptRef = React.useRef(undefined);
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: "decimal"
+  });
 
   const [open, setOpen] = React.useState(false);
   const [reservation, setReservation] = React.useState<Reservation>(undefined);
@@ -36,71 +37,149 @@ export default function ReceiptDialog({
 
 
   React.useEffect(() => {
-    if(callbackFunctions){
-      callbackFunctions({openDialog});
+    if (callbackFunctions) {
+      callbackFunctions({ openDialog });
     }
   }, [callbackFunctions]);
 
 
   React.useEffect(() => {
-    if(!reservationId || reservationId === 'undefined') return;
-    if(!open) return;
-    //reset
+    if (!reservationId || reservationId === 'undefined') return;
+    if (!open) return;
+
     setRoomCharges([]);
     const fetchData = async () => {
-        // setId(reservationId);
-        const response = await roomChargeGetListById(reservationId);
-        
-        if(response.message)
-            toast(response.message);
-        if(response.data){
-          const b : RoomCharge[] = response.data.map((roomCharge : RoomCharge) => (
-            {
-              ...roomCharge, 
-              startDate:new Date(roomCharge.startDate), 
-              endDate:new Date(roomCharge.endDate)
-            }
-          ));
-          setRoomCharges(b);
-        }
-        const r = await getReservation(reservationId);
-        if(r.message)
-            toast(r.message);
-        if(r.data){
-            setReservation(r.data.reservation as unknown as Reservation);
-        }
+      const response = await roomChargeGetListById(reservationId);
+
+      if (response.message)
+        toast(response.message);
+      if (response.data) {
+        const b: RoomCharge[] = response.data.map((roomCharge: RoomCharge) => (
+          {
+            ...roomCharge,
+            startDate: new Date(roomCharge.startDate),
+            endDate: new Date(roomCharge.endDate)
+          }
+        ));
+        setRoomCharges(b);
+      }
+      const r = await getReservation(reservationId);
+      if (r.message)
+        toast(r.message);
+      if (r.data) {
+        setReservation(r.data.reservation as unknown as Reservation);
+      }
     };
     fetchData();
 
-  },[reservationId, open]);
+  }, [reservationId, open]);
 
-  const handlePrint = useReactToPrint({
-    bodyClass: "p-8 m-8",
-    contentRef: receiptRef,
-  });
+  const handlePrint = () => {
+    let total = 0;
+    let content = `<table style="width:100%;border-collapse: collapse;font-size:10pt;">`;
+    content += `<thead><tr>` +
+      `<th style="border: 1px solid #666; padding: 8px; text-align: left; background-color: #eee;">Description</th>` +
+      `<th style="border: 1px solid #666; padding: 8px; text-align: left; background-color: #eee;">Start</th>` +
+      `<th style="border: 1px solid #666; padding: 8px; text-align: left; background-color: #eee;">End</th>` +
+      `<th style="border: 1px solid #666; padding: 8px; text-align: right; background-color: #eee;">Rate</th>` +
+      `<th style="border: 1px solid #666; padding: 8px; text-align: right; background-color: #eee;">Pax</th>` +
+      `<th style="border: 1px solid #666; padding: 8px; text-align: right; background-color: #eee;">Days</th>` +
+      `<th style="border: 1px solid #666; padding: 8px; text-align: right; background-color: #eee;">Amount</th>` +
+      `</tr></thead><tbody>`;
 
-  if(!reservation) return;
-  if(!roomCharges) return;
+    roomCharges.forEach((charge, index) => {
+      const roomRate = reservation.prepaidPackageId ? charge.seasonSurcharge : charge.roomRate;
+      content += `<tr>` +
+        `<td style="border: 1px solid #666; padding: 8px; text-align: left;">Room Charge ${charge.roomNo}</td>` +
+        `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.startDate.toISOFormatDateString()}</td>` +
+        `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.endDate.toISOFormatDateString()}</td>` +
+        `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(roomRate)}</td>` +
+        `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${reservation.noOfGuests}</td>` +
+        `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${charge.noOfDays}</td>` +
+        `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.noOfDays * reservation.noOfGuests * roomRate)}</td>` +
+        `</tr>`;
+
+      if (charge.singleRate > 0) {
+        content += `<tr>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">Single Charge ${charge.roomNo}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.startDate.toISOFormatDateString()}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.endDate.toISOFormatDateString()}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.singleRate)}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${reservation.noOfGuests}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${charge.noOfDays}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.noOfDays * charge.singleRate)}</td>` +
+          `</tr>`;
+      }
+
+      if (charge.roomSurcharge > 0) {
+        content += `<tr>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">Room Extra Charge ${charge.roomNo}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.startDate.toISOFormatDateString()}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.endDate.toISOFormatDateString()}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.roomSurcharge)}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${reservation.noOfGuests}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${charge.noOfDays}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.noOfDays * charge.roomSurcharge)}</td>` +
+          `</tr>`;
+      }
+    });
+    content += `</tbody><tfoot>` +
+      `<tr><td colspan="6" style="padding: 8px; text-align: right; font-weight:bold;">Total</td>` +
+      `<td style="border: 1px solid #666; padding: 8px; text-align: right; font-weight:bold;">${formatter.format(reservation.totalAmount)}</td></tr>` +
+      `<tr><td colspan="6" style="padding: 8px; text-align: right; font-weight:bold;">Deposit</td>` +
+      `<td style="border: 1px solid #666; padding: 8px; text-align: right; font-weight:bold;">${formatter.format(reservation.depositAmount)}</td></tr>` +
+      `<tr><td colspan="6" style="padding: 8px; text-align: right; font-weight:bold;">Discount</td>` +
+      `<td style="border: 1px solid #666; padding: 8px; text-align: right; font-weight:bold;">${formatter.format(reservation.discountAmount)}</td></tr>` +
+      `<tr><td colspan="6" style="padding: 8px; text-align: right; font-weight:bold;">Tax (${reservation.tax}%)</td>` +
+      `<td style="border: 1px solid #666; padding: 8px; text-align: right; font-weight:bold;">${formatter.format(reservation.taxAmount)}</td></tr>` +
+      `<tr><td colspan="6" style="padding: 8px; text-align: right; font-weight:bold;">Net Total</td>` +
+      `<td style="border: 1px solid #666; padding: 8px; text-align: right; font-weight:bold;">${formatter.format(reservation.netAmount)}</td></tr>` +
+      `<tr><td colspan="6" style="padding: 8px; text-align: right; font-weight:bold;">Paid Amount</td>` +
+      `<td style="border: 1px solid #666; padding: 8px; text-align: right; font-weight:bold;">${formatter.format(reservation.paidAmount)}</td></tr>` +
+      `<tr><td colspan="6" style="padding: 8px; text-align: right; font-weight:bold;">Due Amount</td>` +
+      `<td style="border: 1px solid #666; padding: 8px; text-align: right; font-weight:bold;">${formatter.format(reservation.dueAmount)}</td></tr>` +
+      `</tfoot></table>`;
+
+    const win = window.open('', 'Print', 'width=600,height=400');
+    if (win) {
+      win.document.open();
+      win.document.writeln(
+        `<html><style>@media print{ @page {margin:0;}}</style>` +
+        `<body style="padding:0.5in;font-size:10pt;"><div><img src="/p9glogowithtext.png" style="width:200px;" /></div>` +
+        `<div style="display:block;width:100%;text-align:center;font-size:18pt;">Receipt</div><br/><br/>` +
+        `<table style="width:100%;font-size:10pt;"><tr><td>Customer: ${reservation?.customers?.reduce((acc, c) => acc + (acc ? ", " : "") + (c.englishName && c.englishName?.trim() !== "" ? c.englishName : c.name), "")}</td><td style="text-align:right;">Date: ____/____/________</td></tr></table>` +
+        `<div><br/>${content}</div><br/><br/><br/><div style="width:100%;text-align:right;">Cashier Singature : ____________________</div><br/>` +
+        `<div style="display:block;width:100%;align:middle;"><img src="/p9gqr.png" style="width:350px;" /></div></body></html>`
+      );
+      win.document.close();
+      win.focus();
+      win.print();
+      win.close();
+    }
+  };
+
+  if (!reservation) return;
+  if (!roomCharges) return;
 
   return (
-      <Dialog open={open} onOpenChange={setOpen} >
-          <DialogContent className="flex flex-col min-h-[80vh] min-w-[90vw] ">
-            <DialogHeader>
-              <DialogTitle></DialogTitle>
-            </DialogHeader>
-              <div ref={receiptRef} id="printable-receipt" className="flex w-auto">
-              <ReceiptTable reservation={reservation} roomCharges={roomCharges}/>
-              </div>
-            <DialogFooter>
-            <ButtonCustom type="button" onClick={handlePrint}>Print Receipt</ButtonCustom>
-              <DialogClose asChild>
-                <ButtonCustom type="button" variant="black" onClick={() => {
-                  
-                  setOpen(false); // Close the dialog after printing
-                }}>Close</ButtonCustom>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+    <Dialog open={open} onOpenChange={setOpen} >
+      <DialogContent className="flex flex-col min-h-[80vh] min-w-[90vw] ">
+        <DialogHeader>
+          <DialogTitle></DialogTitle>
+        </DialogHeader>
+        <div id="printable-receipt" className="flex w-auto">
+          <ReceiptTable reservation={reservation} roomCharges={roomCharges} />
+        </div>
+        <DialogFooter>
+          <ButtonCustom type="button" onClick={handlePrint}>Print Receipt</ButtonCustom>
+          <DialogClose asChild>
+            <ButtonCustom type="button" variant="black" onClick={() => {
+
+              setOpen(false); // Close the dialog after printing
+            }}>Close</ButtonCustom>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

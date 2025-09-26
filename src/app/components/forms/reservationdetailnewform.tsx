@@ -20,7 +20,7 @@ export default function ReservationDetailNewForm({ customers, onReservationSaved
     
 
     const [isPending, setIsPending] = React.useState(false);
-    const [reservation, setReservation] = React.useState(new Reservation());
+    const [reservation, setReservation] = React.useState<Reservation>({...new Reservation(), modelState: "inserted"});
 
     const detailFormRef = React.useRef<{ resetForm: () => void, getReservation?: () => Reservation }>(null);
 
@@ -52,7 +52,7 @@ export default function ReservationDetailNewForm({ customers, onReservationSaved
         if (response.message) toast(response.message);
         if (!response.error && onReservationSaved) {
             onReservationSaved(false);
-            setReservation(new Reservation());
+            setReservation({...new Reservation(), modelState: "inserted"});
         }
         setIsPending(false);
     }

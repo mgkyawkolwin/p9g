@@ -2,7 +2,7 @@ import type { Config } from "drizzle-kit";
 
 export default {
   schema: "./core/orms/drizzle/mysql/schema.ts",
-  out: "./drizzle/migrations",
+  out: "./migrations/drizzle-generated",
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },

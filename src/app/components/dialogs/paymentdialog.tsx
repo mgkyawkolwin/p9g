@@ -218,6 +218,7 @@ export default function PaymentDialog({
           <ButtonCustom type="button" onClick={() => {
             const payment = new Payment();
             payment.reservationId = reservationId;
+            payment.modelState = "inserted";
             setPayments(prev => [...prev, payment]);
           }}>Add Row</ButtonCustom>
           <DialogClose asChild>
