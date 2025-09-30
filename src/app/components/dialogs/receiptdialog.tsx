@@ -75,7 +75,6 @@ export default function ReceiptDialog({
   }, [reservationId, open]);
 
   const handlePrint = () => {
-    let total = 0;
     let content = `<table style="width:100%;border-collapse: collapse;font-size:10pt;">`;
     content += `<thead><tr>` +
       `<th style="border: 1px solid #666; padding: 8px; text-align: left; background-color: #eee;">Description</th>` +
@@ -89,25 +88,27 @@ export default function ReceiptDialog({
 
     roomCharges.forEach((charge, index) => {
       const roomRate = reservation.prepaidPackageId ? charge.seasonSurcharge : charge.roomRate;
-      content += `<tr>` +
-        `<td style="border: 1px solid #666; padding: 8px; text-align: left;">Room Charge ${charge.roomNo}</td>` +
-        `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.startDate.toISOFormatDateString()}</td>` +
-        `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.endDate.toISOFormatDateString()}</td>` +
-        `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(roomRate)}</td>` +
-        `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${reservation.noOfGuests}</td>` +
-        `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${charge.noOfDays}</td>` +
-        `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.noOfDays * reservation.noOfGuests * roomRate)}</td>` +
-        `</tr>`;
-
-      if (charge.singleRate > 0) {
+      if (charge.roomRate > 0) {
         content += `<tr>` +
-          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">Single Charge ${charge.roomNo}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">Room Charge ${charge.roomNo}</td>` +
           `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.startDate.toISOFormatDateString()}</td>` +
           `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.endDate.toISOFormatDateString()}</td>` +
-          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.singleRate)}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.roomRate)}</td>` +
           `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${reservation.noOfGuests}</td>` +
           `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${charge.noOfDays}</td>` +
-          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.noOfDays * charge.singleRate)}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.noOfDays * charge.roomRate * reservation.noOfGuests)}</td>` +
+          `</tr>`;
+      }
+
+      if (charge.seasonSurcharge > 0) {
+        content += `<tr>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">Room Charge ${charge.roomNo}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.startDate.toISOFormatDateString()}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.endDate.toISOFormatDateString()}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.seasonSurcharge)}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${reservation.noOfGuests}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${charge.noOfDays}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.noOfDays * charge.seasonSurcharge * reservation.noOfGuests)}</td>` +
           `</tr>`;
       }
 
@@ -119,7 +120,19 @@ export default function ReceiptDialog({
           `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.roomSurcharge)}</td>` +
           `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${reservation.noOfGuests}</td>` +
           `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${charge.noOfDays}</td>` +
-          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.noOfDays * charge.roomSurcharge)}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.noOfDays * charge.roomSurcharge * reservation.noOfGuests)}</td>` +
+          `</tr>`;
+      }
+
+      if (charge.singleRate > 0) {
+        content += `<tr>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">Single Charge ${charge.roomNo}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.startDate.toISOFormatDateString()}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.endDate.toISOFormatDateString()}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.singleRate)}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${reservation.noOfGuests}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${charge.noOfDays}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.noOfDays * charge.singleRate)}</td>` +
           `</tr>`;
       }
     });
@@ -140,7 +153,7 @@ export default function ReceiptDialog({
       `<td style="border: 1px solid #666; padding: 8px; text-align: right; font-weight:bold;">${formatter.format(reservation.dueAmount)}</td></tr>` +
       `</tfoot></table>`;
 
-    const win = window.open('', 'Print', 'width=600,height=400');
+    const win = window.open('', 'Print', `width=${screen.availWidth},height=${screen.availHeight},left=0,top=0`);
     if (win) {
       win.document.open();
       win.document.writeln(
@@ -153,8 +166,10 @@ export default function ReceiptDialog({
       );
       win.document.close();
       win.focus();
-      win.print();
-      win.close();
+      win.onload = function () {
+        win.print();
+        win.close();
+      }
     }
   };
 
@@ -167,7 +182,7 @@ export default function ReceiptDialog({
         <DialogHeader>
           <DialogTitle></DialogTitle>
         </DialogHeader>
-        <div id="printable-receipt" className="flex w-auto">
+        <div id="printable-receipt" className="flex w-auto overflow-auto">
           <ReceiptTable reservation={reservation} roomCharges={roomCharges} />
         </div>
         <DialogFooter>

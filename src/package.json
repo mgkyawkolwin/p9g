@@ -68,6 +68,7 @@
     "vitest": "^3.2.4",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
+    "xlsx": "^0.18.5",
     "zod": "^3.25.46"
   },
   "devDependencies": {

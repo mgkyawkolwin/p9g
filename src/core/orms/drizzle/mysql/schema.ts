@@ -8,7 +8,7 @@ export const billTable = mysqlTable("bill", {
   dateUTC: datetime("dateUTC"),
   paymentMode: varchar("paymentMode", {length: 10}).notNull(),
   paymentType: varchar("paymentType", {length: 10}).notNull(),
-  reservationId: char("reservationId").notNull(),
+  reservationId: char("reservationId").notNull().references(() => reservationTable.id, {onDelete: 'set null'}),
   itemName: varchar("itemName", {length: 100}).notNull(),
   unitPrice: decimal("unitPrice").notNull(),
   quantity: tinyint("quantity").notNull(),
@@ -215,7 +215,7 @@ export const roomTable = mysqlTable("room", {
 
 export const roomChargeTable = mysqlTable("roomCharge", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
-  reservationId: char("reservationId", {length: 36}),
+  reservationId: char("reservationId", {length: 36}).notNull().references(() => reservationTable.id, {onDelete: 'set null'}),
   startDate: datetime("startDate"),
   endDate: datetime("endDate"),
   roomId: char("roomId"),
@@ -293,6 +293,7 @@ export const userTable = mysqlTable("user", {
 });
 
 export const reservationRelations = relations(reservationTable, ({ one, many }) => ({
+  bills: many(billTable),
   reservationStatus: one(configTable, {
     fields: [reservationTable.reservationStatusId],
     references: [configTable.id],
@@ -303,7 +304,7 @@ export const reservationRelations = relations(reservationTable, ({ one, many }) 
     references: [configTable.id],
     relationName: 'reservation_type'
   }),
-  customers: many(reservationCustomerTable, {
+  reservationCustomers: many(reservationCustomerTable, {
     relationName: 'reservation_to_customers'
   }),
   prepaidPackage: one(prepaidTable, {
@@ -314,9 +315,18 @@ export const reservationRelations = relations(reservationTable, ({ one, many }) 
     fields: [reservationTable.promotionPackageId],
     references: [promotionTable.id]
   }),
+  roomCharges: many(roomChargeTable),
   roomReservation: one(roomReservationTable, {
     fields: [reservationTable.id],
     references: [roomReservationTable.reservationId]
+  })
+}));
+
+// 2. Fix the reservationCustomer relations
+export const roomChargeReservationRelations = relations(roomChargeTable, ({ one }) => ({
+  reservation: one(reservationTable, {
+    fields: [roomChargeTable.reservationId],
+    references: [reservationTable.id]
   })
 }));
 

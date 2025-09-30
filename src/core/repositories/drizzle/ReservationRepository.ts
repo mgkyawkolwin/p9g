@@ -649,7 +649,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                     isNull(reservationTable.id)
                 )
             )
-            .leftJoin(configTable, or(
+            .innerJoin(configTable, or(
                 and(
                     eq(configTable.id, reservationTable.reservationStatusId),
                     ne(configTable.value, 'CCL')

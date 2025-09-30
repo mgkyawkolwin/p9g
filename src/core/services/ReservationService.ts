@@ -58,7 +58,7 @@ export default class ReservationService implements IReservationService {
         if (!reservationId) throw new CustomError('Service: Reservation id is required.');
         if (!billId) throw new CustomError('Service: Reservation id is required.');
         
-        return await this.billRepository.delete(reservationId);
+        return await this.billRepository.delete(billId);
     }
 
 
@@ -115,9 +115,9 @@ export default class ReservationService implements IReservationService {
 
 
     private calculateAllAmount(reservation: Reservation) : Reservation {
-        reservation.taxAmount = reservation.totalAmount * reservation.tax / 100;
-        reservation.netAmount = reservation.totalAmount + reservation.taxAmount - reservation.discountAmount - reservation.depositAmount;
-        reservation.dueAmount = reservation.netAmount - reservation.paidAmount;
+        reservation.taxAmount = Number(reservation.totalAmount ?? 0) * Number(reservation.tax ?? 0) / 100;
+        reservation.netAmount = Number(reservation.totalAmount ?? 0) + Number(reservation.taxAmount ?? 0) - Number(reservation.discountAmount ?? 0) - Number(reservation.depositAmount ?? 0);
+        reservation.dueAmount = Number(reservation.netAmount ?? 0) - Number(reservation.paidAmount ?? 0);
         return reservation;
     }
 
@@ -374,6 +374,7 @@ export default class ReservationService implements IReservationService {
         const result = this.dbClient.db.transaction(async (tx: any) => {
 
             c.i('Creating reservation');
+            reservation = this.calculateAllAmount(reservation);
             const createdReservation = await this.reservationRepository.create(reservation, tx);
             if (!createdReservation || !createdReservation.id)
                 throw new CustomError('Reservation creation failed.');
@@ -563,6 +564,9 @@ export default class ReservationService implements IReservationService {
                 throw new CustomError('Cannot find original reservation.');
 
             c.i('Updating reservation');
+            reservation.totalAmount = originalReservation.totalAmount;
+            reservation.paidAmount = originalReservation.paidAmount;
+            reservation = this.calculateAllAmount(reservation);
             await this.reservationRepository.update(id, reservation, tx as any);
 
             c.i('Deleting existing customer list in reservation.');

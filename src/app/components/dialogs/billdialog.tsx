@@ -14,6 +14,7 @@ import TotalTable from "../tables/totaltable";
 import Invoice from "@/core/models/dto/Invoice";
 import { Checkbox } from "@/lib/components/web/react/ui/checkbox";
 import Reservation from "@/core/models/domain/Reservation";
+import { CheckboxCustom } from "@/lib/components/web/react/uicustom/CheckboxCustom";
 
 interface DataTableProps {
   reservationId: string;
@@ -65,7 +66,7 @@ export default function BillDialog({
       `</tr></tfoot>`;
     content += `</table>`;
 
-    const win = window.open('', 'Print', 'width=600,height=400');
+    const win = window.open('', 'Print', `width=${screen.availWidth},height=${screen.availHeight},left=0,top=0`);
     if (win) {
       win.document.open();
       win.document.writeln(
@@ -78,8 +79,10 @@ export default function BillDialog({
       );
       win.document.close();
       win.focus();
-      win.print();
-      win.close();
+      win.onload = function () {
+        win.print();
+        win.close();
+      }
     }
   };
 
@@ -162,7 +165,7 @@ export default function BillDialog({
     {
       accessorKey: "check",
       header: '',
-      cell: (row) => <Checkbox key={`${row.row.original.id}-check`}
+      cell: (row) => <CheckboxCustom key={`${row.row.original.id}-check`}
         checked={row.row.original.checked || false}
         onCheckedChange={(checked) => {
           setPrintBills(prev => checked ? [...prev, { ...row.row.original, checked: checked.valueOf() }] : prev.filter(b => b.id !== row.row.original.id));

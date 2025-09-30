@@ -12,6 +12,7 @@ declare global {
 
   interface String {
     trimISODateString(): string;
+    trimISOTimeString(): string;
     padISOTimeString(): string;
     padISOMidNightTimeString(): string;
   }

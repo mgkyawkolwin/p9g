@@ -120,6 +120,7 @@ export default function ScheduleFlexGrid({ rooms, month }: { rooms: Room[]; mont
                 className={`h-10 ${span.res ? `${getColorForUUID(span.res.id)} rounded-lg mx-px` : `${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadText}`}`}
                 style={{ flex: `${span.colSpan} 0 0` }}
                 title={span.res ? `[${new Date(span.res.checkInDate!).toLocaleDateString('sv-SE')}] - [${new Date(span.res.checkOutDate!).toLocaleDateString('sv-SE')}]\n${span.res.reservationId}` : ''}
+                onClick={() => {navigator.clipboard.writeText(span.res.reservationId || '')}}
               >
                 {span.res && (
                   <div className="relative w-full h-full">

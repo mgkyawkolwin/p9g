@@ -51,6 +51,14 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
             }
         }, [props.initialReservation]);
 
+        const calculateAgentDiscount = () => {
+            if(!reservation) return;
+            const guests = Number(reservation.noOfGuests ?? 0);
+            const days = Number(reservation.noOfDays ?? 0);
+            const discount = 10000 * days * guests;
+            setReservation(prev => ({...prev, discountAmount:discount}));
+        };
+
 
         const calculateDiscount = ({promotionPackage, noOfDays, noOfGuests}:{promotionPackage?:string, noOfDays?:number, noOfGuests?:number}) => {
             if(!reservation) return;
@@ -70,7 +78,13 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
         return (
             <div className="flex flex-col gap-2">
                 <section aria-label="Reservation Detail" className="flex gap-2 flex-col w-full">
-                    <RadioGroup className="border-[#333]" value={reservation?.reservationType} onValueChange={(value) => setReservation(prev => ({ ...prev, reservationType: value }))} name="reservationType">
+                    <RadioGroup className="border-[#333]" value={reservation?.reservationType} 
+                    onValueChange={(value) => {
+                        setReservation(prev => ({ ...prev, reservationType: value }));
+                        if(value === 'TOUR'){
+                            calculateAgentDiscount();
+                        }
+                    }} name="reservationType">
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-2">
                                 <RadioGroupItem className="border-[#bbb]" value="GENERAL" id="r1" />
@@ -81,7 +95,10 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                 <Label htmlFor="r2">Member</Label>
                                 <InputCustom name="prepaidCode" variant="form" size="full"
                                 value={reservation?.prepaidCode ? reservation?.prepaidCode : ''}
-                                onChange={e => setReservation(prev => ({...prev, prepaidCode: e.target.value ? e.target.value : ""}))} />
+                                onChange={e => {
+                                    setReservation(prev => ({...prev, prepaidCode: e.target.value ? e.target.value : ""}));
+                                    
+                                    }} />
                             </div>
                             <div className="flex items-center gap-2">
                                 <RadioGroupItem className="border-[#bbb]" value="TOUR" id="r3" />
@@ -149,7 +166,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                 selected={reservation?.departureDateTime ? reservation?.departureDateTime.convertToFakeLocalDate() : null}
                                 onChange={(date: Date | null) => {
                                     if (date && reservation.checkInDate) {
-                                        const days = calculateDayDifference(reservation.checkInDate, getCheckOutDate(date));
+                                        const days = calculateDayDifference(reservation.checkInDate, getCheckOutDate(date.convertToFakeLocalDate()));
                                         calculateDiscount({noOfDays:days});
                                         setReservation(prev => ({ ...prev, noOfDays: days < 0 ? 0 : days }));
                                     }else{
@@ -233,7 +250,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         value={reservation?.noOfDays} onChange={(e) => {
                             const days = e.target.value ? parseInt(e.target.value) : 0;
                             setReservation(prev => ({ ...prev, noOfDays: days >= 0 ? days : 0 }));
-                            calculateDiscount({noOfDays:days});
+                            //calculateDiscount({noOfDays:days});
                             
                         }
                             } />
@@ -243,7 +260,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                             value={reservation?.noOfGuests} onChange={(e) => {
                                 const days = e.target.value ? parseInt(e.target.value) : 0;
                                 setReservation(prev => ({ ...prev, noOfGuests: Number(e.target.value) }));
-                                calculateDiscount({noOfGuests:days});
+                                //calculateDiscount({noOfGuests:days});
                                 }} />
                         <InputWithLabel name="roomNo" label="Room No" variant="form" size={"xs"} labelPosition="top"
                             value={reservation?.roomNo ?? ''} onChange={(e) => setReservation(prev => ({ ...prev, roomNo: e.target.value }))} />

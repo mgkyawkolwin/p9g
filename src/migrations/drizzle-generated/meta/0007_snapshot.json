@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "7c1deb9e-3bad-4050-a341-04e655266611",
-  "prevId": "210dfc49-d2eb-416c-9451-7dac57a497bc",
+  "id": "0bb4f1e1-2c20-45e2-ba41-322268d57ecf",
+  "prevId": "7c1deb9e-3bad-4050-a341-04e655266611",
   "tables": {
     "bill": {
       "name": "bill",
@@ -121,7 +121,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "bill_reservationId_reservation_id_fk": {
+          "name": "bill_reservationId_reservation_id_fk",
+          "tableFrom": "bill",
+          "tableTo": "reservation",
+          "columnsFrom": [
+            "reservationId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "bill_id": {
           "name": "bill_id",
@@ -1152,7 +1166,7 @@
           "name": "reservationId",
           "type": "char(36)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "startDate": {
@@ -1269,7 +1283,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "roomCharge_reservationId_reservation_id_fk": {
+          "name": "roomCharge_reservationId_reservation_id_fk",
+          "tableFrom": "roomCharge",
+          "tableTo": "reservation",
+          "columnsFrom": [
+            "reservationId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "roomCharge_id": {
           "name": "roomCharge_id",

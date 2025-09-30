@@ -202,7 +202,7 @@ export const Theme = {
         tableHeadBorder: "border border-[#aaaaaa] dark:border-[#666666]",
         tableCellBg: "bg-[#e6e6e6] dark:bg-black",
         tableCellText: "text-[#555555] dark:text-[#aaaaaa]",
-        tableCellBorder: "border-[#d9d9d9] border-b-[#c6c6c6] dark:border-[#333333] dark:border-b-[#444444]",
+        tableCellBorder: "border border-[#d0d0d0] border-b-[#c6c6c6] dark:border dark:border-[#444444] dark:border-b-[#555555]",
         tableFooterBg: "",
         tableFooterText: ""
     },

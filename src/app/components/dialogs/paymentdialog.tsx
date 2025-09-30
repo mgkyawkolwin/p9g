@@ -153,7 +153,7 @@ export default function PaymentDialog({
         </div>
       }
     },
-  ], []);
+  ], [payments.length, reservationId]);
 
 
   React.useEffect(() => {

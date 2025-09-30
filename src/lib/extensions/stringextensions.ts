@@ -7,6 +7,13 @@ String.prototype.trimISODateString = function (): string{
 }
 
 /**
+ * Convert to ISO date string by removing time components.
+ */
+String.prototype.trimISOTimeString = function (): string{
+    return this.substring(11, 5);
+}
+
+/**
  * Convert to ISO format datetime string by appending time.
  */
 String.prototype.padISOTimeString = function (): string {

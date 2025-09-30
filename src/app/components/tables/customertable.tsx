@@ -9,6 +9,7 @@ import { FormState } from "@/core/types";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import Customer from "@/core/models/domain/Customer"
 import CustomerEditForm from "../forms/customereditform";
+import { CopyIcon } from "lucide-react";
 
 
 interface DataTableProps {
@@ -45,7 +46,7 @@ export default function CustomerTable({
       header: "Id",
       cell: ({ row }) => {
         return <div>
-          {String(row.getValue("id")).substring(0, 8)}
+          {String(row.getValue("id")).substring(0, 8)} <CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} />
         </div>
       }
     },

@@ -11,10 +11,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
             <div className="flex flex-row place-content-between items-end">
                 <div className="text-[18pt] font-bold">RECEIPT</div>
             </div>
-            <div className="text-[12pt]">
-                Customer: {reservation.customers?.reduce((acc, c) => acc + (acc ? ", " : "") + (c.englishName && c.englishName?.trim() !== "" ? c.englishName : c.name), "")}
-            </div>
-            <div>
+            <div className="w-full h-[70vh] overflow-x-auto">
                 <table className={`w-full text-[10pt]`}>
                     <thead>
                         <tr className={`border ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`}>
@@ -33,15 +30,41 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                             const charges = [];
                             const roomRate = reservation.prepaidPackageId ? charge.seasonSurcharge : charge.roomRate;
 
-                            charges.push(<tr key={`${index}-room`} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
-                                <td className="p-2">Room Charge - {charge.roomNo}</td>
-                                <td className="text-right">{charge.startDate.toISOFormatDateString()}</td>
-                                <td className="text-right">{charge.endDate.toISOFormatDateString()}</td>
-                                <td className="text-right">{formatter.format(roomRate)}</td>
-                                <td className="p-2 text-center">{reservation.noOfGuests}</td>
-                                <td className="text-center">{charge.noOfDays}</td>
-                                <td className="text-right p-1 p-2">{formatter.format(charge.noOfDays * reservation.noOfGuests * roomRate)}</td>
-                            </tr>);
+                            if (charge.roomRate > 0) {
+                                charges.push(<tr key={`${index}-room`} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
+                                    <td className="p-2">Room Charge - {charge.roomNo}</td>
+                                    <td className="text-right">{charge.startDate.toISOFormatDateString()}</td>
+                                    <td className="text-right">{charge.endDate.toISOFormatDateString()}</td>
+                                    <td className="text-right">{formatter.format(charge.roomRate)}</td>
+                                    <td className="p-2 text-center">{reservation.noOfGuests}</td>
+                                    <td className="text-center">{charge.noOfDays}</td>
+                                    <td className="text-right p-1 p-2">{formatter.format(charge.noOfDays * charge.roomRate * reservation.noOfGuests)}</td>
+                                </tr>);
+                            }
+
+                            if (charge.seasonSurcharge > 0) {
+                                charges.push(<tr key={`${index}-season`} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
+                                    <td className="p-2">Room (Season Extra Charge) - {charge.roomNo}</td>
+                                    <td className="text-right">{charge.startDate.toISOFormatDateString()}</td>
+                                    <td className="text-right">{charge.endDate.toISOFormatDateString()}</td>
+                                    <td className="text-right">{formatter.format(charge.seasonSurcharge)}</td>
+                                    <td className="p-2 text-center">{reservation.noOfGuests}</td>
+                                    <td className="text-center">{charge.noOfDays}</td>
+                                    <td className="text-right p-1 p-2">{formatter.format(charge.noOfDays * charge.seasonSurcharge * reservation.noOfGuests)}</td>
+                                </tr>);
+                            }
+
+                            if (charge.roomSurcharge > 0) {
+                                charges.push(<tr key={`${index}-room-extra`} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
+                                    <td className="p-2">Room Extra Charge - {charge.roomNo}</td>
+                                    <td className="text-right">{charge.startDate.toISOFormatDateString()}</td>
+                                    <td className="text-right">{charge.endDate.toISOFormatDateString()}</td>
+                                    <td className="text-right">{formatter.format(charge.roomSurcharge)}</td>
+                                    <td className="p-2 text-center">{reservation.noOfGuests}</td>
+                                    <td className="text-center">{charge.noOfDays}</td>
+                                    <td className="text-right p-1 p-2">{formatter.format(charge.noOfDays * charge.roomSurcharge * reservation.noOfGuests)}</td>
+                                </tr>);
+                            }
 
                             if (charge.singleRate > 0) {
                                 charges.push(<tr key={`${index}-single`} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
@@ -52,18 +75,6 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                                     <td className="p-2 text-center">{reservation.noOfGuests}</td>
                                     <td className="text-center">{charge.noOfDays}</td>
                                     <td className="text-right p-1 p-2">{formatter.format(charge.noOfDays * charge.singleRate)}</td>
-                                </tr>);
-                            }
-
-                            if (charge.roomSurcharge > 0) {
-                                charges.push(<tr key={`${index}-extra`} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
-                                    <td className="p-2">Room Extra Charge - {charge.roomNo}</td>
-                                    <td className="text-right">{charge.startDate.toISOFormatDateString()}</td>
-                                    <td className="text-right">{charge.endDate.toISOFormatDateString()}</td>
-                                    <td className="text-right">{formatter.format(charge.roomSurcharge)}</td>
-                                    <td className="p-2 text-center">{reservation.noOfGuests}</td>
-                                    <td className="text-center">{charge.noOfDays}</td>
-                                    <td className="text-right p-1 p-2">{formatter.format(charge.noOfDays * charge.roomSurcharge)}</td>
                                 </tr>);
                             }
 

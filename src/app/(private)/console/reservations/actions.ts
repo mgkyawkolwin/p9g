@@ -274,7 +274,8 @@ export async function paymentsGet(id: string): Promise<FormState> {
       c.e(result.message);
       return { error: true, message: `Failed to get bills. ${result.message}`, data: null, formData: null };
     }
-    c.d(result.bills?.length);
+    c.d(result.payments?.length);
+    c.d(result.payments?.length > 0 ? result.payments[0] : []);
     //update user success
     c.fe('Actions > paymentsGet');
     return { error: false, message: "", data: result.payments, formData: null };

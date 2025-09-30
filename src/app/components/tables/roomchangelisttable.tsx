@@ -12,6 +12,7 @@ import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcus
 import { moveRoom } from "@/app/(private)/console/roomchange/actions";
 import { toast } from "sonner";
 import SimpleDataTable from "../../../lib/components/web/react/uicustom/simpledatatable";
+import { CopyIcon } from "lucide-react";
 
 
 interface DataTableProps {
@@ -39,6 +40,7 @@ export default function RoomChangeListTable({
     {
       accessorKey: "reservationId",
       header: "Reservation Id",
+      cell: ({row}) => <div>{row.getValue("reservationId")}&nbsp;&nbsp;&nbsp;{row.getValue("reservationId") && <CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} />}</div>
     },
     {
       accessorKey: "checkInDate",
@@ -64,7 +66,8 @@ export default function RoomChangeListTable({
       cell: ({ row }) => {
         return <div className="flex gap-1">
           <ButtonCustom type="button" variant={"black"} size={"sm"} 
-          disabled={!row.original.reservations || row.original.reservations.length <= 0}
+          //disabled={!row.original.reservations || row.original.reservations.length <= 0}
+          disabled
           onClick={() => {
             setReservationId(row.original.reservations[0].id);
             setOpenMoveRoomDialog(true);

@@ -16,6 +16,8 @@ import Payment from "@/core/models/domain/Payment";
 import Reservation from "@/core/models/domain/Reservation";
 import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
 import SessionUser from "@/core/models/dto/SessionUser";
+import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
+import RoomCharge from "@/core/models/domain/RoomCharge";
 
 
 @injectable()
@@ -394,6 +396,100 @@ export default class ReportRepository implements IReportRepository {
         c.d(reports?.length);
         c.d(reports?.length > 0 ? reports[0] : []);
         c.fe("Repository > getDailySummaryPersonReport");
+        return reports;
+    }
+
+
+    async getDailyReservationDetailReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailyReservationDetailReportRow[]> {
+        c.fs("Repository > getDailyReservationDetailReport");
+        c.d(startDate);
+        c.d(endDate);
+
+        const reports: DailyReservationDetailReportRow[] = [];
+        const dateRanges = getDateRange(startDate, endDate);
+        c.d(dateRanges);
+        if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
+
+        c.i('Generating report.');
+        for (const dr of dateRanges) {
+            const start: Date = new Date(dr);
+            const report = new DailyReservationDetailReportRow();
+            report.date = start;
+
+            c.i('Retrieve reservation');
+            const reservations = await this.dbClient.db.query.reservationTable.findMany({
+                with: {
+                    reservationType: true,
+                    reservationCustomers: {
+                        with: {
+                            customer: true
+                        }
+                    },
+                    roomCharges: true
+                },
+                where: and(
+                    eq(reservationTable.checkInDate, start),
+                    eq(reservationTable.location, sessionUser.location)
+                ),
+            });
+
+            reservations.forEach(r => {
+                const rep = new DailyReservationDetailReportRow();
+                rep.date = start;
+                rep.reservationId = r.id;
+                rep.roomNo = r.roomNo;
+                rep.customerNames = r.reservationCustomers.map(rc => rc.customer.name).join(", ");
+                rep.customerPhones = r.reservationCustomers.map(rc => rc.customer.phone).join(", ");
+                rep.checkInDate = r.checkInDate;
+                rep.checkOutDate = r.checkOutDate;
+                rep.noOfDays = r.noOfDays;
+                rep.noOfGuests = r.noOfGuests;
+                rep.reservationType = r.reservationType.text;
+                rep.arrivalDateTime = r.arrivalDateTime;
+                rep.arrivalFlight = r.arrivalFlight;
+                rep.departureDateTime = r.departureDateTime;
+                rep.departureFlight = r.departureFlight;
+                rep.totalAmount = Number(r.totalAmount ?? 0);
+                rep.paidAmount = Number(r.paidAmount ?? 0);
+                rep.depositAmount = Number(r.depositAmount ?? 0);
+                rep.discountAmount = Number(r.discountAmount ?? 0);
+                rep.taxAmount = Number(r.taxAmount ?? 0);
+                rep.netAmount = Number(r.netAmount ?? 0);
+
+                r.bills?.forEach((b: Bill) => {
+                    if (b.paymentType === 'PICKUP') {
+                        if(b.currency === 'KWR') {
+                            rep.pickUpFeeKWR = Number(b.amount ?? 0);
+                        } else if(b.currency === 'MMK') {
+                            rep.pickUpFeeMMK = Number(b.amount ?? 0);
+                        } else if(b.currency === 'THB') {
+                            rep.pickUpFeeTHB = Number(b.amount ?? 0);
+                        } else if(b.currency === 'USD') {
+                            rep.pickUpFeeUSD = Number(b.amount ?? 0);
+                        }
+                    } else if (b.paymentType === 'DROPOFF') {
+                        if(b.currency === 'KWR') {
+                            rep.dropOffFeeKWR = Number(b.amount ?? 0);
+                        } else if(b.currency === 'MMK') {
+                            rep.dropOffFeeMMK = Number(b.amount ?? 0);
+                        } else if(b.currency === 'THB') {
+                            rep.dropOffFeeTHB = Number(b.amount ?? 0);
+                        } else if(b.currency === 'USD') {
+                            rep.dropOffFeeUSD = Number(b.amount ?? 0);
+                        }
+                    }
+                });
+
+                r.roomCharges?.forEach((rc: RoomCharge) => {
+                    rep.singleChargeAmount = rep.singleChargeAmount + Number(rc.singleRate * rc.noOfDays);
+                    rep.extraChargeAmount = Number(rep.extraChargeAmount) + Number(rc.roomSurcharge * rc.noOfDays * r.noOfGuests);
+                });
+                reports.push(rep);
+            });
+        };
+        c.d(reports?.length);
+        c.d(reports?.length > 0 ? reports[0] : []);
+        c.fe("Repository > getDailyReservationDetailReport");
         return reports;
     }
 }

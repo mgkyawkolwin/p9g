@@ -76,6 +76,7 @@ export function MainMenu() {
                 <li><a href="/console/reports/dailysummaryperson" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Person)</a></li>
                 <li><a href="/console/reports/dailysummaryguestsrooms" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Guests & Rooms)</a></li>
                 <li><a href="/console/reports/dailysummaryincome" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Income)</a></li>
+                <li><a href="/console/reports/dailyreservationdetail" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Reservation Detail</a></li>
               </ul>
             </div>
           </li>

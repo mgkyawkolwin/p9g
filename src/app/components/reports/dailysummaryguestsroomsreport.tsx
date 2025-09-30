@@ -1,5 +1,8 @@
 import DailySummaryGuestsRoomsReportRow from "@/core/models/dto/reports/DailySummaryGuestsRoomsReportrow";
 import { Theme } from "@/core/constants";
+import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
+import React from "react";
+import * as XSLX from "xlsx";
 
 export default function DailySummaryGuestsRoomsReport({ reportRows }: { reportRows: DailySummaryGuestsRoomsReportRow[] }) {
     const formatter = new Intl.NumberFormat('en-US', {
@@ -10,14 +13,23 @@ export default function DailySummaryGuestsRoomsReport({ reportRows }: { reportRo
     let totalGuestCheckOut = 0;
     let totalRoomCheckIn = 0;
     let totalRoomCheckOut = 0;
+    const reportRef = React.useRef(null);
 
     return (
         <div className="flex flex-col w-full gap-4">
             <div className="text-center text-[18pt]">
+                <ButtonCustom variant="green" size="sm" className="float-left" onClick={() => {
+                    if(reportRef.current){
+                        const ws = XSLX.utils.table_to_sheet(reportRef.current);
+                        const wb = XSLX.utils.book_new();
+                        XSLX.utils.book_append_sheet(wb, ws, "DailySummaryGurstsRoomsReport");
+                        XSLX.writeFile(wb, `DailySummaryGurstsRoomsReport_${new Date().toISOString().substring(0,10)}.xlsx`);
+                    }
+                }}>Download Excel</ButtonCustom>
                 Daily Summary Report (Guests & Rooms)
             </div>
             <div>
-                <table className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>
+                <table ref={reportRef} className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>
                     <thead>
                         <tr className={`border ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder}`}>
                             <th className="p-2">No</th>
