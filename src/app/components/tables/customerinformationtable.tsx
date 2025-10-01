@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Button } from "@/lib/components/web/react/ui/button"
-import { ArrowUpDown } from "lucide-react"
+import { ArrowUpDown, CopyIcon } from "lucide-react"
 
 import {
   ColumnDef
@@ -10,6 +10,7 @@ import {
 import SimpleDataTable from "../../../lib/components/web/react/uicustom/simpledatatable";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import Customer from "@/core/models/domain/Customer";
+import CustomerEditForm from "../forms/customereditform";
 
 
 interface DataTableProps {
@@ -26,10 +27,10 @@ export default function CustomerInformationTable({
     {
       accessorKey: "id",
       header: "Guest ID",
-      cell: ({row}) => {
+      cell: ({ row }) => {
         return (
           <div>
-            {row.getValue('id')}
+            {String(row.getValue("id")).substring(0, 8)} <CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} />
           </div>
         );
       }
@@ -43,6 +44,20 @@ export default function CustomerInformationTable({
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             Name
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+    },
+    {
+      accessorKey: "englishName",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            English Name
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
@@ -139,7 +154,11 @@ export default function CustomerInformationTable({
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => {
-        return <div>
+        return <div className="flex gap-2">
+          <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={(e) => {
+            openCallbackFunc.current?.setEditCustomer(row.original);
+            openCallbackFunc.current?.openDialog(true);
+          }}>Edit</ButtonCustom>
           <ButtonCustom variant={"red"} size={"sm"} onClick={() => {
             setData(data.filter((customer, index, array) => index !== row.index));
           }}>Remove</ButtonCustom>
@@ -148,9 +167,16 @@ export default function CustomerInformationTable({
     },
   ];
 
+  const openCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void, setEditCustomer: (customer: Customer) => void } | undefined>(undefined);
+
+  const handleCustomerSaved = (customer: Customer) => {
+      setData(prev => [...prev.filter(p => p.id !== customer.id), customer]);
+    };
+
   return (
     <div className="flex w-full">
       <SimpleDataTable columns={columns} data={data ?? []} />
+      <CustomerEditForm openCallback={(func) => openCallbackFunc.current = func} onSaved={handleCustomerSaved} />
     </div>
   )
 }

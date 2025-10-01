@@ -59,7 +59,7 @@ export default function CustomerEditForm({ onSaved, openCallback }: CustomerEdit
                                 toast(result.message);
                             }else{
                                 if(onSaved)
-                                    onSaved(result.data);
+                                    onSaved(customer);
                                 setOpen(false);
                             }
                         }} >Update Customer</ButtonCustom>

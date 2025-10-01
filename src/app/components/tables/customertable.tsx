@@ -46,7 +46,7 @@ export default function CustomerTable({
       header: "Id",
       cell: ({ row }) => {
         return <div>
-          {String(row.getValue("id")).substring(0, 8)} <CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} />
+          {String(row.getValue("id")).substring(0, 8)} <CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.getValue("id"))} />
         </div>
       }
     },
