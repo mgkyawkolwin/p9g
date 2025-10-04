@@ -19,18 +19,18 @@ const getColorForUUID = (uuid: string) => {
 };
 
 // Helper function to clamp dates to current month
-const clampReservationToMonth = (res: RoomReservation, month: Date) : RoomReservation & {startDate:Date, endDate:Date} => {
+const clampReservationToMonth = (rr: RoomReservation, month: Date): RoomReservation & { startDate: Date, endDate: Date } => {
   const monthStart = new Date(month.getFullYear(), month.getMonth(), 1);
   const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0);
-  
+
   return {
-    ...res,
+    ...rr,
     startDate: new Date(Math.max(
-      new Date(res.checkInDate!).getTime(), 
+      new Date(rr.checkInDate!).getTime(),
       monthStart.getTime()
     )),
     endDate: new Date(Math.min(
-      new Date(res.checkOutDate!).getTime(), 
+      new Date(rr.checkOutDate!).getTime(),
       monthEnd.getTime()
     ))
   };
@@ -38,8 +38,8 @@ const clampReservationToMonth = (res: RoomReservation, month: Date) : RoomReserv
 
 export default function ScheduleFlexGrid({ rooms, month }: { rooms: Room[]; month: Date | undefined }) {
 
-  if(!rooms || !month) return 'Loading...';
-  
+  if (!rooms || !month) return 'No Data ...';
+
 
   const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
@@ -47,29 +47,28 @@ export default function ScheduleFlexGrid({ rooms, month }: { rooms: Room[]; mont
   // Process all room data in one memo
   const processedRooms = rooms?.map(room => {
     // Clone reservations and clamp to current month
-    const monthRoomReservations = room.roomReservations?.map(res => 
-      clampReservationToMonth(res, month)) ?? [];
-      // //.filter((res : Reservation & any) => 
-      //   new Date(res.startDate) <= new Date(res.endDate)
-      // ) || [];
+    const monthRoomReservations = room.roomReservations?.map(rr => clampReservationToMonth(rr, month)) ?? [];
+    // //.filter((res : Reservation & any) => 
+    //   new Date(res.startDate) <= new Date(res.endDate)
+    // ) || [];
 
     // Sort and process spans
-    const spans: { day: number; colSpan: number; res: RoomReservation | null }[] = [];
+    const spans: { day: number; colSpan: number; rr: RoomReservation | null }[] = [];
     let currentDay = 1;
 
     const sortedRoomReservations = ([...monthRoomReservations]).sort(
       (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
     );
 
-    for (const res of sortedRoomReservations) {
-      const checkInDay = new Date(res.startDate).getDate();
-      const checkOutDay = new Date(res.endDate).getDate();
+    for (const rr of sortedRoomReservations) {
+      const checkInDay = new Date(rr.startDate).getDate();
+      const checkOutDay = new Date(rr.endDate).getDate();
 
       if (currentDay < checkInDay) {
         spans.push({
           day: currentDay,
           colSpan: checkInDay - currentDay,
-          res: null
+          rr: null
         });
         currentDay = checkInDay;
       }
@@ -77,7 +76,7 @@ export default function ScheduleFlexGrid({ rooms, month }: { rooms: Room[]; mont
       spans.push({
         day: currentDay,
         colSpan: checkOutDay - checkInDay + 1,
-        res
+        rr: rr
       });
       currentDay = checkOutDay + 1;
     }
@@ -86,7 +85,7 @@ export default function ScheduleFlexGrid({ rooms, month }: { rooms: Room[]; mont
       spans.push({
         day: currentDay,
         colSpan: daysInMonth - currentDay + 1,
-        res: null
+        rr: null
       });
     }
 
@@ -117,15 +116,15 @@ export default function ScheduleFlexGrid({ rooms, month }: { rooms: Room[]; mont
             {spans.map((span, index) => (
               <div
                 key={`${room.id}-${span.day}-${index}`}
-                className={`h-10 ${span.res ? `${getColorForUUID(span.res.id)} rounded-lg mx-px` : `${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadText}`}`}
+                className={`h-10 ${span.rr ? `${getColorForUUID(span.rr.id)} rounded-lg mx-px` : `${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadText}`}`}
                 style={{ flex: `${span.colSpan} 0 0` }}
-                title={span.res ? `[${new Date(span.res.checkInDate!).toLocaleDateString('sv-SE')}] - [${new Date(span.res.checkOutDate!).toLocaleDateString('sv-SE')}]\n${span.res.reservationId}` : ''}
-                onClick={() => {navigator.clipboard.writeText(span.res.reservationId || '')}}
+                title={span.rr ? `[${new Date(span.rr.checkInDate!).toLocaleDateString('sv-SE')}] - [${new Date(span.rr.checkOutDate!).toLocaleDateString('sv-SE')}]\n${span.rr.reservationId}` : ''}
+                onClick={() => { navigator.clipboard.writeText(span.rr.reservationId || '') }}
               >
-                {span.res && (
+                {span.rr && (
                   <div className="relative w-full h-full">
                     <div className="absolute z-10 hidden group-hover:block px-2 py-1 text-xs bg-gray-800 text-white rounded whitespace-nowrap -top-8">
-                      {span.res.reservationId}
+                      {span.rr.reservationId}
                     </div>
                   </div>
                 )}

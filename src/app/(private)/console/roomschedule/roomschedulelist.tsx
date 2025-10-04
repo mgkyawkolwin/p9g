@@ -11,14 +11,14 @@ import ScheduleFlexGrid from "@/lib/components/web/react/uicustom/scheduleflexgr
 import { SelectWithLabel } from "@/lib/components/web/react/uicustom/selectwithlabel";
 import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
 import { SelectList } from "@/core/constants";
-import { getUTCCurrentMonthFirstDate, getCurrentMonthLastDate, getUTCFirstDate, getUTCLastDate } from "@/lib/utils";
+import { getUTCCurrentMonthFirstDate, getUTCCurrentMonthLastDate, getUTCFirstDate, getUTCLastDate } from "@/lib/utils";
 
 export default function RoomScheduleList() {
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
   const [dateFrom, setDateFrom] = React.useState(getUTCCurrentMonthFirstDate().toISOString());
-  const [dateTo, setDateTo] = React.useState(getCurrentMonthLastDate().toISOString());
+  const [dateTo, setDateTo] = React.useState(getUTCCurrentMonthLastDate().toISOString());
   const [month, setMonth] = React.useState(String(new Date().getMonth()));
   const [year, setYear] = React.useState(String(new Date().getFullYear())); 
   const [submit, setSubmit] = React.useState(false);

@@ -506,6 +506,8 @@ export default class ReservationService implements IReservationService {
             throw new Error('Reservation update failed. Reservation is required.');
         }
 
+        let reCalculate = false;
+
         c.i('Preparing reservation to update');
         reservation.updatedBy = sessionUser.id;
         reservation.updatedAtUTC = new Date();
@@ -589,7 +591,25 @@ export default class ReservationService implements IReservationService {
 
 
             const room = await this.roomRepository.findOne(eq("roomNo", reservation.roomNo));
-            if (room && reservation.roomNo && originalReservation.roomNo !== reservation.roomNo) {
+            if (room && reservation.roomNo && originalReservation.roomNo !== reservation.roomNo)
+                reCalculate = true;
+            else if (reservation.checkInDate.getTime() !== originalReservation.checkInDate.getTime())
+                reCalculate = true;
+            else if (reservation.checkOutDate.getTime() !== originalReservation.checkOutDate.getTime())
+                reCalculate = true;
+            else if (reservation.isSingleOccupancy !== originalReservation.isSingleOccupancy)
+                reCalculate = true;
+            else if(reservation.noOfGuests !== originalReservation.noOfGuests)
+                reCalculate = true;
+            else if(reservation.reservationTypeId !== originalReservation.reservationTypeId)
+                reCalculate = true;
+            else if(reservation.prepaidPackageId !== originalReservation.prepaidPackageId)
+                reCalculate = true;
+            else if(reservation.promotionPackageId !== originalReservation.promotionPackageId)
+                reCalculate = true;
+
+
+            if (reservation.roomNo && reCalculate) {
 
                 c.i('vital changed, delete all room reservations and room charges');
                 await this.roomReservationRepository.deleteWhere(eq("reservationId", reservation.id), tx as any);

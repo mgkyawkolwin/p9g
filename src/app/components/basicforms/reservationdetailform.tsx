@@ -1,7 +1,7 @@
 'use client';
 
 import { SelectList, SelectListForm } from "@/core/constants";
-import { getCheckInDate, getCheckOutDate } from "@/core/helpers";
+import { getUTCCheckInDate, getUTCCheckOutDate } from "@/core/helpers";
 import Reservation from "@/core/models/domain/Reservation";
 import { Label } from "@/lib/components/web/react/ui/label";
 import {
@@ -128,10 +128,10 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         <div className="flex flex-col gap-2">
                             <Label className="text-[10pt]">Arrival Date/Time</Label>
                             <DatePicker
-                                selected={reservation?.arrivalDateTime ? reservation?.arrivalDateTime.convertToFakeLocalDate() : null}
+                                selected={reservation?.arrivalDateTime ? reservation?.arrivalDateTime.getUTCDateTimeAsLocalDateTime() : null}
                                 onChange={(date: Date | null) => {
                                     if (date && reservation?.checkOutDate) {
-                                        const days = calculateDayDifference(getCheckInDate(date.convertToFakeLocalDate()), reservation.checkOutDate);
+                                        const days = calculateDayDifference(getUTCCheckInDate(date.getLocalDateTimeAsUTCDateTime()), reservation.checkOutDate);
                                         calculateDiscount({noOfDays:days});
                                         setReservation(prev => ({ ...prev, noOfDays: days < 0 ? 0 : days }));
                                     }else{
@@ -139,8 +139,8 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                     }
                                     setReservation(prev => ({
                                         ...prev,
-                                        arrivalDateTime: date ? date.convertToUTCFromFakeLocalDateTime() : undefined,
-                                        checkInDate: date ? getCheckInDate(date.convertToUTCFromFakeLocalDateTime()) : undefined
+                                        arrivalDateTime: date ? date.getLocalDateTimeAsUTCDateTime() : undefined,
+                                        checkInDate: date ? getUTCCheckInDate(date.getLocalDateTimeAsUTCDateTime()) : undefined
                                     }));
                                 }}
 
@@ -163,10 +163,10 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         <div className="flex flex-col gap-2">
                             <Label className="text-[10pt]">Departure Date/Time</Label>
                             <DatePicker
-                                selected={reservation?.departureDateTime ? reservation?.departureDateTime.convertToFakeLocalDate() : null}
+                                selected={reservation?.departureDateTime ? reservation?.departureDateTime.getUTCDateTimeAsLocalDateTime() : null}
                                 onChange={(date: Date | null) => {
                                     if (date && reservation.checkInDate) {
-                                        const days = calculateDayDifference(reservation.checkInDate, getCheckOutDate(date.convertToFakeLocalDate()));
+                                        const days = calculateDayDifference(reservation.checkInDate, getUTCCheckOutDate(date.getLocalDateTimeAsUTCDateTime()));
                                         calculateDiscount({noOfDays:days});
                                         setReservation(prev => ({ ...prev, noOfDays: days < 0 ? 0 : days }));
                                     }else{
@@ -174,8 +174,8 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                     }
                                     setReservation(prev => ({
                                         ...prev,
-                                        departureDateTime: date ? date.convertToUTCFromFakeLocalDateTime() : undefined,
-                                        checkOutDate: date ? getCheckOutDate(date.convertToUTCFromFakeLocalDateTime()) : undefined
+                                        departureDateTime: date ? date.getLocalDateTimeAsUTCDateTime() : undefined,
+                                        checkOutDate: date ? getUTCCheckOutDate(date.getLocalDateTimeAsUTCDateTime()) : undefined
                                     }));
                                     
                                 }}
@@ -199,10 +199,10 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         <div className="flex flex-col gap-2">
                             <Label className="text-[10pt]">Check-in</Label>
                             <DatePicker
-                                selected={reservation?.checkInDate ? reservation?.checkInDate.convertToFakeLocalDate() : null}
+                                selected={reservation?.checkInDate ? reservation?.checkInDate.getUTCDateTimeAsLocalDateTime() : null}
                                 onChange={(date: Date | null) => {
                                     if (date && reservation?.checkOutDate) {
-                                        const days = calculateDayDifference(date.convertToUTCFromFakeLocalDate(), reservation.checkOutDate);
+                                        const days = calculateDayDifference(date.getLocalDateAsUTCDate(), reservation.checkOutDate);
                                         calculateDiscount({noOfDays:days});
                                         setReservation(prev => ({ ...prev, noOfDays: days < 0 ? 0 : days }));
                                     }else{
@@ -210,7 +210,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                     }
                                     setReservation(prev => ({
                                         ...prev,
-                                        checkInDate: date ? date.convertToUTCFromFakeLocalDate() : undefined
+                                        checkInDate: date ? date.getLocalDateAsUTCDate() : undefined
                                     }));
                                     
                                 }}
@@ -224,10 +224,10 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                         <div className="flex flex-col gap-2">
                             <Label className="text-[10pt]">Check-out</Label>
                             <DatePicker
-                                selected={reservation?.checkOutDate ? reservation?.checkOutDate.convertToFakeLocalDate() : null}
+                                selected={reservation?.checkOutDate ? reservation?.checkOutDate.getUTCDateTimeAsLocalDateTime() : null}
                                 onChange={(date: Date | null) => {
                                     if (date && reservation?.checkInDate) {
-                                        const days = calculateDayDifference(reservation.checkInDate, date.convertToUTCFromFakeLocalDate());
+                                        const days = calculateDayDifference(reservation.checkInDate, date.getLocalDateAsUTCDate());
                                         calculateDiscount({noOfDays:days});
                                         setReservation(prev => ({ ...prev, noOfDays: days < 0 ? 0 : days }));
                                     }else{
@@ -235,7 +235,7 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                     }
                                     setReservation(prev => ({
                                         ...prev,
-                                        checkOutDate: date ? date.convertToUTCFromFakeLocalDate() : undefined
+                                        checkOutDate: date ? date.getLocalDateAsUTCDate() : undefined
                                     }));
                                     
                                 }}

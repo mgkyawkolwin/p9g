@@ -5,7 +5,7 @@ import type { IDatabaseClient } from "@/lib/db/IDatabase";
 import { PagerParams, SearchFormFields, SearchParam, TYPES } from "@/core/types";
 import { Repository } from "../../../lib/repositories/drizzle/Repository";
 import c from "@/lib/loggers/console/ConsoleLogger";
-import { SQL, and, count, asc, desc, eq, ne, gte, between, lte, or, like, isNull, sum, lt, gt } from "drizzle-orm";
+import { SQL, and, count, asc, desc, eq, ne, gte, between, lte, or, like, isNull, sum, lt, gt, getTableColumns, not, isNotNull } from "drizzle-orm";
 import Reservation from "@/core/models/domain/Reservation";
 import { TransactionType } from "@/core/db/mysql/MySqlDatabase";
 import { alias } from "drizzle-orm/mysql-core";
@@ -41,7 +41,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         @inject(TYPES.IMapper) protected readonly mapper: IMapper,
         @inject(TYPES.IQueryTransformer) protected readonly transformer: IQueryTranformer
     ) {
-        super(dbClient, reservationTable, {...reservationTable}, (q) => q, mapper, Reservation, ReservationEntity, transformer);
+        super(dbClient, reservationTable, { ...reservationTable }, (q) => q, mapper, Reservation, ReservationEntity, transformer);
     }
 
 
@@ -265,8 +265,8 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             }
             if (searchFormFields.searchExistingReservations) {
                 const [config] = await this.dbClient.db.select().from(configTable)
-                .where(and(eq(configTable.group, ConfigGroup.RESERVATION_STATUS), eq(configTable.value, 'CCL'))).limit(1);
-                if(!config) throw new CustomError('Reservation repository cannot find config');
+                    .where(and(eq(configTable.group, ConfigGroup.RESERVATION_STATUS), eq(configTable.value, 'CCL'))).limit(1);
+                if (!config) throw new CustomError('Reservation repository cannot find config');
                 conditions.push(
                     and(
                         lt(reservationTable.checkInDate, new Date(searchFormFields.searchExistingReservations)),
@@ -349,36 +349,57 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 checkInDate: roomReservationTable.checkInDate,
                 checkOutDate: roomReservationTable.checkOutDate,
                 noOfDays: reservationTable.noOfDays,
-                noOfGuests: reservationTable.noOfGuests
+                noOfGuests: reservationTable.noOfGuests,
+                customer: customerTable
             })
             .from(roomTable)
             .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomTable.roomTypeId))
             .leftJoin(roomReservationTable,
                 and(
-                        eq(roomReservationTable.roomId, roomTable.id),
+                    eq(roomReservationTable.roomId, roomTable.id),
+                    and(
                         lte(roomReservationTable.checkInDate, new Date(searchFormFields.date)),
                         gte(roomReservationTable.checkOutDate, new Date(searchFormFields.date))
                     )
+                )
             )
             .leftJoin(reservationTable,
-                eq(reservationTable.id, roomReservationTable.reservationId)
-            )
-            .leftJoin(configTable, or(
                 and(
-                    eq(configTable.id, reservationTable.reservationStatusId),
-                    ne(configTable.value, 'CCL')
+                    eq(reservationTable.id, roomReservationTable.reservationId),
+                    eq(reservationTable.location, sessionUser.location),
+                    ne(reservationTable.reservationStatusId, 'f705afcd-58be-11f0-ad6b-b88d122a4ff4')
                 )
-            ))
-            .where(eq(roomTable.location, sessionUser.location))
-            .orderBy(asc(roomTypeTable.roomType), asc(roomTable.roomNo));
+            )
+            .leftJoin(reservationCustomerTable, eq(reservationCustomerTable.reservationId, reservationTable.id))
+            .leftJoin(customerTable, eq(customerTable.id, reservationCustomerTable.customerId))
+            .where(
+                eq(roomTable.location, sessionUser.location)
+            ).orderBy(asc(roomTypeTable.roomTypeText), asc(roomTable.roomNo));
 
         c.d(dataQuery.toSQL());
         const dataQueryResult = await dataQuery;
 
         c.d(dataQueryResult.length);
         c.d(dataQueryResult.length > 0 ? dataQueryResult[0] : []);
+        dataQueryResult.forEach(d => {
+            if (d.customers) { console.log(d.customers) }
+        });
 
-        const roomReservations = dataQueryResult.map( d => this.mapper.map(d, RoomReservationDto));
+        const roomReservations = dataQueryResult.reduce((acc: RoomReservationDto[], row) => {
+            let room = acc.find(r => r.roomNo === row.roomNo && r.reservationId === row.reservationId);
+
+            if (!room) {
+                room = row;
+                acc.push(room);
+                room.customers = [];
+            }
+
+            if (row.customer) {
+                room.customers.push(row.customer);
+            }
+
+            return acc;
+        }, [] as RoomReservationDto[])
 
         c.fe('ReservationRepository > roomAndReservationGetList');
         return roomReservations;
@@ -613,57 +634,41 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         start = new Date(searchFormFields.searchCheckInDateFrom);
         end = new Date(searchFormFields.searchCheckInDateUntil);
 
-
         const dataQuery = this.dbClient.db
-            .select()
+            .select({
+                room: roomTable,
+                reservation: reservationTable,
+                roomReservation: roomReservationTable
+            })
             .from(roomTable)
             .leftJoin(roomReservationTable,
-                or(
-                    and(
-                        eq(roomReservationTable.roomId, roomTable.id),
-                        or(
-                            between(roomReservationTable.checkInDate, start!, end!),
-                            between(roomReservationTable.checkOutDate, start!, end!),
-                            and(
-                                lte(roomReservationTable.checkInDate, start!),
-                                gte(roomReservationTable.checkOutDate, end!)
-                            )
+                and(
+                    eq(roomReservationTable.roomId, roomTable.id),
+                    or(
+                        between(roomReservationTable.checkInDate, start!, end!),
+                        between(roomReservationTable.checkOutDate, start!, end!),
+                        and(
+                            lte(roomReservationTable.checkInDate, start!),
+                            gte(roomReservationTable.checkOutDate, end!)
                         )
-                    ),
-                    isNull(roomReservationTable.id)
+                    )
                 )
             )
             .leftJoin(reservationTable,
-                or(
-                    and(
-                        eq(reservationTable.id, roomReservationTable.reservationId),
-                        or(
-                            between(reservationTable.checkInDate, start!, end!),
-                            between(reservationTable.checkOutDate, start!, end!),
-                            and(
-                                lte(reservationTable.checkInDate, start!),
-                                gte(reservationTable.checkOutDate, end!)
-                            )
-                        )
-                    ),
-                    isNull(reservationTable.id)
+                and(
+                    eq(reservationTable.id, roomReservationTable.reservationId),
+                    eq(reservationTable.location, sessionUser.location),
+                    ne(reservationTable.reservationStatusId, 'f705afcd-58be-11f0-ad6b-b88d122a4ff4')
                 )
             )
-            .innerJoin(configTable, or(
-                and(
-                    eq(configTable.id, reservationTable.reservationStatusId),
-                    ne(configTable.value, 'CCL')
-                ),
-                isNull(configTable.id)
-            ))
-            .where(and(
-                eq(reservationTable.location, sessionUser.location),
+            .where(
                 eq(roomTable.location, sessionUser.location)
-            ));
+            );
 
-        //c.d(dataQuery.toSQL());
+        c.d(dataQuery.toSQL());
         const dataQueryResult = await dataQuery;
         c.d(dataQueryResult?.length);
+        c.d(dataQueryResult?.length > 0 ? dataQueryResult[0] : []);
 
         const rooms = dataQueryResult?.reduce((acc: Room[], current: any) => {
             const { room, roomReservation, reservation } = current;
@@ -674,10 +679,13 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 currentRoom!.roomReservations = [];
                 acc.push(currentRoom!);
             }
-            if (reservation)
+            if (reservation) {
                 currentRoom?.reservations?.push(reservation);
-            if (roomReservation)
-                currentRoom?.roomReservations?.push(roomReservation);
+                //only push room reservation if there is a reservation
+                if (roomReservation)
+                    currentRoom?.roomReservations?.push(roomReservation);
+            }
+
 
             return acc;
         }, [] as Room[]);

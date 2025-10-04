@@ -1,9 +1,9 @@
 declare global {
 
   interface Date {
-    convertToFakeLocalDate(): Date,
-    convertToUTCFromFakeLocalDate(): Date,
-    convertToUTCFromFakeLocalDateTime(): Date,
+    getUTCDateTimeAsLocalDateTime(): Date,
+    getLocalDateAsUTCDate(): Date,
+    getLocalDateTimeAsUTCDateTime(): Date,
     toISOFormatDateString(): string;
     toISODateTimeDisplayString(): string;
     toISOFormatDateTimeString(): string;

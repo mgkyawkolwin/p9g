@@ -63,7 +63,7 @@ export function getUTCCurrentMonthFirstDate(): Date{
  * Get the last date of the current month at time 23:59:59.999
  * @returns 
  */
-export function getCurrentMonthLastDate(): Date{
+export function getUTCCurrentMonthLastDate(): Date{
   const today = new Date();
   return new Date(Date.UTC(today.getFullYear(), today.getMonth() + 1, 0,23,59,59,999));
 }
@@ -74,7 +74,7 @@ export function getCurrentMonthLastDate(): Date{
  * @param endDate 
  * @returns 
  */
-export function getDateRange(startDate: string, endDate: string): Date[] {
+export function getUTCDateRange(startDate: string, endDate: string): Date[] {
   const start = new Date(startDate);
   const end = new Date(endDate);
   
@@ -158,7 +158,7 @@ export function getUTCLastDate(year: number, month: number): Date{
  * @param date 
  * @returns 
  */
-export function getUTCDate(date:Date){
+export function getUTCDateZeroHour(date:Date){
   const d = new Date(date);
   d.setUTCHours(0,0,0,0);
   return d;

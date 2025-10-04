@@ -5,7 +5,7 @@ import { TYPES } from "@/core/types";
 import { type IDatabaseClient } from "@/lib/db/IDatabase";
 import IReportRepository from "../contracts/IReportRepository";
 import DailySummaryGuestsRoomsReportRow from "@/core/models/dto/reports/DailySummaryGuestsRoomsReportrow";
-import { getDateRange } from "@/lib/utils";
+import { getUTCDateRange } from "@/lib/utils";
 import { and, count, countDistinct, eq, gt, gte, lt, lte, ne, or, sum } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { CustomError } from "@/lib/errors";
@@ -41,7 +41,7 @@ export default class ReportRepository implements IReportRepository {
         c.d(endDate);
 
         const reports: DailySummaryGuestsRoomsReportRow[] = [];
-        const dateRanges = getDateRange(startDate, endDate);
+        const dateRanges = getUTCDateRange(startDate, endDate);
         c.d(dateRanges);
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
 
@@ -135,7 +135,7 @@ export default class ReportRepository implements IReportRepository {
         c.d(endDate);
 
         const reports: DailySummaryIncomeReportRow[] = [];
-        const dateRanges = getDateRange(startDate, endDate);
+        const dateRanges = getUTCDateRange(startDate, endDate);
         c.d(dateRanges);
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
 
@@ -327,7 +327,7 @@ export default class ReportRepository implements IReportRepository {
         c.d(endDate);
 
         const reports: DailySummaryPersonReportRow[] = [];
-        const dateRanges = getDateRange(startDate, endDate);
+        const dateRanges = getUTCDateRange(startDate, endDate);
         c.d(dateRanges);
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
 
@@ -406,7 +406,7 @@ export default class ReportRepository implements IReportRepository {
         c.d(endDate);
 
         const reports: DailyReservationDetailReportRow[] = [];
-        const dateRanges = getDateRange(startDate, endDate);
+        const dateRanges = getUTCDateRange(startDate, endDate);
         c.d(dateRanges);
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
 
