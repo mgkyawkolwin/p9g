@@ -591,22 +591,23 @@ export default class ReservationService implements IReservationService {
 
 
             const room = await this.roomRepository.findOne(eq("roomNo", reservation.roomNo));
-            if (room && reservation.roomNo && originalReservation.roomNo !== reservation.roomNo)
-                reCalculate = true;
-            else if (reservation.checkInDate.getTime() !== originalReservation.checkInDate.getTime())
-                reCalculate = true;
-            else if (reservation.checkOutDate.getTime() !== originalReservation.checkOutDate.getTime())
-                reCalculate = true;
-            else if (reservation.isSingleOccupancy !== originalReservation.isSingleOccupancy)
-                reCalculate = true;
-            else if(reservation.noOfGuests !== originalReservation.noOfGuests)
-                reCalculate = true;
-            else if(reservation.reservationTypeId !== originalReservation.reservationTypeId)
-                reCalculate = true;
-            else if(reservation.prepaidPackageId !== originalReservation.prepaidPackageId)
-                reCalculate = true;
-            else if(reservation.promotionPackageId !== originalReservation.promotionPackageId)
-                reCalculate = true;
+            if (room && reservation.roomNo && originalReservation.roomNo !== reservation.roomNo){
+                reCalculate = true;console.log('room no changed');
+            }else if (reservation.checkInDate.getTime() !== originalReservation.checkInDate.getTime()){
+                reCalculate = true;console.log('check in date changed');
+            }else if (reservation.checkOutDate.getTime() !== originalReservation.checkOutDate.getTime()){
+                reCalculate = true;console.log('check out date changed');
+            }else if (reservation.isSingleOccupancy !== originalReservation.isSingleOccupancy){
+                reCalculate = true;console.log('is single occupancy changed');
+            }else if(reservation.noOfGuests !== originalReservation.noOfGuests){
+                reCalculate = true;console.log('no of guests changed');
+            }else if(reservation.reservationTypeId !== originalReservation.reservationTypeId){
+                reCalculate = true;console.log('reservation type changed');
+            }else if(reservation.prepaidPackageId !== originalReservation.prepaidPackageId && ((reservation.prepaidPackageId && originalReservation.prepaidPackageId) || (reservation.prepaidPackageId && !originalReservation.prepaidPackageId) || (!reservation.prepaidPackageId && originalReservation.prepaidPackageId))){
+                reCalculate = true;console.log(`prepaid package changed: ${reservation.prepaidPackageId} - ${originalReservation.prepaidPackageId}`);
+            }else if(reservation.promotionPackageId !== originalReservation.promotionPackageId && ((reservation.promotionPackageId && originalReservation.promotionPackageId) || (reservation.promotionPackageId && !originalReservation.promotionPackageId) || (!reservation.promotionPackageId && originalReservation.promotionPackageId))){
+                reCalculate = true;console.log('promotion package changed');
+            }
 
 
             if (reservation.roomNo && reCalculate) {
