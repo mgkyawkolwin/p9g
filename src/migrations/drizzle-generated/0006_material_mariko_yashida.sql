@@ -1,0 +1,1 @@
+ALTER TABLE `reservation` ADD `prepaidCode` char(8);

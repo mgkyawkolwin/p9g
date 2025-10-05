@@ -1,21 +1,23 @@
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
-import { billTable, configTable, customerTable, paymentTable, reservationTable, roomTable, userTable } from "@/core/orms/drizzle/mysql/schema";
+import { billTable, configTable, paymentTable, reservationTable, roomTable } from "@/core/orms/drizzle/mysql/schema";
 import { TYPES } from "@/core/types";
 import { type IDatabaseClient } from "@/lib/db/IDatabase";
 import IReportRepository from "../contracts/IReportRepository";
 import DailySummaryGuestsRoomsReportRow from "@/core/models/dto/reports/DailySummaryGuestsRoomsReportrow";
-import { getDateRange } from "@/lib/utils";
-import { and, count, eq, gt, gte, lt, lte, ne, sum } from "drizzle-orm";
+import { getUTCDateRange } from "@/lib/utils";
+import { and, count, countDistinct, eq, gt, gte, lt, lte, ne, or, sum } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { CustomError } from "@/lib/errors";
 import c from "@/lib/loggers/console/ConsoleLogger";
-import { auth } from "@/app/auth";
 import DailySummaryIncomeReportRow from "@/core/models/dto/reports/DailySummaryIncomeReportRow";
 import Bill from "@/core/models/domain/Bill";
 import Payment from "@/core/models/domain/Payment";
 import Reservation from "@/core/models/domain/Reservation";
 import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
+import SessionUser from "@/core/models/dto/SessionUser";
+import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
+import RoomCharge from "@/core/models/domain/RoomCharge";
 
 
 @injectable()
@@ -33,19 +35,13 @@ export default class ReportRepository implements IReportRepository {
     }
 
 
-    async getDailySummaryGuestsRoomsReport(startDate: string, endDate: string): Promise<DailySummaryGuestsRoomsReportRow[]> {
+    async getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]> {
         c.fs("Repository > getDailySummaryGuestsRoomsReport");
         c.d(startDate);
         c.d(endDate);
-        const session = await auth();
-        if (!session || !session.user) throw new CustomError('Repository cannot get session.');
-
-        const [user] = await this.dbClient.db.select()
-            .from(userTable).where(eq(userTable.id, session.user.id)).limit(1);
-        if (!user) throw new CustomError('Repository cannot find user.');
 
         const reports: DailySummaryGuestsRoomsReportRow[] = [];
-        const dateRanges = getDateRange(startDate, endDate);
+        const dateRanges = getUTCDateRange(startDate, endDate);
         c.d(dateRanges);
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
 
@@ -63,7 +59,7 @@ export default class ReportRepository implements IReportRepository {
                     and(
                         eq(reservationTable.checkInDate, start),
                         ne(configTable.value, 'CCL'),
-                        eq(reservationTable.location, user.location)
+                        eq(reservationTable.location, sessionUser.location)
                     )).limit(1);
             report.guestsCheckIn = Number(guestsCheckIn.sum ?? 0);
             report.reservationCheckIn = Number(guestsCheckIn.count ?? 0);
@@ -76,7 +72,7 @@ export default class ReportRepository implements IReportRepository {
                     and(
                         eq(reservationTable.checkOutDate, start),
                         ne(configTable.value, 'CCL'),
-                        eq(reservationTable.location, user.location)
+                        eq(reservationTable.location, sessionUser.location)
                     )).limit(1);
             report.guestsCheckOut = Number(guestsCheckOut.sum ?? 0);
             report.reservationCheckOut = Number(guestsCheckOut.count ?? 0);
@@ -90,8 +86,25 @@ export default class ReportRepository implements IReportRepository {
                         lt(reservationTable.checkInDate, start),
                         gt(reservationTable.checkOutDate, start),
                         ne(configTable.value, 'CCL'),
-                        eq(reservationTable.location, user.location)
+                        eq(reservationTable.location, sessionUser.location)
                     )).limit(1);
+
+            c.i('Retrieve total room staying');
+
+            const [roomsTotalStaying] = await this.dbClient.db.select({ count: countDistinct(reservationTable.roomNo) })
+                .from(reservationTable)
+                .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+                .where(
+                    and(
+                        lte(reservationTable.checkInDate, start),
+                        or(
+                            eq(reservationTable.checkOutDate, start), 
+                            gt(reservationTable.checkOutDate, start)
+                        ),
+                        ne(configTable.value, 'CCL'),
+                        eq(reservationTable.location, sessionUser.location)
+                    ));
+
             report.guestsExisting = Number(guestsExisting.sum ?? 0);
             report.reservationExisting = Number(guestsExisting.count ?? 0);
 
@@ -100,12 +113,12 @@ export default class ReportRepository implements IReportRepository {
 
             c.i('Retrieve total rooms.');
             const [roomsTotal] = await this.dbClient.db.select({ count: count() })
-                .from(roomTable).where(eq(roomTable.location, user.location)).limit(1);
+                .from(roomTable).where(eq(roomTable.location, sessionUser.location)).limit(1);
 
-            report.roomsCheckIn = report.reservationCheckIn;
-            report.roomsCheckOut = report.reservationCheckOut;
-            report.roomsExisting = report.reservationExisting;
-            report.roomsTotal = report.reservationCheckIn + report.reservationExisting + report.reservationCheckOut;
+            report.roomsCheckIn = 0;
+            report.roomsCheckOut = 0;
+            report.roomsExisting = 0;
+            report.roomsTotal = roomsTotalStaying.count;
             report.roomsAvailable = roomsTotal.count - report.roomsTotal;
             reports.push(report);
         };
@@ -116,19 +129,13 @@ export default class ReportRepository implements IReportRepository {
     }
 
 
-    async getDailySummaryIncomeReport(startDate: string, endDate: string): Promise<DailySummaryIncomeReportRow[]> {
+    async getDailySummaryIncomeReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
         c.fs("Repository > getDailySummaryIncomeReport");
         c.d(startDate);
         c.d(endDate);
-        const session = await auth();
-        if (!session || !session.user) throw new CustomError('Repository cannot get session.');
-
-        const [user] = await this.dbClient.db.select()
-            .from(userTable).where(eq(userTable.id, session.user.id)).limit(1);
-        if (!user) throw new CustomError('Repository cannot find user.');
 
         const reports: DailySummaryIncomeReportRow[] = [];
-        const dateRanges = getDateRange(startDate, endDate);
+        const dateRanges = getUTCDateRange(startDate, endDate);
         c.d(dateRanges);
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
 
@@ -149,7 +156,7 @@ export default class ReportRepository implements IReportRepository {
                     and(
                         eq(reservationTable.checkInDate, start),
                         ne(configTable.value, 'CCL'),
-                        eq(reservationTable.location, user.location)
+                        eq(reservationTable.location, sessionUser.location)
                     ));
             report.totalCheckInReservations = Number(totalCheckInReservations.length ?? 0);
 
@@ -163,38 +170,22 @@ export default class ReportRepository implements IReportRepository {
 
                 if (reservation.depositPaymentMode === 'BANK') {
                     if (reservation.depositCurrency === 'KWR') {
-                        // report.totalKWR = Number(reservation.depositAmountInCurrency ?? 0);
-                        // report.totalBankKWR = Number(reservation.depositAmountInCurrency ?? 0);
                         report.totalDepositBankKWR = report.totalDepositBankKWR + Number(reservation.depositAmountInCurrency ?? 0);
                     } else if (reservation.depositCurrency === 'MMK') {
-                        // report.totalMMK = Number(reservation.depositAmountInCurrency ?? 0);
-                        // report.totalBankMMK = Number(reservation.depositAmountInCurrency ?? 0);
                         report.totalDepositBankMMK = report.totalDepositBankMMK + Number(reservation.depositAmountInCurrency ?? 0);
                     } else if (reservation.depositCurrency === 'THB') {
-                        // report.totalTHB = Number(reservation.depositAmountInCurrency ?? 0);
-                        // report.totalBankTHB = Number(reservation.depositAmountInCurrency ?? 0);
                         report.totalDepositBankTHB = report.totalDepositBankTHB + Number(reservation.depositAmountInCurrency ?? 0);
                     } else if (reservation.depositCurrency === 'USD') {
-                        // report.totalUSD = Number(reservation.depositAmountInCurrency ?? 0);
-                        // report.totalBankUSD = Number(reservation.depositAmountInCurrency ?? 0);
                         report.totalDepositBankUSD = report.totalDepositBankUSD + Number(reservation.depositAmountInCurrency ?? 0);
                     }
                 } else if (reservation.depositPaymentMode === 'CASH') {
                     if (reservation.depositCurrency === 'KWR') {
-                        // report.totalKWR = Number(reservation.depositAmountInCurrency ?? 0);
-                        // report.totalCashKWR = Number(reservation.depositAmountInCurrency ?? 0);
                         report.totalDepositCashKWR = report.totalDepositCashKWR + Number(reservation.depositAmountInCurrency ?? 0);
                     } else if (reservation.depositCurrency === 'MMK') {
-                        // report.totalMMK = Number(reservation.depositAmountInCurrency ?? 0);
-                        // report.totalCashMMK = Number(reservation.depositAmountInCurrency ?? 0);
                         report.totalDepositCashMMK = report.totalDepositCashMMK + Number(reservation.depositAmountInCurrency ?? 0);
                     } else if (reservation.depositCurrency === 'THB') {
-                        // report.totalTHB = Number(reservation.depositAmountInCurrency ?? 0);
-                        // report.totalCashTHB = Number(reservation.depositAmountInCurrency ?? 0);
                         report.totalDepositCashTHB = report.totalDepositCashTHB + Number(reservation.depositAmountInCurrency ?? 0);
                     } else if (reservation.depositCurrency === 'USD') {
-                        // report.totalUSD = Number(reservation.depositAmountInCurrency ?? 0);
-                        // report.totalCashUSD = Number(reservation.depositAmountInCurrency ?? 0);
                         report.totalDepositCashUSD = report.totalDepositCashUSD + Number(reservation.depositAmountInCurrency ?? 0);
                     }
                 }
@@ -238,25 +229,7 @@ export default class ReportRepository implements IReportRepository {
                 const bills: Bill[] = await this.dbClient.db.select()
                     .from(billTable).where(eq(billTable.reservationId, reservation.id));
                 for (const bill of bills) {
-                    // if (bill.currency === 'KWR') {
-                    //     report.totalKWR = report.totalKWR + Number(bill.amount ?? 0);
-                    // } else if (bill.currency === 'MMK') {
-                    //     report.totalMMK = report.totalMMK + Number(bill.amount ?? 0);
-                    // } else if (bill.currency === 'THB') {
-                    //     report.totalTHB = report.totalTHB + Number(bill.amount ?? 0);
-                    // } else if (bill.currency === 'USD') {
-                    //     report.totalUSD = report.totalUSD + Number(bill.amount ?? 0);
-                    // }
                     if (bill.paymentMode === 'BANK') {
-                        // if (bill.currency === 'KWR') {
-                        //     report.totalBankKWR = report.totalBankKWR + Number(bill.amount ?? 0);
-                        // } else if (bill.currency === 'MMK') {
-                        //     report.totalBankMMK = report.totalBankMMK + Number(bill.amount ?? 0);
-                        // } else if (bill.currency === 'THB') {
-                        //     report.totalBankTHB = report.totalBankTHB + Number(bill.amount ?? 0);
-                        // } else if (bill.currency === 'USD') {
-                        //     report.totalBankUSD = report.totalBankUSD + Number(bill.amount ?? 0);
-                        // }
                         if (bill.paymentType === 'OTHER') {
                             if (bill.currency === 'KWR') {
                                 report.totalBillBankKWR = report.totalBillBankKWR + Number(bill.amount ?? 0);
@@ -289,15 +262,6 @@ export default class ReportRepository implements IReportRepository {
                             }
                         }
                     } else if (bill.paymentMode === 'CASH') {
-                        // if (bill.currency === 'KWR') {
-                        //     report.totalCashKWR = report.totalCashKWR + Number(bill.amount ?? 0);
-                        // } else if (bill.currency === 'MMK') {
-                        //     report.totalCashMMK = report.totalCashMMK + Number(bill.amount ?? 0);
-                        // } else if (bill.currency === 'THB') {
-                        //     report.totalCashTHB = report.totalCashTHB + Number(bill.amount ?? 0);
-                        // } else if (bill.currency === 'USD') {
-                        //     report.totalCashUSD = report.totalCashUSD + Number(bill.amount ?? 0);
-                        // }
                         if (bill.paymentType === 'OTHER') {
                             if (bill.currency === 'KWR') {
                                 report.totalBillCashKWR = report.totalBillCashKWR + Number(bill.amount ?? 0);
@@ -357,26 +321,20 @@ export default class ReportRepository implements IReportRepository {
     }
 
 
-    async getDailySummaryPersonReport(startDate: string, endDate: string): Promise<DailySummaryPersonReportRow[]> {
+    async getDailySummaryPersonReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]> {
         c.fs("Repository > getDailySummaryPersonReport");
         c.d(startDate);
         c.d(endDate);
-        const session = await auth();
-        if (!session || !session.user) throw new CustomError('Repository cannot get session.');
-
-        const [user] = await this.dbClient.db.select()
-            .from(userTable).where(eq(userTable.id, session.user.id)).limit(1);
-        if (!user) throw new CustomError('Repository cannot find user.');
 
         const reports: DailySummaryPersonReportRow[] = [];
-        const dateRanges = getDateRange(startDate, endDate);
+        const dateRanges = getUTCDateRange(startDate, endDate);
         c.d(dateRanges);
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
 
         c.i('Generating report.');
         for (const dr of dateRanges) {
             const start: Date = new Date(dr);
-            const report = new DailySummaryGuestsRoomsReportRow();
+            const report = new DailySummaryPersonReportRow();
             report.date = start;
 
             c.i('Retrieve checkin guests');
@@ -387,10 +345,9 @@ export default class ReportRepository implements IReportRepository {
                     and(
                         eq(reservationTable.checkInDate, start),
                         ne(configTable.value, 'CCL'),
-                        eq(reservationTable.location, user.location)
+                        eq(reservationTable.location, sessionUser.location)
                     )).limit(1);
             report.guestsCheckIn = Number(guestsCheckIn.sum ?? 0);
-            report.reservationCheckIn = Number(guestsCheckIn.count ?? 0);
 
             c.i('Retrieve checkout guests');
             const [guestsCheckOut] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
@@ -400,10 +357,9 @@ export default class ReportRepository implements IReportRepository {
                     and(
                         eq(reservationTable.checkOutDate, start),
                         ne(configTable.value, 'CCL'),
-                        eq(reservationTable.location, user.location)
+                        eq(reservationTable.location, sessionUser.location)
                     )).limit(1);
             report.guestsCheckOut = Number(guestsCheckOut.sum ?? 0);
-            report.reservationCheckOut = Number(guestsCheckOut.count ?? 0);
 
             c.i('Retrieve existing guests');
             const [guestsExisting] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
@@ -414,28 +370,126 @@ export default class ReportRepository implements IReportRepository {
                         lt(reservationTable.checkInDate, start),
                         gt(reservationTable.checkOutDate, start),
                         ne(configTable.value, 'CCL'),
-                        eq(reservationTable.location, user.location)
+                        eq(reservationTable.location, sessionUser.location)
                     )).limit(1);
-            report.guestsExisting = Number(guestsExisting.sum ?? 0);
-            report.reservationExisting = Number(guestsExisting.count ?? 0);
+            report.guestsTotal = Number(guestsExisting.sum ?? 0) + report.guestsCheckIn + report.guestsCheckOut;
 
-            report.reservationTotal = report.reservationCheckIn + report.reservationCheckOut + report.reservationExisting;
-            report.guestsTotal = report.guestsExisting + report.guestsCheckIn + report.guestsCheckOut;
+            const [roomsTotal] = await this.dbClient.db.select({ count: countDistinct(reservationTable.roomNo) })
+                .from(reservationTable)
+                .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+                .where(
+                    and(
+                        lte(reservationTable.checkInDate, start),
+                        or(
+                            eq(reservationTable.checkOutDate, start), 
+                            gt(reservationTable.checkOutDate, start)
+                        ),
+                        ne(configTable.value, 'CCL'),
+                        eq(reservationTable.location, sessionUser.location)
+                    ));
 
-            c.i('Retrieve total rooms.');
-            const [roomsTotal] = await this.dbClient.db.select({ count: count() })
-                .from(roomTable).where(eq(roomTable.location, user.location)).limit(1);
+            report.reservationTotal = guestsCheckIn.count + guestsCheckOut.count + guestsExisting.count;
 
-            report.roomsCheckIn = report.reservationCheckIn;
-            report.roomsCheckOut = report.reservationCheckOut;
-            report.roomsExisting = report.reservationExisting;
-            report.roomsTotal = report.reservationCheckIn + report.reservationExisting + report.reservationCheckOut;
-            report.roomsAvailable = roomsTotal.count - report.roomsTotal;
+            report.roomsTotal = roomsTotal.count;
             reports.push(report);
         };
         c.d(reports?.length);
         c.d(reports?.length > 0 ? reports[0] : []);
         c.fe("Repository > getDailySummaryPersonReport");
+        return reports;
+    }
+
+
+    async getDailyReservationDetailReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailyReservationDetailReportRow[]> {
+        c.fs("Repository > getDailyReservationDetailReport");
+        c.d(startDate);
+        c.d(endDate);
+
+        const reports: DailyReservationDetailReportRow[] = [];
+        const dateRanges = getUTCDateRange(startDate, endDate);
+        c.d(dateRanges);
+        if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
+
+        c.i('Generating report.');
+        for (const dr of dateRanges) {
+            const start: Date = new Date(dr);
+            const report = new DailyReservationDetailReportRow();
+            report.date = start;
+
+            c.i('Retrieve reservation');
+            const reservations = await this.dbClient.db.query.reservationTable.findMany({
+                with: {
+                    reservationType: true,
+                    reservationCustomers: {
+                        with: {
+                            customer: true
+                        }
+                    },
+                    roomCharges: true
+                },
+                where: and(
+                    eq(reservationTable.checkInDate, start),
+                    eq(reservationTable.location, sessionUser.location)
+                ),
+            });
+
+            reservations.forEach(r => {
+                const rep = new DailyReservationDetailReportRow();
+                rep.date = start;
+                rep.reservationId = r.id;
+                rep.roomNo = r.roomNo;
+                rep.customerNames = r.reservationCustomers.map(rc => rc.customer.name).join(", ");
+                rep.customerPhones = r.reservationCustomers.map(rc => rc.customer.phone).join(", ");
+                rep.checkInDate = r.checkInDate;
+                rep.checkOutDate = r.checkOutDate;
+                rep.noOfDays = r.noOfDays;
+                rep.noOfGuests = r.noOfGuests;
+                rep.reservationType = r.reservationType.text;
+                rep.arrivalDateTime = r.arrivalDateTime;
+                rep.arrivalFlight = r.arrivalFlight;
+                rep.departureDateTime = r.departureDateTime;
+                rep.departureFlight = r.departureFlight;
+                rep.totalAmount = Number(r.totalAmount ?? 0);
+                rep.paidAmount = Number(r.paidAmount ?? 0);
+                rep.depositAmount = Number(r.depositAmount ?? 0);
+                rep.discountAmount = Number(r.discountAmount ?? 0);
+                rep.taxAmount = Number(r.taxAmount ?? 0);
+                rep.netAmount = Number(r.netAmount ?? 0);
+
+                r.bills?.forEach((b: Bill) => {
+                    if (b.paymentType === 'PICKUP') {
+                        if(b.currency === 'KWR') {
+                            rep.pickUpFeeKWR = Number(b.amount ?? 0);
+                        } else if(b.currency === 'MMK') {
+                            rep.pickUpFeeMMK = Number(b.amount ?? 0);
+                        } else if(b.currency === 'THB') {
+                            rep.pickUpFeeTHB = Number(b.amount ?? 0);
+                        } else if(b.currency === 'USD') {
+                            rep.pickUpFeeUSD = Number(b.amount ?? 0);
+                        }
+                    } else if (b.paymentType === 'DROPOFF') {
+                        if(b.currency === 'KWR') {
+                            rep.dropOffFeeKWR = Number(b.amount ?? 0);
+                        } else if(b.currency === 'MMK') {
+                            rep.dropOffFeeMMK = Number(b.amount ?? 0);
+                        } else if(b.currency === 'THB') {
+                            rep.dropOffFeeTHB = Number(b.amount ?? 0);
+                        } else if(b.currency === 'USD') {
+                            rep.dropOffFeeUSD = Number(b.amount ?? 0);
+                        }
+                    }
+                });
+
+                r.roomCharges?.forEach((rc: RoomCharge) => {
+                    rep.singleChargeAmount = rep.singleChargeAmount + Number(rc.singleRate * rc.noOfDays);
+                    rep.extraChargeAmount = Number(rep.extraChargeAmount) + Number(rc.roomSurcharge * rc.noOfDays * r.noOfGuests);
+                });
+                reports.push(rep);
+            });
+        };
+        c.d(reports?.length);
+        c.d(reports?.length > 0 ? reports[0] : []);
+        c.fe("Repository > getDailyReservationDetailReport");
         return reports;
     }
 }

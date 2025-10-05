@@ -13,6 +13,7 @@ import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcus
 import { updatePickUpInfo } from "@/app/(private)/console/pickup/actions";
 import { toast } from "sonner";
 import { getReservationStatusColorClass } from "@/core/helpers";
+import { CopyIcon } from "lucide-react";
 
 
 
@@ -37,7 +38,7 @@ export default function PickUpListTable({
       header: "ID",
       accessorFn: (row) => {
         return <span>
-          <a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />
+          <div className="whitespace-nowrap"><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a>&nbsp;&nbsp;&nbsp;<CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} /></div>
           <span className={`font-bold ${getReservationStatusColorClass(row.reservationStatusText)}`}>{row.reservationStatusText}</span><br />
           <span>{row.reservationTypeText}</span>
           {row.prepaidPackageText ? <span className="font-bold text-[#ff00ff] dark:text-[#ff00ff]"><br />{row.prepaidPackageText}</span> : ''}

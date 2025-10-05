@@ -123,6 +123,7 @@ export const reservationValidator = z.object({
   noOfGuests: z.coerce.number().gt(0),
   paidAmount: z.coerce.number(),
   pickUpType: z.coerce.string().nullish(),
+  prepaidCode: z.coerce.string().nullish(),
   prepaidPackage: z.coerce.string().nullish(),
   promotionPackage: z.coerce.string().nullish(),
   remark: z.coerce.string().nullish().catch(undefined),

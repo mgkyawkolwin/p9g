@@ -87,3 +87,6 @@ N/A
 
 ## Version 3.0.1
 - Fix customer cannot find error in edit reservation page
+
+## Version 3.1.0
+- Add caching

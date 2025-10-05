@@ -56,220 +56,298 @@ import PromotionEntity from '@/core/models/entity/PromotionEntity';
 import { DrizzleQueryTransformer } from '@/lib/transformers/drizzle/DrizzleQueryTransformer';
 import { eq, SQL } from 'drizzle-orm';
 import { MySqlSelect } from 'drizzle-orm/mysql-core';
-import { CacheRepository } from '@/lib/repositories/drizzle/CacheRepository';
+import { CacheRepositoryDecorator } from '@/lib/repositories/CacheRepositoryDecorator';
+import LruCacheAdapter from '@/lib/cache/lru/LruCacheAdapter';
+import ICacheAdapter from '@/lib/cache/ICacheAdapter';
+import CacheReportRepositoryDecorator from '../repositories/cacherepositories/CacheReportRepositoryDecorator';
+import CacheReservationRepositoryDecorator from '../repositories/cacherepositories/CacheReservationRepositoryDecorator';
+import NoCacheAdapter from '@/lib/cache/NoCacheAdapter';
 
 // create a DI container
 const container = new Container();
 
 // Bind as singleton
+container.bind<ICacheAdapter>(TYPES.ICacheAdapter).toDynamicValue(context => new NoCacheAdapter()).inSingletonScope();
 container.bind<IDatabaseClient<MySqlDbType>>(TYPES.IDatabase).to(MySqlDatabaseClient).inSingletonScope();
 container.bind<IMapper>(TYPES.IMapper).to(CustomMapper).inSingletonScope();
 container.bind<IQueryTranformer>(TYPES.IQueryTransformer).to(DrizzleQueryTransformer).inSingletonScope();
 
 // Bind Services
-container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inSingletonScope();
-container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inSingletonScope();
-container.bind<ILogService>(TYPES.ILogService).to(LogService).inSingletonScope();
-container.bind<IReportService>(TYPES.IReportService).to(ReportService).inSingletonScope();
-container.bind<IReservationService>(TYPES.IReservationService).to(ReservationService).inSingletonScope();
-container.bind<IUserService>(TYPES.IUserService).to(UserService).inSingletonScope();
+container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
+container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inRequestScope();
+container.bind<ILogService>(TYPES.ILogService).to(LogService).inRequestScope();
+container.bind<IReportService>(TYPES.IReportService).to(ReportService).inRequestScope();
+container.bind<IReservationService>(TYPES.IReservationService).to(ReservationService).inRequestScope();
+container.bind<IUserService>(TYPES.IUserService).to(UserService).inRequestScope();
 
 // Bind Repositories
 container.bind<IRepository<Bill>>(TYPES.IBillRepository).toDynamicValue(context => {
-    return new CacheRepository(
-        context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        billTable,
-        { ...billTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        Bill,
-        BillEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(
+            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            billTable,
+            { ...billTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            Bill,
+            BillEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "bill",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<Config>>(TYPES.IConfigRepository).toDynamicValue(context => {
-    return new CacheRepository(
-        context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        configTable,
-        { ...configTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        Config,
-        ConfigEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(
+            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            configTable,
+            { ...configTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            Config,
+            ConfigEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "config",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<Customer>>(TYPES.ICustomerRepository).toDynamicValue(context => {
-    return new CacheRepository(
-        context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        customerTable,
-        { ...customerTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        Customer,
-        CustomerEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(
+            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            customerTable,
+            { ...customerTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            Customer,
+            CustomerEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "customer",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<LogError>>(TYPES.ILogRepository).toDynamicValue(context => {
-    return new CacheRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        logErrorTable,
-        { ...logErrorTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        LogError,
-        LogErrorEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            logErrorTable,
+            { ...logErrorTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            LogError,
+            LogErrorEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "log",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<Payment>>(TYPES.IPaymentRepository).toDynamicValue(context => {
-    return new CacheRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        paymentTable,
-        { ...paymentTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        Payment,
-        PaymentEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            paymentTable,
+            { ...paymentTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            Payment,
+            PaymentEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "payment",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<PrepaidEntity>>(TYPES.IPrepaidRepository).toDynamicValue(context => {
-    return new CacheRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        prepaidTable,
-        { ...prepaidTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        PrepaidEntity,
-        PrepaidEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            prepaidTable,
+            { ...prepaidTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            PrepaidEntity,
+            PrepaidEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "prepaid",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<PromotionEntity>>(TYPES.IPromotionRepository).toDynamicValue(context => {
-    return new CacheRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        promotionTable,
-        { ...promotionTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        PromotionEntity,
-        PromotionEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            promotionTable,
+            { ...promotionTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            PromotionEntity,
+            PromotionEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "promition",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
-container.bind<IReportRepository>(TYPES.IReportRepository).to(ReportRepository);
+container.bind<IReportRepository>(TYPES.IReportRepository).toDynamicValue(context => {
+    return new CacheReportRepositoryDecorator(
+        new ReportRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase)),
+        "report",
+        new NoCacheAdapter() //report needs special handling, will use cache later
+    );
+}).inRequestScope();
 
-container.bind<IReservationRepository>(TYPES.IReservationRepository).to(ReservationRepository);
+container.bind<IReservationRepository>(TYPES.IReservationRepository).toDynamicValue(context => {
+    return new CacheReservationRepositoryDecorator(
+        new ReservationRepository(
+            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            context.get<IMapper>(TYPES.IMapper),
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "reservation",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
+    )
+}).inRequestScope();
 
 container.bind<IRepository<ReservationCustomer>>(TYPES.IReservationCustomerRepository).toDynamicValue(context => {
-    return new CacheRepository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        reservationCustomerTable,
-        { ...reservationCustomerTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        ReservationCustomer,
-        ReservationCustomerEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            reservationCustomerTable,
+            { ...reservationCustomerTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            ReservationCustomer,
+            ReservationCustomerEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "reservationCustomer",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<Room>>(TYPES.IRoomRepository).toDynamicValue(context => {
-    return new CacheRepository(
-        context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        roomTable,
-        { ...roomTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        Room,
-        RoomEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(
+            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            roomTable,
+            { ...roomTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            Room,
+            RoomEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "room",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<RoomCharge>>(TYPES.IRoomChargeRepository).toDynamicValue(context => {
-    return new CacheRepository(
-        context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        roomChargeTable,
-        { 
-            ...roomChargeTable,
-            roomNo: roomTable.roomNo,
-            roomType: roomTypeTable.roomType,
-            roomTypeText: roomTypeTable.roomTypeText
-        },
-        (q) => {
-            return q.innerJoin(roomTypeTable, eq(roomTypeTable.id, roomChargeTable.roomTypeId))
-                .innerJoin(roomTable, eq(roomTable.id, roomChargeTable.roomId));
-        },
-        context.get<IMapper>(TYPES.IMapper),
-        RoomCharge,
-        RoomChargeEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(
+            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            roomChargeTable,
+            {
+                ...roomChargeTable,
+                roomNo: roomTable.roomNo,
+                roomType: roomTypeTable.roomType,
+                roomTypeText: roomTypeTable.roomTypeText
+            },
+            (q) => {
+                return q.innerJoin(roomTypeTable, eq(roomTypeTable.id, roomChargeTable.roomTypeId))
+                    .innerJoin(roomTable, eq(roomTable.id, roomChargeTable.roomId));
+            },
+            context.get<IMapper>(TYPES.IMapper),
+            RoomCharge,
+            RoomChargeEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "roomCharge",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<RoomRate>>(TYPES.IRoomRateRepository).toDynamicValue(context => {
-    return new CacheRepository(
-        context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        roomRateTable,
-        { ...roomRateTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        RoomRate,
-        RoomRateEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(
+            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            roomRateTable,
+            { ...roomRateTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            RoomRate,
+            RoomRateEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "roomRate",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<RoomReservation>>(TYPES.IRoomReservationRepository).toDynamicValue(context => {
-    return new CacheRepository(
-        context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        roomReservationTable,
-        {
-            ...roomReservationTable,
-            roomNo: roomTable.roomNo,
-            roomType: roomTypeTable.roomType,
-            roomTypeId: roomTypeTable.id
-        },
-        (q: MySqlSelect) => {
-            return q.innerJoin(roomTable, eq(roomTable.id, roomReservationTable.roomId))
-                .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomTable.roomTypeId));
-        },
-        context.get<IMapper>(TYPES.IMapper),
-        RoomReservation,
-        RoomReservationEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(
+            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            roomReservationTable,
+            {
+                ...roomReservationTable,
+                roomNo: roomTable.roomNo,
+                roomType: roomTypeTable.roomType,
+                roomTypeId: roomTypeTable.id
+            },
+            (q: MySqlSelect) => {
+                return q.innerJoin(roomTable, eq(roomTable.id, roomReservationTable.roomId))
+                    .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomTable.roomTypeId));
+            },
+            context.get<IMapper>(TYPES.IMapper),
+            RoomReservation,
+            RoomReservationEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "roomReservation",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<User>>(TYPES.IUserRepository).toDynamicValue(context => {
-    return new CacheRepository(
-        context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        userTable,
-        { ...userTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        User,
-        UserEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(
+            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            userTable,
+            { ...userTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            User,
+            UserEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "user",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 container.bind<IRepository<RoomType>>(TYPES.IRoomTypeRepository).toDynamicValue(context => {
-    return new CacheRepository(
-        context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-        roomTypeTable,
-        { ...roomTypeTable },
-        (q) => q,
-        context.get<IMapper>(TYPES.IMapper),
-        RoomType,
-        RoomTypeEntity,
-        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    return new CacheRepositoryDecorator(
+        new Repository(
+            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            roomTypeTable,
+            { ...roomTypeTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            RoomType,
+            RoomTypeEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "roomType",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
-});
+}).inRequestScope();
 
 export { container };

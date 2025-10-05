@@ -29,7 +29,7 @@ Date.prototype.toISODateTimeDisplayString = function (): string {
 /**
  * Convert Local Date value as the UTC date value.
  */
-Date.prototype.convertToFakeLocalDate = function (): Date {
+Date.prototype.getUTCDateTimeAsLocalDateTime = function (): Date {
     const fakeLocalDate = new Date(this.toISOString().replace('T', ' ').slice(0, 16));
     return fakeLocalDate;
 }
@@ -37,13 +37,13 @@ Date.prototype.convertToFakeLocalDate = function (): Date {
 /**
  * Convert local date value as the UTC date value.
  */
-Date.prototype.convertToUTCFromFakeLocalDate = function (): Date {
+Date.prototype.getLocalDateAsUTCDate = function (): Date {
     return new Date(this.toLocaleString('sv-SE').slice(0, 10) + 'T00:00:00.000Z');
 }
 
 /**
  * Convert local date/time value as the UTC date/time value.
  */
-Date.prototype.convertToUTCFromFakeLocalDateTime = function (): Date {
+Date.prototype.getLocalDateTimeAsUTCDateTime = function (): Date {
     return new Date(this.toLocaleString('sv-SE').replace(' ', 'T') + '.000Z');
 }

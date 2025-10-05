@@ -33,6 +33,7 @@ export default class ReservationEntity extends EntityBase{
     public pickUpFeeCurrency: string = '';
     public pickUpFeePaidOnUTC: Date = null;
     public pickUpTypeId: string  = '';
+    public prepaidCode: string = '';
     public prepaidPackageId: string  = '';
     public promotionPackageId: string  = '';
     public remark: string = "";

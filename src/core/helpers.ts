@@ -165,7 +165,7 @@ export function getPagerWithDefaults(inputObject: PagerParams): PagerParams {
  * @returns
  */
 
-export function getCheckInDate(arrivalDate: Date) {
+export function getUTCCheckInDate(arrivalDate: Date) {
   const checkInDate = new Date(arrivalDate);
   checkInDate.setUTCHours(0, 0, 0, 0);
   if (arrivalDate.getUTCHours() >= 0 && arrivalDate.getUTCHours() <= 5) {
@@ -182,10 +182,10 @@ export function getCheckInDate(arrivalDate: Date) {
  */
 
 
-export function getCheckOutDate(departureDate: Date) {
+export function getUTCCheckOutDate(departureDate: Date) {
   const checkOutDate = new Date(departureDate);
   checkOutDate.setUTCHours(0, 0, 0, 0);
-  if (departureDate.getUTCHours() >= 0 && departureDate.getUTCHours() <= 5) {
+  if (departureDate.getUTCHours() >= 0 && departureDate.getUTCHours() <= 11) {
     checkOutDate.setUTCDate(checkOutDate.getUTCDate() - 1);
     return checkOutDate;
   } else {

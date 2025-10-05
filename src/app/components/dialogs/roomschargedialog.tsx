@@ -17,6 +17,7 @@ import RoomReservation from "@/core/models/domain/RoomReservation";
 import RoomCharge from "@/core/models/domain/RoomCharge";
 import SimpleDataTable from "../../../lib/components/web/react/uicustom/simpledatatable";
 import { calculateDayDifference } from "@/lib/utils";
+import { CheckboxCustom } from "@/lib/components/web/react/uicustom/CheckboxCustom";
 
 
 interface DataTableProps {
@@ -103,7 +104,7 @@ export default function RoomChargeDialog({
         if (selectedRoomReservation !== null) {
             setVisibleRoomCharges(prev =>
                 prev.map((roomCharge: RoomCharge) : RoomCharge => {
-                    const totalRate = roomCharge.roomRate + roomCharge.singleRate + roomCharge.roomSurcharge + roomCharge.seasonSurcharge;
+                    const totalRate = Number(roomCharge.roomRate ?? 0) + Number(roomCharge.singleRate ?? 0) + Number(roomCharge.roomSurcharge ?? 0) + Number(roomCharge.seasonSurcharge ?? 0);
                     let noOfDays = 0;
                     if (roomCharge.startDate !== null && roomCharge.endDate !== null)
                         noOfDays = calculateDayDifference(new Date(roomCharge.startDate), new Date(roomCharge.endDate));
@@ -123,7 +124,7 @@ export default function RoomChargeDialog({
                 prev.map((roomReservation) => {
                     if (roomReservation.id === selectedRoomReservation.id) {
                         const updatedCharges: RoomCharge[] = roomReservation.roomCharges.map((roomCharge: RoomCharge) : RoomCharge => {
-                            const totalRate = roomCharge.roomRate + roomCharge.singleRate + roomCharge.roomSurcharge + roomCharge.seasonSurcharge;
+                            const totalRate = Number(roomCharge.roomRate ?? 0) + Number(roomCharge.singleRate ?? 0) + Number(roomCharge.roomSurcharge ?? 0)+ Number(roomCharge.seasonSurcharge ?? 0);
                             let noOfDays = 0;
                             if (roomCharge.startDate != null && roomCharge.endDate != null)
                                 noOfDays = calculateDayDifference(new Date(roomCharge.startDate), new Date(roomCharge.endDate));
@@ -203,7 +204,7 @@ export default function RoomChargeDialog({
         {
             accessorKey: "check",
             header: '',
-            cell: (row) => <Checkbox key={`${row.row.original.id}-check`}
+            cell: (row) => <CheckboxCustom key={`${row.row.original.id}-check`}
                 checked={selectedRoomReservation && selectedRoomReservation.id === row.row.original.id}
                 onCheckedChange={(checked) => handleCheckboxChange(row.row.original.id, row.row.index, Boolean(checked.valueOf()))}
             />
@@ -224,7 +225,7 @@ export default function RoomChargeDialog({
         {
             accessorKey: "isSingleOccupancy",
             header: 'Single',
-            cell: (row) => <Checkbox key={`${row.row.original.id}-isSingleOccupancy`}
+            cell: (row) => <CheckboxCustom key={`${row.row.original.id}-isSingleOccupancy`}
                 checked={Boolean(row.row.original.isSingleOccupancy)}
                 onCheckedChange={(checked) => {
                     handleRoomInputChange(row.row.original.id, row.row.index, "isSingleOccupancy", checked.valueOf());
@@ -235,9 +236,9 @@ export default function RoomChargeDialog({
             accessorKey: "checkInDate",
             header: 'Check In',
             cell: (row) => <DatePicker key={`${row.row.original.id}-checkInDate`}
-                selected={row.row.original.checkInDate ? new Date(row.row.original.checkInDate).convertToFakeLocalDate() : null}
+                selected={row.row.original.checkInDate ? new Date(row.row.original.checkInDate).getUTCDateTimeAsLocalDateTime() : null}
                 onChange={(date: Date | null) => {
-                    handleRoomInputChange(row.row.original.id, row.row.index, "checkInDate", date ? date.convertToUTCFromFakeLocalDate() : null);
+                    handleRoomInputChange(row.row.original.id, row.row.index, "checkInDate", date ? date.getLocalDateAsUTCDate() : null);
                 }}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
@@ -250,9 +251,9 @@ export default function RoomChargeDialog({
             accessorKey: "checkOutDate",
             header: 'Check Out',
             cell: (row) => <DatePicker key={`${row.row.original.id}-checkOutDate`}
-                selected={row.row.original.checkOutDate ? new Date(row.row.original.checkOutDate).convertToFakeLocalDate() : null}
+                selected={row.row.original.checkOutDate ? new Date(row.row.original.checkOutDate).getUTCDateTimeAsLocalDateTime() : null}
                 onChange={(date: Date | null) => {
-                    handleRoomInputChange(row.row.original.id, row.row.index, "checkOutDate", date ? date.convertToUTCFromFakeLocalDate() : null);
+                    handleRoomInputChange(row.row.original.id, row.row.index, "checkOutDate", date ? date.getLocalDateAsUTCDate() : null);
                 }}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
@@ -318,9 +319,9 @@ export default function RoomChargeDialog({
             accessorKey: "startDate",
             header: 'Start Date',
             cell: (row) => <DatePicker key={`${row.row.original.id}-startDate`}
-                selected={row.row.original.startDate ? new Date(row.row.original.startDate).convertToFakeLocalDate() : null}
+                selected={row.row.original.startDate ? new Date(row.row.original.startDate).getUTCDateTimeAsLocalDateTime() : null}
                 onChange={(date: Date | null) => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "startDate", date ? date.convertToUTCFromFakeLocalDate() : null);
+                    handleChargeInputChange(row.row.original.id, row.row.index, "startDate", date ? date.getLocalDateAsUTCDate() : null);
                     computeRateAndAmount(row.row.original.id);
                 }}
                 // onBlur={ e => {computeRateAndAmount(row.row.original.id)}}
@@ -335,9 +336,9 @@ export default function RoomChargeDialog({
             accessorKey: "endDate",
             header: 'End Date',
             cell: (row) => <DatePicker key={`${row.row.original.id}-endDate`}
-                selected={row.row.original.endDate ? new Date(row.row.original.endDate).convertToFakeLocalDate() : null}
+                selected={row.row.original.endDate ? new Date(row.row.original.endDate).getUTCDateTimeAsLocalDateTime() : null}
                 onChange={(date: Date | null) => {
-                    handleChargeInputChange(row.row.original.id, row.row.index, "endDate", date ? date.convertToUTCFromFakeLocalDate() : null);
+                    handleChargeInputChange(row.row.original.id, row.row.index, "endDate", date ? date.getLocalDateAsUTCDate() : null);
                     computeRateAndAmount(row.row.original.id);
                 }}
                 // onBlur={ e => {computeRateAndAmount(row.row.original.id)}}
@@ -361,7 +362,7 @@ export default function RoomChargeDialog({
         {
             accessorKey: "totalRate",
             header: 'Total Rate',
-            cell: (row) => <InputCustom size={"xs"} key={`${row.row.original.id}-totalRate`} // Crucial for maintaining focus
+            cell: (row) => <InputCustom size={"sm"} key={`${row.row.original.id}-totalRate`} // Crucial for maintaining focus
                 value={Number(row.row.original.totalRate)}
                 onBlur={ e => {computeRateAndAmount(row.row.original.id)}} 
                 onChange={e => {

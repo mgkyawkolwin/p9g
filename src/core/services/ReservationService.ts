@@ -26,8 +26,7 @@ import RoomType from "../models/domain/RoomType";
 import ReservationCustomer from "../models/domain/ReservationCustomer";
 import PrepaidEntity from "@/core/models/entity/PrepaidEntity";
 import PromotionEntity from "@/core/models/entity/PromotionEntity";
-import {and, desc, eq, ne} from "@/lib/transformers/types";
-import { buildAnyCondition } from "@/core/helpers";
+import {and, asc, desc, eq, ne} from "@/lib/transformers/types";
 import RoomReservationDto from "../models/dto/RoomReservationDto";
 
 @injectable()
@@ -59,7 +58,7 @@ export default class ReservationService implements IReservationService {
         if (!reservationId) throw new CustomError('Service: Reservation id is required.');
         if (!billId) throw new CustomError('Service: Reservation id is required.');
         
-        return await this.billRepository.delete(reservationId);
+        return await this.billRepository.delete(billId);
     }
 
 
@@ -116,9 +115,9 @@ export default class ReservationService implements IReservationService {
 
 
     private calculateAllAmount(reservation: Reservation) : Reservation {
-        reservation.taxAmount = reservation.totalAmount * reservation.tax / 100;
-        reservation.netAmount = reservation.totalAmount + reservation.taxAmount - reservation.discountAmount - reservation.depositAmount;
-        reservation.dueAmount = reservation.netAmount - reservation.paidAmount;
+        reservation.taxAmount = Number(reservation.totalAmount ?? 0) * Number(reservation.tax ?? 0) / 100;
+        reservation.netAmount = Number(reservation.totalAmount ?? 0) + Number(reservation.taxAmount ?? 0) - Number(reservation.discountAmount ?? 0) - Number(reservation.depositAmount ?? 0);
+        reservation.dueAmount = Number(reservation.netAmount ?? 0) - Number(reservation.paidAmount ?? 0);
         return reservation;
     }
 
@@ -370,12 +369,12 @@ export default class ReservationService implements IReservationService {
         if(reservation.roomNo){
             c.i('Retrieveing room info');
             room = await this.roomRepository.findOne(eq("roomNo", reservation.roomNo));
-            if(!room) throw new CustomError('Invalid room no');
         }
 
         const result = this.dbClient.db.transaction(async (tx: any) => {
 
             c.i('Creating reservation');
+            reservation = this.calculateAllAmount(reservation);
             const createdReservation = await this.reservationRepository.create(reservation, tx);
             if (!createdReservation || !createdReservation.id)
                 throw new CustomError('Reservation creation failed.');
@@ -394,12 +393,11 @@ export default class ReservationService implements IReservationService {
                     return rc;
                 });
                 c.d(newReservationCustomers?.length);
-                //insert using transaction
+                
                 await this.reservationCustomerRepository.createMany(newReservationCustomers, tx);
             }
-
-            //insert room reservations
-            if (reservation.roomNo) {
+            
+            if (reservation.roomNo && room) {
                 c.i('Creating room reservation');
                 const rrResult = await this.roomReservationCreate(createdReservation, sessionUser, tx);
                 if (!rrResult)
@@ -508,6 +506,8 @@ export default class ReservationService implements IReservationService {
             throw new Error('Reservation update failed. Reservation is required.');
         }
 
+        let reCalculate = false;
+
         c.i('Preparing reservation to update');
         reservation.updatedBy = sessionUser.id;
         reservation.updatedAtUTC = new Date();
@@ -566,6 +566,9 @@ export default class ReservationService implements IReservationService {
                 throw new CustomError('Cannot find original reservation.');
 
             c.i('Updating reservation');
+            reservation.totalAmount = originalReservation.totalAmount;
+            reservation.paidAmount = originalReservation.paidAmount;
+            reservation = this.calculateAllAmount(reservation);
             await this.reservationRepository.update(id, reservation, tx as any);
 
             c.i('Deleting existing customer list in reservation.');
@@ -583,12 +586,31 @@ export default class ReservationService implements IReservationService {
                     rc.updatedBy = sessionUser.id;
                     return rc;
                 });
-                //insert using transaction
                 await this.reservationCustomerRepository.createMany(newReservationCustomers, tx as any);
             }
 
 
-            if (reservation.roomNo && originalReservation.roomNo !== reservation.roomNo) {
+            const room = await this.roomRepository.findOne(eq("roomNo", reservation.roomNo));
+            if (room && reservation.roomNo && originalReservation.roomNo !== reservation.roomNo){
+                reCalculate = true;console.log('room no changed');
+            }else if (reservation.checkInDate.getTime() !== originalReservation.checkInDate.getTime()){
+                reCalculate = true;console.log('check in date changed');
+            }else if (reservation.checkOutDate.getTime() !== originalReservation.checkOutDate.getTime()){
+                reCalculate = true;console.log('check out date changed');
+            }else if (reservation.isSingleOccupancy !== originalReservation.isSingleOccupancy){
+                reCalculate = true;console.log('is single occupancy changed');
+            }else if(reservation.noOfGuests !== originalReservation.noOfGuests){
+                reCalculate = true;console.log('no of guests changed');
+            }else if(reservation.reservationTypeId !== originalReservation.reservationTypeId){
+                reCalculate = true;console.log('reservation type changed');
+            }else if(reservation.prepaidPackageId !== originalReservation.prepaidPackageId && ((reservation.prepaidPackageId && originalReservation.prepaidPackageId) || (reservation.prepaidPackageId && !originalReservation.prepaidPackageId) || (!reservation.prepaidPackageId && originalReservation.prepaidPackageId))){
+                reCalculate = true;console.log(`prepaid package changed: ${reservation.prepaidPackageId} - ${originalReservation.prepaidPackageId}`);
+            }else if(reservation.promotionPackageId !== originalReservation.promotionPackageId && ((reservation.promotionPackageId && originalReservation.promotionPackageId) || (reservation.promotionPackageId && !originalReservation.promotionPackageId) || (!reservation.promotionPackageId && originalReservation.promotionPackageId))){
+                reCalculate = true;console.log('promotion package changed');
+            }
+
+
+            if (reservation.roomNo && reCalculate) {
 
                 c.i('vital changed, delete all room reservations and room charges');
                 await this.roomReservationRepository.deleteWhere(eq("reservationId", reservation.id), tx as any);
@@ -674,7 +696,7 @@ export default class ReservationService implements IReservationService {
 
     async roomChargeGetListById(reservationId: string, sessionUser: SessionUser): Promise<RoomCharge[]> {
         c.fs('ReservationService > roomChargeGetListById');
-        const [result] = await this.roomChargeRepository.findMany(eq("reservationId", reservationId));
+        const [result] = await this.roomChargeRepository.findMany(eq("reservationId", reservationId), asc("startDate"));
         return result;
     }
 

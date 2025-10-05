@@ -191,6 +191,36 @@ export async function billsSave(id: string, bills: Bill[]): Promise<FormState> {
 }
 
 
+export async function getReservation(reservationId:string){
+    c.fs("Action > getReservation");
+    c.d(reservationId);
+
+    //update user
+    c.i("Requesting API to retrieve customers.");
+    const response = await fetch(process.env.API_URL + `reservations/${reservationId}/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
+    });
+    const responseData = await response.json();
+    
+    //retrieve user failed
+    if (!response.ok) {
+      c.i("Retrieve reservation api response failed. Return response.");
+      c.e(responseData.message);
+      return { error: true, message: `Failed to retrieve reservation. ${responseData.message}`};
+    }
+
+    c.i("Retrieve reservation successful.");
+    c.d(responseData);
+    const reservation = responseData.data;
+    c.fe("Action > getReservation");
+    return {error:false, data:{reservation:reservation}};
+}
+
+
 export async function invoiceView(id: string): Promise<FormState> {
   try {
     c.fs('Actions > billsView');
@@ -244,7 +274,8 @@ export async function paymentsGet(id: string): Promise<FormState> {
       c.e(result.message);
       return { error: true, message: `Failed to get bills. ${result.message}`, data: null, formData: null };
     }
-    c.d(result.bills?.length);
+    c.d(result.payments?.length);
+    c.d(result.payments?.length > 0 ? result.payments[0] : []);
     //update user success
     c.fe('Actions > paymentsGet');
     return { error: false, message: "", data: result.payments, formData: null };

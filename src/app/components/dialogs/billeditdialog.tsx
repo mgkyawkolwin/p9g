@@ -17,6 +17,7 @@ import BillDataTable from "../../../lib/components/web/react/uicustom/billdatata
 import { Checkbox } from "../../../lib/components/web/react/ui/checkbox";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { CheckboxCustom } from "@/lib/components/web/react/uicustom/CheckboxCustom";
 
 
 interface DataTableProps {
@@ -165,7 +166,7 @@ export default function BillEditDialog({
     {
       accessorKey: "isPaid",
       header: 'Is Paid',
-      cell: (row) => <Checkbox key={`${row.row.original.id}-isPaid`}
+      cell: (row) => <CheckboxCustom key={`${row.row.original.id}-isPaid`}
         checked={Boolean(row.row.original.isPaid)}
         onCheckedChange={(checked) => {
           handleInputChange(row.row.index, "isPaid", checked.valueOf());
@@ -196,7 +197,7 @@ export default function BillEditDialog({
         </div>
       }
     },
-  ], []);
+  ], [bills.length, reservationId]);
 
 
   function getActionButton(id: string | undefined, reservationId: string, rowIndex: number) {
@@ -257,7 +258,7 @@ export default function BillEditDialog({
               setOpen(false);
           }}>Save Bill</ButtonCustom>
           <ButtonCustom onClick={() => {
-            setBills(prev => [...prev, { ...new Bill(), reservationId }]);
+            setBills(prev => [...prev, { ...new Bill(), reservationId, modelState: 'inserted' }]);
           }}>Add Row</ButtonCustom>
           <DialogClose asChild>
             <ButtonCustom variant="black" onClick={() => {

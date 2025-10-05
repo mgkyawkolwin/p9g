@@ -12,6 +12,8 @@ import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcus
 import { moveRoom } from "@/app/(private)/console/roomchange/actions";
 import { toast } from "sonner";
 import SimpleDataTable from "../../../lib/components/web/react/uicustom/simpledatatable";
+import { CopyIcon } from "lucide-react";
+import RoomReservationDto from "@/core/models/dto/RoomReservationDto";
 
 
 interface DataTableProps {
@@ -27,7 +29,7 @@ export default function RoomChangeListTable({
   formRef
 }: DataTableProps) {
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<RoomReservationDto>[] = [
     {
       accessorKey: "roomNo",
       header: "Room",
@@ -39,6 +41,14 @@ export default function RoomChangeListTable({
     {
       accessorKey: "reservationId",
       header: "Reservation Id",
+      accessorFn: row => <div>{row.reservationId}&nbsp;&nbsp;&nbsp;{row.reservationId && <CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.reservationId)} />}</div>,
+      cell: (row) => row.getValue()
+    },
+    {
+      accessorKey: "customers",
+      header: "Customers",
+      accessorFn: (row) => <div>{row.customers ? row.customers.map(c => c.englishName).join(', ') : 0}</div>,
+      cell: (row) => row.getValue(),
     },
     {
       accessorKey: "checkInDate",
@@ -64,9 +74,10 @@ export default function RoomChangeListTable({
       cell: ({ row }) => {
         return <div className="flex gap-1">
           <ButtonCustom type="button" variant={"black"} size={"sm"} 
-          disabled={!row.original.reservations || row.original.reservations.length <= 0}
+          //disabled={!row.original.reservations || row.original.reservations.length <= 0}
+          disabled
           onClick={() => {
-            setReservationId(row.original.reservations[0].id);
+            setReservationId(row.original.reservationId);
             setOpenMoveRoomDialog(true);
             }}>Move Room</ButtonCustom>
         </div>

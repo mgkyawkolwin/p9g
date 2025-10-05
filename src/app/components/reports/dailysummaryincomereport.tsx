@@ -1,10 +1,14 @@
 import DailySummaryIncomeReportRow from "@/core/models/dto/reports/DailySummaryIncomeReportRow";
 import { Theme } from "@/core/constants";
+import * as XSLX from "xlsx";
+import React from "react";
+import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
 
 export default function DailySummaryIncomeReport({ reportRows }: { reportRows: DailySummaryIncomeReportRow[] }) {
     const formatter = new Intl.NumberFormat('en-US', {
         style: "decimal"
     });
+    const reportRef = React.useRef(null);
 
     let totalCheckInReservations = 0, totalRoomCharge = 0, totalDeposit = 0, totalTaxAmount = 0, totalPaid = 0, totalDiscount = 0, totalDue = 0;
     let totalDepositBankKWR = 0, totalDepositBankMMK = 0, totalDepositBankTHB = 0, totalDepositBankUSD = 0;
@@ -24,10 +28,18 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
     return (
         <div className="flex flex-col w-full gap-4">
             <div className="text-center text-[18pt]">
+                <ButtonCustom variant="green" size="sm" className="float-left" onClick={() => {
+                    if(reportRef.current){
+                        const ws = XSLX.utils.table_to_sheet(reportRef.current);
+                        const wb = XSLX.utils.book_new();
+                        XSLX.utils.book_append_sheet(wb, ws, "DailySummaryIncomeReport");
+                        XSLX.writeFile(wb, `DailySummaryIncomeReport_${new Date().toISOString().substring(0,10)}.xlsx`);
+                    }
+                }}>Download Excel</ButtonCustom>
                 Daily Summary Report (Income)
             </div>
             <div>
-                <table className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>
+                <table ref={reportRef} className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>
                     <thead className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder}`}>
                         <tr key={`headrow-${Math.random()}`} className={`border ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`}>
                             <th key={`headcell-${Math.random()}`} className={`border-r-1 ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`} colSpan={9}>Room Payment Summary</th>
@@ -133,7 +145,7 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                         </tr>
                     </thead>
                     <tbody>
-                        {reportRows?.length === 0 && <tr><td colSpan={6}>No Data</td></tr>}
+                        {reportRows?.length === 0 && <tr className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}><td className="p-2" colSpan={6}>No Data</td></tr>}
                         {reportRows.map((rp, index) => {
                             totalCheckInReservations += Number(rp.totalCheckInReservations);
                             totalRoomCharge += Number(rp.totalRoomCharge);

@@ -12,6 +12,13 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { reservationCancel, reservationCheckIn } from "@/app/(private)/console/checkin/actions"
 import { toast } from "sonner"
 import { getReservationStatusColorClass } from "@/core/helpers";
+import ReceiptDialog from "../dialogs/receiptdialog";
+import PaymentDialog from "../dialogs/paymentdialog";
+import BillEditDialog from "../dialogs/billeditdialog";
+import BillDialog from "../dialogs/billdialog";
+import RoomChargeDialog from "../dialogs/roomschargedialog";
+import { useRouter } from "next/navigation";
+import { CopyIcon } from "lucide-react";
 
 
 interface DataTableProps {
@@ -27,13 +34,15 @@ export default function CheckInListTable({
   formRef
 }: DataTableProps) {
 
+  const router = useRouter();
+
   const columns: ColumnDef<Reservation>[] = [
     {
       accessorKey: "customReservationInfo",
       header: "ID",
       accessorFn: (row) => {
         return <span>
-          <a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a><br />
+          <div className="whitespace-nowrap"><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a>&nbsp;&nbsp;&nbsp;<CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} /></div>
           <span className={`font-bold ${getReservationStatusColorClass(row.reservationStatusText)}`}>{row.reservationStatusText}</span><br />
           <span>{row.reservationTypeText}</span>
           {row.prepaidPackageText ? <span className="font-bold text-[#ff00ff] dark:text-[#ff00ff]"><br />{row.prepaidPackageText}</span> : ''}
@@ -100,26 +109,59 @@ export default function CheckInListTable({
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => {
-        return <div className="flex gap-1">
-          {/* <ButtonCustom type="button" variant={"black"} size={"sm"}>View Bill</ButtonCustom> */}
-          <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={() => {
-            setCheckInId(row.original.id);
-            setOpenCheckInDialog(true);
-          }} >Check-In</ButtonCustom>
-          <ButtonCustom type="button" variant={"red"} size={"sm"} onClick={() => {
-            setCancelId(row.original.id);
-            setOpenCancelDialog(true);
-          }}>Cancel</ButtonCustom>
+        return <div className="flex flex-col gap-1">
+          <div className="flex gap-1">
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+              roomDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+            }}>Rooms & Charges</ButtonCustom>
+          </div>
+          <div className="flex gap-1">
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+              receiptDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+            }}>Receipt</ButtonCustom>
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+              paymentDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+            }}>Payment</ButtonCustom>
+          </div>
+          <div className="flex gap-1">
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+              viewDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+            }}>View Bill</ButtonCustom>
+            <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
+              editDialogCallbackFunc.current?.openDialog(true);
+              setReservationId(row.original.id);
+            }}>Edit Bill</ButtonCustom>
+          </div>
+          <div className="flex gap-1">
+            <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={() => {
+              setCheckInId(row.original.id);
+              setOpenCheckInDialog(true);
+            }}>Check In</ButtonCustom>
+            <ButtonCustom type="button" variant={"red"} size={"sm"} onClick={() => {
+              setCancelId(row.original.id);
+              setOpenCancelDialog(true);
+            }}>Cancel</ButtonCustom>
+          </div>
         </div>
       }
     },
   ];
 
+  const receiptDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
+  const paymentDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
+  const editDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
+  const viewDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
+  const roomDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
 
   const [openCancelDiallog, setOpenCancelDialog] = React.useState(false);
   const [openCheckInDialog, setOpenCheckInDialog] = React.useState(false);
   const [cancelId, setCancelId] = React.useState<string>('');
   const [checkInId, setCheckInId] = React.useState('');
+  const [reservationId, setReservationId] = React.useState<string>('');
 
   return (
     <>
@@ -176,6 +218,11 @@ export default function CheckInListTable({
           </DialogContent>
         </Dialog>
       </section>
+      <ReceiptDialog reservationId={reservationId} callbackFunctions={(func) => { receiptDialogCallbackFunc.current = func }} />
+      <PaymentDialog reservationId={reservationId} callbackFunctions={(func) => { paymentDialogCallbackFunc.current = func }} />
+      <BillEditDialog reservationId={reservationId} callbackFunctions={(func) => { editDialogCallbackFunc.current = func }} />
+      <BillDialog reservationId={reservationId} callbackFunctions={(func) => { viewDialogCallbackFunc.current = func }} />
+      <RoomChargeDialog reservationId={reservationId} callbackFunctions={(func) => { roomDialogCallbackFunc.current = func }} />
     </>
   )
 }

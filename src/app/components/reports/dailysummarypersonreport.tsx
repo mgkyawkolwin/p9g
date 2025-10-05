@@ -1,5 +1,8 @@
 import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
 import { Theme } from "@/core/constants";
+import * as XSLX from "xlsx";
+import React from "react";
+import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
 
 export default function DailySummaryPersonReport({ reportRows }: { reportRows: DailySummaryPersonReportRow[] }) {
     const formatter = new Intl.NumberFormat('en-US', {
@@ -8,14 +11,23 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
 
     let totalGuestCheckIn = 0;
     let totalGuestCheckOut = 0;
+    const reportRef = React.useRef(null);
 
     return (
         <div className="flex flex-col w-full gap-4">
             <div className="text-center text-[18pt]">
+                <ButtonCustom variant="green" size="sm" className="float-left" onClick={() => {
+                    if(reportRef.current){
+                        const ws = XSLX.utils.table_to_sheet(reportRef.current);
+                        const wb = XSLX.utils.book_new();
+                        XSLX.utils.book_append_sheet(wb, ws, "DailySummaryPersonReport");
+                        XSLX.writeFile(wb, `DailySummaryPersonReport_${new Date().toISOString().substring(0,10)}.xlsx`);
+                    }
+                }}>Download Excel</ButtonCustom>
                 Daily Summary Report (Person)
             </div>
             <div>
-                <table className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>
+                <table ref={reportRef} className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>
                     <thead>
                         <tr className={`border ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder}`}>
                             <th className="p-2 text-right">No</th>
@@ -24,10 +36,11 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
                             <th className="text-right">Guests Check-Out</th>
                             <th className="text-right">Guests Total</th>
                             <th className="p-2 text-right">Reservation Total</th>
+                            <th className="p-2 text-right">Rooms Total (Reserved)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {reportRows?.length === 0 && <tr><td className={`${Theme.Style.tableCellText}`} colSpan={6}>No Data</td></tr>}
+                        {reportRows?.length === 0 && <tr className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}><td className={`p-2 ${Theme.Style.tableCellText}`} colSpan={6}>No Data</td></tr>}
                         {reportRows.map((rp, index) => {
                             totalGuestCheckIn = totalGuestCheckIn + Number(rp.guestsCheckIn);
                             totalGuestCheckOut = totalGuestCheckOut + Number(rp.guestsCheckOut);
@@ -39,6 +52,7 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
                                 <td className="text-right">{rp.guestsCheckOut}</td>
                                 <td className="text-right">{rp.guestsTotal}</td>
                                 <td className="p-2 text-right">{rp.reservationTotal}</td>
+                                <td className="p-2 text-right">{rp.roomsTotal}</td>
                             </tr>;
                         })}
                     </tbody>
@@ -48,6 +62,7 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
                             <th>Total</th>
                             <th className="text-right">{totalGuestCheckIn}</th>
                             <th className="text-right">{totalGuestCheckOut}</th>
+                            <th className=""></th>
                             <th className=""></th>
                             <th className=""></th>
                         </tr>
