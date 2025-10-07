@@ -74,8 +74,7 @@ export default function RoomChangeListTable({
       cell: ({ row }) => {
         return <div className="flex gap-1">
           <ButtonCustom type="button" variant={"black"} size={"sm"} 
-          //disabled={!row.original.reservations || row.original.reservations.length <= 0}
-          disabled
+          disabled={!row.original.reservationId}
           onClick={() => {
             setReservationId(row.original.reservationId);
             setOpenMoveRoomDialog(true);
@@ -116,7 +115,7 @@ export default function RoomChangeListTable({
             <DialogFooter>
               <ButtonCustom variant={"red"} type="button" onClick={async () => {
                 setOpenMoveRoomDialog(false);
-                const response = await moveRoom(reservationId, roomNo);
+                const response = await moveRoom(reservationId, roomNo, new Date().getLocalDateAsUTCDate());
                 if(response.error)
                   toast(response.message);
                 else

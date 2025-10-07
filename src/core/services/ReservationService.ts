@@ -26,8 +26,9 @@ import RoomType from "../models/domain/RoomType";
 import ReservationCustomer from "../models/domain/ReservationCustomer";
 import PrepaidEntity from "@/core/models/entity/PrepaidEntity";
 import PromotionEntity from "@/core/models/entity/PromotionEntity";
-import {and, asc, desc, eq, ne} from "@/lib/transformers/types";
+import { and, asc, desc, eq, ne } from "@/lib/transformers/types";
 import RoomReservationDto from "../models/dto/RoomReservationDto";
+import { check } from "drizzle-orm/pg-core";
 
 @injectable()
 export default class ReservationService implements IReservationService {
@@ -57,7 +58,7 @@ export default class ReservationService implements IReservationService {
         c.fs('ReservationService > billDeleteById');
         if (!reservationId) throw new CustomError('Service: Reservation id is required.');
         if (!billId) throw new CustomError('Service: Reservation id is required.');
-        
+
         return await this.billRepository.delete(billId);
     }
 
@@ -72,7 +73,7 @@ export default class ReservationService implements IReservationService {
         c.fs('ReservationService > billUpdateList');
         c.d(`Bills: ${bills.length}`);
         c.d(bills);
-        
+
         c.i('Preparing data based on model state.');
         const updateList = bills.filter(b => b.modelState == 'updated');
         const insertList = bills.filter(b => b.modelState == "inserted");
@@ -96,7 +97,7 @@ export default class ReservationService implements IReservationService {
 
         await this.dbClient.db.transaction(async (tx: any) => {
             c.i('Deleting bills');
-            for(const bill of deleteList){
+            for (const bill of deleteList) {
                 await this.billRepository.delete(bill.id);
             }
 
@@ -114,7 +115,7 @@ export default class ReservationService implements IReservationService {
     }
 
 
-    private calculateAllAmount(reservation: Reservation) : Reservation {
+    private calculateAllAmount(reservation: Reservation): Reservation {
         reservation.taxAmount = Number(reservation.totalAmount ?? 0) * Number(reservation.tax ?? 0) / 100;
         reservation.netAmount = Number(reservation.totalAmount ?? 0) + Number(reservation.taxAmount ?? 0) - Number(reservation.discountAmount ?? 0) - Number(reservation.depositAmount ?? 0);
         reservation.dueAmount = Number(reservation.netAmount ?? 0) - Number(reservation.paidAmount ?? 0);
@@ -182,7 +183,7 @@ export default class ReservationService implements IReservationService {
 
     async paymentUpdateList(reservationId: string, payments: Payment[], sessionUser: SessionUser): Promise<void> {
         c.fs('ReservationService > paymentUpdateList');
-        
+
         const updateList = payments.filter(p => p.modelState === 'updated');
         const insertList = payments.filter(p => p.modelState === 'inserted');
         const deleteList = payments.filter(p => p.modelState === 'deleted');
@@ -204,12 +205,12 @@ export default class ReservationService implements IReservationService {
 
         await this.dbClient.db.transaction(async (tx: TransactionType) => {
             c.i('Deleting payments');
-            for(const payment of deleteList){
+            for (const payment of deleteList) {
                 await this.paymentRepository.delete(payment.id);
             }
 
             c.i('Updating payments');
-            for(const payment of updateList){
+            for (const payment of updateList) {
                 await this.paymentRepository.update(payment.id, payment);
             }
 
@@ -220,14 +221,14 @@ export default class ReservationService implements IReservationService {
 
             const totalPaid = payments.reduce((acc, p) => (acc + p.amount), 0);
 
-            let reservation : Reservation = await this.reservationRepository.findById(reservationId);
-            if(!reservation) throw new CustomError('Reservation service cannot find reservation');
+            let reservation: Reservation = await this.reservationRepository.findById(reservationId);
+            if (!reservation) throw new CustomError('Reservation service cannot find reservation');
 
             reservation.paidAmount = totalPaid;
             reservation = this.calculateAllAmount(reservation);
 
             c.i('Updating reservation');
-            await this.reservationRepository.update(reservationId, {paidAmount: reservation.paidAmount, dueAmount: reservation.dueAmount} as Reservation, tx as any);
+            await this.reservationRepository.update(reservationId, { paidAmount: reservation.paidAmount, dueAmount: reservation.dueAmount } as Reservation, tx as any);
         });
     }
 
@@ -329,44 +330,44 @@ export default class ReservationService implements IReservationService {
 
         c.i('Retrieveing reservation status id');
         const reservationStatus = await this.configRepository.findOne(and(eq("group", ConfigGroup.RESERVATION_STATUS), eq("value", reservation.reservationStatus)));
-        if(!reservationStatus) throw new CustomError('Reservation service cannot find reservation status');
+        if (!reservationStatus) throw new CustomError('Reservation service cannot find reservation status');
         reservation.reservationStatusId = reservationStatus.id;
 
         c.i('Retrieveing reservation type id');
         const reservationType = await this.configRepository.findOne(and(eq("group", ConfigGroup.RESERVATION_TYPE), eq("value", reservation.reservationType)));
-        if(!reservationType) throw new CustomError('Reservation service cannot find reservation type');
+        if (!reservationType) throw new CustomError('Reservation service cannot find reservation type');
         reservation.reservationTypeId = reservationType.id;
 
-        if(reservation.prepaidPackage){
+        if (reservation.prepaidPackage) {
             c.i('Retrieveing prepaid package id');
             const prepaidPackage = await this.prepaidRepository.findOne(eq("value", reservation.prepaidPackage));
-            if(!prepaidPackage) throw new CustomError('Reservation service cannot find prepaid package');
+            if (!prepaidPackage) throw new CustomError('Reservation service cannot find prepaid package');
             reservation.prepaidPackageId = prepaidPackage.id;
         }
 
-        if(reservation.promotionPackage){
+        if (reservation.promotionPackage) {
             c.i('Retrieveing promotion package id');
             const prromotionPackage = await this.promotionRepository.findOne(eq("value", reservation.promotionPackage));
-            if(!prromotionPackage) throw new CustomError('Reservation service cannot find promotion package');
+            if (!prromotionPackage) throw new CustomError('Reservation service cannot find promotion package');
             reservation.promotionPackageId = prromotionPackage.id;
         }
 
-        if(reservation.pickUpType){
+        if (reservation.pickUpType) {
             c.i('Retrieveing pickup type id');
             const pickupType = await this.configRepository.findOne(and(eq("group", ConfigGroup.RIDE_TYPE), eq("value", reservation.pickUpType)));
-            if(!pickupType) throw new CustomError('Reservation service cannot find pickup type.');
+            if (!pickupType) throw new CustomError('Reservation service cannot find pickup type.');
             reservation.pickUpTypeId = pickupType.id;
         }
 
-        if(reservation.dropOffType){
+        if (reservation.dropOffType) {
             c.i('Retrieveing pickup type id');
             const dropOffType = await this.configRepository.findOne(and(eq("group", ConfigGroup.RIDE_TYPE), eq("value", reservation.dropOffType)));
-            if(!dropOffType) throw new CustomError('Reservation service cannot find drop off type.');
+            if (!dropOffType) throw new CustomError('Reservation service cannot find drop off type.');
             reservation.dropOffTypeId = dropOffType.id;
         }
 
-        let room : Room;
-        if(reservation.roomNo){
+        let room: Room;
+        if (reservation.roomNo) {
             c.i('Retrieveing room info');
             room = await this.roomRepository.findOne(eq("roomNo", reservation.roomNo));
         }
@@ -393,10 +394,10 @@ export default class ReservationService implements IReservationService {
                     return rc;
                 });
                 c.d(newReservationCustomers?.length);
-                
+
                 await this.reservationCustomerRepository.createMany(newReservationCustomers, tx);
             }
-            
+
             if (reservation.roomNo && room) {
                 c.i('Creating room reservation');
                 const rrResult = await this.roomReservationCreate(createdReservation, sessionUser, tx);
@@ -437,7 +438,7 @@ export default class ReservationService implements IReservationService {
     }
 
 
-    async reservationMoveRoom(id: string, roomNo: string, sessionUser: SessionUser): Promise<void> {
+    async reservationMoveRoom(id: string, roomNo: string, date: string, sessionUser: SessionUser): Promise<void> {
         c.fs('ReservationService > reservationMoveRoom');
         c.d(id);
         c.d(roomNo);
@@ -447,32 +448,73 @@ export default class ReservationService implements IReservationService {
         if (!room) throw new CustomError('Cannot find room while moving room');
 
         c.i('Retrieve reservation.');
-        const reservation: Reservation = await this.reservationRepository.findById(id);
+        let reservation: Reservation = await this.reservationRepository.findById(id);
         if (!reservation) throw new CustomError('Cannot find reservation while moving room');
 
-        const [[roomReservation], count]: [RoomReservation[], Number] = await this.roomReservationRepository.findMany(eq('id', id), desc("checkInDate"), 0, 1);
-        if (!roomReservation) throw new CustomError('Cannot find room reservation.');
+        let [roomReservations, count]: [RoomReservation[], Number] = await this.roomReservationRepository.findMany(eq('reservationId', id));
+        if (!roomReservations) throw new CustomError('Cannot find room reservations.');
+
+        roomReservations = roomReservations.sort((a, b) => a.checkInDate.getTime() - b.checkInDate.getTime());
+        const roomReservation = roomReservations[0];
 
         await this.dbClient.db.transaction(async (tx: TransactionType) => {
             c.i('Inside transaction');
-            const date = new Date(new Date().toISOString());
+            const newCheckInDate = new Date(date);
+            const checkOutDate = new Date(date);
+            checkOutDate.setDate(checkOutDate.getDate() - 1);
             c.i('Update current roomReservation record');
-            await this.roomReservationRepository.update(roomReservation.id, { checkOutDate: date, updatedBy: sessionUser.id } as RoomReservation, tx as any);
+            roomReservation.updatedAtUTC = new Date();
+            roomReservation.updatedBy = sessionUser.id;
+            roomReservation.checkOutDate = checkOutDate;
+            await this.roomReservationRepository.update(roomReservation.id, { checkOutDate: checkOutDate, updatedAtUTC: new Date(), updatedBy: sessionUser.id } as RoomReservation, tx as any);
 
             c.i('Create new roomReservation record');
             const newRoomReservation = new RoomReservation();
             newRoomReservation.reservationId = id;
             newRoomReservation.roomId = room.id;
-            newRoomReservation.checkInDate = date;
+            newRoomReservation.checkInDate = newCheckInDate;
             newRoomReservation.checkOutDate = reservation.checkOutDate;
             newRoomReservation.isSingleOccupancy = reservation.isSingleOccupancy;
+            newRoomReservation.roomTypeId = room.roomTypeId;
+            newRoomReservation.createdAtUTC = new Date();
             newRoomReservation.createdBy = sessionUser.id;
+            newRoomReservation.updatedAtUTC = new Date();
             newRoomReservation.updatedBy = sessionUser.id;
+
+            roomReservations.push(newRoomReservation);
 
             await this.roomReservationRepository.create(newRoomReservation, tx as any);
 
-            c.i('Update reservation table.');
-            await this.reservationRepository.update(id, { roomNo: roomNo } as Reservation, tx as any);
+            await this.roomChargeRepository.deleteWhere(eq('reservationId', id), tx as any);
+
+            const [roomTypes, rtc] = await this.roomTypeRepository.findMany(eq("location", reservation.location));
+            if (!roomTypes) throw new CustomError('Service cannot find room types.');
+
+            const [roomRates, rrc] = await this.roomRateRepository.findMany(eq("location", reservation.location));
+            if (!roomRates) throw new CustomError('Service cannot find room rates.');
+
+            const roomCharges = await RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
+            if (!roomCharges || roomCharges.length === 0)
+                throw new Error('Invalid room charge calculation.');
+            console.log(`Room Charges: ${roomCharges.length}`);
+
+            for (const roomCharge of roomCharges) {
+                roomCharge.createdAtUTC = new Date();
+                roomCharge.createdBy = sessionUser.id;
+                roomCharge.updatedAtUTC = new Date();
+                roomCharge.updatedBy = sessionUser.id;
+            }
+            await this.roomChargeRepository.createMany(roomCharges, tx as any);
+
+            const totalRoomCharges = roomCharges.reduce((accu, rc) => accu += rc.totalAmount, 0);
+            reservation.roomNo = roomNo;
+            reservation.totalAmount = totalRoomCharges;
+            reservation = this.calculateAllAmount(reservation);console.log(reservation);
+            await this.reservationRepository.update(reservation.id, reservation, tx as any);
+        },{
+            isolationLevel: "read uncommitted",
+            accessMode: "read write",
+            withConsistentSnapshot: false,
         });
     }
 
@@ -514,56 +556,56 @@ export default class ReservationService implements IReservationService {
 
         c.i('Retrieveing reservation status id');
         const reservationStatus = await this.configRepository.findOne(and(eq("group", ConfigGroup.RESERVATION_STATUS), eq("value", reservation.reservationStatus)));
-        if(!reservationStatus) throw new CustomError('Reservation service cannot find reservation status');
+        if (!reservationStatus) throw new CustomError('Reservation service cannot find reservation status');
         reservation.reservationStatusId = reservationStatus.id;
 
         c.i('Retrieveing reservation type id');
         const reservationType = await this.configRepository.findOne(and(eq("group", ConfigGroup.RESERVATION_TYPE), eq("value", reservation.reservationType)));
-        if(!reservationType) throw new CustomError('Reservation service cannot find reservation type');
+        if (!reservationType) throw new CustomError('Reservation service cannot find reservation type');
         reservation.reservationTypeId = reservationType.id;
 
-        if(reservation.prepaidPackage){
+        if (reservation.prepaidPackage) {
             c.i('Retrieveing prepaid package id');
             const prepaidPackage = await this.prepaidRepository.findOne(eq("value", reservation.prepaidPackage));
-            if(!prepaidPackage) throw new CustomError('Reservation service cannot find prepaid package');
+            if (!prepaidPackage) throw new CustomError('Reservation service cannot find prepaid package');
             reservation.prepaidPackageId = prepaidPackage.id;
-        }else{
+        } else {
             reservation.prepaidPackageId = null;
         }
 
-        if(reservation.promotionPackage){
+        if (reservation.promotionPackage) {
             c.i('Retrieveing promotion package id');
             const prromotionPackage = await this.promotionRepository.findOne(eq("value", reservation.promotionPackage));
-            if(!prromotionPackage) throw new CustomError('Reservation service cannot find promotion package');
+            if (!prromotionPackage) throw new CustomError('Reservation service cannot find promotion package');
             reservation.promotionPackageId = prromotionPackage.id;
-        }else{
+        } else {
             reservation.promotionPackageId = null;
         }
 
-        if(reservation.pickUpType){
+        if (reservation.pickUpType) {
             c.i('Retrieveing pickup type id');
             const pickupType = await this.configRepository.findOne(and(eq("group", ConfigGroup.RIDE_TYPE), eq("value", reservation.pickUpType)));
-            if(!pickupType) throw new CustomError('Reservation service cannot find pickup type.');
+            if (!pickupType) throw new CustomError('Reservation service cannot find pickup type.');
             reservation.pickUpTypeId = pickupType.id;
-        }else{
+        } else {
             reservation.pickUpTypeId = null;
         }
 
-        if(reservation.dropOffType){
+        if (reservation.dropOffType) {
             c.i('Retrieveing pickup type id');
             const dropOffType = await this.configRepository.findOne(and(eq("group", ConfigGroup.RIDE_TYPE), eq("value", reservation.dropOffType)));
-            if(!dropOffType) throw new CustomError('Reservation service cannot find drop off type.');
+            if (!dropOffType) throw new CustomError('Reservation service cannot find drop off type.');
             reservation.dropOffTypeId = dropOffType.id;
-        }else{
+        } else {
             reservation.dropOffTypeId = null;
         }
 
-        const result = this.dbClient.db.transaction(async (tx: TransactionType) => {
+        c.i('Retrieveing original reservation');
+        const originalReservation = await this.reservationRepository.findById(id);
+        if (!originalReservation)
+            throw new CustomError('Cannot find original reservation.');
 
-            c.i('Retrieveing original reservation');
-            const originalReservation = await this.reservationRepository.findById(id);
-            if (!originalReservation)
-                throw new CustomError('Cannot find original reservation.');
+        const result = this.dbClient.db.transaction(async (tx: TransactionType) => {
 
             c.i('Updating reservation');
             reservation.totalAmount = originalReservation.totalAmount;
@@ -591,22 +633,22 @@ export default class ReservationService implements IReservationService {
 
 
             const room = await this.roomRepository.findOne(eq("roomNo", reservation.roomNo));
-            if (room && reservation.roomNo && originalReservation.roomNo !== reservation.roomNo){
-                reCalculate = true;console.log('room no changed');
-            }else if (reservation.checkInDate.getTime() !== originalReservation.checkInDate.getTime()){
-                reCalculate = true;console.log('check in date changed');
-            }else if (reservation.checkOutDate.getTime() !== originalReservation.checkOutDate.getTime()){
-                reCalculate = true;console.log('check out date changed');
-            }else if (reservation.isSingleOccupancy !== originalReservation.isSingleOccupancy){
-                reCalculate = true;console.log('is single occupancy changed');
-            }else if(reservation.noOfGuests !== originalReservation.noOfGuests){
-                reCalculate = true;console.log('no of guests changed');
-            }else if(reservation.reservationTypeId !== originalReservation.reservationTypeId){
-                reCalculate = true;console.log('reservation type changed');
-            }else if(reservation.prepaidPackageId !== originalReservation.prepaidPackageId && ((reservation.prepaidPackageId && originalReservation.prepaidPackageId) || (reservation.prepaidPackageId && !originalReservation.prepaidPackageId) || (!reservation.prepaidPackageId && originalReservation.prepaidPackageId))){
-                reCalculate = true;console.log(`prepaid package changed: ${reservation.prepaidPackageId} - ${originalReservation.prepaidPackageId}`);
-            }else if(reservation.promotionPackageId !== originalReservation.promotionPackageId && ((reservation.promotionPackageId && originalReservation.promotionPackageId) || (reservation.promotionPackageId && !originalReservation.promotionPackageId) || (!reservation.promotionPackageId && originalReservation.promotionPackageId))){
-                reCalculate = true;console.log('promotion package changed');
+            if (room && reservation.roomNo && originalReservation.roomNo !== reservation.roomNo) {
+                reCalculate = true; console.log('room no changed');
+            } else if (reservation.checkInDate.getTime() !== originalReservation.checkInDate.getTime()) {
+                reCalculate = true; console.log('check in date changed');
+            } else if (reservation.checkOutDate.getTime() !== originalReservation.checkOutDate.getTime()) {
+                reCalculate = true; console.log('check out date changed');
+            } else if (reservation.isSingleOccupancy !== originalReservation.isSingleOccupancy) {
+                reCalculate = true; console.log('is single occupancy changed');
+            } else if (reservation.noOfGuests !== originalReservation.noOfGuests) {
+                reCalculate = true; console.log('no of guests changed');
+            } else if (reservation.reservationTypeId !== originalReservation.reservationTypeId) {
+                reCalculate = true; console.log('reservation type changed');
+            } else if (reservation.prepaidPackageId !== originalReservation.prepaidPackageId && ((reservation.prepaidPackageId && originalReservation.prepaidPackageId) || (reservation.prepaidPackageId && !originalReservation.prepaidPackageId) || (!reservation.prepaidPackageId && originalReservation.prepaidPackageId))) {
+                reCalculate = true; console.log(`prepaid package changed: ${reservation.prepaidPackageId} - ${originalReservation.prepaidPackageId}`);
+            } else if (reservation.promotionPackageId !== originalReservation.promotionPackageId && ((reservation.promotionPackageId && originalReservation.promotionPackageId) || (reservation.promotionPackageId && !originalReservation.promotionPackageId) || (!reservation.promotionPackageId && originalReservation.promotionPackageId))) {
+                reCalculate = true; console.log('promotion package changed');
             }
 
 
@@ -657,7 +699,7 @@ export default class ReservationService implements IReservationService {
                 const totalRoomCharges = roomCharges.reduce((accu, rc) => accu += rc.totalAmount, 0);
                 reservation.totalAmount = totalRoomCharges;
                 reservation = this.calculateAllAmount(reservation);
-                await this.reservationRepository.update( reservation.id, reservation, tx as any);
+                await this.reservationRepository.update(reservation.id, reservation, tx as any);
             } else if (!reservation.roomNo) {
                 c.i('no room number, clear all room reservations and room charges');
                 await this.roomReservationRepository.deleteWhere(eq("reservationId", reservation.id), tx as any);

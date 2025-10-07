@@ -136,6 +136,49 @@ export default function ReceiptDialog({
           `</tr>`;
       }
     });
+    let pickUpPrinted = false;
+    let dropOffPrinted = false;
+    reservation?.bills?.forEach((bill, index) => {
+      if(bill.paymentType === 'PICKUP') {
+        pickUpPrinted = true;
+      } 
+      if(bill.paymentType === 'DROPOFF') {
+        dropOffPrinted = true;
+      }
+      if (bill.paymentType === 'PICKUP' || bill.paymentType === 'DROPOFF') {
+        content += `<tr>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${bill.paymentType} - ${bill.amount} ${bill.currency}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `</tr>`;
+      }
+    });
+    if(!pickUpPrinted){
+      content += `<tr>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">PICKUP - </td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `</tr>`;
+    }
+    if(!dropOffPrinted){
+      content += `<tr>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">DROPOFF - </td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: right;"></td>` +
+          `</tr>`;
+    }
     content += `</tbody><tfoot>` +
       `<tr><td colspan="6" style="padding: 8px; text-align: right; font-weight:bold;">Total</td>` +
       `<td style="border: 1px solid #666; padding: 8px; text-align: right; font-weight:bold;">${formatter.format(reservation.totalAmount)}</td></tr>` +

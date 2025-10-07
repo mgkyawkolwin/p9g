@@ -64,10 +64,10 @@ export async function roomReservationGetList(formState : FormState, formData: Fo
 }
 
 
-export async function moveRoom(id: string, roomNo:string){
+export async function moveRoom(id: string, roomNo:string, moveDate: Date){
   try{
     c.fs('Action > moveRoom');
-    const response = await fetch(process.env.API_URL + `roomreservation?id=${id}&roomNo=${roomNo}`, {
+    const response = await fetch(process.env.API_URL + `roomreservation?id=${id}&roomNo=${roomNo}&date=${moveDate.toISOString()}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
