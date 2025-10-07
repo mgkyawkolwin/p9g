@@ -57,6 +57,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
             customer: { ...customerTable },
+            bill: { ...billTable },
             reservationStatus: reservationStatusAlias.value,
             reservationStatusText: reservationStatusAlias.text,
             reservationType: reservationTypeAlias.value,
@@ -79,6 +80,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
             .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
+            .leftJoin(billTable, eq(billTable.reservationId, reservationTable.id))
             .where(eq(reservationTable.id, id));
 
         const dataqueryresult = await dataQuery;
@@ -109,6 +111,9 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             }
             if (customer) {
                 rsvn?.customers?.push(customer);
+            }
+            if (bill) {
+                rsvn.bills.push(bill);
             }
 
             return acc;
@@ -341,36 +346,48 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         c.fs('ReservationRepository > roomAndReservationGetList');
         c.d(searchFormFields);
 
-        const dataQuery = this.dbClient.db
+        const asRsv = this.dbClient.db
             .select({
-                roomNo: roomTable.roomNo,
-                roomTypeText: roomTypeTable.roomTypeText,
+                roomId: roomReservationTable.roomId,
                 reservationId: reservationTable.id,
                 checkInDate: roomReservationTable.checkInDate,
                 checkOutDate: roomReservationTable.checkOutDate,
                 noOfDays: reservationTable.noOfDays,
                 noOfGuests: reservationTable.noOfGuests,
-                customer: customerTable
             })
-            .from(roomTable)
-            .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomTable.roomTypeId))
-            .leftJoin(roomReservationTable,
+            .from(reservationTable)
+            .innerJoin(roomReservationTable,
                 and(
-                    eq(roomReservationTable.roomId, roomTable.id),
+                    eq(roomReservationTable.reservationId, reservationTable.id),
                     and(
                         lte(roomReservationTable.checkInDate, new Date(searchFormFields.date)),
                         gte(roomReservationTable.checkOutDate, new Date(searchFormFields.date))
                     )
                 )
             )
-            .leftJoin(reservationTable,
+            .where(
                 and(
-                    eq(reservationTable.id, roomReservationTable.reservationId),
                     eq(reservationTable.location, sessionUser.location),
                     ne(reservationTable.reservationStatusId, 'f705afcd-58be-11f0-ad6b-b88d122a4ff4')
                 )
-            )
-            .leftJoin(reservationCustomerTable, eq(reservationCustomerTable.reservationId, reservationTable.id))
+            ).as('asRsv');
+        c.i('Subquery constructed.');
+
+        const dataQuery = this.dbClient.db
+            .select({
+                roomNo: roomTable.roomNo,
+                roomTypeText: roomTypeTable.roomTypeText,
+                reservationId: asRsv.reservationId,
+                checkInDate: asRsv.checkInDate,
+                checkOutDate: asRsv.checkOutDate,
+                noOfDays: asRsv.noOfDays,
+                noOfGuests: asRsv.noOfGuests,
+                customer: customerTable
+            })
+            .from(roomTable)
+            .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomTable.roomTypeId))
+            .leftJoin(asRsv, eq(asRsv.roomId, roomTable.id))
+            .leftJoin(reservationCustomerTable, eq(reservationCustomerTable.reservationId, asRsv.reservationId))
             .leftJoin(customerTable, eq(customerTable.id, reservationCustomerTable.customerId))
             .where(
                 eq(roomTable.location, sessionUser.location)
@@ -381,9 +398,6 @@ export default class ReservationRepository extends Repository<Reservation, Reser
 
         c.d(dataQueryResult.length);
         c.d(dataQueryResult.length > 0 ? dataQueryResult[0] : []);
-        dataQueryResult.forEach(d => {
-            if (d.customers) { console.log(d.customers) }
-        });
 
         const roomReservations = dataQueryResult.reduce((acc: RoomReservationDto[], row) => {
             let room = acc.find(r => r.roomNo === row.roomNo && r.reservationId === row.reservationId);

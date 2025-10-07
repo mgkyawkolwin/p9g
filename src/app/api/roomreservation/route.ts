@@ -74,7 +74,7 @@ export async function PATCH(request: NextRequest) {
     //call service to retrieve data
     c.i('Calling reservation service');
     const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-    const result = await reservationService.reservationMoveRoom(queryStringObject.id, queryStringObject.roomNo, session.user);
+    const result = await reservationService.reservationMoveRoom(queryStringObject.id, queryStringObject.roomNo, queryStringObject.date, session.user);
     c.d(JSON.stringify(result));
 
     return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });

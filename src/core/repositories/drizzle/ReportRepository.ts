@@ -429,7 +429,8 @@ export default class ReportRepository implements IReportRepository {
                 },
                 where: and(
                     eq(reservationTable.checkInDate, start),
-                    eq(reservationTable.location, sessionUser.location)
+                    eq(reservationTable.location, sessionUser.location),
+                    ne(reservationTable.reservationStatusId, 'f705afcd-58be-11f0-ad6b-b88d122a4ff4')
                 ),
             });
 
