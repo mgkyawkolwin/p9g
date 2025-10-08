@@ -42,7 +42,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                                 </tr>);
                             }
 
-                            if (charge.seasonSurcharge > 0) {
+                            if (charge.seasonSurcharge >= 0 && reservation.prepaidPackageId) {
                                 charges.push(<tr key={`${index}-season`} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
                                     <td className="p-2">Room (Season Extra Charge) - {charge.roomNo}</td>
                                     <td className="text-right">{charge.startDate.toISOFormatDateString()}</td>
@@ -82,21 +82,12 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                         })}
 
                         {reservation?.bills?.map((bill, index) => {
-
                             let description = "";
                             if (bill.paymentType === 'PICKUP' || bill.paymentType === 'DROPOFF') {
                                 description += (description.length > 0 ? ', ' : ' ') + bill.paymentType + ' - ' + (Number(bill.amount ?? 0) * Number(bill.quantity ?? 0)) + ' ' + bill.currency;
                                 return <tr key={Math.random()} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
                                     <td className="p-2">
-                                        {reservation?.bills?.map((bill, index) => {
-
-                                            let description = "";
-                                            if (bill.paymentType === 'PICKUP' || bill.paymentType === 'DROPOFF') {
-                                                description += (description.length > 0 ? ', ' : ' ') + bill.paymentType + ' - ' + (Number(bill.amount ?? 0) * Number(bill.quantity ?? 0)) + ' ' + bill.currency;
-                                            }
-
-                                            return description;
-                                        })}
+                                        {description}
                                     </td>
                                     <td className="p-2"></td>
                                     <td className="p-2"></td>
@@ -106,11 +97,7 @@ export default function ReceiptTable({ reservation, roomCharges }: { reservation
                                     <td className="text-right p-1 p-2"></td>
                                 </tr>;
                             }
-
-
                         })}
-
-
                     </tbody>
                     <tfoot>
                         <tr>

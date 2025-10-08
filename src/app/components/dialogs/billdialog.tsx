@@ -164,7 +164,7 @@ export default function BillDialog({
     },
     {
       accessorKey: "check",
-      header: '',
+      header: 'Print',
       cell: (row) => <CheckboxCustom key={`${row.row.original.id}-check`}
         checked={row.row.original.checked || false}
         onCheckedChange={(checked) => {
