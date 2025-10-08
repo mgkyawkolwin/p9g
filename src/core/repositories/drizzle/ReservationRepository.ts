@@ -110,10 +110,14 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 acc.push(rsvn!);
             }
             if (customer) {
-                rsvn?.customers?.push(customer);
+                const existingCustomer = rsvn?.customers?.find(c => c.id === customer.id);
+                if (!existingCustomer)
+                    rsvn?.customers?.push(customer);
             }
             if (bill) {
-                rsvn.bills.push(bill);
+                const existingBill = rsvn?.bills?.find(b => b.id === bill.id);
+                if(!existingBill)
+                    rsvn.bills.push(bill);
             }
 
             return acc;

@@ -2,8 +2,40 @@
 
 import { clearCache } from '@/app/actions';
 import Link from 'next/link';
+import { useState, useRef, useEffect } from 'react';
 
 export function MainMenu() {
+  const [reportsOpen, setReportsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const reportsRef = useRef(null);
+  const settingsRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (reportsRef.current && !reportsRef.current.contains(event.target)) {
+        setReportsOpen(false);
+      }
+      if (settingsRef.current && !settingsRef.current.contains(event.target)) {
+        setSettingsOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const toggleReports = () => {
+    setReportsOpen(!reportsOpen);
+    setSettingsOpen(false); // Close settings if open
+  };
+
+  const toggleSettings = () => {
+    setSettingsOpen(!settingsOpen);
+    setReportsOpen(false); // Close reports if open
+  };
 
   return (
     <div className='flex gap-x-6 items-center'>
@@ -62,42 +94,92 @@ export function MainMenu() {
       >
         Customers
       </Link>
+      
+      {/* Reports Menu */}
       <nav>
         <ul className="flex space-x-4">
-          <li className="relative">
-            <div className="group inline-block">
-              <Link
-                href="#"
-                className="text-sm font-medium text-white hover:text-blue-600"
-                onTouchStart={(e) => {
-                  // Prevent conflict with hover
-                  e.currentTarget.click();
-                }}
+          <li className="relative" ref={reportsRef}>
+            <div className="inline-block">
+              <button
+                onClick={toggleReports}
+                className="text-sm font-medium text-white hover:text-blue-600 focus:outline-none"
               >
                 Reports
-              </Link>
-              <ul className="absolute left-0 mt-0 w-48 text-white bg-[#333] shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 group-focus-within:opacity-100 group-focus-within:visible">
-                <li><a href="/console/reports/dailysummaryperson" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Person)</a></li>
-                <li><a href="/console/reports/dailysummaryguestsrooms" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Guests & Rooms)</a></li>
-                <li><a href="/console/reports/dailysummaryincome" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Summary (Income)</a></li>
-                <li><a href="/console/reports/dailyreservationdetail" className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Daily Reservation Detail</a></li>
+              </button>
+              <ul 
+                className={`absolute left-0 mt-1 w-48 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${
+                  reportsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                }`}
+              >
+                <li>
+                  <Link 
+                    href="/console/reports/dailysummaryperson" 
+                    className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                    onClick={() => setReportsOpen(false)}
+                  >
+                    Daily Summary (Person)
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    href="/console/reports/dailysummaryguestsrooms" 
+                    className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                    onClick={() => setReportsOpen(false)}
+                  >
+                    Daily Summary (Guests & Rooms)
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    href="/console/reports/dailysummaryincome" 
+                    className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                    onClick={() => setReportsOpen(false)}
+                  >
+                    Daily Summary (Income)
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    href="/console/reports/dailyreservationdetail" 
+                    className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                    onClick={() => setReportsOpen(false)}
+                  >
+                    Daily Reservation Detail
+                  </Link>
+                </li>
               </ul>
             </div>
           </li>
         </ul>
       </nav>
+
+      {/* Settings Menu */}
       <nav>
         <ul className="flex space-x-4">
-          <li className="relative">
-            <div className="group inline-block">
-              <Link
-                href="#"
-                className="text-sm font-medium text-white hover:text-blue-600"
+          <li className="relative" ref={settingsRef}>
+            <div className="inline-block">
+              <button
+                onClick={toggleSettings}
+                className="text-sm font-medium text-white hover:text-blue-600 focus:outline-none"
               >
                 Settings
-              </Link>
-              <ul className="absolute left-0 mt-0 w-48 text-white bg-[#333] shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <li><a href="#" onClick={async () => { await clearCache() }} className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap">Clear Cache</a></li>
+              </button>
+              <ul 
+                className={`absolute left-0 mt-1 w-48 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${
+                  settingsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                }`}
+              >
+                <li>
+                  <button 
+                    onClick={async () => { 
+                      await clearCache(); 
+                      setSettingsOpen(false);
+                    }} 
+                    className="block w-full text-left px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                  >
+                    Clear Cache
+                  </button>
+                </li>
               </ul>
             </div>
           </li>

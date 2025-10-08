@@ -100,9 +100,9 @@ export default function ReceiptDialog({
           `</tr>`;
       }
 
-      if (charge.seasonSurcharge > 0) {
+      if (charge.seasonSurcharge >= 0 && reservation.prepaidPackageId) {
         content += `<tr>` +
-          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">Room Charge ${charge.roomNo}</td>` +
+          `<td style="border: 1px solid #666; padding: 8px; text-align: left;">Room (Season Extra Charge) - ${charge.roomNo}</td>` +
           `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.startDate.toISOFormatDateString()}</td>` +
           `<td style="border: 1px solid #666; padding: 8px; text-align: left;">${charge.endDate.toISOFormatDateString()}</td>` +
           `<td style="border: 1px solid #666; padding: 8px; text-align: right;">${formatter.format(charge.seasonSurcharge)}</td>` +

@@ -12,8 +12,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       style={
         {
-          "--normal-bg": "black",
-          "--normal-text": "white",
+          "--normal-bg": "#ca0",
+          "--normal-text": "black",
           "--normal-border": "var(--border)",
         } as React.CSSProperties
       }
