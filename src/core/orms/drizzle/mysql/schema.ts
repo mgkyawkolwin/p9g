@@ -1,4 +1,4 @@
-import { mysqlTable, int, boolean, char, varchar,  tinyint,date, datetime,decimal, binary, mediumint, smallint } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, boolean, char, varchar,  tinyint,date, datetime,decimal, binary, mediumint, smallint, time } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import {v4 as uuidv4} from 'uuid';
 
@@ -69,6 +69,19 @@ export const paymentTable = mysqlTable("payment", {
   currency: char("currency", {length: 3}).notNull(),
   paymentMode: varchar("paymentMode", {length: 10}).notNull(),
   remark: varchar("remark", {length: 200}),
+  createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", {length: 36}).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", {length: 36}).notNull()
+});
+
+export const pookieTable = mysqlTable("pookie", {
+  id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
+  date: datetime("date").notNull(),
+  hole: varchar("hole", {length: 10}).notNull(),
+  isBusy: boolean("isBusy").notNull(),
+  rooms: varchar("rooms", {length: 100}).notNull(),
+  time: time("time").notNull(),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),

@@ -23,8 +23,10 @@ interface MainMenuClientProps {
 }
 
 export default function MainMenuClient({ role }) {
+  const [pookieOpen, setPookieOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const pookieRef = useRef<HTMLLIElement>(null);
   const reportsRef = useRef<HTMLLIElement>(null);
   const settingsRef = useRef<HTMLLIElement>(null);
 
@@ -32,6 +34,9 @@ export default function MainMenuClient({ role }) {
   useEffect(() => {
     //async () => permissions = await getUserMenuPermissions(role || '');
     function handleClickOutside(event: MouseEvent) {
+      if (pookieRef.current && !pookieRef.current.contains(event.target as Node)) {
+        setPookieOpen(false);
+      }
       if (reportsRef.current && !reportsRef.current.contains(event.target as Node)) {
         setReportsOpen(false);
       }
@@ -46,13 +51,21 @@ export default function MainMenuClient({ role }) {
     };
   }, []);
 
+  const togglePookie = () => {
+    setPookieOpen(!pookieOpen);
+    setReportsOpen(false);
+    setSettingsOpen(false);
+  };
+
   const toggleReports = () => {
     setReportsOpen(!reportsOpen);
+    setPookieOpen(false);
     setSettingsOpen(false);
   };
 
   const toggleSettings = () => {
     setSettingsOpen(!settingsOpen);
+    setPookieOpen(false);
     setReportsOpen(false);
   };
 
@@ -224,6 +237,43 @@ export default function MainMenuClient({ role }) {
           </ul>
         </nav>
       )}
+      <nav>
+          <ul className="flex space-x-4">
+            <li className="relative" ref={pookieRef}>
+              <div className="inline-block">
+                <button
+                  onClick={togglePookie}
+                  className="text-sm font-medium text-white hover:text-blue-600 focus:outline-none"
+                >
+                  Pookie
+                </button>
+                <ul
+                  className={`absolute left-0 mt-1 w-48 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${pookieOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                    }`}
+                >
+                  <li>
+                    <Link
+                      href="/console/pookie/draw"
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setPookieOpen(false)}
+                    >
+                      Draw
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/console/pookie/timetable"
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setPookieOpen(false)}
+                    >
+                      Time Table
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </nav>
     </div>
   );
 }

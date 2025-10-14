@@ -71,6 +71,8 @@ export const TYPES = {
   IMapper : Symbol.for('IMapper'),
   IQueryTransformer : Symbol.for('IQueryObjectTransformer'),
   IPaymentRepository : Symbol.for('IPaymentRepository'),
+  IPookieRepository : Symbol.for('IPookieRepository'),
+  IPookieService : Symbol.for('IPookieService'),
   IPrepaidRepository : Symbol.for('IPrepaidRepository'),
   IPromotionRepository : Symbol.for('IPromotionRepository'),
   IReportRepository : Symbol.for('IReportRepository'),

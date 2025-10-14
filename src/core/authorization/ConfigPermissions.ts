@@ -10,7 +10,9 @@ export const ConfigPermissions = {
         '/console/roomschedule',
         '/console/customers',
         '/console/reports',
-        '/console/settings'
+        '/console/settings',
+        '/console/pookie/draw',
+        '/console/pookie/timetable',
     ],
     RECEPTION: [
         '/console/checkin', 
@@ -18,5 +20,7 @@ export const ConfigPermissions = {
         '/console/pickup', 
         '/console/dropoff', 
         '/console/roomchange', 
+        '/console/pookie/draw',
+        '/console/pookie/timetable',
     ]
 };
