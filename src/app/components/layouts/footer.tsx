@@ -1,10 +1,10 @@
-'use client';
+'use server';
 
 import ThemeToggle from "../../../lib/components/web/react/uicustom/themetoggle";
 
 
 
-export function Footer({nodeVersion, nextVersion, appVersion}: {nodeVersion:string, nextVersion:string, appVersion:string}) {
+export async function Footer({nodeVersion, nextVersion, appVersion}: {nodeVersion:string, nextVersion:string, appVersion:string}) {
   return (
     <footer className="flex justify-between w-100vw h-10vh mx-0 p-4 border-b-2 border-b-[#0066aa] bg-[#333333] text-white">
       <div className="text-[#ffffff] text-sm">

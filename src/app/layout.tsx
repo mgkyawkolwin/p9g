@@ -1,4 +1,4 @@
-'use client';
+'use server';
 
 import '@/lib/extensions/dateextensions';
 import { Geist, Geist_Mono } from "next/font/google";
@@ -6,6 +6,7 @@ import "./globals.css";
 import { Toaster } from "@/lib/components/web/react/ui/sonner";
 import GlobalErrorHandler from "./globalerrorhandler";
 import ThemeProviderWrapper from "./(private)/themeproviderwrapper";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +23,7 @@ const geistMono = Geist_Mono({
 //   description: "NextJS, Shadcn UI, Tailwind Css, Drizzle ORM, Inversify DI, MySql Db",
 // };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

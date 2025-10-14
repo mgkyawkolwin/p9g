@@ -1,3 +1,7 @@
+"use client";
+
+import '@/lib/extensions/dateextensions';
+
 import { useActionState } from "react";
 import { FormState } from "@/core/types";
 import { ButtonCustom } from "./buttoncustom";
