@@ -21,7 +21,7 @@ import IReportService from '@/core/services/contracts/IReportService';
 import ReportService from '@/core/services/ReportService';
 import ILogService from '@/core/services/contracts/ILogService';
 import LogService from '@/core/services/LogService';
-import { billTable, configTable, customerTable, logErrorTable, paymentTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
+import { billTable, configTable, customerTable, logErrorTable, paymentTable, pookieTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
 import { Repository } from '@/lib/repositories/drizzle/Repository';
 import IRepository from '@/lib/repositories/IRepository';
 import CustomMapper from '@/lib/mappers/custommapper/CustomMapper';
@@ -62,6 +62,10 @@ import ICacheAdapter from '@/lib/cache/ICacheAdapter';
 import CacheReportRepositoryDecorator from '../repositories/cacherepositories/CacheReportRepositoryDecorator';
 import CacheReservationRepositoryDecorator from '../repositories/cacherepositories/CacheReservationRepositoryDecorator';
 import NoCacheAdapter from '@/lib/cache/NoCacheAdapter';
+import PookieService from '../services/PookieService';
+import IPookieService from '../services/contracts/IPookieService';
+import PookieTimeTable from '../models/domain/PookieTimeTable';
+import PookieTimeTableEntity from '../models/entity/PookieTimeTableEntity';
 
 // create a DI container
 const container = new Container();
@@ -76,6 +80,7 @@ container.bind<IQueryTranformer>(TYPES.IQueryTransformer).to(DrizzleQueryTransfo
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
 container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inRequestScope();
 container.bind<ILogService>(TYPES.ILogService).to(LogService).inRequestScope();
+container.bind<IPookieService>(TYPES.IPookieService).to(PookieService).inRequestScope();
 container.bind<IReportService>(TYPES.IReportService).to(ReportService).inRequestScope();
 container.bind<IReservationService>(TYPES.IReservationService).to(ReservationService).inRequestScope();
 container.bind<IUserService>(TYPES.IUserService).to(UserService).inRequestScope();
@@ -160,6 +165,22 @@ container.bind<IRepository<Payment>>(TYPES.IPaymentRepository).toDynamicValue(co
             context.get<IQueryTranformer>(TYPES.IQueryTransformer)
         ),
         "payment",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
+    )
+}).inRequestScope();
+
+container.bind<IRepository<PookieTimeTableEntity>>(TYPES.IPookieRepository).toDynamicValue(context => {
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            pookieTable,
+            { ...pookieTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            PookieTimeTable,
+            PookieTimeTableEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "pookieTimeTable",
         context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
 }).inRequestScope();

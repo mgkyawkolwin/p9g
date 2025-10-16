@@ -1,4 +1,16 @@
 /**
+ * Display the local time with HH:mm AM/PM format
+ */
+Date.prototype.toLocalShortTimeString = function (): string {
+    return this.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    });
+}
+
+
+/**
  * Convert the UTC date into ISO date format string.
  */
 Date.prototype.toISOFormatDateString = function (): string {
@@ -46,4 +58,15 @@ Date.prototype.getLocalDateAsUTCDate = function (): Date {
  */
 Date.prototype.getLocalDateTimeAsUTCDateTime = function (): Date {
     return new Date(this.toLocaleString('sv-SE').replace(' ', 'T') + '.000Z');
+}
+
+/**
+ * Display the UTC/ISO time with HH:mm AM/PM format
+ */
+Date.prototype.toUTCShortTimeString = function (): string {
+    return this.getUTCDateTimeAsLocalDateTime().toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    });
 }

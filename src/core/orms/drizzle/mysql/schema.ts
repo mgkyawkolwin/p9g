@@ -77,11 +77,12 @@ export const paymentTable = mysqlTable("payment", {
 
 export const pookieTable = mysqlTable("pookie", {
   id: char("id", {length: 36}).$defaultFn(uuidv4).primaryKey(),
-  date: datetime("date").notNull(),
+  date: datetime("date", {mode: 'date', fsp: 3}).notNull(),
   hole: varchar("hole", {length: 10}).notNull(),
   isBusy: boolean("isBusy").notNull(),
   rooms: varchar("rooms", {length: 100}).notNull(),
-  time: time("time").notNull(),
+  time: datetime("time", {mode: 'date', fsp: 3}).notNull(),
+  location: varchar("location", {length:10}).notNull(),
   createdAtUTC: datetime("createdAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", {length: 36}).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", {mode: 'date', fsp: 3}).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),

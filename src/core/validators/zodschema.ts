@@ -169,6 +169,10 @@ export const roomReservationValidator = z.object({
 
 
 export const searchValidator = z.object({
+  date: z.coerce.string().optional(),
+  drawDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
+  modelState: z.string().optional(),
   searchId: z.string().optional(),
   searchRoomNo: z.string().optional(),
   searchArrivalDateTime: z.coerce.string().optional(),
@@ -179,7 +183,6 @@ export const searchValidator = z.object({
   searchCheckInDateUntil: z.coerce.string().optional(),
   searchCheckOutDate: z.coerce.string().optional(),
   searchDate: z.coerce.string().optional(),
-  date: z.coerce.string().optional(),
   searchDepartureDateTime: z.coerce.string().optional(),
   searchEmail: z.string().optional(),
   searchExistingReservations: z.string().optional(),
@@ -193,5 +196,30 @@ export const searchValidator = z.object({
   searchReservationStatus: z.string().optional(),
   searchReservationType: z.string().optional(),
   searchUserName: z.string().optional(),
-  modelState: z.string().optional()
+  startDate: z.coerce.date().optional()
+});
+
+export const pookieGenerateValidator = z.object({
+  drawDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+  startDate: z.coerce.date()
+});
+
+export const pookieGetValidator = z.object({
+  drawDate: z.coerce.date()
+});
+
+export const pookieValidator = z.object({
+  id: z.coerce.string(),
+  date: z.coerce.date(),
+  hole: z.coerce.string(),
+  isBusy: z.coerce.boolean(),
+  location: z.coerce.string(),
+  rooms: z.coerce.string(),
+  time: z.coerce.date(),
+  modelState: z.coerce.string(),
+  createdAtUTC: z.coerce.date(),
+  createdBy: z.coerce.string(),
+  updatedAtUTC: z.coerce.date(),
+  updatedBy: z.coerce.string()
 });

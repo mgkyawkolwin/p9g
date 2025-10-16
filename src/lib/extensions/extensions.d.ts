@@ -4,10 +4,12 @@ declare global {
     getUTCDateTimeAsLocalDateTime(): Date,
     getLocalDateAsUTCDate(): Date,
     getLocalDateTimeAsUTCDateTime(): Date,
+    toLocalShortTimeString(): string;
     toISOFormatDateString(): string;
     toISODateTimeDisplayString(): string;
     toISOFormatDateTimeString(): string;
     toISOFormatDateTimeMidNightString(): string;
+    toUTCShortTimeString(): string;
   }
 
   interface String {

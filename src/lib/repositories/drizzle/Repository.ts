@@ -63,7 +63,7 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
 
   async createMany<TTransaction extends ITransaction>(domains: TDomain[], transaction?: TTransaction): Promise<void> {
     c.fs("Repository > createMany");
-    c.d(domains);
+    c.d(domains && domains.length > 0 ? domains[0] : []);
 
     if (!domains || domains?.length == 0) throw new CustomError('Repository cannot create empty objects.');
 
@@ -71,7 +71,6 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
     for (const domain of domains) {
       entities.push(await this.mapper.mapAsync(domain, this.entityClass));
     }
-    c.d(entities);
     if (!entities || entities?.length === 0) throw new CustomError('Entities mapping failed in repository');
 
     const query = this.dbClient.db.insert(this.table).values(entities);
@@ -171,7 +170,7 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
 
     if (query) {
       const whereQuery = await this.transformer.transformAsync<SQL>(query as AnyCondition);
-      console.log(whereQuery);
+      
       if (whereQuery) {
         dataQuery = dataQuery.where(whereQuery);
         countQuery = countQuery.where(whereQuery);
@@ -191,7 +190,8 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
       countQuery.execute(),
       dataQuery.execute()
     ]);
-    c.d(entities);
+    c.d(entities?.length);
+    c.d(entities?.length > 0 ? entities[0] : []);
     const domains: TDomain[] = [];
     for (const entity of entities) {
       domains.push(await this.mapper.mapAsync(entity, this.domainClass));
