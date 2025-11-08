@@ -75,6 +75,41 @@ export async function getTimeTable(date:Date): Promise<FormState> {
 }
 
 
+export async function getRoomNames(drawDate: Date): Promise<FormState> {
+  try{
+    c.fs('Actions > getRoomNames');
+    
+    c.i("Request api to generate pookie time table.");
+    const response = await fetch(process.env.API_URL + `pookie/roomnames?drawDate=${drawDate.toISOString()}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
+    });
+    const responseData = await response.json();
+
+    //fail
+    if(!response.ok){
+      c.i("Rooms get failed. Return response.");
+      return {error:true, message : `Rooms get failed. ${responseData.message}`};
+    }
+      
+    c.i("Rooms get success.");
+    c.d(responseData.data?.roomNames?.length);
+    c.d(responseData.data?.roomNames?.length > 0 ? responseData.data.roomNames[0] : []);
+
+    c.fe('Actions > getRoomNames');
+    const successresponse = {error:false, message : undefined, data: {roomNames:responseData.data.roomNames}};
+    
+    return successresponse;
+  }catch(error){
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error:true, message : "Unknown error occured."};
+  }
+}
+
+
 export async function updateTimeTable(timeTable:PookieTimeTable): Promise<FormState> {
   try{
     c.fs('Actions > updateTimeTable');

@@ -1,6 +1,7 @@
 declare global {
 
   interface Date {
+    getUTCDateAsLocalDate(): Date,
     getUTCDateTimeAsLocalDateTime(): Date,
     getLocalDateAsUTCDate(): Date,
     getLocalDateTimeAsUTCDateTime(): Date,
@@ -9,7 +10,10 @@ declare global {
     toISODateTimeDisplayString(): string;
     toISOFormatDateTimeString(): string;
     toISOFormatDateTimeMidNightString(): string;
-    toUTCShortTimeString(): string;
+    toISODateString(): string;
+    toISOShortTimeString(): string;
+    toISOShortTimeAMPMString(): string;
+    toISOTimeString(): string;
   }
 
   interface String {

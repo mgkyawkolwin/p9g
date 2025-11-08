@@ -34,7 +34,7 @@ export async function middleware(request : NextRequest) {
       }
 
       //private api
-      if (pathname.startsWith("/api") && !pathname.startsWith("/api/auth")) {
+      if (pathname.startsWith("/api") && !pathname.startsWith("/api/auth") && !pathname.startsWith("/api/public")) {
         return NextResponse.json({message : 'Unauthorized request.'}, {status: HttpStatusCode.Unauthorized});
       }
     }

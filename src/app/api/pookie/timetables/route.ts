@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     //call service to retrieve data
     const customerService = container.get<IPookieService>(TYPES.IPookieService);
-    const result = await customerService.getTimeTable(validatedFields.data.drawDate);
+    const result = await customerService.getTimeTable(validatedFields.data.drawDate, session.user);
 
     return NextResponse.json({ data: {timeTable:result} }, { status: HttpStatusCode.Ok });
   } catch (error) {

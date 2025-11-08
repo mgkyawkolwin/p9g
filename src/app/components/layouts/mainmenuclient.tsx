@@ -253,7 +253,7 @@ export default function MainMenuClient({ role }) {
                 >
                   <li>
                     <Link
-                      href="/console/pookie/draw"
+                      href="/pookie/draw" target='new'
                       className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
                       onClick={() => setPookieOpen(false)}
                     >

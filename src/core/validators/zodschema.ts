@@ -199,6 +199,12 @@ export const searchValidator = z.object({
   startDate: z.coerce.date().optional()
 });
 
+export const pookieDrawValidator = z.object({
+  drawDate: z.coerce.date(),
+  noOfPeople: z.coerce.number(),
+  rooms: z.coerce.string()
+});
+
 export const pookieGenerateValidator = z.object({
   drawDate: z.coerce.date(),
   endDate: z.coerce.date(),
@@ -209,12 +215,18 @@ export const pookieGetValidator = z.object({
   drawDate: z.coerce.date()
 });
 
+export const pookieGetRoomValidator = z.object({
+  drawDate: z.coerce.date(),
+  location: z.coerce.string()
+});
+
 export const pookieValidator = z.object({
   id: z.coerce.string(),
   date: z.coerce.date(),
   hole: z.coerce.string(),
   isBusy: z.coerce.boolean(),
   location: z.coerce.string(),
+  noOfPeople: z.coerce.number(),
   rooms: z.coerce.string(),
   time: z.coerce.date(),
   modelState: z.coerce.string(),

@@ -83,6 +83,7 @@ export const TYPES = {
   IReservationService: Symbol.for('IReservationService'),
   IRoomRateRepository : Symbol.for('IRoomRateRepository'),
   IRoomRepository : Symbol.for('IRoomRepository'),
+  IRoomService: Symbol.for('IRoomService'),
   IRoomChargeRepository : Symbol.for('IRoomChargeRepository'),
   IRoomReservationRepository : Symbol.for('IRoomReservationRepository'),
   IRoomTypeRepository : Symbol.for('IRoomTypeRepository'),
