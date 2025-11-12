@@ -1,19 +1,3 @@
-CREATE TABLE `pookie` (
-	`id` char(36) NOT NULL,
-	`date` datetime(3) NOT NULL,
-	`hole` varchar(10) NOT NULL,
-	`isBusy` boolean NOT NULL,
-	`location` varchar(10) NOT NULL,
-	`noOfPeople` tinyint NOT NULL,
-	`rooms` varchar(50) NOT NULL,
-	`time` datetime(3) NOT NULL,
-	`createdAtUTC` datetime(3) NOT NULL,
-	`createdBy` char(36) NOT NULL,
-	`updatedAtUTC` datetime(3) NOT NULL,
-	`updatedBy` char(36) NOT NULL,
-	CONSTRAINT `pookie_id` PRIMARY KEY(`id`)
-);
-
 CREATE TABLE `pookieConfig` (
 	`id` char(36) NOT NULL,
 	`key` char(36) NOT NULL,
@@ -24,7 +8,7 @@ CREATE TABLE `pookieConfig` (
 	`updatedBy` char(36) NOT NULL,
 	CONSTRAINT `pookieConfig_id` PRIMARY KEY(`id`)
 );
-
+--> statement-breakpoint
 CREATE TABLE `pookieDevice` (
 	`id` char(36) NOT NULL,
 	`deviceId` varchar(50) NOT NULL,

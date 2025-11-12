@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
     try {
-        c.fs("GET api/public/pookie/version");
+        c.fs("GET api/public/pookie/qr");
 
         const searchParams = Object.fromEntries(request.nextUrl.searchParams);
         c.d(searchParams);
@@ -19,11 +19,11 @@ export async function GET(request: NextRequest) {
 
         c.i("Calling service.");
         const service = container.get<IPookieService>(TYPES.IPookieService);
-        const version = await service.getVersion(session.user);
+        const qr = await service.getQR(session.user);
 
-        c.fe("GET /api/pookie/version");
+        c.fe("GET /api/pookie/qr");
         return NextResponse.json(
-            { message: undefined, data: { version: version } },
+            { message: undefined, data: { qr: qr } },
             {
                 status: HttpStatusCode.Ok,
                 headers: {

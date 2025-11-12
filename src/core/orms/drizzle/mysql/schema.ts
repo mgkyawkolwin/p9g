@@ -90,6 +90,27 @@ export const pookieTable = mysqlTable("pookie", {
   updatedBy: char("updatedBy", { length: 36 }).notNull()
 });
 
+export const pookieConfigTable = mysqlTable("pookieConfig", {
+  id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  key: char("key", {length: 36}).notNull(),
+  version: varchar("version", {length: 10}).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
+export const pookieDeviceTable = mysqlTable("pookieDevice", {
+  id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  deviceId: varchar("deviceId", {length: 50}).notNull(),
+  isBlocked: boolean("isBlocked").notNull(),
+  lastRequestAtUTC: datetime("lastRequestAtUTC", { mode: 'date', fsp: 3 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
 // export const prepaidCodeTable = mysqlTable("prepaidCode", {
 //   id: char("id", {length: 36}).primaryKey(),
 //   prepaidCode: char("prepaidCode", {length: 8}).notNull(),

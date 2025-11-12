@@ -130,14 +130,22 @@ export default function TimeTable() {
         worksheet.mergeCells('C1:D1');
         const row1 = worksheet.getRow(1);
         row1.getCell(1).value = `T-OFF TIMETABLE (${new Date(hole1[0].date).toISOString().substring(0, 10)})`;
+        row1.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF88AAFF' } };
+        row1.getCell(1).alignment = {horizontal: "center"};
         row1.getCell(3).value = `T-OFF TIMETABLE (${new Date(hole1[0].date).toISOString().substring(0, 10)})`;
+        row1.getCell(3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF88AAFF' } };
+        row1.getCell(3).alignment = {horizontal: "center"};
 
         // Row 2: merge A2‐B2 and C2‐D2
-        worksheet.mergeCells('A2:B2');
-        worksheet.mergeCells('C2:D2');
+        // worksheet.mergeCells('A2:B2');
+        // worksheet.mergeCells('C2:D2');
         const row2 = worksheet.getRow(2);
         row2.getCell(2).value = 'HOLE-1';
+        row2.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF99BBFF' } };
+        row2.getCell(2).alignment = {horizontal: "center"};
         row2.getCell(4).value = 'HOLE-5';
+        row2.getCell(4).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF99BBFF' } };
+        row2.getCell(4).alignment = {horizontal: "center"};
 
         // Then the data rows for holes 1 & 5
         let currentRowNumber = 3;
@@ -148,9 +156,9 @@ export default function TimeTable() {
             const cellC = row.getCell(3);
             const cellD = row.getCell(4);
 
-            cellA.value = new Date(hole1[i].date).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+            cellA.value = new Date(hole1[i].time).toISOShortTimeAMPMString();
             cellB.value = hole1[i].rooms;
-            cellC.value = new Date(hole5[i].date).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+            cellC.value = new Date(hole5[i].time).toISOShortTimeAMPMString();
             cellD.value = hole5[i].rooms;
 
             // Apply red fill if rooms is empty (assuming empty string or null/undefined)
@@ -168,12 +176,24 @@ export default function TimeTable() {
 
         // Blank row then holes 10 & 15
         currentRowNumber++;
-        // header row for hole10 & 15
         worksheet.mergeCells(`A${currentRowNumber}:B${currentRowNumber}`);
         worksheet.mergeCells(`C${currentRowNumber}:D${currentRowNumber}`);
+        const header = worksheet.getRow(currentRowNumber);
+        header.getCell(1).value = `T-OFF TIMETABLE (${new Date(hole1[0].date).toISOString().substring(0, 10)})`;
+        header.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF88AAFF' } };
+        header.getCell(1).alignment = {horizontal: "center"};
+        header.getCell(3).value = `T-OFF TIMETABLE (${new Date(hole1[0].date).toISOString().substring(0, 10)})`;
+        header.getCell(3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF88AAFF' } };
+        header.getCell(3).alignment = {horizontal: "center"};
+        currentRowNumber++;
+        // header row for hole10 & 15
         const headerRow2 = worksheet.getRow(currentRowNumber);
         headerRow2.getCell(2).value = 'HOLE-10';
+        headerRow2.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF99BBFF' } };
+        headerRow2.getCell(2).alignment = {horizontal: "center"};
         headerRow2.getCell(4).value = 'HOLE-15';
+        headerRow2.getCell(4).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF99BBFF' } };
+        headerRow2.getCell(4).alignment = {horizontal: "center"};
         currentRowNumber++;
 
         for (let i = 0; i < hole10.length; i++) {
@@ -183,9 +203,9 @@ export default function TimeTable() {
             const cellC = row.getCell(3);
             const cellD = row.getCell(4);
 
-            cellA.value = new Date(hole10[i].date).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+            cellA.value = new Date(hole10[i].time).toISOShortTimeAMPMString();
             cellB.value = hole10[i].rooms;
-            cellC.value = new Date(hole15[i].date).toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+            cellC.value = new Date(hole15[i].time).toISOShortTimeAMPMString();
             cellD.value = hole15[i].rooms;
 
             if (!hole10[i].rooms) {
@@ -199,6 +219,39 @@ export default function TimeTable() {
 
             currentRowNumber++;
         }
+
+        for (let i = 0; i < currentRowNumber; i++) {
+            const row = worksheet.getRow(i);
+            const cellA = row.getCell(1);
+            cellA.border = {
+                top:    { style: "thin" , color: { argb: "FF000000" } },
+                left:   { style: "thin" , color: { argb: "FF000000" } },
+                bottom: { style: "thin" , color: { argb: "FF000000" } },
+                right:  { style: "thin" , color: { argb: "FF000000" } }
+            };
+            const cellB = row.getCell(2);
+            cellB.border = {
+                top:    { style: "thin" , color: { argb: "FF000000" } },
+                left:   { style: "thin" , color: { argb: "FF000000" } },
+                bottom: { style: "thin" , color: { argb: "FF000000" } },
+                right:  { style: "thin" , color: { argb: "FF000000" } }
+            };
+            const cellC = row.getCell(3);
+            cellC.border = {
+                top:    { style: "thin" , color: { argb: "FF000000" } },
+                left:   { style: "thin" , color: { argb: "FF000000" } },
+                bottom: { style: "thin" , color: { argb: "FF000000" } },
+                right:  { style: "thin" , color: { argb: "FF000000" } }
+            };
+            const cellD = row.getCell(4);
+            cellD.border = {
+                top:    { style: "thin" , color: { argb: "FF000000" } },
+                left:   { style: "thin" , color: { argb: "FF000000" } },
+                bottom: { style: "thin" , color: { argb: "FF000000" } },
+                right:  { style: "thin" , color: { argb: "FF000000" } }
+            };
+        }
+
 
         // Finally, trigger download / write file. For browser + React you’ll often use workbook.xlsx.writeBuffer() then save via FileSaver.
         const buffer = await workbook.xlsx.writeBuffer();

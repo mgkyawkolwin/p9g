@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { RegularExpressions } from '../../lib/regularExpressions';
 
 
 export const billValidator = z.object({
@@ -197,6 +196,11 @@ export const searchValidator = z.object({
   searchReservationType: z.string().optional(),
   searchUserName: z.string().optional(),
   startDate: z.coerce.date().optional()
+});
+
+export const pookieActivateValidator = z.object({
+  key: z.coerce.string(),
+  deviceId: z.coerce.string()
 });
 
 export const pookieDrawValidator = z.object({

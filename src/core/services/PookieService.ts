@@ -1,29 +1,66 @@
-import { inject, injectable } from "inversify";
 import { TYPES } from "@/core/types";
-import LogError from "../models/domain/LogError";
-import type IRepository from "@/lib/repositories/IRepository";
-import PookieTimeTable from "../models/domain/PookieTimeTable";
-import { and, asc, eq, gte, isNotNull, isNull, ne, or } from "@/lib/transformers/types";
-import IPookieService from "./contracts/IPookieService";
-import SessionUser from "../models/dto/SessionUser";
-import c from "@/lib/loggers/console/ConsoleLogger";
 import type { IDatabaseClient } from "@/lib/db/IDatabase";
-import { TransactionType } from "../db/mysql/MySqlDatabase";
-import { pookieTable } from "../orms/drizzle/mysql/schema";
-import { eq as deq, and as dand, lt as dlt, lte as dlte } from "drizzle-orm";
-import PookieTimeTableEntity from "../models/entity/PookieTimeTableEntity";
 import { CustomError } from "@/lib/errors";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import type IRepository from "@/lib/repositories/IRepository";
+import { and, asc, eq } from "@/lib/transformers/types";
+import { and as dand, eq as deq, lte as dlte } from "drizzle-orm";
+import { inject, injectable } from "inversify";
+import QRCode from "qrcode";
 import { HttpStatusCode } from "../constants";
+import { TransactionType } from "../db/mysql/MySqlDatabase";
+import PookieConfig from "../models/domain/PookieConfig";
+import PookieDevice from "../models/domain/PookieDevice";
+import PookieTimeTable from "../models/domain/PookieTimeTable";
 import Room from "../models/domain/Room";
+import SessionUser from "../models/dto/SessionUser";
+import PookieTimeTableEntity from "../models/entity/PookieTimeTableEntity";
+import { pookieTable } from "../orms/drizzle/mysql/schema";
+import IPookieService from "./contracts/IPookieService";
 
 @injectable()
 export default class PookieService implements IPookieService {
 
     constructor(
         @inject(TYPES.IDatabase) protected readonly dbClient: IDatabaseClient<any>,
+        @inject(TYPES.IPookieConfigRepository) private pookieConfigRepository: IRepository<PookieConfig>,
+        @inject(TYPES.IPookieDeviceRepository) private pookieDeviceRepository: IRepository<PookieDevice>,
         @inject(TYPES.IPookieRepository) private pookieRepository: IRepository<PookieTimeTable>,
         @inject(TYPES.IRoomRepository) private roomRepository: IRepository<Room>) {
 
+    }
+
+
+    async authenticateDevice(key: string, deviceId: string, sessionUser: SessionUser): Promise<boolean> {
+        c.fs('PookieService > authenticateDevice');
+        const qrConfig = await this.pookieConfigRepository.findOne(eq("key", key));
+        c.d(qrConfig);
+        if (!qrConfig) return false;
+
+        // check whether the device is blocked.
+        const [devices, _] = await this.pookieDeviceRepository.findMany(
+            eq("deviceId", deviceId)
+        );
+
+        const blockedDevice = devices.find(d => d.isBlocked === true);
+
+        if (blockedDevice) return false;
+
+        if (devices?.length === 0) {
+            const pookieDevice = new PookieDevice();
+            pookieDevice.deviceId = deviceId;
+            pookieDevice.isBlocked = false;
+            pookieDevice.lastRequestAtUTC = new Date();
+            pookieDevice.createdAtUTC = new Date();
+            pookieDevice.createdBy = sessionUser.id;
+            pookieDevice.updatedAtUTC = new Date();
+            pookieDevice.updatedBy = sessionUser.id;
+
+            await this.pookieDeviceRepository.create(pookieDevice);
+        }
+
+        c.fe('PookieService > authenticateDevice');
+        return true;
     }
 
 
@@ -33,7 +70,7 @@ export default class PookieService implements IPookieService {
         c.d(rooms);
 
         const result: PookieTimeTable = await this.dbClient.db.transaction(async (tx: TransactionType) => {
-            const timeTable : PookieTimeTableEntity[] = await tx.select().from(pookieTable)
+            const timeTable: PookieTimeTableEntity[] = await tx.select().from(pookieTable)
                 .where(
                     dand(
                         deq(pookieTable.date, date),
@@ -44,14 +81,14 @@ export default class PookieService implements IPookieService {
                 ).for('update');
             c.d(timeTable?.length);
 
-            if(!timeTable || timeTable?.length <= 0)
+            if (!timeTable || timeTable?.length <= 0)
                 throw new CustomError('There is no avilable time slot to draw.', HttpStatusCode.NotFound);
 
             const randomIndex = Math.floor(Math.random() * timeTable.length);
             const selectedRow = timeTable[randomIndex];
-            if(!selectedRow)
+            if (!selectedRow)
                 throw new CustomError('Cannot find time slot to draw.', HttpStatusCode.NotFound);
-            
+
             selectedRow.rooms = rooms.split(",").concat(selectedRow.rooms.split(",")).join();
             selectedRow.noOfPeople = Number(selectedRow.noOfPeople) + Number(noOfPeople);
             selectedRow.updatedAtUTC = new Date();
@@ -71,7 +108,7 @@ export default class PookieService implements IPookieService {
         c.fs('PookieService > generateTimeTable');
 
         const existing = await this.pookieRepository.findOne(eq("date", date.toISOString()));
-        if(existing) throw new CustomError("Existing timetable, cannot regenerate.");
+        if (existing) throw new CustomError("Existing timetable, cannot regenerate.");
 
         const timeTable: PookieTimeTable[] = [];
         const currentTime = new Date(start);
@@ -136,7 +173,17 @@ export default class PookieService implements IPookieService {
     }
 
 
-    async getRoomNames(date: Date, sessionUser: SessionUser): Promise<string[]>{
+    async getQR(sessionUser: SessionUser): Promise<string> {
+        c.fs('PookieService > getQR');
+        const [qr, _] = await this.pookieConfigRepository.findMany();
+        c.d(qr);
+
+        c.fe('PookieService > getQR');
+        return await QRCode.toDataURL(qr[0].key);
+    }
+
+
+    async getRoomNames(date: Date, sessionUser: SessionUser): Promise<string[]> {
         c.fs('PookieService > getRoomNames');
         const [rooms, count] = await this.roomRepository.findMany(eq("location", sessionUser.location));
 
@@ -154,7 +201,7 @@ export default class PookieService implements IPookieService {
         c.fe('PookieService > getRoomNames');
         return filteredRooms.map(r => r.roomNo);
     }
-    
+
 
     async getTimeTable(date: Date, sessionUser: SessionUser): Promise<PookieTimeTable[]> {
         c.fs('PookieService > getTimeTable');
@@ -167,6 +214,16 @@ export default class PookieService implements IPookieService {
         c.d(count > 0 ? table[0] : []);
         c.fe('PookieService > getTimeTable');
         return table;
+    }
+
+
+    async getVersion(sessionUser: SessionUser): Promise<string> {
+        c.fs('PookieService > getVersion');
+        const [qr, _] = await this.pookieConfigRepository.findMany();
+        c.d(qr);
+
+        c.fe('PookieService > getVersion');
+        return qr[0].version;
     }
 
 

@@ -64,6 +64,13 @@
       "when": 1762575634178,
       "tag": "0008_windy_serpent_society",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1762921519336,
+      "tag": "0009_flawless_madripoor",
+      "breakpoints": true
     }
   ]
 }
