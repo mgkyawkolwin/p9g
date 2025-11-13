@@ -13,9 +13,12 @@ import PookieConfig from "../models/domain/PookieConfig";
 import PookieDevice from "../models/domain/PookieDevice";
 import PookieTimeTable from "../models/domain/PookieTimeTable";
 import Room from "../models/domain/Room";
+import PookieInfo from "../models/dto/PookieInfo";
+import RoomAndPax from "../models/dto/RoomAndPax";
 import SessionUser from "../models/dto/SessionUser";
 import PookieTimeTableEntity from "../models/entity/PookieTimeTableEntity";
 import { pookieTable } from "../orms/drizzle/mysql/schema";
+import type IReservationRepository from "../repositories/contracts/IReservationRepository";
 import IPookieService from "./contracts/IPookieService";
 
 @injectable()
@@ -26,6 +29,7 @@ export default class PookieService implements IPookieService {
         @inject(TYPES.IPookieConfigRepository) private pookieConfigRepository: IRepository<PookieConfig>,
         @inject(TYPES.IPookieDeviceRepository) private pookieDeviceRepository: IRepository<PookieDevice>,
         @inject(TYPES.IPookieRepository) private pookieRepository: IRepository<PookieTimeTable>,
+        @inject(TYPES.IReservationRepository) private reservationRepository: IReservationRepository,
         @inject(TYPES.IRoomRepository) private roomRepository: IRepository<Room>) {
 
     }
@@ -107,7 +111,12 @@ export default class PookieService implements IPookieService {
     async generateTimeTable(date: Date, start: Date, end: Date, sessionUser: SessionUser): Promise<PookieTimeTable[]> {
         c.fs('PookieService > generateTimeTable');
 
-        const existing = await this.pookieRepository.findOne(eq("date", date.toISOString()));
+        const existing = await this.pookieRepository.findOne(
+            and(
+                eq("date", date.toISOString()),
+                eq("location", sessionUser.location)
+            )
+        );
         if (existing) throw new CustomError("Existing timetable, cannot regenerate.");
 
         const timeTable: PookieTimeTable[] = [];
@@ -203,6 +212,28 @@ export default class PookieService implements IPookieService {
     }
 
 
+    async getRoomsAndPax(date: Date, sessionUser: SessionUser): Promise<RoomAndPax[]> {
+        c.fs('PookieService > getRoomsAndPax');
+        
+        const roomsAndPax = await this.reservationRepository.getRoomsAndPax(date, sessionUser);
+        c.d(roomsAndPax?.length);
+
+        const [drewResults, _] = await this.pookieRepository.findMany(
+            and(
+                eq("location", sessionUser.location),
+                eq('date', date.toISOString())
+            )
+        );
+        c.d(drewResults?.length);
+        const filteredRoomsAndPax = roomsAndPax.filter(r =>
+            !drewResults.some(dr => dr.rooms.includes(r.roomNo))
+        );
+        c.d(filteredRoomsAndPax?.length);
+        c.fe('PookieService > getRoomsAndPax');
+        return filteredRoomsAndPax;
+    }
+
+
     async getTimeTable(date: Date, sessionUser: SessionUser): Promise<PookieTimeTable[]> {
         c.fs('PookieService > getTimeTable');
         const [table, count] = await this.pookieRepository.findMany(
@@ -217,13 +248,16 @@ export default class PookieService implements IPookieService {
     }
 
 
-    async getVersion(sessionUser: SessionUser): Promise<string> {
+    async getPookieInfo(sessionUser: SessionUser): Promise<PookieInfo> {
         c.fs('PookieService > getVersion');
         const [qr, _] = await this.pookieConfigRepository.findMany();
         c.d(qr);
+        const pookieInfo = new PookieInfo();
+        pookieInfo.contactUrl = qr[0].contactUrl;
+        pookieInfo.version = qr[0].version;
 
         c.fe('PookieService > getVersion');
-        return qr[0].version;
+        return pookieInfo;
     }
 
 

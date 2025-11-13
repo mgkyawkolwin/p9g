@@ -28,11 +28,11 @@ export async function GET(request: NextRequest) {
         // update user
         c.i("Calling service.");
         const service = container.get<IPookieService>(TYPES.IPookieService);
-        const roomNames = await service.getRoomNames(validatedData.data.drawDate, session.user);
+        const roomsAndPax = await service.getRoomsAndPax(validatedData.data.drawDate, session.user);
 
         c.fe("GET /api/pookie/roomnames");
         return NextResponse.json(
-            { message: undefined, data: { roomNames: roomNames } },
+            { message: undefined, data: { roomsAndPax: roomsAndPax } },
             {
                 status: HttpStatusCode.Ok,
                 headers: {

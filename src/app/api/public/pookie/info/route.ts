@@ -19,11 +19,11 @@ export async function GET(request: NextRequest) {
 
         c.i("Calling service.");
         const service = container.get<IPookieService>(TYPES.IPookieService);
-        const version = await service.getVersion(session.user);
+        const pookieInfo = await service.getPookieInfo(session.user);
 
         c.fe("GET /api/pookie/version");
         return NextResponse.json(
-            { message: undefined, data: { version: version } },
+            { message: undefined, data: { info: pookieInfo } },
             {
                 status: HttpStatusCode.Ok,
                 headers: {

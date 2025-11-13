@@ -1,5 +1,5 @@
-import { mysqlTable, int, boolean, char, varchar, tinyint, date, datetime, decimal, binary, mediumint, smallint, time } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
+import { binary, boolean, char, date, datetime, decimal, int, mysqlTable, smallint, tinyint, varchar } from "drizzle-orm/mysql-core";
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -92,6 +92,7 @@ export const pookieTable = mysqlTable("pookie", {
 
 export const pookieConfigTable = mysqlTable("pookieConfig", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  contactUrl: varchar("contactUrl", {length: 500}).notNull(),
   key: char("key", {length: 36}).notNull(),
   version: varchar("version", {length: 10}).notNull(),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
