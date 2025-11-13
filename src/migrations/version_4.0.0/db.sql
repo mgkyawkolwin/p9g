@@ -16,6 +16,7 @@ CREATE TABLE `pookie` (
 
 CREATE TABLE `pookieConfig` (
 	`id` char(36) NOT NULL,
+	`contactUrl` varchar(500) NOT NULL,
 	`key` char(36) NOT NULL,
 	`version` varchar(10) NOT NULL,
 	`createdAtUTC` datetime(3) NOT NULL,

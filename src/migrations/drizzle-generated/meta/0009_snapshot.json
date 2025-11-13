@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "528ea85b-7fe4-4d2b-945f-f8c9ea336b5b",
+  "id": "83635570-1b99-4f25-b01c-0e897e2c2273",
   "prevId": "ffa58531-e344-4123-b491-68c8f7646bbe",
   "tables": {
     "bill": {
@@ -501,6 +501,13 @@
         "id": {
           "name": "id",
           "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "contactUrl": {
+          "name": "contactUrl",
+          "type": "varchar(500)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
