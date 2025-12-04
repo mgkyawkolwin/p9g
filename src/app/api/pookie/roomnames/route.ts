@@ -1,14 +1,13 @@
-import { NextResponse, NextRequest } from "next/server";
-import { container } from "@/core/di/dicontainer";
-import { TYPES } from "@/core/types";
-import c from "@/lib/loggers/console/ConsoleLogger";
-import { HttpStatusCode } from "@/core/constants";
-import { CustomError } from "@/lib/errors";
-import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
+import { HttpStatusCode } from "@/core/constants";
+import { container } from "@/core/di/dicontainer";
+import ILogService from "@/core/services/contracts/ILogService";
 import IPookieService from "@/core/services/contracts/IPookieService";
-import IRoomService from "@/core/services/contracts/IRoomService";
+import { TYPES } from "@/core/types";
 import { pookieGetRoomValidator } from "@/core/validators/zodschema";
+import { CustomError } from "@/lib/errors";
+import c from "@/lib/loggers/console/ConsoleLogger";
+import { NextRequest, NextResponse } from "next/server";
 
 
 export async function GET(request: NextRequest) {
@@ -32,7 +31,7 @@ export async function GET(request: NextRequest) {
     // update user
     c.i("Calling service.");
     const service = container.get<IPookieService>(TYPES.IPookieService);
-    const roomNames = await service.getRoomNames(validatedData.data.drawDate, session.user);
+    const roomNames = await service.getRoomNames(validatedData.data.drawDate, validatedData.data.list, session.user);
 
     c.fe("GET /api/pookie/roomnames");
     return NextResponse.json(

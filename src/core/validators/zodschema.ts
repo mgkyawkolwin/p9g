@@ -215,11 +215,17 @@ export const pookieGenerateValidator = z.object({
   startDate: z.coerce.date()
 });
 
+export const pookieGetResultValidator = z.object({
+  drawDate: z.coerce.date(),
+  roomName: z.coerce.string()
+});
+
 export const pookieGetValidator = z.object({
   drawDate: z.coerce.date()
 });
 
 export const pookieGetRoomValidator = z.object({
+  list: z.coerce.string().optional(),
   drawDate: z.coerce.date(),
   location: z.coerce.string()
 });

@@ -10,8 +10,9 @@ export default interface IPookieService {
     draw(date: Date, rooms: string, noOfPeople: number, sessionUser: SessionUser): Promise<PookieTimeTable>;
     generateTimeTable(date: Date, start: Date, end: Date, sessionUser: SessionUser): Promise<PookieTimeTable[]>;
     getQR(sessionUser: SessionUser): Promise<string>;
-    getRoomNames(date: Date, sessionUser: SessionUser): Promise<string[]>;
-    getRoomsAndPax(date: Date, sessionUser: SessionUser): Promise<RoomAndPax[]>;
+    getResult(date: Date, roomName: string, sessionUser: SessionUser): Promise<PookieTimeTable>;
+    getRoomNames(date: Date, list: string, sessionUser: SessionUser): Promise<string[]>;
+    getRoomsAndPax(date: Date, list: string, sessionUser: SessionUser): Promise<RoomAndPax[]>;
     getTimeTable(date: Date, sessionUser: SessionUser): Promise<PookieTimeTable[]>;
     getPookieInfo(sessionUser: SessionUser): Promise<PookieInfo>;
     updatePookie(pookie: PookieTimeTable, sessionUser: SessionUser): Promise<void>;

@@ -3,7 +3,7 @@ import type { IDatabaseClient } from "@/lib/db/IDatabase";
 import { CustomError } from "@/lib/errors";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import type IRepository from "@/lib/repositories/IRepository";
-import { and, asc, eq } from "@/lib/transformers/types";
+import { and, asc, eq, like } from "@/lib/transformers/types";
 import { and as dand, eq as deq, lte as dlte } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import QRCode from "qrcode";
@@ -192,7 +192,20 @@ export default class PookieService implements IPookieService {
     }
 
 
-    async getRoomNames(date: Date, sessionUser: SessionUser): Promise<string[]> {
+    async getResult(date: Date, roomName: string, sessionUser: SessionUser): Promise<PookieTimeTable> {
+        c.fs('PookieService > getResult');
+        const result = await this.pookieRepository.findOne(
+            and(
+                eq("date", date.toISOString()),
+                eq("location", sessionUser.location),
+                like("rooms", roomName)
+            ));
+        c.fe('PookieService > getTimeTable');
+        return result;
+    }
+
+
+    async getRoomNames(date: Date, list: string, sessionUser: SessionUser): Promise<string[]> {
         c.fs('PookieService > getRoomNames');
         const [rooms, count] = await this.roomRepository.findMany(eq("location", sessionUser.location));
 
@@ -204,6 +217,10 @@ export default class PookieService implements IPookieService {
         );
         c.d("DREW RESULT")
         c.d(drewResults);
+        if(list === 'all') {
+            return rooms.map(r => r.roomNo);
+        }
+        
         const filteredRooms = rooms.filter(r =>
             !drewResults.some(dr => dr.rooms.includes(r.roomNo))
         );
@@ -212,11 +229,16 @@ export default class PookieService implements IPookieService {
     }
 
 
-    async getRoomsAndPax(date: Date, sessionUser: SessionUser): Promise<RoomAndPax[]> {
+    async getRoomsAndPax(date: Date, list: string, sessionUser: SessionUser): Promise<RoomAndPax[]> {
         c.fs('PookieService > getRoomsAndPax');
         
         const roomsAndPax = await this.reservationRepository.getRoomsAndPax(date, sessionUser);
         c.d(roomsAndPax?.length);
+
+        if(list === 'all') {
+            c.fe('PookieService > getRoomsAndPax');
+            return roomsAndPax;
+        }
 
         const [drewResults, _] = await this.pookieRepository.findMany(
             and(

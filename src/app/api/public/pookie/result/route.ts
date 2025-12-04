@@ -3,7 +3,7 @@ import { container } from "@/core/di/dicontainer";
 import ILogService from "@/core/services/contracts/ILogService";
 import IPookieService from "@/core/services/contracts/IPookieService";
 import { TYPES } from "@/core/types";
-import { pookieGetRoomValidator } from "@/core/validators/zodschema";
+import { pookieGetResultValidator } from "@/core/validators/zodschema";
 import { CustomError } from "@/lib/errors";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { NextRequest, NextResponse } from "next/server";
@@ -11,12 +11,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
     try {
-        c.fs("POST api/public/pookie/roomnames");
+        c.fs("GET api/public/pookie/result");
 
         const searchParams = Object.fromEntries(request.nextUrl.searchParams);
         c.d(searchParams);
 
-        const validatedData = await pookieGetRoomValidator.safeParseAsync(searchParams);
+        c.i("Validating post data.");
+        const validatedData = await pookieGetResultValidator.safeParseAsync(searchParams);
+
         if (!validatedData.success) {
             c.d("Data is invalid. Return result.");
             c.d(validatedData.error.flatten().fieldErrors);
@@ -25,14 +27,13 @@ export async function GET(request: NextRequest) {
 
         const session = { user: { location: searchParams.location, id: "00000000-0000-0000-0000-000000000000" } }
 
-        // update user
         c.i("Calling service.");
         const service = container.get<IPookieService>(TYPES.IPookieService);
-        const roomsAndPax = await service.getRoomsAndPax(validatedData.data.drawDate, validatedData.data.list, session.user);
+        const result = await service.getResult(validatedData.data.drawDate, validatedData.data.roomName, session.user);
 
-        c.fe("GET /api/pookie/roomnames");
+        c.fe("GET /api/pookie/result");
         return NextResponse.json(
-            { message: undefined, data: { roomsAndPax: roomsAndPax } },
+            { message: undefined, data: { result: result } },
             {
                 status: HttpStatusCode.Ok,
                 headers: {
