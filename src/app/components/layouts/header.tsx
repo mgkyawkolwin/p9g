@@ -6,7 +6,7 @@ import SignOutButton from '@/lib/components/web/react/uicustom/signoutbutton';
 import { signOutAction } from '@/app/actions';
 
 export async function Header({ location, userName }: { location: string, userName: string }) {
-  const headerBgColor = location === 'MIDA' ? 'bg-[#fdfd00] dark:bg-[#fdfd00]' : 'bg-[#00aa00] dark:bg-[#00aa00]';
+  const headerBgColor = location === 'MIDA' ? 'bg-[#adad00] dark:bg-[#adad00]' : 'bg-[#00aa00] dark:bg-[#00aa00]';
   return (
     <>
       <div className="h-[70px]" style={{ display: 'none' }}></div>
