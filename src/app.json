@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "42e8707d-59dc-4324-a241-d2df1e277bd8"
+      }
+    },
+    "android": {
+      "package": "com.power9inter.p9g"
+    }
+  }
+}

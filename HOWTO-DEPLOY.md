@@ -1,5 +1,34 @@
 # HOW TO DEPLOY
 
+## Prepare Deployment File
+```bash
+# build
+npm run build
+
+# zip
+zip .next release.zip
+
+# upload
+sftp user@production.domain.com
+put release.zip
+
+# final
+ssh user@production.domain.com
+cd /to/the/root/folder
+
+# stop server
+pm2 stop [instance]
+
+# backup current version
+mv .next old-release.next
+
+# unzip new
+unzip release.zip
+
+# restart server
+pm2 restart [instance]
+```
+
 ## Stop Server
 - Login to server using ssh
 - Run PM2 status to check the app

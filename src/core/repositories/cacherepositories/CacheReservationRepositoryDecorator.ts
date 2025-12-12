@@ -1,16 +1,17 @@
-import type IReservationRepository from "../contracts/IReservationRepository";
-import { inject, injectable } from "inversify";
-import { PagerParams, SearchFormFields, SearchParam, TYPES } from "@/core/types";
-import c from "@/lib/loggers/console/ConsoleLogger";
-import Reservation from "@/core/models/domain/Reservation";
 import { TransactionType } from "@/core/db/mysql/MySqlDatabase";
+import Reservation from "@/core/models/domain/Reservation";
 import Room from "@/core/models/domain/Room";
 import RoomReservation from "@/core/models/domain/RoomReservation";
-import { getCacheKey } from "@/lib/utils";
-import SessionUser from "@/core/models/dto/SessionUser";
+import RoomAndPax from "@/core/models/dto/RoomAndPax";
 import RoomReservationDto from "@/core/models/dto/RoomReservationDto";
+import SessionUser from "@/core/models/dto/SessionUser";
+import { PagerParams, SearchFormFields, TYPES } from "@/core/types";
 import type ICacheAdapter from "@/lib/cache/ICacheAdapter";
+import c from "@/lib/loggers/console/ConsoleLogger";
 import { CacheRepositoryDecorator } from "@/lib/repositories/CacheRepositoryDecorator";
+import { getCacheKey } from "@/lib/utils";
+import { inject, injectable } from "inversify";
+import type IReservationRepository from "../contracts/IReservationRepository";
 
 
 @injectable()
@@ -22,6 +23,25 @@ export default class CacheReservationRepositoryDecorator extends CacheRepository
         @inject(TYPES.ICacheAdapter) protected readonly cache: ICacheAdapter
     ) {
         super(repository, baseCacheKey, cache);
+    }
+
+
+    async getRoomsAndPax(drawDate: Date, sessionUser: SessionUser): Promise<RoomAndPax[]> {
+        c.fs('CacheReservationRepositoryDecorator > getRoomsAndPax');
+        const startTime = performance.now();
+
+        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, drawDate.toISOString()));
+        if(cacheObject){
+            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+            return cacheObject;
+        }
+
+        const object = await this.repository.getRoomsAndPax(drawDate, sessionUser);
+
+        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+        await this.cache.add(getCacheKey(this.baseCacheKey, drawDate.toISOString()), getCacheKey(this.baseCacheKey), object);
+
+        return object;
     }
 
 

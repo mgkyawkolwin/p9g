@@ -6,9 +6,11 @@ import RoomReservation from "@/core/models/domain/RoomReservation";
 import { TransactionType } from "@/core/db/mysql/MySqlDatabase";
 import SessionUser from "@/core/models/dto/SessionUser";
 import RoomReservationDto from "@/core/models/dto/RoomReservationDto";
+import RoomAndPax from "@/core/models/dto/RoomAndPax";
 
 export default interface IReservationRepository extends IRepository<Reservation> {
 
+    getRoomsAndPax(drawDate: Date, sessionUser: SessionUser): Promise<RoomAndPax[]>;
     reservationGetById(id: string): Promise<Reservation | null>;
     reservationGetList(searchFormFields: SearchFormFields, pagerParams: PagerParams, list: string, sessionUser: SessionUser): Promise<[Reservation[], number]>;
     roomAndReservationGetList(searchFormFields: SearchFormFields, sessionUser: SessionUser): Promise<RoomReservationDto[]>;

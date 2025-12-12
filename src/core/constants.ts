@@ -63,6 +63,13 @@ export const SelectList = {
         ["11","DEC"]
     ]),
 
+    NO_OF_PLAYER: new Map<string, string>([
+        ["1","1 Player"],
+        ["2","2 Players"],
+        ["3","3 Players"],
+        ["4","4 Players"]
+    ]),
+
     PAYMENT_MODE: new Map<string, string>([
         ["CASH","Cash"],
         ["BANK","Bank"],
@@ -112,6 +119,11 @@ export const SelectListForm = {
     CURRENCY: new Map<string,string>([
         ["DEFAULT", "Choose"], 
         ...SelectList.CURRENCY.entries()
+    ]),
+
+    NO_OF_PLAYER: new Map<string,string>([
+        ["0", "Choose"], 
+        ...SelectList.NO_OF_PLAYER.entries()
     ]),
 
     GENDER: new Map<string,string>([

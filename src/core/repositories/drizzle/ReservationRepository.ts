@@ -1,31 +1,32 @@
-import { configTable, reservationTable, reservationCustomerTable, prepaidTable, promotionTable, customerTable, roomTable, roomReservationTable, billTable, userTable, paymentTable, roomChargeTable, roomRateTable, roomTypeTable } from "@/core/orms/drizzle/mysql/schema";
-import IReservationRepository from "../contracts/IReservationRepository";
-import { inject, injectable } from "inversify";
-import type { IDatabaseClient } from "@/lib/db/IDatabase";
-import { PagerParams, SearchFormFields, SearchParam, TYPES } from "@/core/types";
-import { Repository } from "../../../lib/repositories/drizzle/Repository";
-import c from "@/lib/loggers/console/ConsoleLogger";
-import { SQL, and, count, asc, desc, eq, ne, gte, between, lte, or, like, isNull, sum, lt, gt, getTableColumns, not, isNotNull } from "drizzle-orm";
-import Reservation from "@/core/models/domain/Reservation";
-import { TransactionType } from "@/core/db/mysql/MySqlDatabase";
-import { alias } from "drizzle-orm/mysql-core";
-import Room from "@/core/models/domain/Room";
-import RoomReservation from "@/core/models/domain/RoomReservation";
 import { auth } from "@/app/auth";
-import { CustomError } from "@/lib/errors";
+import { ConfigGroup } from "@/core/constants";
+import { TransactionType } from "@/core/db/mysql/MySqlDatabase";
+import Reservation from "@/core/models/domain/Reservation";
+import Room from "@/core/models/domain/Room";
 import RoomCharge from "@/core/models/domain/RoomCharge";
-import { getUTCDateMidNight, getISODateTimeString } from "@/lib/utils";
+import RoomReservation from "@/core/models/domain/RoomReservation";
+import RoomAndPax from "@/core/models/dto/RoomAndPax";
+import RoomReservationDto from "@/core/models/dto/RoomReservationDto";
 import SessionUser from "@/core/models/dto/SessionUser";
+import ReservationEntity from "@/core/models/entity/ReservationEntity";
+import RoomChargeEntity from "@/core/models/entity/RoomChargeEntity";
+import RoomEntity from "@/core/models/entity/RoomEntity";
+import RoomReservationEntity from "@/core/models/entity/RoomReservationEntity";
+import RoomTypeEntity from "@/core/models/entity/RoomTypeEntity";
+import UserEntity from "@/core/models/entity/UserEntity";
+import { billTable, configTable, customerTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomReservationTable, roomTable, roomTypeTable, userTable } from "@/core/orms/drizzle/mysql/schema";
+import { PagerParams, SearchFormFields, TYPES } from "@/core/types";
+import type { IDatabaseClient } from "@/lib/db/IDatabase";
+import { CustomError } from "@/lib/errors";
+import c from "@/lib/loggers/console/ConsoleLogger";
 import type IMapper from "@/lib/mappers/IMapper";
 import type IQueryTranformer from "@/lib/transformers/IQueryTransformer";
-import ReservationEntity from "@/core/models/entity/ReservationEntity";
-import UserEntity from "@/core/models/entity/UserEntity";
-import RoomReservationEntity from "@/core/models/entity/RoomReservationEntity";
-import RoomChargeEntity from "@/core/models/entity/RoomChargeEntity";
-import RoomTypeEntity from "@/core/models/entity/RoomTypeEntity";
-import RoomEntity from "@/core/models/entity/RoomEntity";
-import { ConfigGroup } from "@/core/constants";
-import RoomReservationDto from "@/core/models/dto/RoomReservationDto";
+import { getISODateTimeString, getUTCDateMidNight } from "@/lib/utils";
+import { and, asc, between, count, desc, eq, gt, gte, like, lt, lte, ne, or } from "drizzle-orm";
+import { alias } from "drizzle-orm/mysql-core";
+import { inject, injectable } from "inversify";
+import { Repository } from "../../../lib/repositories/drizzle/Repository";
+import IReservationRepository from "../contracts/IReservationRepository";
 
 
 @injectable()
@@ -42,6 +43,45 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         @inject(TYPES.IQueryTransformer) protected readonly transformer: IQueryTranformer
     ) {
         super(dbClient, reservationTable, { ...reservationTable }, (q) => q, mapper, Reservation, ReservationEntity, transformer);
+    }
+
+
+    async getRoomsAndPax(drawDate: Date, sessionUser: SessionUser): Promise<RoomAndPax[]> {
+        c.fs("ReservationService > getRoomsAndPax");
+        const reservations : ReservationEntity[] = await this.dbClient.db.select({...reservationTable})
+            .from(reservationTable)
+            .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+            .where(
+                and(
+                    and(
+                        lte(reservationTable.checkInDate, drawDate),
+                        gt(reservationTable.checkOutDate, drawDate)
+                    ),
+                    ne(configTable.value, "CCL"),
+                    eq(reservationTable.location, sessionUser.location)
+                )
+            );
+        c.d(reservations?.length);
+        if(!reservations || reservations.length == 0) return [];
+        
+        const roomsAndPax : RoomAndPax[] = reservations.reduce((acc: RoomAndPax[], {roomNo, noOfGuests}) : RoomAndPax[] => {
+            if(!acc) acc = [];
+            const existing = acc.find( rnp => rnp.roomNo === roomNo);
+            if(!existing){
+                acc.push({roomNo: roomNo, noOfGuests: noOfGuests});
+            }
+            else{
+                existing.noOfGuests = Number(existing.noOfGuests) + Number(noOfGuests);
+            }
+            return acc;
+
+        }, [] as RoomAndPax[]);
+        c.d(roomsAndPax?.length);
+
+        if(!roomsAndPax || roomsAndPax.length === 0) return [];
+
+        const sortedRoomsAndPax = roomsAndPax.sort((a, b) => a.roomNo > b.roomNo ? 1 : -1);
+        return sortedRoomsAndPax;
     }
 
 
@@ -116,7 +156,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             }
             if (bill) {
                 const existingBill = rsvn?.bills?.find(b => b.id === bill.id);
-                if(!existingBill)
+                if (!existingBill)
                     rsvn.bills.push(bill);
             }
 
