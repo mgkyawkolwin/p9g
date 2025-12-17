@@ -519,6 +519,30 @@ export default class ReservationService implements IReservationService {
     }
 
 
+    async reservationPatch(id: string, reservation: Reservation, sessionUser: SessionUser): Promise<void> {
+        c.fs('ReservationService > reservationPatch');
+
+        if (!id || id === 'undefined') {
+            throw new Error('Reservation update failed. Id is required.');
+        }
+
+        if (!reservation) {
+            throw new Error('Reservation update failed. Reservation is required.');
+        }
+
+        if (!sessionUser) {
+            throw new Error('Reservation update failed. Invalid session.');
+        }
+
+        c.i('Preparing reservation to update');
+        reservation.updatedBy = sessionUser.id;
+        reservation.updatedAtUTC = new Date();
+
+        c.i('Updating reservation.');
+        await this.reservationRepository.update(id, reservation);
+    }
+
+
     async reservationUpdateDropOffInfo(id: string, carNo: string, driver: string, sessionUser: SessionUser): Promise<void> {
         c.fs('ReservationService > reservationUpdateDropOffInfo');
         if (!id || id === 'undefined')

@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { binary, boolean, char, date, datetime, decimal, int, mysqlTable, smallint, tinyint, varchar } from "drizzle-orm/mysql-core";
+import { binary, boolean, char, date, datetime, decimal, int, mysqlTable, smallint, tinyint, varchar, text } from "drizzle-orm/mysql-core";
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -52,11 +52,33 @@ export const customerTable = mysqlTable("customer", {
   updatedBy: char("updatedBy", { length: 36 }).notNull()
 });
 
+export const feedbackTable = mysqlTable("feedback", {
+  id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'restrict' } ),
+  customerId: char("customerId", { length: 36 }).references(() => customerTable.id, { onDelete: 'restrict' } ),
+  feedback: text("feedback"),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
 export const logErrorTable = mysqlTable("logError", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
   userId: char("userId", { length: 36 }),
   datetime: datetime("datetime").notNull(),
   detail: decimal("detail").notNull()
+});
+
+export const mediaTable = mysqlTable("media", {
+  id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'restrict' } ),
+  customerId: char("customerId", { length: 36 }).references(() => customerTable.id, { onDelete: 'set null' } ),
+  url: varchar("url", { length: 500 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull()
 });
 
 export const paymentTable = mysqlTable("payment", {
@@ -221,6 +243,8 @@ export const reservationTable = mysqlTable("reservation", {
   taxAmount: decimal("taxAmount"),
   netAmount: decimal("netAmount"),
   dueAmount: decimal("dueAmount"),
+  golfCart: varchar("golfCart", { length: 20 }),
+  // feedback: text("feedback"),
   location: varchar("location", { length: 10 }).notNull(),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", { length: 36 }).notNull(),

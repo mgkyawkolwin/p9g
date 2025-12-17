@@ -14,7 +14,7 @@ import RoomEntity from "@/core/models/entity/RoomEntity";
 import RoomReservationEntity from "@/core/models/entity/RoomReservationEntity";
 import RoomTypeEntity from "@/core/models/entity/RoomTypeEntity";
 import UserEntity from "@/core/models/entity/UserEntity";
-import { billTable, configTable, customerTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomReservationTable, roomTable, roomTypeTable, userTable } from "@/core/orms/drizzle/mysql/schema";
+import { billTable, configTable, customerTable, feedbackTable, mediaTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomReservationTable, roomTable, roomTypeTable, userTable } from "@/core/orms/drizzle/mysql/schema";
 import { PagerParams, SearchFormFields, TYPES } from "@/core/types";
 import type { IDatabaseClient } from "@/lib/db/IDatabase";
 import { CustomError } from "@/lib/errors";
@@ -398,6 +398,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 checkOutDate: roomReservationTable.checkOutDate,
                 noOfDays: reservationTable.noOfDays,
                 noOfGuests: reservationTable.noOfGuests,
+                golfCart: reservationTable.golfCart
             })
             .from(reservationTable)
             .innerJoin(roomReservationTable,
@@ -426,13 +427,18 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 checkOutDate: asRsv.checkOutDate,
                 noOfDays: asRsv.noOfDays,
                 noOfGuests: asRsv.noOfGuests,
-                customer: customerTable
+                customer: customerTable,
+                golfCart: asRsv.golfCart,
+                feedback: feedbackTable,
+                media: mediaTable
             })
             .from(roomTable)
             .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomTable.roomTypeId))
             .leftJoin(asRsv, eq(asRsv.roomId, roomTable.id))
             .leftJoin(reservationCustomerTable, eq(reservationCustomerTable.reservationId, asRsv.reservationId))
             .leftJoin(customerTable, eq(customerTable.id, reservationCustomerTable.customerId))
+            .leftJoin(feedbackTable, eq(feedbackTable.reservationId, asRsv.reservationId))
+            .leftJoin(mediaTable, eq(mediaTable.reservationId, asRsv.reservationId))
             .where(
                 eq(roomTable.location, sessionUser.location)
             ).orderBy(asc(roomTypeTable.roomTypeText), asc(roomTable.roomNo));
@@ -453,7 +459,26 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             }
 
             if (row.customer) {
-                room.customers.push(row.customer);
+                let existingCustomer = room.customers.find(c => c.id === row.customer.id);
+                if (!existingCustomer) {
+                    row.customer.medias = [];
+                    room.customers.push(row.customer);
+                }
+                if(row.feedback) {
+                    room.customers?.forEach(c => {
+                        if(c.id == row.feedback.customerId) {
+                            c.feedback = row.feedback;
+                        }
+                    });
+                }
+
+                if(row.media) {
+                    room.customers?.forEach(c => {
+                        if(c.id == row.media.customerId) {
+                            c.medias.push(row.media);
+                        }
+                    });
+                }
             }
 
             return acc;

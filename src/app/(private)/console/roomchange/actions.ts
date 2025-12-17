@@ -90,3 +90,61 @@ export async function moveRoom(id: string, roomNo:string, moveDate: Date){
     return {error:true, message : "Room move failed."};
   }
 }
+
+
+export async function updateGolfCart(reservationId: string, golfCart:string){
+  try{
+    c.fs('Action > updateGolfCart');
+    const response = await fetch(process.env.API_URL + `reservations/${reservationId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      },
+      body: JSON.stringify({ id: reservationId, golfCart: golfCart })
+    });
+
+    const responseData = await response.json();
+
+    //fail
+    if(!response.ok){
+      c.i("Golf cart update failed. Return response.");
+      return {error:true, message : `Update golf cart failed. ${responseData.message}`};
+    }
+
+    c.fe('Action > updateGolfCart');
+    return {error:false, message:'Golf cart updated.'};
+  }catch(error){
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error:true, message : "Update golf cart failed."};
+  }
+}
+
+
+export async function updateFeedback(reservationId: string, customerId: string, feedback:string){
+  try{
+    c.fs('Action > updateFeedback');
+    const response = await fetch(process.env.API_URL + `feedbacks`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      },
+      body: JSON.stringify({ reservationId, customerId, feedback })
+    });
+
+    const responseData = await response.json();
+
+    //fail
+    if(!response.ok){
+      c.i("Feedback update failed. Return response.");
+      return {error:true, message : `Feedback update failed. ${responseData.message}`};
+    }
+
+    c.fe('Action > updateFeedback');
+    return {error:false, message:'Feedback updated.'};
+  }catch(error){
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error:true, message : "Feedback update failed."};
+  }
+}

@@ -9,11 +9,15 @@ import { useRouter } from "next/navigation";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
-import { moveRoom } from "@/app/(private)/console/roomchange/actions";
+import { moveRoom, updateFeedback, updateGolfCart } from "@/app/(private)/console/roomchange/actions";
 import { toast } from "sonner";
 import SimpleDataTable from "../../../lib/components/web/react/uicustom/simpledatatable";
-import { CopyIcon } from "lucide-react";
+import { CopyIcon, NotepadText, Image } from "lucide-react";
 import RoomReservationDto from "@/core/models/dto/RoomReservationDto";
+import FeedbackDialog from "../dialogs/feedbackdialog";
+import Feedback from "@/core/models/domain/Feedback";
+import MediaDialog from "../dialogs/mediadialog";
+import Media from "@/core/models/domain/Media";
 
 
 interface DataTableProps {
@@ -41,14 +45,21 @@ export default function RoomChangeListTable({
     {
       accessorKey: "reservationId",
       header: "Reservation Id",
-      accessorFn: row => <div>{row.reservationId}&nbsp;&nbsp;&nbsp;{row.reservationId && <CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.reservationId)} />}</div>,
+      accessorFn: row => <div>{row.reservationId ? String(row.reservationId).substring(0,8):""}&nbsp;&nbsp;&nbsp;{row.reservationId && <CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.reservationId)} />}</div>,
       cell: (row) => row.getValue()
     },
     {
       accessorKey: "customers",
       header: "Customers",
-      accessorFn: (row) => <div>{row.customers ? row.customers.map(c => c.englishName).join(', ') : 0}</div>,
-      cell: (row) => row.getValue(),
+      cell: (row) => {
+        return row.row.original.customers.map(c => {
+          return <div className="flex flex-row gap-2" key={c.id}>
+            {c.englishName} 
+            <NotepadText className="pointer" onClick={() => { setReservationId(row.row.original.reservationId); setCustomerId(c.id); setFeedback(c.feedback?.feedback); setFeedbackDialogOpen(true); }} /> 
+              <Image onClick={() => { setReservationId(row.row.original.reservationId); setCustomerId(c.id); setInitialMedia(c.medias); setOpenMediaDialog(true); }} />
+            </div>
+        })
+      },
     },
     {
       accessorKey: "checkInDate",
@@ -66,7 +77,16 @@ export default function RoomChangeListTable({
     },
     {
       accessorKey: "noOfGuests",
-      header: "No. of Guests"
+      header: "Pax"
+    },
+    {
+      accessorKey: "golfCart",
+      header: "Golf Cart",
+      cell: ({ row }) => <InputCustom variant="table" size="sm" id={`${row.original.roomNo}:${row.original.reservationId}:${row.original.customers.map(c => c.englishName).join('')}`} 
+      defaultValue={String(row.original.golfCart ?? '')}
+      onBlur={() => {
+        updateGolfCartLocal(row.original.reservationId, (document.getElementById(`${row.original.roomNo}:${row.original.reservationId}:${row.original.customers.map(c => c.englishName).join('')}`) as HTMLInputElement).value);
+      }} />,
     },
     {
       accessorKey: "action",
@@ -85,14 +105,36 @@ export default function RoomChangeListTable({
   ];
 
   const router = useRouter();
+  const [customerId, setCustomerId] = React.useState<string>('');
+  const [initialMedia, setInitialMedia] = React.useState<Media[]>([]);
+  const [openMediaDialog, setOpenMediaDialog] = React.useState<boolean>(false);
   const [openMoveRoomDiallog, setOpenMoveRoomDialog] = React.useState(false);
   const [reservationId, setReservationId] = React.useState<string>('');
+  const [feedback, setFeedback] = React.useState<string>('');
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = React.useState<boolean>(false);
   const [roomNo, setRoomNo] = React.useState('');
+  const [data, setData] = React.useState<RoomReservationDto[]>(formState.data || []);
+
+  async function updateGolfCartLocal(reservationId: string, golfCart: string) {
+    const response = await updateGolfCart(reservationId, golfCart);
+    if (response.message)
+      toast(response.message);
+    if (response.error) return;
+
+    const updatedData = data.map(item => {
+      if (item.reservationId === reservationId) {
+        return { ...item, golfCart: golfCart };
+      }
+      return item;
+    });
+    setData(updatedData);
+  }
   
 
   React.useEffect(() => {
     setReservationId('');
     setRoomNo('');
+    setData(formState.data || []);
   },[formState]);
 
   React.useEffect(() => {
@@ -101,7 +143,7 @@ export default function RoomChangeListTable({
 
   return (
     <>
-      <SimpleDataTable columns={columns} data={formState.data} />
+      <SimpleDataTable columns={columns} data={data} />
       <section className="flex">
         <Dialog key={'moveroomdialog'} open={openMoveRoomDiallog} onOpenChange={setOpenMoveRoomDialog}>
           <DialogContent className="">
@@ -130,6 +172,39 @@ export default function RoomChangeListTable({
           </DialogContent>
         </Dialog>
       </section>
+      <FeedbackDialog isOpen={feedbackDialogOpen} reservationId={reservationId} initialFeedback={feedback} 
+      onOpenChanged={() => setFeedbackDialogOpen(false)}
+      onFeedbackSaved={async (reservationId: string, feedback: string) => {
+        const response = await updateFeedback(reservationId, customerId, feedback);
+        if(response.message)
+            toast(response.message);
+        if(response.error) return;
+
+        const updatedData = data.map(item => {
+          if (item.reservationId === reservationId) {
+            item.customers = item.customers.map(c => {
+              if (c.id === customerId) {
+                const fb = new Feedback();
+                fb.feedback = feedback;
+                fb.customerId = customerId;
+                fb.reservationId = reservationId;
+                return { ...c, feedback: fb };
+              }
+              return c;
+            });
+          }
+          return item;
+        });
+        setData(updatedData);
+        setFeedbackDialogOpen(false);
+      }} title="Feedback" description="Customer feedback form, complaints & complements" />
+
+      <MediaDialog onMediaSaved={() => {}} isOpen={openMediaDialog} 
+        reservationId={reservationId} 
+        customerId={customerId} 
+        initialMedia={initialMedia} 
+        allowedFileTypes={['image/*', 'video/*', 'application/pdf', 'text/plain']}
+        onOpenChanged={() => setOpenMediaDialog(false)} />
       <input type="hidden" name="date" value={new Date().toISOFormatDateString()} />
     </>
   )

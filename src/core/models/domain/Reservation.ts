@@ -27,6 +27,8 @@ export default class Reservation extends DomainBase{
     public dropOffTypeId: string = '';
     public dropOffTypeText: string = '';
     public dueAmount: number = 0;
+    public feedback: string = '';
+    public golfCart: string = '';
     public isSingleOccupancy: boolean = false;
     public location: string = '';
     public netAmount: number = 0;

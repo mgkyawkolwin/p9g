@@ -21,6 +21,8 @@ export default class ReservationEntity extends EntityBase{
     public dropOffFeePaidOnUTC: Date = null;
     public dropOffTypeId: string = '';
     public dueAmount: number = 0;
+    public feedback: string = '';
+    public golfCart: string = '';
     public isSingleOccupancy: boolean = false;
     public netAmount: number = 0;
     public noOfDays: number = 0;
