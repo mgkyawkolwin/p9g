@@ -14,7 +14,7 @@ import RoomEntity from "@/core/models/entity/RoomEntity";
 import RoomReservationEntity from "@/core/models/entity/RoomReservationEntity";
 import RoomTypeEntity from "@/core/models/entity/RoomTypeEntity";
 import UserEntity from "@/core/models/entity/UserEntity";
-import { billTable, configTable, customerTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomReservationTable, roomTable, roomTypeTable, userTable } from "@/core/orms/drizzle/mysql/schema";
+import { billTable, configTable, customerTable, feedbackTable, mediaTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomReservationTable, roomTable, roomTypeTable, userTable } from "@/core/orms/drizzle/mysql/schema";
 import { PagerParams, SearchFormFields, TYPES } from "@/core/types";
 import type { IDatabaseClient } from "@/lib/db/IDatabase";
 import { CustomError } from "@/lib/errors";
@@ -48,7 +48,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
 
     async getRoomsAndPax(drawDate: Date, sessionUser: SessionUser): Promise<RoomAndPax[]> {
         c.fs("ReservationService > getRoomsAndPax");
-        const reservations : ReservationEntity[] = await this.dbClient.db.select({...reservationTable})
+        const reservations: ReservationEntity[] = await this.dbClient.db.select({ ...reservationTable })
             .from(reservationTable)
             .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
             .where(
@@ -62,15 +62,15 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 )
             );
         c.d(reservations?.length);
-        if(!reservations || reservations.length == 0) return [];
-        
-        const roomsAndPax : RoomAndPax[] = reservations.reduce((acc: RoomAndPax[], {roomNo, noOfGuests}) : RoomAndPax[] => {
-            if(!acc) acc = [];
-            const existing = acc.find( rnp => rnp.roomNo === roomNo);
-            if(!existing){
-                acc.push({roomNo: roomNo, noOfGuests: noOfGuests});
+        if (!reservations || reservations.length == 0) return [];
+
+        const roomsAndPax: RoomAndPax[] = reservations.reduce((acc: RoomAndPax[], { roomNo, noOfGuests }): RoomAndPax[] => {
+            if (!acc) acc = [];
+            const existing = acc.find(rnp => rnp.roomNo === roomNo);
+            if (!existing) {
+                acc.push({ roomNo: roomNo, noOfGuests: noOfGuests });
             }
-            else{
+            else {
                 existing.noOfGuests = Number(existing.noOfGuests) + Number(noOfGuests);
             }
             return acc;
@@ -78,7 +78,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         }, [] as RoomAndPax[]);
         c.d(roomsAndPax?.length);
 
-        if(!roomsAndPax || roomsAndPax.length === 0) return [];
+        if (!roomsAndPax || roomsAndPax.length === 0) return [];
 
         const sortedRoomsAndPax = roomsAndPax.sort((a, b) => a.roomNo > b.roomNo ? 1 : -1);
         return sortedRoomsAndPax;
@@ -201,6 +201,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
             customer: { ...customerTable },
+            reservationCustomer: { ...reservationCustomerTable },
             reservationStatus: reservationStatusAlias.value,
             reservationStatusText: reservationStatusAlias.text,
             reservationType: reservationTypeAlias.value,
@@ -343,7 +344,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
 
         //transform to desired result
         const reservations = dataqueryresult?.reduce((acc: Reservation[], current: any) => {
-            const { customer, ...reservation } = current;
+            const { customer, reservationCustomer, ...reservation } = current;
             let rsvn = acc.find(r => r.id === current.id);
             if (!rsvn) {
                 rsvn = reservation;
@@ -364,8 +365,19 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 rsvn!.customers = [];
                 acc.push(rsvn!);
             }
-            if (customer)
-                rsvn?.customers?.push(customer);
+            if (customer) {
+                const [existingCustomer] = rsvn?.customers?.filter(c => c.id === customer.id);
+                if(!existingCustomer){
+                    rsvn?.customers?.push(customer);
+                }
+            }
+            if(reservationCustomer){
+                rsvn?.customers?.forEach(c => {
+                    if(c.id === reservationCustomer.customerId && reservationCustomer.tdacFileUrl){
+                        c.tdacFileUrl = reservationCustomer.tdacFileUrl;
+                    }
+                });
+            }
 
             return acc;
         }, [] as Reservation[]);
@@ -398,6 +410,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 checkOutDate: roomReservationTable.checkOutDate,
                 noOfDays: reservationTable.noOfDays,
                 noOfGuests: reservationTable.noOfGuests,
+                golfCart: reservationTable.golfCart
             })
             .from(reservationTable)
             .innerJoin(roomReservationTable,
@@ -426,13 +439,18 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 checkOutDate: asRsv.checkOutDate,
                 noOfDays: asRsv.noOfDays,
                 noOfGuests: asRsv.noOfGuests,
-                customer: customerTable
+                customer: customerTable,
+                golfCart: asRsv.golfCart,
+                feedback: feedbackTable,
+                media: mediaTable
             })
             .from(roomTable)
             .innerJoin(roomTypeTable, eq(roomTypeTable.id, roomTable.roomTypeId))
             .leftJoin(asRsv, eq(asRsv.roomId, roomTable.id))
             .leftJoin(reservationCustomerTable, eq(reservationCustomerTable.reservationId, asRsv.reservationId))
             .leftJoin(customerTable, eq(customerTable.id, reservationCustomerTable.customerId))
+            .leftJoin(feedbackTable, eq(feedbackTable.reservationId, asRsv.reservationId))
+            .leftJoin(mediaTable, eq(mediaTable.reservationId, asRsv.reservationId))
             .where(
                 eq(roomTable.location, sessionUser.location)
             ).orderBy(asc(roomTypeTable.roomTypeText), asc(roomTable.roomNo));
@@ -453,7 +471,29 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             }
 
             if (row.customer) {
-                room.customers.push(row.customer);
+                let existingCustomer = room.customers.find(c => c.id === row.customer.id);
+                if (!existingCustomer) {
+                    row.customer.medias = [];
+                    room.customers.push(row.customer);
+                }
+                if (row.feedback) {
+                    room.customers?.forEach(c => {
+                        if (c.id == row.feedback.customerId) {
+                            c.feedback = row.feedback;
+                        }
+                    });
+                }
+
+                if (row.media) {
+                    room.customers?.forEach(c => {
+                        if (c.id == row.media.customerId) {
+                            let existingMedia = c.medias.find(m => m.id === row.media.id);
+                            if (!existingMedia) {
+                                c.medias.push(row.media);
+                            }
+                        }
+                    });
+                }
             }
 
             return acc;

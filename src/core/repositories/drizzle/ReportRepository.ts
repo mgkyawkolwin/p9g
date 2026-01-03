@@ -5,8 +5,8 @@ import { TYPES } from "@/core/types";
 import { type IDatabaseClient } from "@/lib/db/IDatabase";
 import IReportRepository from "../contracts/IReportRepository";
 import DailySummaryGuestsRoomsReportRow from "@/core/models/dto/reports/DailySummaryGuestsRoomsReportrow";
-import { getUTCDateRange } from "@/lib/utils";
-import { and, count, countDistinct, eq, gt, gte, lt, lte, ne, or, sum } from "drizzle-orm";
+import { getUTCDateRange, getUTCFirstDate } from "@/lib/utils";
+import { and, count, countDistinct, eq, gt, gte, lt, lte, ne, or, sql, sum } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { CustomError } from "@/lib/errors";
 import c from "@/lib/loggers/console/ConsoleLogger";
@@ -77,6 +77,19 @@ export default class ReportRepository implements IReportRepository {
             report.guestsCheckOut = Number(guestsCheckOut.sum ?? 0);
             report.reservationCheckOut = Number(guestsCheckOut.count ?? 0);
 
+            c.i('Retrieve Same day guests');
+            const [guestsSameDayCheckOut] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
+                .from(reservationTable)
+                .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+                .where(
+                    and(
+                        eq(reservationTable.checkInDate, reservationTable.checkOutDate),
+                        eq(reservationTable.checkInDate, start),
+                        ne(configTable.value, 'CCL'),
+                        eq(reservationTable.location, sessionUser.location)
+                    )).limit(1);
+            report.guestsSameDayCheckOut = Number(guestsSameDayCheckOut.sum ?? 0);
+
             c.i('Retrieve existing guests');
             const [guestsExisting] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
                 .from(reservationTable)
@@ -108,8 +121,8 @@ export default class ReportRepository implements IReportRepository {
             report.guestsExisting = Number(guestsExisting.sum ?? 0);
             report.reservationExisting = Number(guestsExisting.count ?? 0);
 
-            report.reservationTotal = report.reservationCheckIn + report.reservationCheckOut + report.reservationExisting;
-            report.guestsTotal = report.guestsExisting + report.guestsCheckIn + report.guestsCheckOut;
+            report.reservationTotal = report.reservationCheckIn + report.reservationCheckOut + report.reservationExisting - guestsSameDayCheckOut.count;
+            report.guestsTotal = report.guestsExisting + report.guestsCheckIn + report.guestsCheckOut - report.guestsSameDayCheckOut;
 
             c.i('Retrieve total rooms.');
             const [roomsTotal] = await this.dbClient.db.select({ count: count() })
@@ -129,29 +142,43 @@ export default class ReportRepository implements IReportRepository {
     }
 
 
-    async getDailySummaryIncomeReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
+    async getDailySummaryIncomeReport(startDate: string, endDate: string, reservationType: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
         c.fs("Repository > getDailySummaryIncomeReport");
-        c.d(startDate);
-        c.d(endDate);
+        c.d({startDate, endDate, reservationStatus: reservationType, sessionUser});
+
+        var reservationTypeId = null;
+        if(reservationType){
+            const [result] = await this.dbClient.db
+            .select().from(configTable)
+            .where(eq(configTable.value, reservationType));
+            if(result) reservationTypeId = result.id;
+            c.d(reservationTypeId);
+            c.d(result);
+        }
 
         const reports: DailySummaryIncomeReportRow[] = [];
         const dateRanges = getUTCDateRange(startDate, endDate);
-        c.d(dateRanges);
+        c.d(dateRanges ? dateRanges[0] : []);
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
+
+        const reservationTypeTable = alias(configTable, "reservationType");
 
         c.i('Generating report.');
         for (const dr of dateRanges) {
             const start: Date = new Date(dr);
             const report = new DailySummaryIncomeReportRow();
             report.date = start;
-
-            c.i('Retrieve reservation');
+            
             const totalCheckInReservations: Reservation[] = await this.dbClient.db
                 .select(
                     { ...reservationTable }
                 )
                 .from(reservationTable)
                 .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+                .innerJoin(reservationTypeTable, and(
+                    eq(reservationTypeTable.id, reservationTable.reservationTypeId),
+                    reservationTypeId ? eq(reservationTypeTable.id, reservationTypeId) : sql`1 = 1`
+                ))
                 .where(
                     and(
                         eq(reservationTable.checkInDate, start),
@@ -361,6 +388,19 @@ export default class ReportRepository implements IReportRepository {
                     )).limit(1);
             report.guestsCheckOut = Number(guestsCheckOut.sum ?? 0);
 
+            c.i('Retrieve Same day guests');
+            const [guestsSameDayCheckOut] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
+                .from(reservationTable)
+                .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+                .where(
+                    and(
+                        eq(reservationTable.checkInDate, reservationTable.checkOutDate),
+                        eq(reservationTable.checkInDate, start),
+                        ne(configTable.value, 'CCL'),
+                        eq(reservationTable.location, sessionUser.location)
+                    )).limit(1);
+            report.guestsSameDayCheckOut = Number(guestsSameDayCheckOut.sum ?? 0);
+
             c.i('Retrieve existing guests');
             const [guestsExisting] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
                 .from(reservationTable)
@@ -372,7 +412,7 @@ export default class ReportRepository implements IReportRepository {
                         ne(configTable.value, 'CCL'),
                         eq(reservationTable.location, sessionUser.location)
                     )).limit(1);
-            report.guestsTotal = Number(guestsExisting.sum ?? 0) + report.guestsCheckIn + report.guestsCheckOut;
+            report.guestsTotal = Number(guestsExisting.sum ?? 0) + report.guestsCheckIn + report.guestsCheckOut - report.guestsSameDayCheckOut;
 
             const [roomsTotal] = await this.dbClient.db.select({ count: countDistinct(reservationTable.roomNo) })
                 .from(reservationTable)
@@ -388,7 +428,7 @@ export default class ReportRepository implements IReportRepository {
                         eq(reservationTable.location, sessionUser.location)
                     ));
 
-            report.reservationTotal = guestsCheckIn.count + guestsCheckOut.count + guestsExisting.count;
+            report.reservationTotal = guestsCheckIn.count + guestsCheckOut.count + guestsExisting.count - guestsSameDayCheckOut.count;
 
             report.roomsTotal = roomsTotal.count;
             reports.push(report);

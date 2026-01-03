@@ -12,6 +12,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Label } from "@/lib/components/web/react/ui/label";
 import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
 import { getISODateTimeMidNightString, getISODateTimeString } from "@/lib/utils";
+import { SelectListSearch } from "@/core/constants";
+import { SelectWithLabel } from "@/lib/components/web/react/uicustom/selectwithlabel";
 
 export default function DailySummaryIncomeReportPage() {
   
@@ -19,6 +21,7 @@ export default function DailySummaryIncomeReportPage() {
   const [reportRows, setReportRows] = React.useState<DailySummaryIncomeReportRow[]>([]);
   const [fromDate, setFromDate] = React.useState<Date>(null);
   const [toDate, setToDate] = React.useState<Date>(null);
+  const [reservationType, setReservationType] = React.useState<string>('');
 
 
   return (
@@ -60,9 +63,12 @@ export default function DailySummaryIncomeReportPage() {
                     showIcon
                   />
                 </div>
+                <div className="flex gap-2">
+                    <SelectWithLabel label="Reservation Type" variant="form" items={SelectListSearch.RESERVATION_TYPE} defaultValue={reservationType} onValueChange={(value) => setReservationType(value)} />
+                </div>
               <ButtonCustom onClick={async () => {
                 setIsLoading(true);
-                const response = await getDailySummaryIncomeReport(fromDate ? getISODateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getISODateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '');
+                const response = await getDailySummaryIncomeReport(fromDate ? getISODateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getISODateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '', reservationType);
                 setIsLoading(false);
                 if(response.message)
                   toast(response.message);

@@ -9,4 +9,6 @@ export default class RoomReservationDto{
     public customers: Customer[] = [];
     public noOfDays: number = 0;
     public noOfGuests: number = 0;
+    public golfCart?: string;
+    public feedback?: string;
 }

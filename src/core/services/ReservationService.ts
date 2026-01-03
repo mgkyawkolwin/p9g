@@ -28,7 +28,7 @@ import PrepaidEntity from "@/core/models/entity/PrepaidEntity";
 import PromotionEntity from "@/core/models/entity/PromotionEntity";
 import { and, asc, desc, eq, ne } from "@/lib/transformers/types";
 import RoomReservationDto from "../models/dto/RoomReservationDto";
-import { check } from "drizzle-orm/pg-core";
+import { timeStamp } from "console";
 
 @injectable()
 export default class ReservationService implements IReservationService {
@@ -509,13 +509,37 @@ export default class ReservationService implements IReservationService {
             const totalRoomCharges = roomCharges.reduce((accu, rc) => accu += rc.totalAmount, 0);
             reservation.roomNo = roomNo;
             reservation.totalAmount = totalRoomCharges;
-            reservation = this.calculateAllAmount(reservation);console.log(reservation);
+            reservation = this.calculateAllAmount(reservation); console.log(reservation);
             await this.reservationRepository.update(reservation.id, reservation, tx as any);
-        },{
+        }, {
             isolationLevel: "read uncommitted",
             accessMode: "read write",
             withConsistentSnapshot: false,
         });
+    }
+
+
+    async reservationPatch(id: string, reservation: Reservation, sessionUser: SessionUser): Promise<void> {
+        c.fs('ReservationService > reservationPatch');
+
+        if (!id || id === 'undefined') {
+            throw new Error('Reservation update failed. Id is required.');
+        }
+
+        if (!reservation) {
+            throw new Error('Reservation update failed. Reservation is required.');
+        }
+
+        if (!sessionUser) {
+            throw new Error('Reservation update failed. Invalid session.');
+        }
+
+        c.i('Preparing reservation to update');
+        reservation.updatedBy = sessionUser.id;
+        reservation.updatedAtUTC = new Date();
+
+        c.i('Updating reservation.');
+        await this.reservationRepository.update(id, reservation);
     }
 
 
@@ -613,24 +637,57 @@ export default class ReservationService implements IReservationService {
             reservation = this.calculateAllAmount(reservation);
             await this.reservationRepository.update(id, reservation, tx as any);
 
-            c.i('Deleting existing customer list in reservation.');
-            await this.reservationCustomerRepository.deleteWhere(eq("reservationId", id));
-
-            if (reservation.customers && reservation.customers.length > 0) {
-                c.i('Customers exist. Prepare to insert.');
-                const newReservationCustomers = reservation.customers.map((c) => {
-                    const rc = new ReservationCustomer();
-                    rc.reservationId = reservation.id;
-                    rc.customerId = c.id;
-                    rc.createdAtUTC = new Date();
-                    rc.createdBy = sessionUser.id;
-                    rc.updatedAtUTC = new Date();
-                    rc.updatedBy = sessionUser.id;
-                    return rc;
-                });
-                await this.reservationCustomerRepository.createMany(newReservationCustomers, tx as any);
+            c.i('Checking and comparing customers');
+            const [existingCustomers, _] = await this.reservationCustomerRepository.findMany(eq("reservationId", id));
+            if (existingCustomers) {
+                c.i('Existing customers for the reservation.');
+                if (reservation.customers?.length > 0) {
+                    c.i('There are new customers for the reservation. Compare customers.');
+                    for(const nc of reservation.customers){
+                        const foundCustomer = existingCustomers.find(ec => nc.id === ec.customerId);
+                        if(!foundCustomer){
+                            c.i('New customer not found in existing, insert new');
+                            const rc = new ReservationCustomer();
+                            rc.reservationId = reservation.id;
+                            rc.customerId = nc.id;
+                            rc.createdAtUTC = new Date();
+                            rc.createdBy = sessionUser.id;
+                            rc.updatedAtUTC = new Date();
+                            rc.updatedBy = sessionUser.id;
+                            await this.reservationCustomerRepository.create(rc, tx as any);
+                        }
+                    }
+                    c.i('Removing existing customers if not exit in new customer list.');
+                    for(const ec of existingCustomers){
+                        const foundCustomer = reservation.customers.find(nc => nc.id === ec.customerId);
+                        if(!foundCustomer){
+                            c.i('Existing customer not found in new list. Delete');
+                            await this.reservationCustomerRepository.delete(ec.id, tx as any);
+                        }
+                    }
+                } else {
+                    c.i('There are no new customers for the reservation. Deleting existing');
+                    await this.reservationCustomerRepository.deleteWhere(eq("reservationId", id));
+                }
+            } else {
+                c.i('No existing customers for the reservation.');
+                if (reservation.customers?.length > 0) {
+                    c.i('There are new customers for the reservation');
+                    const newReservationCustomers = reservation.customers.map((c) => {
+                        const rc = new ReservationCustomer();
+                        rc.reservationId = reservation.id;
+                        rc.customerId = c.id;
+                        rc.createdAtUTC = new Date();
+                        rc.createdBy = sessionUser.id;
+                        rc.updatedAtUTC = new Date();
+                        rc.updatedBy = sessionUser.id;
+                        return rc;
+                    });
+                    await this.reservationCustomerRepository.createMany(newReservationCustomers, tx as any);
+                } else {
+                    c.i('There are no new customers for the reservation. Do nothing.');
+                }
             }
-
 
             const room = await this.roomRepository.findOne(eq("roomNo", reservation.roomNo));
             if (room && reservation.roomNo && originalReservation.roomNo !== reservation.roomNo) {

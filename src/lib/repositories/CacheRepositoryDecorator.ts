@@ -154,6 +154,16 @@ export class CacheRepositoryDecorator<TDomain> implements IRepository<TDomain> {
     }
 
 
+    async updateWhere<TQuery, TTransaction extends ITransaction>(where: TQuery, entity: TDomain, transaction?: TTransaction): Promise<void> {
+        c.fs('CacheRepositoryDecorator > updateWhere');
+
+        await this.repository.updateWhere(where, entity, transaction);
+
+        await this.cache.deleteBase(getCacheKey(this.baseCacheKey));
+
+    }
+
+
     async delete<TIdType, TTransaction extends ITransaction>(id: TIdType, transaction?: TTransaction): Promise<void> {
         c.fs('CacheRepositoryDecorator > delete');
 

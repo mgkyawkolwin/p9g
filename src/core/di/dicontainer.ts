@@ -21,7 +21,7 @@ import IReportService from '@/core/services/contracts/IReportService';
 import ReportService from '@/core/services/ReportService';
 import ILogService from '@/core/services/contracts/ILogService';
 import LogService from '@/core/services/LogService';
-import { billTable, configTable, customerTable, logErrorTable, paymentTable, pookieConfigTable, pookieDeviceTable, pookieTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
+import { billTable, configTable, customerTable, feedbackTable, logErrorTable, mediaTable, paymentTable, pookieConfigTable, pookieDeviceTable, pookieTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
 import { Repository } from '@/lib/repositories/drizzle/Repository';
 import IRepository from '@/lib/repositories/IRepository';
 import CustomMapper from '@/lib/mappers/custommapper/CustomMapper';
@@ -70,6 +70,14 @@ import PookieConfigEntity from '../models/entity/PookieConfigEntity';
 import PookieConfig from '../models/domain/PookieConfig';
 import PookieDeviceEntity from '../models/entity/PookieDeviceEntity';
 import PookieDevice from '../models/domain/PookieDevice';
+import IFeedbackService from '../services/contracts/IFeedbackService';
+import FeedbackService from '../services/FeedbackService';
+import Feedback from '../models/domain/Feedback';
+import FeedbackEntity from '../models/entity/FeedbackEntity';
+import MediaService from '../services/MediaService';
+import IMediaService from '../services/contracts/IMediaService';
+import Media from '../models/domain/Media';
+import MediaEntity from '../models/entity/MediaEntity';
 
 // create a DI container
 const container = new Container();
@@ -83,7 +91,9 @@ container.bind<IQueryTranformer>(TYPES.IQueryTransformer).to(DrizzleQueryTransfo
 // Bind Services
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
 container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inRequestScope();
+container.bind<IFeedbackService>(TYPES.IFeedbackService).to(FeedbackService).inRequestScope();
 container.bind<ILogService>(TYPES.ILogService).to(LogService).inRequestScope();
+container.bind<IMediaService>(TYPES.IMediaService).to(MediaService).inRequestScope();
 container.bind<IPookieService>(TYPES.IPookieService).to(PookieService).inRequestScope();
 container.bind<IReportService>(TYPES.IReportService).to(ReportService).inRequestScope();
 container.bind<IReservationService>(TYPES.IReservationService).to(ReservationService).inRequestScope();
@@ -141,6 +151,22 @@ container.bind<IRepository<Customer>>(TYPES.ICustomerRepository).toDynamicValue(
     )
 }).inRequestScope();
 
+container.bind<IRepository<Feedback>>(TYPES.IFeedbackRepository).toDynamicValue(context => {
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            feedbackTable,
+            { ...feedbackTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            Feedback,
+            FeedbackEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "feedback",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
+    )
+}).inRequestScope();
+
 container.bind<IRepository<LogError>>(TYPES.ILogRepository).toDynamicValue(context => {
     return new CacheRepositoryDecorator(
         new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
@@ -153,6 +179,23 @@ container.bind<IRepository<LogError>>(TYPES.ILogRepository).toDynamicValue(conte
             context.get<IQueryTranformer>(TYPES.IQueryTransformer)
         ),
         "log",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
+    )
+}).inRequestScope();
+
+container.bind<IRepository<Media>>(TYPES.IMediaRepository).toDynamicValue(context => {
+    return new CacheRepositoryDecorator(
+        new Repository(
+            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            mediaTable,
+            { ...mediaTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            Media,
+            MediaEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "media",
         context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
 }).inRequestScope();

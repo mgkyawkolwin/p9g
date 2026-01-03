@@ -33,6 +33,14 @@ export const customerValidator = z.object({
   modelState: z.string().optional()
 });
 
+
+export const feedbackValidator = z.object({
+  id: z.coerce.string().length(36).optional(),
+  reservationId: z.coerce.string().optional(),
+  customerId: z.coerce.string().optional(),
+  feedback: z.coerce.string().optional(),
+});
+
 export const userInsertSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   password: z.string().min(1, 'Password is required'),
@@ -82,6 +90,11 @@ export const paymentValidator = z.object({
   modelState: z.string()
 });
 
+
+export const reservationPatchValidator = z.object({
+  id: z.coerce.string().length(36),
+  golfCart: z.coerce.string().optional(),
+});
 
 
 export const reservationValidator = z.object({

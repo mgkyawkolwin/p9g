@@ -7,9 +7,9 @@ import SessionUser from "@/core/models/dto/SessionUser";
 
 export default interface IReportService {
 
-    getDailyReservationDetailReport(startDate:string, endDate:string, sessionUser: SessionUser) : Promise<DailyReservationDetailReportRow[]>;
-    getDailySummaryGuestsRoomsReport(startDate:string, endDate:string, sessionUser: SessionUser) : Promise<DailySummaryGuestsRoomsReportRow[]>;
-    getDailySummaryIncomeReport(startDate:string, endDate:string, sessionUser: SessionUser) : Promise<DailySummaryIncomeReportRow[]>;
-    getDailySummaryPersonReport(startDate:string, endDate:string, sessionUser: SessionUser) : Promise<DailySummaryPersonReportRow[]>;
-    
+    getDailyReservationDetailReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailyReservationDetailReportRow[]>;
+    getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]>;
+    getDailySummaryIncomeReport(startDate: string, endDate: string, reservtionType: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]>;
+    getDailySummaryPersonReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]>;
+
 }

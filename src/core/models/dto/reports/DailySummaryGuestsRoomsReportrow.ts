@@ -4,6 +4,7 @@ export default class DailySummaryGuestsRoomsReportRow{
     public guestsCheckIn: number = 0;
     public guestsCheckOut: number = 0;
     public guestsExisting: number = 0;
+    public guestsSameDayCheckOut: number = 0;
     public guestsTotal: number = 0;
     public reservationCheckIn: number = 0;
     public reservationCheckOut: number = 0;

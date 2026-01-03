@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { container } from "@/core/di/dicontainer";
-import IUserService from "@/core/services/contracts/IUserService";
 import { TYPES } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import ICustomerService from "@/core/services/contracts/ICustomerService";

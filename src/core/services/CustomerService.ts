@@ -8,14 +8,17 @@ import SessionUser from '../models/dto/SessionUser';
 import { CustomError } from '@/lib/errors';
 import type IRepository from '@/lib/repositories/IRepository';
 import { buildAnyCondition } from '@/core/helpers';
-import { asc } from '@/lib/transformers/types';
+import { and, asc, eq } from '@/lib/transformers/types';
+import ReservationCustomer from '../models/domain/ReservationCustomer';
+import { sql } from 'drizzle-orm/sql';
 
 
 @injectable()
 export default class CustomerService implements ICustomerService {
 
   constructor(
-    @inject(TYPES.ICustomerRepository) private customerRepository: IRepository<Customer>
+    @inject(TYPES.ICustomerRepository) private customerRepository: IRepository<Customer>,
+    @inject(TYPES.IReservationCustomerRepository) private reservationCustomerRepository: IRepository<ReservationCustomer>
   ) {
 
   }
@@ -39,6 +42,17 @@ export default class CustomerService implements ICustomerService {
   }
 
 
+  async customerDeleteTdac(reservationId: string, customerId: string, sessionUser: SessionUser): Promise<void> {
+    c.fs('CustomerService > customerDeleteTdac');
+    const updateObject = {
+      tdacFileUrl: sql`NULL`,
+      updatedAtUTC: new Date(),
+      updatedBy: sessionUser.id
+    };
+    await this.reservationCustomerRepository.updateWhere(and(eq("reservationId", reservationId), eq("customerId", customerId)), updateObject as unknown as ReservationCustomer);
+  }
+
+
   async customerFindMany(searchFormFields: SearchFormFields, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[Customer[], number]> {
     c.fs('CustomerService > customerFindMany');
     const anyCondition = buildAnyCondition(searchFormFields);
@@ -57,8 +71,20 @@ export default class CustomerService implements ICustomerService {
     c.fs('CustomerService > customerUpdate');
     customer.updatedAtUTC = new Date();
     customer.updatedBy = sessionUser.id;
-    
+
     await this.customerRepository.update(id, customer);
+  }
+
+  async customerUpdateTdac(reservationId: string, customerId: string, tdacFileUrl: string, sessionUser: SessionUser): Promise<void> {
+    const partialObject = {
+      tdacFileUrl: tdacFileUrl,
+      updatedAtUTC: new Date(),
+      updatedBy: sessionUser.id
+    };
+
+    await this.reservationCustomerRepository.updateWhere(
+      and(eq("reservationId", reservationId), eq("customerId", customerId)), 
+      { tdacFileUrl } as unknown as ReservationCustomer);
   }
 
 }

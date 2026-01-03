@@ -71,6 +71,13 @@
       "when": 1763027897189,
       "tag": "0009_funny_omega_red",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1766483228324,
+      "tag": "0010_bright_gravity",
+      "breakpoints": true
     }
   ]
 }

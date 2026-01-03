@@ -18,7 +18,8 @@ import { reservationCancel } from "@/app/(private)/console/reservations/actions"
 import { toast } from "sonner";
 import { getReservationStatusColorClass } from "@/core/helpers";
 import RoomChargeDialog from "../dialogs/roomschargedialog";
-import { CopyIcon } from "lucide-react";
+import { CopyIcon, Trash } from "lucide-react";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
 
 
 interface DataTableProps {
@@ -35,11 +36,13 @@ export default function ReservationListTable({
 
   const router = useRouter();
 
+  const fileInputRef = React.useRef(null);
   const receiptDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
   const paymentDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
   const editDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
   const viewDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
   const roomDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
+
 
   const columns: ColumnDef<Reservation>[] = [
     {
@@ -69,6 +72,22 @@ export default function ReservationListTable({
             <React.Fragment key={i}>
               {i > 0 && <br />}
               {customer.englishName} {customer.name}<br /> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
+              <br />
+              <div className="flex gap-x-4">
+                <a className={`pointer ${customer.tdacFileUrl ? "text-[#00ff00] text-weight-bold" : ""}`} onClick={() => {
+                if (customer.tdacFileUrl) {
+                  window.open(`/api/public/files?fileUrl=${encodeURIComponent(customer.tdacFileUrl)}`);
+                }else{
+                  setReservationId(row.original.id);
+                  setCustomerId(customer.id);
+                  fileInputRef?.current?.click();
+                }
+              }}>{customer.tdacFileUrl ? "View TDAC File" : "Upload TDAC File"}</a> 
+              {customer.tdacFileUrl && <Trash className="pointer text-[#ff0000] max-h-[20px]" onClick={async () => {
+                await deleteTDACFile(row.original.id, customer.id, customer.tdacFileUrl);
+                formRef?.current?.requestSubmit();
+              }} />}
+              </div>
             </React.Fragment>
           ))}
         </div>
@@ -99,7 +118,7 @@ export default function ReservationListTable({
       accessorKey: "depositInfo",
       header: "Deposit",
       accessorFn: (row) => {
-        return <span>{row.depositAmount > 0 ? row.depositAmount : ''}<br/>{row.depositAmountInCurrency > 0 ? row.depositAmountInCurrency + ' ' + row.depositCurrency : ''} <br/> {row.depositAmount > 0 ? row.depositPaymentMode : ''} <br /> {row.depositDateUTC ? new Date(row.depositDateUTC).toLocaleDateString('sv-SE') : ""}</span>;
+        return <span>{row.depositAmount > 0 ? row.depositAmount : ''}<br />{row.depositAmountInCurrency > 0 ? row.depositAmountInCurrency + ' ' + row.depositCurrency : ''} <br /> {row.depositAmount > 0 ? row.depositPaymentMode : ''} <br /> {row.depositDateUTC ? new Date(row.depositDateUTC).toLocaleDateString('sv-SE') : ""}</span>;
       },
       cell: (row) => row.getValue(),
     },
@@ -163,9 +182,101 @@ export default function ReservationListTable({
   const [openDiallog, setOpenDialog] = React.useState(false);
   const [cancelId, setCancelId] = React.useState<string>('');
   const [reservationId, setReservationId] = React.useState('');
+  const [customerId, setCustomerId] = React.useState('');
+  const [initialFormState, setInitialFormState] = React.useState(formState);
+  const [loading, setLoading] = React.useState(false);
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLoading(true);
+    const files = Array.from(event.target.files || []);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+
+    const formData = new FormData();
+    formData.append('file', files[0]);
+    formData.append('reservationId', reservationId);
+    formData.append('customerId', customerId);
+
+    try {
+      const xhr = new XMLHttpRequest();
+
+      const promise = new Promise<{ id: string, fileName: string }>((resolve, reject) => {
+        xhr.upload.onprogress = (event) => {
+          
+        };
+
+        xhr.onload = () => {
+          const response = JSON.parse(xhr.responseText);
+          if(response.message) toast(response.message);
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              
+              resolve({
+                id: response.id,
+                fileName: response.url
+              });
+            } catch (error) {
+              reject(new Error('Invalid server response'));
+            }
+          } else {
+            reject(new Error(`Upload failed: ${xhr.statusText}`));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error('Network error'));
+        xhr.onabort = () => reject(new Error('Upload cancelled'));
+      });
+
+      xhr.open('PATCH', '/api/tdacs');
+      xhr.setRequestHeader('Accept', 'application/json');
+      xhr.send(formData);
+
+      const result = await promise;
+
+      // setInitialFormState(prev => prev?.data.map(rsv => {
+      //   if(rsv.id === reservationId){
+      //     rsv.customers = rsv.customers?.map(cus => {
+      //       if(cus.id === customerId){
+      //         cus.tdacFileUrl = result.fileName;
+      //       }
+      //       return cus;
+      //     });
+      //   }
+      //   return rsv;
+      // }));
+      formRef?.current?.requestSubmit();
+
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        
+      } else {
+        
+      }
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteTDACFile = async (reservationId: string, customerId: string, tdacFileUrl: string) => {
+    try{
+      setLoading(true);
+      const response = await fetch(`/api/tdacs?reservationId=${reservationId}&customerId=${customerId}&tdacFileUrl=${tdacFileUrl}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          const responseData = await response.json();
+          if(responseData.message) toast(responseData.message);
+    }catch{
+      toast("Unknown error occured.");
+    }
+    setLoading(false);
+  }
 
   return (
     <>
+      <Loader isLoading={loading} />
       <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
       <section className="flex">
         <Dialog open={openDiallog} onOpenChange={setOpenDialog}>
@@ -196,6 +307,13 @@ export default function ReservationListTable({
       <BillEditDialog reservationId={reservationId} callbackFunctions={(func) => { editDialogCallbackFunc.current = func }} />
       <BillDialog reservationId={reservationId} callbackFunctions={(func) => { viewDialogCallbackFunc.current = func }} />
       <RoomChargeDialog reservationId={reservationId} callbackFunctions={(func) => { roomDialogCallbackFunc.current = func }} />
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileSelect}
+        accept={"pdf"}
+        className="hidden"
+      />
     </>
   )
 }
