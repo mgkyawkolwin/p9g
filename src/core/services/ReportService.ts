@@ -10,9 +10,9 @@ import SessionUser from "../models/dto/SessionUser";
 import DailyReservationDetailReportRow from "../models/dto/reports/DailyReservationDetailReportRow";
 
 @injectable()
-export default class ReportService implements IReportService{
+export default class ReportService implements IReportService {
 
-    constructor(@inject(TYPES.IReportRepository) private reportRepository : IReportRepository){
+    constructor(@inject(TYPES.IReportRepository) private reportRepository: IReportRepository) {
 
     }
 
@@ -29,9 +29,10 @@ export default class ReportService implements IReportService{
     }
 
 
-    async getDailySummaryIncomeReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
+    async getDailySummaryIncomeReport(startDate: string, endDate: string, reservationType: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
         c.fs('ReportService > getDailySummaryIncomeReport');
-        return await this.reportRepository.getDailySummaryIncomeReport(startDate, endDate, sessionUser);
+        c.d({startDate, endDate, reservationStatus: reservationType, sessionUser});
+        return await this.reportRepository.getDailySummaryIncomeReport(startDate, endDate, reservationType, sessionUser);
     }
 
 

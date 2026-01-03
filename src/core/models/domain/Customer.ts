@@ -15,4 +15,5 @@ export default class Customer extends DomainBase {
     public nationalId: string = '';
     public passport: string = '';
     public phone: string = '';
+    public tdacFileUrl: string = '';
 }

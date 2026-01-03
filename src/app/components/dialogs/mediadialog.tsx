@@ -72,15 +72,15 @@ export default function MediaDialog({
     const extension = getFileExtension(fileName);
     
     if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'].includes(extension)) {
-      return <Image href={fileName} className={`${size} text-blue-500`} />;
+      return <Image key={fileName} href={fileName} className={`${size} text-blue-500`} />;
     } else if (['.mp4', '.mov', '.avi', '.mkv', '.webm'].includes(extension)) {
-      return <Video href={fileName} className={`${size} text-purple-500`} />;
+      return <Video key={fileName} href={fileName} className={`${size} text-purple-500`} />;
     } else if (['.pdf'].includes(extension)) {
-      return <FileText className={`${size} text-red-500`} />;
+      return <FileText key={fileName} className={`${size} text-red-500`} />;
     } else if (['.doc', '.docx'].includes(extension)) {
-      return <FileText className={`${size} text-blue-600`} />;
+      return <FileText key={fileName} className={`${size} text-blue-600`} />;
     } else if (['.txt'].includes(extension)) {
-      return <FileText className={`${size} text-gray-500`} />;
+      return <FileText key={fileName} className={`${size} text-gray-500`} />;
     }
     return <File className={`${size} text-gray-400`} />;
   };
@@ -89,7 +89,7 @@ export default function MediaDialog({
     const extension = getFileExtension(fileName);
     
     if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'].includes(extension)) {
-      return <img src={fileName} className={`${size} text-blue-500`} />;
+      return <img key={fileName} src={fileName} className={`${size} text-blue-500`} />;
     } 
     return getFileIcon(fileName, size);
   };
@@ -201,6 +201,7 @@ export default function MediaDialog({
       }
 
       setUploadQueue(prev => prev.filter(item => item.status !== 'completed'));
+      if(onMediaSaved) onMediaSaved(reservationId, customerId, [...existingMedia, ...successfulUploads]);
 
     } catch (error) {
       console.error('Error during batch upload:', error);
@@ -229,9 +230,9 @@ export default function MediaDialog({
       if (!response.ok) {
         throw new Error('Failed to delete file');
       }
-
-      setExistingMedia(prev => prev.filter(media => media.id !== fileId));
-      
+      const filterList = existingMedia.filter(m => m.id !== fileId);
+      setExistingMedia(filterList);
+      if(onMediaSaved) onMediaSaved(reservationId, customerId, [...filterList]);
     } catch (error) {
       console.error('Error deleting file:', error);
     }
@@ -266,7 +267,7 @@ export default function MediaDialog({
           {/* Uploaded Files Section */}
           <div className="flex flex-col gap-2">
             <h3 className="text-sm font-medium">Uploaded Files</h3>
-            <div className="grid grid-cols-8 gap-3 min-h-[120px] overflow-y-auto p-2">
+            <div className="grid grid-cols-8 gap-3 min-h-[10vh] max-h-[20vh] overflow-scroll p-2">
               {existingMedia.length > 0 ? (
                 existingMedia.map((media) => {
                   const extension = getFileExtension(media.url);
@@ -275,13 +276,13 @@ export default function MediaDialog({
                   return (
                     <div key={media.id} className="relative group">
                       <a
-                        href={fileUrl}
+                        href={`/api/public/files?fileUrl=${encodeURIComponent(fileUrl)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex flex-col items-center gap-1"
                       >
                         <div className="w-22 h-22 flex items-center justify-center">
-                          {getFileThumbnail(media.url, "w-20 h-20")}
+                          {getFileThumbnail(`/api/public/files?fileUrl=${encodeURIComponent(media.url)}`, "w-20 h-20")}
                         </div>
                         <span className="text-xs text-gray-600">
                           {extension || 'file'}
@@ -390,7 +391,7 @@ export default function MediaDialog({
             onClick={handleCancel}
             disabled={isSubmitting}
           >
-            Cancel
+            Close
           </Button>
           <Button
             type="button"
@@ -399,14 +400,6 @@ export default function MediaDialog({
             disabled={isSubmitting || uploadQueue.length === 0}
           >
             {isSubmitting ? 'Uploading...' : 'Upload All'}
-          </Button>
-          <Button
-            type="button"
-            className="bg-blue-600 hover:bg-blue-700"
-            onClick={handleSave}
-            disabled={isSubmitting}
-          >
-            Save & Close
           </Button>
         </DialogFooter>
       </DialogContent>

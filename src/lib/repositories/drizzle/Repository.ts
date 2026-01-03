@@ -218,6 +218,24 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
   }
 
 
+  async updateWhere<TQuery, TTransaction extends ITransaction>(where: TQuery, entity: TDomain, transaction?: TTransaction): Promise<void> {
+    c.fs('Reository > updateWhere');
+    c.d(entity);
+    const whereQuery = await this.transformer.transformAsync<SQL>(where as AnyCondition);
+    const query = this.dbClient.db.update(this.table)
+      .set(entity as any)
+      .where(whereQuery);
+    c.d(query.toSQL());
+
+    if (transaction)
+      await transaction.execute(query);
+    else
+      await query.execute();
+
+    c.fe('Reository > updateWhere');
+  }
+
+
   async delete<TIdType, TTransaction extends ITransaction>(id: TIdType, transaction?: TTransaction): Promise<void> {
     c.fs('Reository > delete');
     c.d(`Id: ${id}`);

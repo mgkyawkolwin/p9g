@@ -31,6 +31,7 @@ export default class MediaService implements IMediaService {
         if(!media.url) throw new CustomError('Invalid media url');
 
         const newMedia = new Media();
+        newMedia.id = media.id;
         newMedia.reservationId = media.reservationId;
         newMedia.customerId = media.customerId;
         newMedia.url = media.url;
