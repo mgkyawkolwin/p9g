@@ -101,6 +101,7 @@ export const reservationValidator = z.object({
   id: z.coerce.string().length(36),
   arrivalDateTime: z.coerce.date(),
   arrivalFlight: z.coerce.string().nullish(),
+  bookingSource: z.coerce.string().nullish(),
   checkInDate: z.coerce.date(),
   checkOutDate: z.coerce.date(),
   customers: z.preprocess(

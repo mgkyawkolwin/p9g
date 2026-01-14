@@ -17,9 +17,9 @@ export default class ReportService implements IReportService {
     }
 
 
-    async getDailyReservationDetailReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailyReservationDetailReportRow[]> {
+    async getDailyReservationDetailReport(checkInFrom: string, checkInUntil: string, createdFrom: string, createdUntil: string, updatedFrom: string, updatedUntil: string, reservationType: string, reservationStatus: string, bookingSource: string, sessionUser: SessionUser): Promise<DailyReservationDetailReportRow[]> {
         c.fs('ReportService > getDailyReservationDetailReport');
-        return await this.reportRepository.getDailyReservationDetailReport(startDate, endDate, sessionUser);
+        return await this.reportRepository.getDailyReservationDetailReport(checkInFrom, checkInUntil, createdFrom, createdUntil, updatedFrom, updatedUntil, reservationType, reservationStatus, bookingSource, sessionUser);
     }
 
 

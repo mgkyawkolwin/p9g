@@ -3,6 +3,7 @@ export default class DailyReservationDetailReportRow{
     public date: Date;
     public arrivalDateTime: string = null;
     public arrivalFlight: string = '';
+    public bookingSource: string = '';
     public checkInDate: Date | null = null;
     public checkOutDate: Date | null = null;
     public customerNames: string = '';
@@ -26,6 +27,7 @@ export default class DailyReservationDetailReportRow{
     public pickUpFeeUSD: number = 0;
     public remark: string = '';
     public reservationId: string = '';
+    public reservationStatus: string = '';
     public reservationType: string = '';
     public roomNo: string = '';
     public singleChargeAmount: number = 0;

@@ -78,6 +78,13 @@
       "when": 1766483228324,
       "tag": "0010_bright_gravity",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1768044912343,
+      "tag": "0011_solid_bushwacker",
+      "breakpoints": true
     }
   ]
 }

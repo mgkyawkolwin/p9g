@@ -24,10 +24,10 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
     }
 
 
-    async getDailyReservationDetailReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailyReservationDetailReportRow[]> {
+    async getDailyReservationDetailReport(checkInFrom: string, checkInUntil: string, createdFrom: string, createdUntil: string, updatedFrom: string, updatedUntil: string, reservationType: string, reservationStatus: string, bookingSource: string, sessionUser: SessionUser): Promise<DailyReservationDetailReportRow[]> {
         c.fs("Repository > getDailyReservationDetailReport");
 
-        const cacheTag = `guestsroom-${startDate}-${endDate}-${sessionUser.location}`;
+        const cacheTag = `guestsroom-${checkInFrom}-${checkInUntil}-${sessionUser.location}`;
 
         const startTime = performance.now();
 
@@ -37,7 +37,7 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
             return cacheObject;
         }
 
-        const object = await this.repository.getDailyReservationDetailReport(startDate, endDate, sessionUser);
+        const object = await this.repository.getDailyReservationDetailReport(checkInFrom, checkInUntil, createdFrom, createdUntil, updatedFrom, updatedUntil, reservationType, reservationStatus, bookingSource, sessionUser);
 
         console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
         await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);

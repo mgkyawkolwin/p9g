@@ -1,0 +1,1 @@
+ALTER TABLE `reservation` ADD `bookingSource` varchar(50);
