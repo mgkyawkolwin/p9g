@@ -7,6 +7,7 @@ export default class Reservation extends DomainBase{
     public arrivalDateTime: Date = null;
     public arrivalFlight: string = "";
     public bills: Bill[] = [];
+    public bookingSource: string = '';
     public checkInDate: Date = null;
     public checkOutDate: Date = null;
     public customers: Customer[] = [];

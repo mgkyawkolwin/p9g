@@ -304,6 +304,8 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                             value={reservation?.tax} onChange={(e) => setReservation(prev => ({ ...prev, tax: Number(e.target.value) }))} />
                         <InputWithLabel name="discountAmount" label="Discount" className="" variant="form" size={"sm"} labelPosition="top"
                             value={reservation?.discountAmount} onChange={(e) => setReservation(prev => ({ ...prev, discountAmount: Number(e.target.value) }))} />
+                            <InputWithLabel name="bookingSource" label="Booking Source" className="" variant="form" size={"sm"} labelPosition="top"
+                            value={reservation?.bookingSource} onChange={(e) => setReservation(prev => ({ ...prev, bookingSource: e.target.value }))} />
                     </div>
                     <div className="flex gap-2 flex-col">
                         <Textarea name="remark" placeholder="Remarks ..." value={reservation?.remark ?? ''} onChange={(e) => setReservation(prev => ({ ...prev, remark: e.target.value }))} />

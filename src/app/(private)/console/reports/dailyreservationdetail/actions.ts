@@ -3,13 +3,13 @@ import { FormState } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { headers } from 'next/headers';
 
-export async function getDailyReservationDetailReport(startDate:string, endDate:string): Promise<FormState> {
+export async function getDailyReservationDetailReport(checkInFrom:string, checkInUntil:string, createdFrom: string, createdUntil: string, updatedFrom: string, updatedUntil: string, reservationType: string, reservationStatus: string, bookingSource: string): Promise<FormState> {
   try{
     c.fs('Actions > getDailyReservationDetailReport');
 
     //retrieve users
     c.i("Get report by calling api.");
-    const response = await fetch(process.env.API_URL + `reports/dailyreservationdetailreport?startDate=${startDate}&endDate=${endDate}`, {
+    const response = await fetch(process.env.API_URL + `reports/dailyreservationdetailreport?checkInFrom=${checkInFrom}&checkInUntil=${checkInUntil}&createdFrom=${createdFrom}&createdUntil=${createdUntil}&updatedFrom=${updatedFrom}&updatedUntil=${updatedUntil}&reservationType=${reservationType}&reservationStatus=${reservationStatus}&bookingSource=${bookingSource}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

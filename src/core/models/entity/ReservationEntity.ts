@@ -4,6 +4,7 @@ import EntityBase from "../../../lib/models/entity/EntityBase";
 export default class ReservationEntity extends EntityBase{
     public arrivalDateTime: Date = null;
     public arrivalFlight: string = "";
+    public bookingSource: string = '';
     public checkInDate: Date = null;
     public checkOutDate: Date = null;
     public departureDateTime: Date = null;

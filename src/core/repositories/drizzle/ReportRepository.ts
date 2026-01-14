@@ -111,7 +111,7 @@ export default class ReportRepository implements IReportRepository {
                     and(
                         lte(reservationTable.checkInDate, start),
                         or(
-                            eq(reservationTable.checkOutDate, start), 
+                            eq(reservationTable.checkOutDate, start),
                             gt(reservationTable.checkOutDate, start)
                         ),
                         ne(configTable.value, 'CCL'),
@@ -144,14 +144,14 @@ export default class ReportRepository implements IReportRepository {
 
     async getDailySummaryIncomeReport(startDate: string, endDate: string, reservationType: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
         c.fs("Repository > getDailySummaryIncomeReport");
-        c.d({startDate, endDate, reservationStatus: reservationType, sessionUser});
+        c.d({ startDate, endDate, reservationStatus: reservationType, sessionUser });
 
         var reservationTypeId = null;
-        if(reservationType){
+        if (reservationType) {
             const [result] = await this.dbClient.db
-            .select().from(configTable)
-            .where(eq(configTable.value, reservationType));
-            if(result) reservationTypeId = result.id;
+                .select().from(configTable)
+                .where(eq(configTable.value, reservationType));
+            if (result) reservationTypeId = result.id;
             c.d(reservationTypeId);
             c.d(result);
         }
@@ -168,7 +168,7 @@ export default class ReportRepository implements IReportRepository {
             const start: Date = new Date(dr);
             const report = new DailySummaryIncomeReportRow();
             report.date = start;
-            
+
             const totalCheckInReservations: Reservation[] = await this.dbClient.db
                 .select(
                     { ...reservationTable }
@@ -421,7 +421,7 @@ export default class ReportRepository implements IReportRepository {
                     and(
                         lte(reservationTable.checkInDate, start),
                         or(
-                            eq(reservationTable.checkOutDate, start), 
+                            eq(reservationTable.checkOutDate, start),
                             gt(reservationTable.checkOutDate, start)
                         ),
                         ne(configTable.value, 'CCL'),
@@ -440,25 +440,97 @@ export default class ReportRepository implements IReportRepository {
     }
 
 
-    async getDailyReservationDetailReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailyReservationDetailReportRow[]> {
+    async getDailyReservationDetailReport(checkInFrom: string, checkInUntil: string, createdFrom: string, createdUntil: string, updatedFrom: string, updatedUntil: string, reservationType: string, reservationStatus: string, bookingSource: string, sessionUser: SessionUser): Promise<DailyReservationDetailReportRow[]> {
         c.fs("Repository > getDailyReservationDetailReport");
-        c.d(startDate);
-        c.d(endDate);
+        c.d(checkInFrom);
+        c.d(checkInUntil);
+        const conditions = [];
 
         const reports: DailyReservationDetailReportRow[] = [];
-        const dateRanges = getUTCDateRange(startDate, endDate);
+        let dateRanges = null;
+        if (checkInFrom && checkInUntil)
+            dateRanges = getUTCDateRange(checkInFrom, checkInUntil);
+
+        if (createdFrom && createdUntil)
+            dateRanges = getUTCDateRange(createdFrom, createdUntil);
+
+        if (updatedFrom && updatedUntil)
+            dateRanges = getUTCDateRange(updatedFrom, updatedUntil);
+
         c.d(dateRanges);
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
+
+        let reservationTypeId = null;
+        if (reservationType) {
+            [reservationTypeId] = await this.dbClient.db.select().from(configTable).where(
+                and(
+                    eq(configTable.group, "RESERVATION_TYPE"),
+                    eq(configTable.value, reservationType)
+                )
+            ); c.d(reservationTypeId);c.d(reservationTypeId.id);
+            if (!reservationTypeId) throw new CustomError("Cannot find reservation type id");
+            conditions.push(eq(reservationTable.reservationTypeId, reservationTypeId.id));
+        }
+
+        let reservationStatusId = null;
+        if (reservationStatus) {
+            if (reservationStatus === "NOCCL") {
+                [reservationStatusId] = await this.dbClient.db.select().from(configTable).where(
+                    and(
+                        eq(configTable.group, "RESERVATION_STATUS"),
+                        ne(configTable.value, "CCL")
+                    )
+                );
+            }else{
+                [reservationStatusId] = await this.dbClient.db.select().from(configTable).where(
+                    and(
+                        eq(configTable.group, "RESERVATION_STATUS"),
+                        eq(configTable.value, reservationStatus)
+                    )
+                );
+            }
+            if (!reservationStatusId) throw new CustomError("Cannot find reservation status id");
+            conditions.push(eq(reservationTable.reservationStatusId, reservationStatusId.id));
+        }
+
+        if (bookingSource)
+            conditions.push(eq(reservationTable.bookingSource, bookingSource));
+        conditions.push(eq(reservationTable.location, sessionUser.location));
+
 
         c.i('Generating report.');
         for (const dr of dateRanges) {
             const start: Date = new Date(dr);
+            const end = new Date(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate(), 23, 59, 59, 999);
             const report = new DailyReservationDetailReportRow();
             report.date = start;
+            const localConditions = [...conditions];
+
+            if (checkInFrom)
+                localConditions.push(eq(reservationTable.checkInDate, start));
+            if (createdFrom){
+                
+                localConditions.push(
+                    and(
+                        gte(reservationTable.createdAtUTC, start),
+                        lte(reservationTable.createdAtUTC, end)
+                    )
+                );
+            }
+            if (updatedFrom){
+                localConditions.push(
+                    and(
+                        gte(reservationTable.updatedAtUTC, start),
+                        lte(reservationTable.updatedAtUTC, end)
+                    )
+                );
+            }
+
 
             c.i('Retrieve reservation');
             const reservations = await this.dbClient.db.query.reservationTable.findMany({
                 with: {
+                    reservationStatus: true,
                     reservationType: true,
                     reservationCustomers: {
                         with: {
@@ -468,16 +540,16 @@ export default class ReportRepository implements IReportRepository {
                     roomCharges: true
                 },
                 where: and(
-                    eq(reservationTable.checkInDate, start),
-                    eq(reservationTable.location, sessionUser.location),
-                    ne(reservationTable.reservationStatusId, 'f705afcd-58be-11f0-ad6b-b88d122a4ff4')
+                    ...localConditions
                 ),
             });
 
             reservations.forEach(r => {
                 const rep = new DailyReservationDetailReportRow();
                 rep.date = start;
+                rep.bookingSource = r.bookingSource;
                 rep.reservationId = r.id;
+                rep.reservationStatus = r.reservationStatus.text;
                 rep.roomNo = r.roomNo;
                 rep.customerNames = r.reservationCustomers.map(rc => rc.customer.name).join(", ");
                 rep.customerPhones = r.reservationCustomers.map(rc => rc.customer.phone).join(", ");
@@ -499,23 +571,23 @@ export default class ReportRepository implements IReportRepository {
 
                 r.bills?.forEach((b: Bill) => {
                     if (b.paymentType === 'PICKUP') {
-                        if(b.currency === 'KWR') {
+                        if (b.currency === 'KWR') {
                             rep.pickUpFeeKWR = Number(b.amount ?? 0);
-                        } else if(b.currency === 'MMK') {
+                        } else if (b.currency === 'MMK') {
                             rep.pickUpFeeMMK = Number(b.amount ?? 0);
-                        } else if(b.currency === 'THB') {
+                        } else if (b.currency === 'THB') {
                             rep.pickUpFeeTHB = Number(b.amount ?? 0);
-                        } else if(b.currency === 'USD') {
+                        } else if (b.currency === 'USD') {
                             rep.pickUpFeeUSD = Number(b.amount ?? 0);
                         }
                     } else if (b.paymentType === 'DROPOFF') {
-                        if(b.currency === 'KWR') {
+                        if (b.currency === 'KWR') {
                             rep.dropOffFeeKWR = Number(b.amount ?? 0);
-                        } else if(b.currency === 'MMK') {
+                        } else if (b.currency === 'MMK') {
                             rep.dropOffFeeMMK = Number(b.amount ?? 0);
-                        } else if(b.currency === 'THB') {
+                        } else if (b.currency === 'THB') {
                             rep.dropOffFeeTHB = Number(b.amount ?? 0);
-                        } else if(b.currency === 'USD') {
+                        } else if (b.currency === 'USD') {
                             rep.dropOffFeeUSD = Number(b.amount ?? 0);
                         }
                     }

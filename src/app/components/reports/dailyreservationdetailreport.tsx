@@ -29,6 +29,9 @@ export default function DailyReservationDetailReport({ reportRows }: { reportRow
                     <thead>
                         <tr id="headrow1" className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder}`}>
                             <th rowSpan={2} className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} p-2 text-left`}>Rsv Id</th>
+                            <th rowSpan={2} className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} p-2 text-left`}>Source</th>
+                            <th rowSpan={2} className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} p-2 text-left`}>Rsv Type</th>
+                            <th rowSpan={2} className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} p-2 text-left`}>Rsv Status</th>
                             <th rowSpan={2} className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} p-2 text-left`}>Name</th>
                             <th className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} p-2 text-left`}>Pax</th>
                             <th className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} p-2 text-left`}>Type</th>
@@ -67,6 +70,9 @@ export default function DailyReservationDetailReport({ reportRows }: { reportRow
                             return [
                                 <tr key={`${rp.reservationId}-row1`} className={`${Theme.Style.tableCellBg}`}>
                                     <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.reservationId}</td>
+                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.bookingSource}</td>
+                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.reservationType}</td>
+                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.reservationStatus}</td>
                                     <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} min-w-[150px] max-w-[150px] p-2 text-left`}>{rp.customerNames}</td>
                                     <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.noOfGuests}</td>
                                     <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.reservationType}</td>

@@ -22,9 +22,12 @@ export async function GET(request: NextRequest) {
     const searchParams = Object.fromEntries(request.nextUrl.searchParams);
     c.d(JSON.stringify(searchParams));
 
+    if(!searchParams.checkInFrom && !searchParams.checkInUntil && !searchParams.createdFrom && !searchParams.createdUntil && !searchParams.updatedFrom && !searchParams.updatedUntil)
+      throw new CustomError('Date range is required');
+
     //call service to retrieve data
     const reportService = container.get<IReportService>(TYPES.IReportService);
-    const result = await reportService.getDailyReservationDetailReport(searchParams.startDate, searchParams.endDate, session.user);
+    const result = await reportService.getDailyReservationDetailReport(searchParams.checkInFrom, searchParams.checkInUntil, searchParams.createdFrom, searchParams.createdUntil, searchParams.updatedFrom, searchParams.updatedUntil, searchParams.reservationType, searchParams.reservationStatus, searchParams.bookingSource, session.user);
     //c.d(JSON.stringify(result));
 
     return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });

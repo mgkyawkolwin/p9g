@@ -206,6 +206,7 @@ export const reservationTable = mysqlTable("reservation", {
   tourCompany: varchar("tourCompany", { length: 100 }),
   arrivalDateTime: datetime("arrivalDateTime"),
   arrivalFlight: varchar("arrivalFlight", { length: 50 }),
+  bookingSource: varchar("bookingSource", { length: 50}),
   departureDateTime: datetime("departureDateTime"),
   departureFlight: varchar("departureFlight", { length: 50 }),
   checkInDate: datetime("checkInDate"),
