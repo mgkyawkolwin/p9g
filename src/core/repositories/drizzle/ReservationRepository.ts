@@ -258,13 +258,19 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                     lte(reservationTable.departureDateTime, endDate)
                 ));
             }
-            if (searchFormFields.searchFlight){
+            if (searchFormFields.searchFlight) {
                 conditions.push(
                     or(
                         eq(reservationTable.arrivalFlight, searchFormFields.searchFlight),
                         eq(reservationTable.departureFlight, searchFormFields.searchFlight)
                     )
                 );
+            }
+            if (searchFormFields.searchBookingSource) {
+                conditions.push(or(
+                    eq(reservationTable.bookingSource, searchFormFields.searchBookingSource),
+                    like(reservationTable.bookingSource, `%${searchFormFields.searchBookingSource}%`)
+                ));
             }
             if (searchFormFields.searchRemark) {
                 conditions.push(like(reservationTable.remark, `%${searchFormFields.searchRemark}%`));
@@ -375,13 +381,13 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             }
             if (customer) {
                 const [existingCustomer] = rsvn?.customers?.filter(c => c.id === customer.id);
-                if(!existingCustomer){
+                if (!existingCustomer) {
                     rsvn?.customers?.push(customer);
                 }
             }
-            if(reservationCustomer){
+            if (reservationCustomer) {
                 rsvn?.customers?.forEach(c => {
-                    if(c.id === reservationCustomer.customerId && reservationCustomer.tdacFileUrl){
+                    if (c.id === reservationCustomer.customerId && reservationCustomer.tdacFileUrl) {
                         c.tdacFileUrl = reservationCustomer.tdacFileUrl;
                     }
                 });
