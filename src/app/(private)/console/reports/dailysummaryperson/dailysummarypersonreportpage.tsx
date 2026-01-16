@@ -13,6 +13,8 @@ import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
 import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
 import DailySummaryPersonReport from "@/app/components/reports/dailysummarypersonreport";
 import { getISODateTimeMidNightString, getISODateTimeString } from "@/lib/utils";
+import { SelectWithLabel } from "@/lib/components/web/react/uicustom/selectwithlabel";
+import { SelectListSearch } from "@/core/constants";
 
 export default function DailySummaryPersonReportPage() {
 
@@ -20,6 +22,7 @@ export default function DailySummaryPersonReportPage() {
   const [reportRows, setReportRows] = React.useState<DailySummaryPersonReportRow[]>([]);
   const [fromDate, setFromDate] = React.useState<Date>(null);
   const [toDate, setToDate] = React.useState<Date>(null);
+  const [reservationStatus, setReservationStatus] = React.useState<string>("");
 
   useEffect(() => {
   }, []);
@@ -63,9 +66,10 @@ export default function DailySummaryPersonReportPage() {
                     showIcon
                   />
                 </div>
+                <SelectWithLabel variant="form" label="Reservation Status" labelPosition="left" items={new Map<string, string>([["DEFAULT", "Show All"], ["NEW", "New"], ["OTHERS", "Others"]])} defaultValue={reservationStatus} onValueChange={(value) => setReservationStatus(value)} />               
                 <ButtonCustom onClick={async () => {
                   setIsLoading(true);
-                  const response = await getDailySummaryPersonReport(fromDate ? getISODateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getISODateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '');
+                  const response = await getDailySummaryPersonReport(fromDate ? getISODateTimeString(fromDate.toLocaleDateString('sv-SE')) : '', toDate ? getISODateTimeMidNightString(toDate.toLocaleDateString('sv-SE')) : '', reservationStatus);
                   setIsLoading(false);
                   if (response.message)
                     toast(response.message);

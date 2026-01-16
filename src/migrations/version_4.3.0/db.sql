@@ -1,0 +1,2 @@
+INSERT INTO config (id, `group`, value, `text`, createdBy, createdAtUTC, updatedBy, updatedAtUTC) 
+VALUES('f7a7a8b4-f12c-11f0-80af-b88d122a4ff4', 'RESERVATION_STATUS', 'CFM', 'CFM', '00000000-0000-0000-0000-000000000000', '1900-01-01 00:00:00', '00000000-0000-0000-0000-000000000000', '1900-01-01 00:00:00')

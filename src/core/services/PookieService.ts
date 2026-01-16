@@ -137,7 +137,7 @@ export default class PookieService implements IPookieService {
             const h5 = new PookieTimeTable();
             h5.date = date;
             h5.time = new Date(currentTime);
-            h5.hole = `5`;
+            h5.hole = sessionUser.location === 'MIDA' ? `5` : '6';
             h5.isBusy = false;
             h5.location = sessionUser.location;
             h5.createdAtUTC = new Date();

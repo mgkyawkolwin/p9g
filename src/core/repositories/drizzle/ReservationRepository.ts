@@ -258,6 +258,14 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                     lte(reservationTable.departureDateTime, endDate)
                 ));
             }
+            if (searchFormFields.searchFlight){
+                conditions.push(
+                    or(
+                        eq(reservationTable.arrivalFlight, searchFormFields.searchFlight),
+                        eq(reservationTable.departureFlight, searchFormFields.searchFlight)
+                    )
+                );
+            }
             if (searchFormFields.searchRemark) {
                 conditions.push(like(reservationTable.remark, `%${searchFormFields.searchRemark}%`));
             }

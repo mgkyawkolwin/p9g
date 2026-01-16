@@ -348,7 +348,7 @@ export default class ReportRepository implements IReportRepository {
     }
 
 
-    async getDailySummaryPersonReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]> {
+    async getDailySummaryPersonReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]> {
         c.fs("Repository > getDailySummaryPersonReport");
         c.d(startDate);
         c.d(endDate);
@@ -357,6 +357,15 @@ export default class ReportRepository implements IReportRepository {
         const dateRanges = getUTCDateRange(startDate, endDate);
         c.d(dateRanges);
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
+
+        let reservationStatusCondition = ne(configTable.value, 'CCL');
+        if(reservationStatus){
+            if(reservationStatus === "NEW"){
+                reservationStatusCondition = eq(configTable.value, 'NEW');
+            }else{
+                reservationStatusCondition = and(ne(configTable.value, 'NEW'), ne(configTable.value, 'CCL'))
+            }
+        }
 
         c.i('Generating report.');
         for (const dr of dateRanges) {
@@ -371,7 +380,7 @@ export default class ReportRepository implements IReportRepository {
                 .where(
                     and(
                         eq(reservationTable.checkInDate, start),
-                        ne(configTable.value, 'CCL'),
+                        reservationStatusCondition,
                         eq(reservationTable.location, sessionUser.location)
                     )).limit(1);
             report.guestsCheckIn = Number(guestsCheckIn.sum ?? 0);
@@ -383,7 +392,7 @@ export default class ReportRepository implements IReportRepository {
                 .where(
                     and(
                         eq(reservationTable.checkOutDate, start),
-                        ne(configTable.value, 'CCL'),
+                        reservationStatusCondition,
                         eq(reservationTable.location, sessionUser.location)
                     )).limit(1);
             report.guestsCheckOut = Number(guestsCheckOut.sum ?? 0);
@@ -396,7 +405,7 @@ export default class ReportRepository implements IReportRepository {
                     and(
                         eq(reservationTable.checkInDate, reservationTable.checkOutDate),
                         eq(reservationTable.checkInDate, start),
-                        ne(configTable.value, 'CCL'),
+                        reservationStatusCondition,
                         eq(reservationTable.location, sessionUser.location)
                     )).limit(1);
             report.guestsSameDayCheckOut = Number(guestsSameDayCheckOut.sum ?? 0);
@@ -409,7 +418,7 @@ export default class ReportRepository implements IReportRepository {
                     and(
                         lt(reservationTable.checkInDate, start),
                         gt(reservationTable.checkOutDate, start),
-                        ne(configTable.value, 'CCL'),
+                        reservationStatusCondition,
                         eq(reservationTable.location, sessionUser.location)
                     )).limit(1);
             report.guestsTotal = Number(guestsExisting.sum ?? 0) + report.guestsCheckIn + report.guestsCheckOut - report.guestsSameDayCheckOut;
@@ -424,7 +433,7 @@ export default class ReportRepository implements IReportRepository {
                             eq(reservationTable.checkOutDate, start),
                             gt(reservationTable.checkOutDate, start)
                         ),
-                        ne(configTable.value, 'CCL'),
+                        reservationStatusCondition,
                         eq(reservationTable.location, sessionUser.location)
                     ));
 

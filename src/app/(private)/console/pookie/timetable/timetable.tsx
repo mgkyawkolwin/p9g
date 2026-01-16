@@ -20,6 +20,7 @@ import { SelectCustom } from "@/lib/components/web/react/uicustom/selectcustom";
 import { SelectListForm } from "@/core/constants";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { useGlobalContext } from "@/app/contexts/globalcontext";
 
 
 export default function TimeTable() {
@@ -70,6 +71,8 @@ export default function TimeTable() {
         }
     ];
 
+    const { location } = useGlobalContext();
+
     const [drawDate, setDrawDate] = React.useState<Date>(null);
     const [endDate, setEndDate] = React.useState<Date>(null);
     const [hole1, setHole1] = React.useState<PookieTimeTable[]>([]);
@@ -110,7 +113,7 @@ export default function TimeTable() {
     const handleDownloadExcel = async (data: PookieTimeTable[]) => {
         // Filter and sort data as before
         const hole1 = data.filter(tt => tt.hole === '1').sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-        const hole5 = data.filter(tt => tt.hole === '5').sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+        const hole5 = data.filter(tt => (tt.hole === '5' || tt.hole === '6')).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
         const hole10 = data.filter(tt => tt.hole === '10').sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
         const hole15 = data.filter(tt => tt.hole === '15').sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
 
@@ -143,7 +146,7 @@ export default function TimeTable() {
         row2.getCell(2).value = 'HOLE-1';
         row2.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF99BBFF' } };
         row2.getCell(2).alignment = {horizontal: "center"};
-        row2.getCell(4).value = 'HOLE-5';
+        row2.getCell(4).value = location === 'MIDA' ? 'HOLE-5' : 'HOLE-6';
         row2.getCell(4).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF99BBFF' } };
         row2.getCell(4).alignment = {horizontal: "center"};
 
@@ -309,7 +312,7 @@ export default function TimeTable() {
             (timeTable || []).filter(tt => (tt.hole === '1' && (!onlyShowFree || (onlyShowFree && !tt.isBusy)))).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
         );
         setHole5(
-            (timeTable || []).filter(tt => (tt.hole === '5' && (!onlyShowFree || (onlyShowFree && !tt.isBusy)))).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
+            (timeTable || []).filter(tt => ((tt.hole === '5' || tt.hole === '6') && (!onlyShowFree || (onlyShowFree && !tt.isBusy)))).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
         );
         setHole10(
             (timeTable || []).filter(tt => (tt.hole === '10' && (!onlyShowFree || (onlyShowFree && !tt.isBusy)))).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
@@ -514,7 +517,7 @@ export default function TimeTable() {
                             <div className="flex flex-col gap-2">
                                 <div className="flex place-content-between">
                                     <div>
-                                        1 부T OFF<br />({drawDate?.toISOFormatDateString()})<br />Hole 5
+                                        1 부T OFF<br />({drawDate?.toISOFormatDateString()})<br />{location === 'MIDA' ?  'Hole 5' : 'Hole 6'}
                                     </div>
                                     <div>
                                         <ButtonCustom>Print</ButtonCustom>

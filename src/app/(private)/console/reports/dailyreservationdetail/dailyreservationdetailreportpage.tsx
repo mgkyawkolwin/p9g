@@ -138,9 +138,9 @@ export default function DailyReservationDetailReportPage() {
                   </div>
                 </div>
                 <div className="flex gap-4 items-end">
-                  <SelectWithLabel label="Reservation Type" labelPosition="top" items={SelectListSearch.RESERVATION_TYPE} defaultValue={reservationType} onValueChange={(value) => setReservationType(value)} />
-                  <SelectWithLabel label="Reservation Status" labelPosition="top" items={SelectListSearch.RESERVATION_STATUS.set("NOCCL", "No CCL")} defaultValue={reservationStatus} onValueChange={(value) => setReservationStatus(value)} />
-                  <InputWithLabel labelPosition="top" size="md" name="searchName" label="Booking Source" defaultValue={bookingSource} onChange={(e) => setBookingSource(e.target.value)} />
+                  <SelectWithLabel variant="form" label="Reservation Type" labelPosition="top" items={SelectListSearch.RESERVATION_TYPE} defaultValue={reservationType} onValueChange={(value) => setReservationType(value)} />
+                  <SelectWithLabel variant="form" label="Reservation Status" labelPosition="top" items={SelectListSearch.RESERVATION_STATUS.set("NOCCL", "No CCL")} defaultValue={reservationStatus} onValueChange={(value) => setReservationStatus(value)} />
+                  <InputWithLabel variant="form" labelPosition="top" size="md" name="searchName" label="Booking Source" defaultValue={bookingSource} onChange={(e) => setBookingSource(e.target.value)} />
                   <ButtonCustom onClick={async () => {
                     setIsLoading(true);
                     const response = await getDailyReservationDetailReport(
