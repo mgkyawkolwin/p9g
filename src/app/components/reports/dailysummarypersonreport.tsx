@@ -11,6 +11,9 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
 
     let totalGuestCheckIn = 0;
     let totalGuestCheckOut = 0;
+    let totalGuestTotal = 0;
+    let totalReservationTotal = 0;
+    let totalRoomsTotal = 0;
     const reportRef = React.useRef(null);
 
     return (
@@ -44,6 +47,9 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
                         {reportRows.map((rp, index) => {
                             totalGuestCheckIn = totalGuestCheckIn + Number(rp.guestsCheckIn);
                             totalGuestCheckOut = totalGuestCheckOut + Number(rp.guestsCheckOut);
+                            totalGuestTotal = totalGuestTotal + Number(rp.guestsTotal);
+                            totalReservationTotal = totalReservationTotal + Number(rp.reservationTotal);
+                            totalRoomsTotal = totalRoomsTotal + Number(rp.roomsTotal);
 
                             return <tr key={index} className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
                                 <td className="p-2 text-right">{index + 1}</td>
@@ -62,9 +68,9 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
                             <th>Total</th>
                             <th className="text-right">{totalGuestCheckIn}</th>
                             <th className="text-right">{totalGuestCheckOut}</th>
-                            <th className=""></th>
-                            <th className=""></th>
-                            <th className=""></th>
+                            <th className="text-right">{totalGuestTotal}</th>
+                            <th className="text-right">{totalReservationTotal}</th>
+                            <th className="p-2 text-right">{totalRoomsTotal}</th>
                         </tr>
                     </tfoot>
                 </table>

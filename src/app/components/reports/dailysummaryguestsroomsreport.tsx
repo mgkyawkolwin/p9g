@@ -13,17 +13,22 @@ export default function DailySummaryGuestsRoomsReport({ reportRows }: { reportRo
     let totalGuestCheckOut = 0;
     let totalRoomCheckIn = 0;
     let totalRoomCheckOut = 0;
+    let totalGuestExisting = 0;
+    let totalGuestTotal = 0;
+    let totalRoomTotal = 0;
+    let totalRoomExisting = 0;
+    let totalRoomAvailable = 0;
     const reportRef = React.useRef(null);
 
     return (
         <div className="flex flex-col w-full gap-4">
             <div className="text-center text-[18pt]">
                 <ButtonCustom variant="green" size="sm" className="float-left" onClick={() => {
-                    if(reportRef.current){
+                    if (reportRef.current) {
                         const ws = XSLX.utils.table_to_sheet(reportRef.current);
                         const wb = XSLX.utils.book_new();
                         XSLX.utils.book_append_sheet(wb, ws, "DailySummaryGurstsRoomsReport");
-                        XSLX.writeFile(wb, `DailySummaryGurstsRoomsReport_${new Date().toISOString().substring(0,10)}.xlsx`);
+                        XSLX.writeFile(wb, `DailySummaryGurstsRoomsReport_${new Date().toISOString().substring(0, 10)}.xlsx`);
                     }
                 }}>Download Excel</ButtonCustom>
                 Daily Summary Report (Guests & Rooms)
@@ -50,8 +55,14 @@ export default function DailySummaryGuestsRoomsReport({ reportRows }: { reportRo
                         {reportRows.map((rp, index) => {
                             totalGuestCheckIn = totalGuestCheckIn + Number(rp.guestsCheckIn);
                             totalGuestCheckOut = totalGuestCheckOut + Number(rp.guestsCheckOut);
+                            totalGuestExisting = totalGuestExisting + Number(rp.guestsExisting);
+                            totalGuestTotal = totalGuestTotal + Number(rp.guestsTotal);
                             totalRoomCheckIn = totalRoomCheckIn + Number(rp.roomsCheckIn);
                             totalRoomCheckOut = totalRoomCheckOut + Number(rp.roomsCheckOut);
+                            totalRoomExisting = totalRoomExisting + Number(rp.roomsExisting);
+                            totalRoomTotal = totalRoomTotal + Number(rp.roomsTotal);
+                            totalRoomAvailable = totalRoomAvailable + Number(rp.roomsAvailable);
+
 
                             return <tr key={index} className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
                                 <td className="p-2">{index + 1}</td>
@@ -74,13 +85,13 @@ export default function DailySummaryGuestsRoomsReport({ reportRows }: { reportRo
                             <th>Total</th>
                             <th className="text-right">{totalGuestCheckIn}</th>
                             <th className="text-right">{totalGuestCheckOut}</th>
-                            <th className=""></th>
-                            <th className=""></th>
+                            <th className="text-right">{totalGuestExisting}</th>
+                            <th className="text-right">{totalGuestTotal}</th>
                             <th className="text-right">{totalRoomCheckIn}</th>
                             <th className="text-right">{totalRoomCheckOut}</th>
-                            <th className=""></th>
-                            <th className=""></th>
-                            <th className=""></th>
+                            <th className="text-right">{totalRoomExisting}</th>
+                            <th className="text-right">{totalRoomTotal}</th>
+                            <th className="p-2 text-right">{totalRoomAvailable}</th>
                         </tr>
                     </tfoot>
                 </table>

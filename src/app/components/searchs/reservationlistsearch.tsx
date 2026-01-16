@@ -12,6 +12,7 @@ import { getISODateTimeMidNightString, getISODateTimeString } from "@/lib/utils"
 
 
 const initialData = {
+    bookingSource: "",
     checkInDateUTC: undefined,
     createdDateFrom: null,
     createdDateUntil: null,
@@ -131,6 +132,7 @@ export default function ReservationListSearch({
                     />
                     <input type="hidden" name="searchExistingReservations" defaultValue={formData.existingCheckIn ? formData.existingCheckIn.toISOFormatDateTimeString() : ''} />
                 </div>
+                <InputWithLabel labelPosition="top" size="md" name="searchBookingSource" label="Booking Source" defaultValue={formData.bookingSource} onChange={(e) => setFormData({ ...formData, bookingSource: e.target.value })} />
                 <ButtonCustom onClick={() => formRef?.current?.requestSubmit()}>Search</ButtonCustom>
             </div>
         </section>

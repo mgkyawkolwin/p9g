@@ -309,7 +309,7 @@ export default function MediaDialog({
           {/* Upload Queue Section */}
           <div className="flex flex-col gap-2 flex-1">
             <h3 className="text-sm font-medium">Upload Queue</h3>
-            <div className="space-y-2 flex-1 overflow-y-auto p-2 border rounded-md">
+            <div className="space-y-2 flex-1 min-h-[10vh] max-h-[20vh] overflow-scroll p-2 border rounded-md">
               {uploadQueue.length > 0 ? (
                 uploadQueue.map((item) => (
                   <div key={item.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">

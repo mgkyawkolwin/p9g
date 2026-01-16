@@ -186,6 +186,7 @@ export const searchValidator = z.object({
   drawDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
   modelState: z.string().optional(),
+  searchBookingSource: z.string().optional(),
   searchId: z.string().optional(),
   searchRoomNo: z.string().optional(),
   searchArrivalDateTime: z.coerce.string().optional(),
