@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     //call service to retrieve data
     const reportService = container.get<IReportService>(TYPES.IReportService);
-    const result = await reportService.getDailySummaryPersonReport(searchParams.startDate, searchParams.endDate, session.user);
+    const result = await reportService.getDailySummaryPersonReport(searchParams.startDate, searchParams.endDate, searchParams.reservationStatus, session.user);
     c.d(JSON.stringify(result));
 
     return NextResponse.json({ data: result }, { status: HttpStatusCode.Ok });

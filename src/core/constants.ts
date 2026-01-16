@@ -93,6 +93,7 @@ export const SelectList = {
 
     RESERVATION_STATUS: new Map<string, string>([
         ["NEW", "NEW"],
+        ["CFM", "CFM"],
         ["CIN", "CIN"],
         ["OUT", "OUT"],
         ["CCL", "CCL"]

@@ -18,6 +18,7 @@ const initialData = {
     checkInDateFrom: null,
     checkInDateUntil: null,
     existingCheckIn: null,
+    flight: "",
     id: "",
     name: "",
     prepaidPackage: "DEFAULT",
@@ -51,6 +52,7 @@ export default function ReservationListSearch({
                 <input type="hidden" name="searchPrepaidPackage" value={formData.prepaidPackage} />
                 <InputWithLabel labelPosition="top" size="md" name="searchId" label="Reservation ID" defaultValue={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} />
                 <InputWithLabel labelPosition="top" size="md" name="searchName" label="Customer Name" defaultValue={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                <InputWithLabel labelPosition="top" size="md" name="searchFlight" label="Flight" defaultValue={formData.flight} onChange={(e) => setFormData({ ...formData, flight: e.target.value })} />
                 <InputWithLabel labelPosition="top" size="md" name="searchRemark" label="Remark" defaultValue={formData.remark} onChange={(e) => setFormData({ ...formData, remark: e.target.value })} />
             </div>
             <div className="flex gap-4 items-end">

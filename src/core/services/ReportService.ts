@@ -36,9 +36,9 @@ export default class ReportService implements IReportService {
     }
 
 
-    async getDailySummaryPersonReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]> {
+    async getDailySummaryPersonReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]> {
         c.fs('ReportService > getDailySummaryPersonReport');
-        return await this.reportRepository.getDailySummaryPersonReport(startDate, endDate, sessionUser);
+        return await this.reportRepository.getDailySummaryPersonReport(startDate, endDate, reservationStatus, sessionUser);
     }
 
 }

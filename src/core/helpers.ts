@@ -3,17 +3,17 @@ import { getUTCDateMidNight } from "../lib/utils";
 import { PagerParams } from "./types";
 
 export function buildAnyCondition(queryObject: any): AnyCondition | null {
-    if(!queryObject) return null;
+    if (!queryObject) return null;
     const conditions: AnyCondition[] = [];
     const queryStringObject = Object.fromEntries(
         Object.entries(queryObject).filter(([key, value]) => value !== 'DEFAULT' && value !== '')
     );
-    if(!queryStringObject) return null;
+    if (!queryStringObject) return null;
     if (queryStringObject.searchArrivalDateTime) {
         conditions.push(and(
             gte('arrivalDateTime', queryStringObject.searchArrivalDateTime),
             lte('arrivalDateTime', getUTCDateMidNight(queryStringObject.searchArrivalDateTime as Date))
-    ));
+        ));
     }
     if (queryStringObject.searchCheckInDate) {
         conditions.push(eq('checkInDate', queryStringObject.searchCheckInDate));
@@ -33,7 +33,7 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
         conditions.push(and(
             gte('createdAtUTC', queryStringObject.searchCreatedDateFrom),
             lte('createdAtUTC', queryStringObject.searchCreatedDateUntil)
-    ));
+        ));
     } else if (queryStringObject.searchCreatedDateFrom) {
         conditions.push(gte('createdAtUTC', queryStringObject.searchCreatedDateFrom));
     } else if (queryStringObject.searchCreatedDateUntil) {
@@ -46,7 +46,7 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
         conditions.push(and(
             gte('departureDateTime', queryStringObject.searchDepartureDateTime),
             lte('departureDateTime', getUTCDateMidNight(queryStringObject.searchDepartureDateTime as Date))
-    ));
+        ));
     }
     if (queryStringObject.searchId) {
         conditions.push(or(eq('id', queryStringObject.searchId), like('id', `%${queryStringObject.searchId}%`)));
@@ -54,9 +54,9 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
     if (queryStringObject.searchName) {
         conditions.push(
             or(
-                eq('name', queryStringObject.searchName), 
+                eq('name', queryStringObject.searchName),
                 like('name', `${queryStringObject.searchName}`),
-                eq('englishName', queryStringObject.searchName), 
+                eq('englishName', queryStringObject.searchName),
                 like('englishName', `${queryStringObject.searchName}`)
             ));
     }
@@ -90,9 +90,9 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
     if (queryStringObject.searchEmail) {
         conditions.push(eq('email', queryStringObject.searchEmail));
     }
-    if(conditions.length === 0) return null;
-    
-    return conditions.length >1 ? and(...conditions) : conditions[0];
+    if (conditions.length === 0) return null;
+
+    return conditions.length > 1 ? and(...conditions) : conditions[0];
 }
 /**
  * Get local date string to display in client browser.
@@ -142,22 +142,24 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
  * @returns Original object with pager fields default.
  */
 export function getPagerWithDefaults(inputObject: PagerParams): PagerParams {
-  return {
-    ...inputObject,
-    orderBy: inputObject.orderBy ?? 'id',
-    orderDirection: inputObject.orderDirection ?? 'asc',
-    pageIndex: inputObject.pageIndex ?? 1,
-    pageSize: inputObject.pageSize ?? 10
-  };
-}export function getReservationStatusColorClass(status: string) {
-  if (status === 'NEW')
-    return `text-[#333333] dark:text-[#dddddd]`;
-  else if (status === 'CIN')
-    return `text-[#008800] dark:text-[#00ff00]`;
-  else if (status === 'OUT')
-    return `text-[#888888] dark:text-[#888888]`;
-  else if (status === 'CCL')
-    return `text-[#cc0000] dark:text-[#ff0000]`;
+    return {
+        ...inputObject,
+        orderBy: inputObject.orderBy ?? 'id',
+        orderDirection: inputObject.orderDirection ?? 'asc',
+        pageIndex: inputObject.pageIndex ?? 1,
+        pageSize: inputObject.pageSize ?? 10
+    };
+} export function getReservationStatusColorClass(status: string) {
+    if (status === 'NEW')
+        return `text-[#333333] dark:text-[#dddddd]`;
+    else if (status === 'CFM')
+        return `text-[#0000ff] dark:text-[#6666ff]`;
+    else if (status === 'CIN')
+        return `text-[#008800] dark:text-[#00ff00]`;
+    else if (status === 'OUT')
+        return `text-[#888888] dark:text-[#888888]`;
+    else if (status === 'CCL')
+        return `text-[#cc0000] dark:text-[#ff0000]`;
 }
 /**
  * Get check-in date based on arrival date.
@@ -166,14 +168,14 @@ export function getPagerWithDefaults(inputObject: PagerParams): PagerParams {
  */
 
 export function getUTCCheckInDate(arrivalDate: Date) {
-  const checkInDate = new Date(arrivalDate);
-  checkInDate.setUTCHours(0, 0, 0, 0);
-  if (arrivalDate.getUTCHours() >= 0 && arrivalDate.getUTCHours() <= 5) {
-    return checkInDate;
-  } else {
-    checkInDate.setUTCDate(checkInDate.getUTCDate() + 1);
-    return checkInDate;
-  }
+    const checkInDate = new Date(arrivalDate);
+    checkInDate.setUTCHours(0, 0, 0, 0);
+    if (arrivalDate.getUTCHours() >= 0 && arrivalDate.getUTCHours() <= 5) {
+        return checkInDate;
+    } else {
+        checkInDate.setUTCDate(checkInDate.getUTCDate() + 1);
+        return checkInDate;
+    }
 }
 /**
  * Get checkout date based on departure date.
@@ -183,13 +185,13 @@ export function getUTCCheckInDate(arrivalDate: Date) {
 
 
 export function getUTCCheckOutDate(departureDate: Date) {
-  const checkOutDate = new Date(departureDate);
-  checkOutDate.setUTCHours(0, 0, 0, 0);
-  if (departureDate.getUTCHours() >= 0 && departureDate.getUTCHours() <= 11) {
-    checkOutDate.setUTCDate(checkOutDate.getUTCDate() - 1);
-    return checkOutDate;
-  } else {
-    return checkOutDate;
-  }
+    const checkOutDate = new Date(departureDate);
+    checkOutDate.setUTCHours(0, 0, 0, 0);
+    if (departureDate.getUTCHours() >= 0 && departureDate.getUTCHours() <= 11) {
+        checkOutDate.setUTCDate(checkOutDate.getUTCDate() - 1);
+        return checkOutDate;
+    } else {
+        return checkOutDate;
+    }
 }
 

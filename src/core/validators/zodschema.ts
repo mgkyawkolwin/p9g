@@ -199,6 +199,7 @@ export const searchValidator = z.object({
   searchDepartureDateTime: z.coerce.string().optional(),
   searchEmail: z.string().optional(),
   searchExistingReservations: z.string().optional(),
+  searchFlight: z.string().optional(),
   searchName: z.string().optional(),
   searchNationalId: z.string().optional(),
   searchPassport: z.string().optional(),
