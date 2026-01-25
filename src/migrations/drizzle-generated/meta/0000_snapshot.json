@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "d7df0596-4787-4593-acb1-04e8952d7cdc",
+  "id": "3c9d9c21-a1a2-4120-afa6-930bbbc96525",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "bill": {
@@ -37,7 +37,7 @@
         },
         "reservationId": {
           "name": "reservationId",
-          "type": "char",
+          "type": "char(36)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -75,8 +75,7 @@
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": false
+          "autoincrement": false
         },
         "paidOnUTC": {
           "name": "paidOnUTC",
@@ -122,7 +121,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "bill_reservationId_reservation_id_fk": {
+          "name": "bill_reservationId_reservation_id_fk",
+          "tableFrom": "bill",
+          "tableTo": "reservation",
+          "columnsFrom": [
+            "reservationId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "bill_id": {
           "name": "bill_id",
@@ -233,7 +246,7 @@
         },
         "dob": {
           "name": "dob",
-          "type": "date",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -248,6 +261,13 @@
         "nationalId": {
           "name": "nationalId",
           "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "gender": {
+          "name": "gender",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -319,26 +339,107 @@
           ]
         }
       },
-      "uniqueConstraints": {
-        "customer_passport_unique": {
-          "name": "customer_passport_unique",
-          "columns": [
-            "passport"
-          ]
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "feedback": {
+      "name": "feedback",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
-        "customer_nationalId_unique": {
-          "name": "customer_nationalId_unique",
-          "columns": [
-            "nationalId"
-          ]
+        "reservationId": {
+          "name": "reservationId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
-        "customer_email_unique": {
-          "name": "customer_email_unique",
+        "customerId": {
+          "name": "customerId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "feedback": {
+          "name": "feedback",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "feedback_reservationId_reservation_id_fk": {
+          "name": "feedback_reservationId_reservation_id_fk",
+          "tableFrom": "feedback",
+          "tableTo": "reservation",
+          "columnsFrom": [
+            "reservationId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "feedback_customerId_customer_id_fk": {
+          "name": "feedback_customerId_customer_id_fk",
+          "tableFrom": "feedback",
+          "tableTo": "customer",
+          "columnsFrom": [
+            "customerId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "feedback_id": {
+          "name": "feedback_id",
           "columns": [
-            "email"
+            "id"
           ]
         }
       },
+      "uniqueConstraints": {},
       "checkConstraint": {}
     },
     "logError": {
@@ -378,6 +479,106 @@
       "compositePrimaryKeys": {
         "logError_id": {
           "name": "logError_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "media": {
+      "name": "media",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reservationId": {
+          "name": "reservationId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "customerId": {
+          "name": "customerId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "url": {
+          "name": "url",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "media_reservationId_reservation_id_fk": {
+          "name": "media_reservationId_reservation_id_fk",
+          "tableFrom": "media",
+          "tableTo": "reservation",
+          "columnsFrom": [
+            "reservationId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "media_customerId_customer_id_fk": {
+          "name": "media_customerId_customer_id_fk",
+          "tableFrom": "media",
+          "tableTo": "customer",
+          "columnsFrom": [
+            "customerId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "media_id": {
+          "name": "media_id",
           "columns": [
             "id"
           ]
@@ -486,6 +687,253 @@
       "compositePrimaryKeys": {
         "payment_id": {
           "name": "payment_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "pookieConfig": {
+      "name": "pookieConfig",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "contactUrl": {
+          "name": "contactUrl",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "key": {
+          "name": "key",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "pookieConfig_id": {
+          "name": "pookieConfig_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "pookieDevice": {
+      "name": "pookieDevice",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "deviceId": {
+          "name": "deviceId",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "isBlocked": {
+          "name": "isBlocked",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lastRequestAtUTC": {
+          "name": "lastRequestAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "pookieDevice_id": {
+          "name": "pookieDevice_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "pookie": {
+      "name": "pookie",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "date": {
+          "name": "date",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "hole": {
+          "name": "hole",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "isBusy": {
+          "name": "isBusy",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "noOfPeople": {
+          "name": "noOfPeople",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rooms": {
+          "name": "rooms",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "time": {
+          "name": "time",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "pookie_id": {
+          "name": "pookie_id",
           "columns": [
             "id"
           ]
@@ -657,6 +1105,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "tdacFileUrl": {
+          "name": "tdacFileUrl",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "createdAtUTC": {
           "name": "createdAtUTC",
           "type": "datetime(3)",
@@ -698,7 +1153,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "reservationCustomer_customerId_customer_id_fk": {
@@ -711,7 +1166,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -750,8 +1205,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "arrivalDateTimeUTC": {
-          "name": "arrivalDateTimeUTC",
+        "arrivalDateTime": {
+          "name": "arrivalDateTime",
           "type": "datetime",
           "primaryKey": false,
           "notNull": false,
@@ -764,8 +1219,15 @@
           "notNull": false,
           "autoincrement": false
         },
-        "departureDateTimeUTC": {
-          "name": "departureDateTimeUTC",
+        "bookingSource": {
+          "name": "bookingSource",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "departureDateTime": {
+          "name": "departureDateTime",
           "type": "datetime",
           "primaryKey": false,
           "notNull": false,
@@ -778,15 +1240,15 @@
           "notNull": false,
           "autoincrement": false
         },
-        "checkInDateUTC": {
-          "name": "checkInDateUTC",
+        "checkInDate": {
+          "name": "checkInDate",
           "type": "datetime",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "checkOutDateUTC": {
-          "name": "checkOutDateUTC",
+        "checkOutDate": {
+          "name": "checkOutDate",
           "type": "datetime",
           "primaryKey": false,
           "notNull": false,
@@ -823,6 +1285,13 @@
         "depositDateUTC": {
           "name": "depositDateUTC",
           "type": "date",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "depositPaymentMode": {
+          "name": "depositPaymentMode",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -886,6 +1355,13 @@
         "pickUpDriver": {
           "name": "pickUpDriver",
           "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "prepaidCode": {
+          "name": "prepaidCode",
+          "type": "char(8)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -955,7 +1431,7 @@
         },
         "remark": {
           "name": "remark",
-          "type": "varchar(255)",
+          "type": "varchar(500)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1005,6 +1481,13 @@
         "dueAmount": {
           "name": "dueAmount",
           "type": "decimal",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "golfCart": {
+          "name": "golfCart",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1151,18 +1634,18 @@
           "name": "reservationId",
           "type": "char(36)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
-        "startDateUTC": {
-          "name": "startDateUTC",
+        "startDate": {
+          "name": "startDate",
           "type": "datetime",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "endDateUTC": {
-          "name": "endDateUTC",
+        "endDate": {
+          "name": "endDate",
           "type": "datetime",
           "primaryKey": false,
           "notNull": false,
@@ -1170,7 +1653,7 @@
         },
         "roomId": {
           "name": "roomId",
-          "type": "char",
+          "type": "char(36)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1268,7 +1751,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "roomCharge_reservationId_reservation_id_fk": {
+          "name": "roomCharge_reservationId_reservation_id_fk",
+          "tableFrom": "roomCharge",
+          "tableTo": "reservation",
+          "columnsFrom": [
+            "reservationId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
         "roomCharge_id": {
           "name": "roomCharge_id",
@@ -1420,15 +1917,15 @@
           "autoincrement": false,
           "default": 0
         },
-        "checkInDateUTC": {
-          "name": "checkInDateUTC",
+        "checkInDate": {
+          "name": "checkInDate",
           "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "checkOutDateUTC": {
-          "name": "checkOutDateUTC",
+        "checkOutDate": {
+          "name": "checkOutDate",
           "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
@@ -1436,7 +1933,7 @@
         },
         "isSingleOccupancy": {
           "name": "isSingleOccupancy",
-          "type": "binary",
+          "type": "boolean",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1797,6 +2294,65 @@
           ]
         }
       },
+      "checkConstraint": {}
+    },
+    "version": {
+      "name": "version",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "version_id": {
+          "name": "version_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
       "checkConstraint": {}
     }
   },

@@ -36,7 +36,7 @@ export default function CustomerDetailForm({ customer, resetDataToggle, onDataCh
 
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto p-1">
             <InputWithLabel name="name" label="Name" variant="default" size={"full"} labelPosition="top" onBlur={() => onDataChanged(localCustomer)}
                 value={localCustomer?.name ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, name: e.target.value }))} />
             <InputWithLabel name="englishName" label="English Name" variant="default" size={"full"} labelPosition="top" onBlur={() => onDataChanged(localCustomer)}
@@ -85,6 +85,9 @@ export default function CustomerDetailForm({ customer, resetDataToggle, onDataCh
             <Label htmlFor="address">Address</Label>
             <Textarea id="address" name="address" placeholder=" ..." value={localCustomer?.address ?? ''} onBlur={() => onDataChanged(localCustomer)}
                 onChange={(e) => setLocalCustomer(prev => ({ ...prev, address: e.target.value }))} />
+            <Label htmlFor="remarks">Remarks</Label>
+            <Textarea id="remarks" name="remarks" placeholder=" ..." value={localCustomer?.remarks ?? ''} onBlur={() => onDataChanged(localCustomer)}
+                onChange={(e) => setLocalCustomer(prev => ({ ...prev, remarks: e.target.value }))} />
 
         </div>
     );

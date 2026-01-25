@@ -1,3 +1,0 @@
-ALTER TABLE `roomCharge` MODIFY COLUMN `reservationId` char(36) NOT NULL;--> statement-breakpoint
-ALTER TABLE `bill` ADD CONSTRAINT `bill_reservationId_reservation_id_fk` FOREIGN KEY (`reservationId`) REFERENCES `reservation`(`id`) ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `roomCharge` ADD CONSTRAINT `roomCharge_reservationId_reservation_id_fk` FOREIGN KEY (`reservationId`) REFERENCES `reservation`(`id`) ON DELETE set null ON UPDATE no action;

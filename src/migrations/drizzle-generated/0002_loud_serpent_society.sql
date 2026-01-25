@@ -1,1 +1,0 @@
-ALTER TABLE `bill` MODIFY COLUMN `isPaid` boolean NOT NULL;

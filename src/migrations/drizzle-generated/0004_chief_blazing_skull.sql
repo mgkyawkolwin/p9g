@@ -1,2 +1,0 @@
--- no need to apply, db schema has been already changed
--- ALTER TABLE `customer` MODIFY COLUMN `dob` varchar(50);
