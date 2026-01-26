@@ -5,85 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1754016679192,
-      "tag": "0000_version-1.0.0",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1754382249365,
-      "tag": "0001_nebulous_slyde",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1755770707403,
-      "tag": "0002_loud_serpent_society",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1756962480780,
-      "tag": "0003_cynical_tinkerer",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1758102652746,
-      "tag": "0004_chief_blazing_skull",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1758259408990,
-      "tag": "0005_stale_zodiak",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1758696762787,
-      "tag": "0006_material_mariko_yashida",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "5",
-      "when": 1759056197635,
-      "tag": "0007_abnormal_blacklash",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1762575634178,
-      "tag": "0008_windy_serpent_society",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "5",
-      "when": 1763027897189,
-      "tag": "0009_funny_omega_red",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "5",
-      "when": 1766483228324,
-      "tag": "0010_bright_gravity",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "5",
-      "when": 1768044912343,
-      "tag": "0011_solid_bushwacker",
+      "when": 1769267394736,
+      "tag": "0000_nice_patriot",
       "breakpoints": true
     }
   ]

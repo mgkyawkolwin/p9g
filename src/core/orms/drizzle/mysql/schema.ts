@@ -8,7 +8,7 @@ export const billTable = mysqlTable("bill", {
   dateUTC: datetime("dateUTC"),
   paymentMode: varchar("paymentMode", { length: 10 }).notNull(),
   paymentType: varchar("paymentType", { length: 10 }).notNull(),
-  reservationId: char("reservationId").notNull().references(() => reservationTable.id, { onDelete: 'set null' }),
+  reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'cascade' }),
   itemName: varchar("itemName", { length: 100 }).notNull(),
   unitPrice: decimal("unitPrice").notNull(),
   quantity: tinyint("quantity").notNull(),
@@ -43,6 +43,7 @@ export const customerTable = mysqlTable("customer", {
   nationalId: varchar("nationalId", { length: 50 }),
   gender: varchar("gender", { length: 10 }),
   address: varchar("address", { length: 255 }),
+  remarks: varchar("remarks", { length: 500 }),
   country: varchar("country", { length: 50 }),
   phone: varchar("phone", { length: 50 }),
   email: varchar("email", { length: 50 }),
@@ -255,8 +256,8 @@ export const reservationTable = mysqlTable("reservation", {
 
 export const reservationCustomerTable = mysqlTable("reservationCustomer", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
-  reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'set null' }),
-  customerId: char("customerId", { length: 36 }).notNull().references(() => customerTable.id, { onDelete: 'set null' }),
+  reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'cascade' }),
+  customerId: char("customerId", { length: 36 }).notNull().references(() => customerTable.id, { onDelete: 'cascade' }),
   tdacFileUrl: varchar("tdacFileUrl", {length: 50}),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", { length: 36 }).notNull(),
@@ -278,10 +279,10 @@ export const roomTable = mysqlTable("room", {
 
 export const roomChargeTable = mysqlTable("roomCharge", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
-  reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'set null' }),
+  reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'cascade' }),
   startDate: datetime("startDate"),
   endDate: datetime("endDate"),
-  roomId: char("roomId"),
+  roomId: char("roomId", { length: 36 }),
   roomTypeId: char("roomTypeId", { length: 36 }).notNull(),
   roomRate: decimal("roomRate").notNull(),
   roomSurcharge: decimal("roomSurcharge").notNull(),

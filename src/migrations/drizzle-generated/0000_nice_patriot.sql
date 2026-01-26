@@ -3,12 +3,12 @@ CREATE TABLE `bill` (
 	`dateUTC` datetime,
 	`paymentMode` varchar(10) NOT NULL,
 	`paymentType` varchar(10) NOT NULL,
-	`reservationId` char NOT NULL,
+	`reservationId` char(36) NOT NULL,
 	`itemName` varchar(100) NOT NULL,
 	`unitPrice` decimal NOT NULL,
 	`quantity` tinyint NOT NULL,
 	`amount` decimal NOT NULL,
-	`isPaid` boolean NOT NULL DEFAULT false,
+	`isPaid` boolean NOT NULL,
 	`paidOnUTC` datetime,
 	`currency` char(3),
 	`createdAtUTC` datetime(3) NOT NULL,
@@ -34,9 +34,10 @@ CREATE TABLE `customer` (
 	`id` char(36) NOT NULL,
 	`name` varchar(255),
 	`englishName` varchar(255) NOT NULL,
-	`dob` date,
+	`dob` varchar(50),
 	`passport` varchar(50),
 	`nationalId` varchar(50),
+	`gender` varchar(10),
 	`address` varchar(255),
 	`country` varchar(50),
 	`phone` varchar(50),
@@ -45,10 +46,19 @@ CREATE TABLE `customer` (
 	`createdBy` char(36) NOT NULL,
 	`updatedAtUTC` datetime(3) NOT NULL,
 	`updatedBy` char(36) NOT NULL,
-	CONSTRAINT `customer_id` PRIMARY KEY(`id`),
-	CONSTRAINT `customer_passport_unique` UNIQUE(`passport`),
-	CONSTRAINT `customer_nationalId_unique` UNIQUE(`nationalId`),
-	CONSTRAINT `customer_email_unique` UNIQUE(`email`)
+	CONSTRAINT `customer_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `feedback` (
+	`id` char(36) NOT NULL,
+	`reservationId` char(36) NOT NULL,
+	`customerId` char(36),
+	`feedback` text,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	CONSTRAINT `feedback_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `logError` (
@@ -57,6 +67,18 @@ CREATE TABLE `logError` (
 	`datetime` datetime NOT NULL,
 	`detail` decimal NOT NULL,
 	CONSTRAINT `logError_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `media` (
+	`id` char(36) NOT NULL,
+	`reservationId` char(36) NOT NULL,
+	`customerId` char(36),
+	`url` varchar(500) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	CONSTRAINT `media_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `payment` (
@@ -74,6 +96,46 @@ CREATE TABLE `payment` (
 	`updatedAtUTC` datetime(3) NOT NULL,
 	`updatedBy` char(36) NOT NULL,
 	CONSTRAINT `payment_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `pookieConfig` (
+	`id` char(36) NOT NULL,
+	`contactUrl` varchar(500) NOT NULL,
+	`key` char(36) NOT NULL,
+	`version` varchar(10) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	CONSTRAINT `pookieConfig_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `pookieDevice` (
+	`id` char(36) NOT NULL,
+	`deviceId` varchar(50) NOT NULL,
+	`isBlocked` boolean NOT NULL,
+	`lastRequestAtUTC` datetime(3) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	CONSTRAINT `pookieDevice_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `pookie` (
+	`id` char(36) NOT NULL,
+	`date` datetime(3) NOT NULL,
+	`hole` varchar(10) NOT NULL,
+	`isBusy` boolean NOT NULL,
+	`location` varchar(10) NOT NULL,
+	`noOfPeople` tinyint NOT NULL,
+	`rooms` varchar(50) NOT NULL,
+	`time` datetime(3) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	CONSTRAINT `pookie_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `prepaid` (
@@ -103,6 +165,7 @@ CREATE TABLE `reservationCustomer` (
 	`id` char(36) NOT NULL,
 	`reservationId` char(36) NOT NULL,
 	`customerId` char(36) NOT NULL,
+	`tdacFileUrl` varchar(50),
 	`createdAtUTC` datetime(3) NOT NULL,
 	`createdBy` char(36) NOT NULL,
 	`updatedAtUTC` datetime(3) NOT NULL,
@@ -114,17 +177,19 @@ CREATE TABLE `reservation` (
 	`id` char(36) NOT NULL,
 	`reservationTypeId` char(36),
 	`tourCompany` varchar(100),
-	`arrivalDateTimeUTC` datetime,
+	`arrivalDateTime` datetime,
 	`arrivalFlight` varchar(50),
-	`departureDateTimeUTC` datetime,
+	`bookingSource` varchar(50),
+	`departureDateTime` datetime,
 	`departureFlight` varchar(50),
-	`checkInDateUTC` datetime,
-	`checkOutDateUTC` datetime,
+	`checkInDate` datetime,
+	`checkOutDate` datetime,
 	`noOfDays` smallint,
 	`depositAmount` int,
 	`depositAmountInCurrency` int,
 	`depositCurrency` char(3),
 	`depositDateUTC` date,
+	`depositPaymentMode` varchar(10),
 	`roomNo` varchar(10),
 	`isSingleOccupancy` boolean,
 	`noOfGuests` tinyint,
@@ -134,6 +199,7 @@ CREATE TABLE `reservation` (
 	`pickUpFeePaidOnUTC` datetime,
 	`pickUpCarNo` varchar(10),
 	`pickUpDriver` varchar(50),
+	`prepaidCode` char(8),
 	`prepaidPackageId` char(36),
 	`promotionPackageId` char(36),
 	`dropOffTypeId` char(36),
@@ -143,7 +209,7 @@ CREATE TABLE `reservation` (
 	`dropOffCarNo` varchar(10),
 	`dropOffDriver` varchar(50),
 	`reservationStatusId` char(36) NOT NULL,
-	`remark` varchar(255),
+	`remark` varchar(500),
 	`totalAmount` decimal,
 	`paidAmount` decimal,
 	`discountAmount` decimal,
@@ -151,6 +217,7 @@ CREATE TABLE `reservation` (
 	`taxAmount` decimal,
 	`netAmount` decimal,
 	`dueAmount` decimal,
+	`golfCart` varchar(20),
 	`location` varchar(10) NOT NULL,
 	`createdAtUTC` datetime(3) NOT NULL,
 	`createdBy` char(36) NOT NULL,
@@ -161,10 +228,10 @@ CREATE TABLE `reservation` (
 --> statement-breakpoint
 CREATE TABLE `roomCharge` (
 	`id` char(36) NOT NULL,
-	`reservationId` char(36),
-	`startDateUTC` datetime,
-	`endDateUTC` datetime,
-	`roomId` char,
+	`reservationId` char(36) NOT NULL,
+	`startDate` datetime,
+	`endDate` datetime,
+	`roomId` char(36),
 	`roomTypeId` char(36) NOT NULL,
 	`roomRate` decimal NOT NULL,
 	`roomSurcharge` decimal NOT NULL,
@@ -203,9 +270,9 @@ CREATE TABLE `roomReservation` (
 	`roomId` char(36) NOT NULL,
 	`reservationId` char(36) NOT NULL,
 	`noOfExtraBed` tinyint DEFAULT 0,
-	`checkInDateUTC` datetime(3) NOT NULL,
-	`checkOutDateUTC` datetime(3) NOT NULL,
-	`isSingleOccupancy` binary,
+	`checkInDate` datetime(3) NOT NULL,
+	`checkOutDate` datetime(3) NOT NULL,
+	`isSingleOccupancy` boolean,
 	`createdAtUTC` datetime(3) NOT NULL,
 	`createdBy` char(36) NOT NULL,
 	`updatedAtUTC` datetime(3) NOT NULL,
@@ -257,14 +324,30 @@ CREATE TABLE `user` (
 	CONSTRAINT `user_email_unique` UNIQUE(`email`)
 );
 --> statement-breakpoint
-ALTER TABLE `reservationCustomer` ADD CONSTRAINT `reservationCustomer_reservationId_reservation_id_fk` FOREIGN KEY (`reservationId`) REFERENCES `reservation`(`id`) ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE `reservationCustomer` ADD CONSTRAINT `reservationCustomer_customerId_customer_id_fk` FOREIGN KEY (`customerId`) REFERENCES `customer`(`id`) ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+CREATE TABLE `version` (
+	`id` char(36) NOT NULL,
+	`version` varchar(10) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	CONSTRAINT `version_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+ALTER TABLE `bill` ADD CONSTRAINT `bill_reservationId_reservation_id_fk` FOREIGN KEY (`reservationId`) REFERENCES `reservation`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `feedback` ADD CONSTRAINT `feedback_reservationId_reservation_id_fk` FOREIGN KEY (`reservationId`) REFERENCES `reservation`(`id`) ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `feedback` ADD CONSTRAINT `feedback_customerId_customer_id_fk` FOREIGN KEY (`customerId`) REFERENCES `customer`(`id`) ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `media` ADD CONSTRAINT `media_reservationId_reservation_id_fk` FOREIGN KEY (`reservationId`) REFERENCES `reservation`(`id`) ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `media` ADD CONSTRAINT `media_customerId_customer_id_fk` FOREIGN KEY (`customerId`) REFERENCES `customer`(`id`) ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `reservationCustomer` ADD CONSTRAINT `reservationCustomer_reservationId_reservation_id_fk` FOREIGN KEY (`reservationId`) REFERENCES `reservation`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `reservationCustomer` ADD CONSTRAINT `reservationCustomer_customerId_customer_id_fk` FOREIGN KEY (`customerId`) REFERENCES `customer`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `reservation` ADD CONSTRAINT `reservation_reservationTypeId_config_id_fk` FOREIGN KEY (`reservationTypeId`) REFERENCES `config`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `reservation` ADD CONSTRAINT `reservation_pickUpTypeId_config_id_fk` FOREIGN KEY (`pickUpTypeId`) REFERENCES `config`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `reservation` ADD CONSTRAINT `reservation_prepaidPackageId_prepaid_id_fk` FOREIGN KEY (`prepaidPackageId`) REFERENCES `prepaid`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `reservation` ADD CONSTRAINT `reservation_promotionPackageId_promotion_id_fk` FOREIGN KEY (`promotionPackageId`) REFERENCES `promotion`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `reservation` ADD CONSTRAINT `reservation_dropOffTypeId_config_id_fk` FOREIGN KEY (`dropOffTypeId`) REFERENCES `config`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `reservation` ADD CONSTRAINT `reservation_reservationStatusId_config_id_fk` FOREIGN KEY (`reservationStatusId`) REFERENCES `config`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `roomCharge` ADD CONSTRAINT `roomCharge_reservationId_reservation_id_fk` FOREIGN KEY (`reservationId`) REFERENCES `reservation`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `roomReservation` ADD CONSTRAINT `roomReservation_roomId_room_id_fk` FOREIGN KEY (`roomId`) REFERENCES `room`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `roomReservation` ADD CONSTRAINT `roomReservation_reservationId_reservation_id_fk` FOREIGN KEY (`reservationId`) REFERENCES `reservation`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `room` ADD CONSTRAINT `room_roomNo_roomType_id_fk` FOREIGN KEY (`roomNo`) REFERENCES `roomType`(`id`) ON DELETE no action ON UPDATE no action;
