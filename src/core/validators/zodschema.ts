@@ -30,6 +30,7 @@ export const customerValidator = z.object({
   country: z.string().nullish().optional(),
   dob: z.string().nullish().catch(undefined).optional(),
   address: z.string().nullish().optional(),
+  remarks: z.string().nullish().optional(),
   modelState: z.string().optional()
 });
 

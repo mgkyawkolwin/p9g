@@ -2,6 +2,7 @@ import EntityBase from "../../../lib/models/entity/EntityBase";
 
 export default class Customer extends EntityBase {
     public address : string = '';
+    public remarks: string = '';
     public country: string = '';
     public dob: string = '';
     public email: string = '';

@@ -4,6 +4,7 @@ import Media from "./Media";
 
 export default class Customer extends DomainBase {
     public address: string = '';
+    public remarks: string = '';
     public country: string = '';
     public dob: string = '';
     public email: string = '';

@@ -85,6 +85,13 @@
       "when": 1768044912343,
       "tag": "0011_solid_bushwacker",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1769406749527,
+      "tag": "0012_easy_zaran",
+      "breakpoints": true
     }
   ]
 }
