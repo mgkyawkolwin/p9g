@@ -1,0 +1,1 @@
+ALTER TABLE `customer` ADD `remarks` varchar(1024);
