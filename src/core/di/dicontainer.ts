@@ -21,7 +21,7 @@ import IReportService from '@/core/services/contracts/IReportService';
 import ReportService from '@/core/services/ReportService';
 import ILogService from '@/core/services/contracts/ILogService';
 import LogService from '@/core/services/LogService';
-import { billTable, configTable, customerTable, feedbackTable, logErrorTable, mediaTable, paymentTable, pookieConfigTable, pookieDeviceTable, pookieTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
+import { billTable, configTable, customerTable, feedbackTable, invoiceTable, simpleInvoiceItemTable, bookingInvoiceItemTable, logErrorTable, mediaTable, paymentTable, pookieConfigTable, pookieDeviceTable, pookieTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
 import { Repository } from '@/lib/repositories/drizzle/Repository';
 import IRepository from '@/lib/repositories/IRepository';
 import CustomMapper from '@/lib/mappers/custommapper/CustomMapper';
@@ -78,6 +78,14 @@ import MediaService from '../services/MediaService';
 import IMediaService from '../services/contracts/IMediaService';
 import Media from '../models/domain/Media';
 import MediaEntity from '../models/entity/MediaEntity';
+import Invoice from '../models/domain/Invoice';
+import InvoiceEntity from '../models/entity/InvoiceEntity';
+import SimpleInvoiceItem from '../models/domain/SimpleInvoiceItem';
+import SimpleInvoiceItemEntity from '../models/entity/SimpleInvoiceItemEntity';
+import BookingInvoiceItem from '../models/domain/BookingInvoiceItem';
+import BookingInvoiceItemEntity from '../models/entity/BookingInvoiceItemEntity';
+import IInvoiceService from '../services/contracts/IInvoiceService';
+import InvoiceService from '../services/InvoiceService';
 
 // create a DI container
 const container = new Container();
@@ -92,6 +100,7 @@ container.bind<IQueryTranformer>(TYPES.IQueryTransformer).to(DrizzleQueryTransfo
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
 container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inRequestScope();
 container.bind<IFeedbackService>(TYPES.IFeedbackService).to(FeedbackService).inRequestScope();
+container.bind<IInvoiceService>(TYPES.IInvoiceService).to(InvoiceService).inRequestScope();
 container.bind<ILogService>(TYPES.ILogService).to(LogService).inRequestScope();
 container.bind<IMediaService>(TYPES.IMediaService).to(MediaService).inRequestScope();
 container.bind<IPookieService>(TYPES.IPookieService).to(PookieService).inRequestScope();
@@ -163,6 +172,54 @@ container.bind<IRepository<Feedback>>(TYPES.IFeedbackRepository).toDynamicValue(
             context.get<IQueryTranformer>(TYPES.IQueryTransformer)
         ),
         "feedback",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
+    )
+}).inRequestScope();
+
+container.bind<IRepository<Invoice>>(TYPES.IInvoiceRepository).toDynamicValue(context => {
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            invoiceTable,
+            { ...invoiceTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            Invoice,
+            InvoiceEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "invoice",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
+    )
+}).inRequestScope();
+
+container.bind<IRepository<SimpleInvoiceItem>>(TYPES.ISimpleInvoiceItemRepository).toDynamicValue(context => {
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            simpleInvoiceItemTable,
+            { ...simpleInvoiceItemTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            SimpleInvoiceItem,
+            SimpleInvoiceItemEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "simpleInvoiceItem",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
+    )
+}).inRequestScope();
+
+container.bind<IRepository<BookingInvoiceItem>>(TYPES.IBookingInvoiceItemRepository).toDynamicValue(context => {
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            bookingInvoiceItemTable,
+            { ...bookingInvoiceItemTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            BookingInvoiceItem,
+            BookingInvoiceItemEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "bookingInvoiceItem",
         context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
 }).inRequestScope();

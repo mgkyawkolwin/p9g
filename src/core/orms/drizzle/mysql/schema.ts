@@ -71,6 +71,59 @@ export const logErrorTable = mysqlTable("logError", {
   detail: decimal("detail").notNull()
 });
 
+export const invoiceTable = mysqlTable("invoice", {
+  id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  invoiceNumber: varchar("invoiceNumber", { length: 50 }).notNull(),
+  invoiceDate: datetime("invoiceDate", { mode: 'date', fsp: 3 }).notNull(),
+  customerName: varchar("customerName", { length: 255 }).notNull(),
+  deposit: decimal("deposit").notNull(),
+  totalAmount: decimal("totalAmount").notNull(),
+  taxAmount: decimal("taxAmount").notNull(),
+  discountAmount: decimal("discountAmount").notNull(),
+  netAmount: decimal("netAmount").notNull(),
+  paidAmount: decimal("paidAmount").notNull(),
+  dueAmount: decimal("dueAmount").notNull(),
+  currency: char("currency", { length: 3 }).notNull(),
+  status: varchar("status", { length: 20 }).notNull(),
+  paymentDueDate: datetime("paymentDueDate", { mode: 'date', fsp: 3 }),
+  notes: varchar("notes", { length: 500 }),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
+export const simpleInvoiceItemTable = mysqlTable("simpleInvoiceItem", {
+  id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  invoiceId: char("invoiceId", { length: 36 }).notNull().references(() => invoiceTable.id, { onDelete: 'cascade' }),
+  description: varchar("description", { length: 500 }).notNull(),
+  location: varchar("location", { length: 255 }).notNull(),
+  amount: decimal("amount").notNull(),
+  currency: char("currency", { length: 3 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
+export const bookingInvoiceItemTable = mysqlTable("bookingInvoiceItem", {
+  id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  invoiceId: char("invoiceId", { length: 36 }).notNull().references(() => invoiceTable.id, { onDelete: 'cascade' }),
+  description: varchar("description", { length: 500 }).notNull(),
+  location: varchar("location", { length: 255 }).notNull(),
+  startDate: datetime("startDate", { mode: 'date', fsp: 3 }).notNull(),
+  endDate: datetime("endDate", { mode: 'date', fsp: 3 }).notNull(),
+  pax: smallint("pax").notNull(),
+  rate: decimal("rate").notNull(),
+  amount: decimal("amount").notNull(),
+  noOfRooms: smallint("noOfRooms").notNull(),
+  noOfDays: smallint("noOfDays").notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
 export const mediaTable = mysqlTable("media", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
   reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'restrict' } ),

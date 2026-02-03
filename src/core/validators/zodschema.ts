@@ -247,6 +247,51 @@ export const pookieGetRoomValidator = z.object({
   location: z.coerce.string()
 });
 
+export const simpleInvoiceItemValidator = z.object({
+  id: z.coerce.string().length(36).optional(),
+  description: z.coerce.string().min(1, 'Description is required'),
+  location: z.coerce.string().min(1, 'Location is required'),
+  amount: z.coerce.number(),
+  currency: z.coerce.string().length(3),
+  modelState: z.string().optional()
+});
+
+export const bookingInvoiceItemValidator = z.object({
+  id: z.coerce.string().length(36).optional(),
+  description: z.coerce.string().min(1, 'Description is required'),
+  location: z.coerce.string().min(1, 'Location is required'),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+  pax: z.coerce.number().gt(0),
+  rate: z.coerce.number(),
+  amount: z.coerce.number(),
+  noOfRooms: z.coerce.number().gt(0),
+  noOfDays: z.coerce.number().gt(0),
+  modelState: z.string().optional()
+});
+
+export const invoiceValidator = z.object({
+  id: z.coerce.string().length(36).optional(),
+  invoiceNumber: z.coerce.string().min(1, 'Invoice number is required'),
+  invoiceDate: z.coerce.date(),
+  customerName: z.coerce.string().min(1, 'Customer name is required'),
+  deposit: z.coerce.number(),
+  totalAmount: z.coerce.number(),
+  taxAmount: z.coerce.number(),
+  discountAmount: z.coerce.number(),
+  netAmount: z.coerce.number(),
+  paidAmount: z.coerce.number(),
+  dueAmount: z.coerce.number(),
+  currency: z.coerce.string().length(3),
+  status: z.coerce.string().min(1, 'Status is required'),
+  paymentDueDate: z.coerce.date().nullish().optional(),
+  notes: z.coerce.string().nullish().optional(),
+  simpleItems: z.array(simpleInvoiceItemValidator).optional(),
+  bookingItems: z.array(bookingInvoiceItemValidator).optional(),
+  modelState: z.string().optional()
+});
+
+
 export const pookieValidator = z.object({
   id: z.coerce.string(),
   date: z.coerce.date(),
