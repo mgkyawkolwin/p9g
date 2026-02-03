@@ -15,7 +15,6 @@ import SimpleDataTable from "@/lib/components/web/react/uicustom/simpledatatable
 import { Dialog, DialogContent, DialogTitle } from "@/lib/components/web/react/ui/dialog";
 import MultiBadgeSelect from "@/lib/components/web/react/uicustom/multibadgeselect";
 import "react-datepicker/dist/react-datepicker.css";
-import * as XSLX from "xlsx";
 import { SelectCustom } from "@/lib/components/web/react/uicustom/selectcustom";
 import { SelectListForm } from "@/core/constants";
 import ExcelJS from "exceljs";
