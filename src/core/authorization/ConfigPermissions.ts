@@ -6,6 +6,7 @@ export const ConfigPermissions = {
         '/console/checkout', 
         '/console/pickup', 
         '/console/dropoff', 
+        '/console/invoices', 
         '/console/roomchange', 
         '/console/roomschedule',
         '/console/customers',

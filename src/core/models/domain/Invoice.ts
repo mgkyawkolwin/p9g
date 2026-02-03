@@ -3,20 +3,20 @@ import SimpleInvoiceItem from "./SimpleInvoiceItem";
 import BookingInvoiceItem from "./BookingInvoiceItem";
 
 export default class Invoice extends DomainBase {
+    public agentName: string = '';
     public invoiceNumber: string = '';
     public invoiceDate: Date = null;
     public customerName: string = '';
-    public deposit: number = 0;
-    public totalAmount: number = 0;
-    public taxAmount: number = 0;
-    public discountAmount: number = 0;
-    public netAmount: number = 0;
-    public paidAmount: number = 0;
-    public dueAmount: number = 0;
-    public currency: string = 'KWR';
+    public pax: string = '';
+    public depositKWR: number = 0;
+    public totalAmountKWR: number = 0;
+    public dueAmountKWR: number = 0;
+    public depositTHB: number = 0;
+    public totalAmountTHB: number = 0;
+    public dueAmountTHB: number = 0;
     public status: string = 'DRAFT';
-    public paymentDueDate: Date = null;
-    public notes: string = '';
+    public included: string = '';
+    public notIncluded: string = '';
     public simpleItems: SimpleInvoiceItem[] = [];
     public bookingItems: BookingInvoiceItem[] = [];
 }

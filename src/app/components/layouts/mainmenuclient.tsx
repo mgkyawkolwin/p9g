@@ -145,6 +145,15 @@ export default function MainMenuClient({ role }) {
         </Link>
       )}
 
+      {role === "ADMIN" && (
+        <Link
+          href="/console/invoices"
+          className="text-sm font-medium text-white hover:text-blue-600"
+        >
+          Invoices
+        </Link>
+      )}
+
       {/* Reports Menu - Only if user has reports permission */}
       {role === "ADMIN" && (
         <nav>
