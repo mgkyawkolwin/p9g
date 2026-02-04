@@ -165,3 +165,32 @@ export async function invoiceCreate(invoice: Invoice): Promise<FormState> {
     return { error: true, message: 'Failed to create invoice.' };
   }
 }
+
+export async function invoiceDelete(id: string): Promise<FormState> {
+  try {
+    c.fs('Actions > invoiceDelete');
+    c.d(id);
+
+    const response = await fetch(process.env.API_URL + `invoices/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      },
+      credentials: 'include'
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      c.e(responseData.message);
+      return { error: true, message: `Failed to delete invoice. ${responseData.message}` };
+    }
+
+    c.fe('Actions > invoiceDelete');
+    return { error: false, message: 'Invoice deleted successfully.' };
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return { error: true, message: 'Failed to delete invoice.' };
+  }
+}

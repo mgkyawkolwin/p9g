@@ -14,7 +14,7 @@ import ILogService from "@/core/services/contracts/ILogService";
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     c.fs("GET /api/invoices/[id]");
-    const { id } = params;
+    const { id } = await params;
     c.d(`Invoice ID: ${id}`);
 
     const session = await auth();
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     c.fs("PATCH /api/invoices/[id]");
-    const { id } = params;
+    const { id } = await params;
     c.d(`Invoice ID: ${id}`);
 
     const body = await request.json();
@@ -88,7 +88,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     c.fs("PUT /api/invoices/[id]");
-    const { id } = params;
+    const { id } = await params;
     c.d(`Invoice ID: ${id}`);
 
     const body = await request.json();
@@ -129,7 +129,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     c.fs("DELETE /api/invoices/[id]");
-    const { id } = params;
+    const { id } = await params;
     c.d(`Invoice ID: ${id}`);
 
     const session = await auth();

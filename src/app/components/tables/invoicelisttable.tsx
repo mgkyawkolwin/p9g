@@ -10,6 +10,11 @@ import Invoice from "@/core/models/domain/Invoice";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import InvoiceEditDialog from "../dialogs/invoiceeditdialog";
 import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
+import { invoiceDelete } from "@/app/(private)/console/invoices/actions";
+import { toast } from "sonner";
+import { Trash } from "lucide-react";
+import { set } from "zod";
 
 
 interface DataTableProps {
@@ -26,6 +31,9 @@ export default function InvoiceListTable({
 
   const editDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
   const [invoiceId, setInvoiceId] = React.useState('');
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+  const [openEditDialog, setOpenEditDialog] = React.useState(false);
+  const [deleteId, setDeleteId] = React.useState<string>('');
 
   const getInvoiceStatusColorClass = (status: string): string => {
     switch (status) {
@@ -58,8 +66,32 @@ export default function InvoiceListTable({
       cell: (row) => row.getValue(),
     },
     {
+      accessorKey: "agentName",
+      header: "Agent Name",
+      cell: (row) => {
+        return <div className="flex max-w-[200px] whitespace-normal">{String(row.getValue())}</div>
+      }
+    },
+    {
+      accessorKey: "bookingSource",
+      header: "Booking Source",
+      cell: (row) => <div className="flex max-w-[150px] whitespace-normal">{String(row.getValue() || '')}</div>
+    },
+    {
+      accessorKey: "bookingPerson",
+      header: "Booking Person",
+      cell: (row) => <div className="flex max-w-[150px] whitespace-normal">{String(row.getValue() || '')}</div>
+    },
+    {
       accessorKey: "customerName",
       header: "Customer Name",
+      cell: (row) => {
+        return <div className="flex max-w-[200px] whitespace-normal">{String(row.getValue())}</div>
+      }
+    },
+    {
+      accessorKey: "pax",
+      header: "Pax",
       cell: (row) => {
         return <div className="flex max-w-[200px] whitespace-normal">{String(row.getValue())}</div>
       }
@@ -97,7 +129,7 @@ export default function InvoiceListTable({
       accessorKey: "notes",
       header: "Notes",
       cell: (row) => {
-        return <div className="flex max-w-[150px] whitespace-normal">{String(row.row.original.notIncluded || '')}</div>
+        return <div className="flex max-w-[150px] whitespace-normal">{String(row.row.original.note || '')}</div>
       }
     },
     {
@@ -105,17 +137,30 @@ export default function InvoiceListTable({
       header: "Action",
       cell: ({ row }) => {
         return <div className="flex flex-col gap-1">
-          <ButtonCustom 
-            type="button" 
-            variant={"black"} 
-            size={"sm"} 
-            onClick={() => {
-              setInvoiceId(row.original.id);
-              editDialogCallbackFunc.current?.openDialog(true);
-            }}
-          >
-            Edit
-          </ButtonCustom>
+          <div className="flex gap-1">
+            <ButtonCustom 
+              type="button" 
+              variant={"black"} 
+              size={"sm"} 
+              onClick={() => {
+                setInvoiceId(row.original.id);
+                setOpenEditDialog(true);
+              }}
+            >
+              Edit
+            </ButtonCustom>
+            <ButtonCustom 
+              type="button" 
+              variant={"red"} 
+              size={"sm"} 
+              onClick={() => {
+                setDeleteId(row.original.id);
+                setOpenDeleteDialog(true);
+              }}
+            >
+              <Trash className="w-4 h-4" />
+            </ButtonCustom>
+          </div>
         </div>
       }
     },
@@ -125,7 +170,30 @@ export default function InvoiceListTable({
     <>
       <Loader isLoading={formState.error === false && !formState.data} />
       <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
-      <InvoiceEditDialog invoiceId={invoiceId} callbackFunctions={(func) => { editDialogCallbackFunc.current = func }} formRef={formRef} />
+      <InvoiceEditDialog invoiceId={invoiceId} isOpen={openEditDialog} isNew={false} formRef={formRef} onOpenChanged={() => setOpenEditDialog(false)} />
+      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+        <DialogContent className="">
+          <DialogHeader>
+            <DialogTitle>Confirm!</DialogTitle>
+            <DialogDescription>Are you sure you want to delete this invoice?</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <ButtonCustom variant={"red"} type="button" onClick={async () => {
+              setOpenDeleteDialog(false);
+              const response = await invoiceDelete(deleteId);
+              if (response.message) toast(response.message);
+              if (!response.error) formRef.current?.requestSubmit();
+              setDeleteId('');
+            }}>Yes</ButtonCustom>
+            <DialogClose asChild>
+              <ButtonCustom variant="black" onClick={() => {
+                setDeleteId('');
+                setOpenDeleteDialog(false);
+              }}>No</ButtonCustom>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

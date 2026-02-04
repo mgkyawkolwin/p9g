@@ -15,4 +15,6 @@ export default class InvoiceEntity extends EntityBase {
     public paymentDueDate: Date = null;
     public included: string = '';
     public notIncluded: string = '';
+    public note: string = '';
+    public pax: string = '';
 }

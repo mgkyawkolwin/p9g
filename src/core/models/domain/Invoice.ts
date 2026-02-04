@@ -17,6 +17,9 @@ export default class Invoice extends DomainBase {
     public status: string = 'DRAFT';
     public included: string = '';
     public notIncluded: string = '';
+    public note: string = '';
+    public bookingSource: string = '';
+    public bookingPerson: string = '';
     public simpleItems: SimpleInvoiceItem[] = [];
     public bookingItems: BookingInvoiceItem[] = [];
 }

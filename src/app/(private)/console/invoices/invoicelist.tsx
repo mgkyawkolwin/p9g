@@ -9,13 +9,13 @@ import { invoiceGetList } from "./actions";
 import React from "react";
 import { Loader } from "@/lib/components/web/react/uicustom/loader";
 import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
-import { useRouter } from "next/navigation";
+import InvoiceEditDialog from "@/app/components/dialogs/invoiceeditdialog";
 
 
 export default function InvoiceList() {
 
   const formRef = React.useRef<HTMLFormElement>(null);
-  const router = useRouter();
+  const [openNewDialog, setOpenNewDialog] = React.useState(false);
 
   const [state, formAction, isPending] = useActionState(invoiceGetList, {
     error: false,
@@ -43,7 +43,7 @@ export default function InvoiceList() {
                 type="button" 
                 variant={"green"} 
                 size={"default"}
-                onClick={() => router.push("/console/invoices/new")}
+                onClick={() => setOpenNewDialog(true)}
               >
                 New Invoice
               </ButtonCustom>
@@ -55,6 +55,7 @@ export default function InvoiceList() {
           </div>
         </GroupContent>
       </Group>
+      <InvoiceEditDialog isNew={true} isOpen={openNewDialog} formRef={formRef} onOpenChanged={() => setOpenNewDialog(false)} />
     </div>
   );
 }

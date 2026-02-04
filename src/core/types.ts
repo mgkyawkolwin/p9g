@@ -31,6 +31,8 @@ export type SearchParam = {
 }
 
 export type SearchFormFields = {
+  searchAgentName?: string | undefined,
+  searchCustomerName?: string | undefined,
   searchArrivalDateTime?: string | undefined,
   searchBookingSource?: string | undefined,
   searchCheckInDate?: string | undefined,
@@ -42,10 +44,16 @@ export type SearchFormFields = {
   searchDepartureDateTime?: string | undefined,
   date?: string | undefined,
   searchDate?: string | undefined,
+  searchDueDateFrom?: string | undefined,
+  searchDueDateUntil?: string | undefined,
   searchEmail?: string | undefined,
   searchExistingReservations?: string | undefined,
   searchFlight?: string | undefined,
   searchId?: string | undefined,
+  searchInvoiceDateFrom?: string | undefined,
+  searchInvoiceDateUntil?: string | undefined,
+  searchInvoiceNumber?: string | undefined,
+  searchLocation?: string | undefined,
   searchName?: string | undefined,
   searchNationalId?: string | undefined,
   searchPassport?: string | undefined,
@@ -55,6 +63,9 @@ export type SearchFormFields = {
   searchRemark?: string | undefined,
   searchReservationStatus?: string | undefined,
   searchReservationType?: string | undefined,
+  searchInvoiceStatus?: string | undefined,
+  searchStartDateFrom?: string | undefined,
+  searchStartDateUntil?: string | undefined,
   searchUserName?: string | undefined,
 };
 

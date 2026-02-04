@@ -1,3 +1,4 @@
+import { se } from 'date-fns/locale';
 import { z } from 'zod';
 
 
@@ -187,7 +188,9 @@ export const searchValidator = z.object({
   drawDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
   modelState: z.string().optional(),
+  searchAgentName: z.string().optional(),
   searchBookingSource: z.string().optional(),
+  searchCustomerName: z.string().optional(),
   searchId: z.string().optional(),
   searchRoomNo: z.string().optional(),
   searchArrivalDateTime: z.coerce.string().optional(),
@@ -199,9 +202,14 @@ export const searchValidator = z.object({
   searchCheckOutDate: z.coerce.string().optional(),
   searchDate: z.coerce.string().optional(),
   searchDepartureDateTime: z.coerce.string().optional(),
+  searchDueDateFrom: z.coerce.string().optional(),
+  searchDueDateUntil: z.coerce.string().optional(),
   searchEmail: z.string().optional(),
   searchExistingReservations: z.string().optional(),
   searchFlight: z.string().optional(),
+  searchInvoiceDateFrom: z.coerce.string().optional(),
+  searchInvoiceDateUntil: z.coerce.string().optional(),
+  searchInvoiceNumber: z.string().optional(),
   searchName: z.string().optional(),
   searchNationalId: z.string().optional(),
   searchPassport: z.string().optional(),
@@ -211,6 +219,7 @@ export const searchValidator = z.object({
   searchRemark: z.string().optional(),
   searchReservationStatus: z.string().optional(),
   searchReservationType: z.string().optional(),
+  searchInvoiceStatus: z.string().optional(),
   searchUserName: z.string().optional(),
   startDate: z.coerce.date().optional()
 });
@@ -248,7 +257,7 @@ export const pookieGetRoomValidator = z.object({
 });
 
 export const simpleInvoiceItemValidator = z.object({
-  id: z.coerce.string().length(36).optional(),
+  id: z.coerce.string().optional(),
   description: z.coerce.string().optional(),
   amountKWR: z.coerce.number().default(0),
   amountTHB: z.coerce.number().default(0),
@@ -256,7 +265,7 @@ export const simpleInvoiceItemValidator = z.object({
 });
 
 export const bookingInvoiceItemValidator = z.object({
-  id: z.coerce.string().length(36).optional(),
+  id: z.coerce.string().optional(),
   description: z.coerce.string().optional(),
   location: z.coerce.string().optional(),
   startDate: z.coerce.date().nullish().optional(),
@@ -272,7 +281,7 @@ export const bookingInvoiceItemValidator = z.object({
 });
 
 export const invoiceValidator = z.object({
-  id: z.coerce.string().length(36).optional(),
+  id: z.coerce.string().optional(),
   agentName: z.coerce.string().optional(),
   invoiceNumber: z.coerce.string().min(1, 'Invoice number is required'),
   invoiceDate: z.coerce.date().nullish().optional(),
@@ -285,8 +294,11 @@ export const invoiceValidator = z.object({
   dueAmountKWR: z.coerce.number().default(0),
   dueAmountTHB: z.coerce.number().default(0),
   status: z.coerce.string().min(1, 'Status is required'),
+  bookingSource: z.coerce.string().optional(),
+  bookingPerson: z.coerce.string().optional(),
   included: z.coerce.string().optional(),
   notIncluded: z.coerce.string().optional(),
+  note: z.coerce.string().optional(),
   simpleItems: z.array(simpleInvoiceItemValidator).optional(),
   bookingItems: z.array(bookingInvoiceItemValidator).optional(),
   modelState: z.string().optional()
