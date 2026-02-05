@@ -20,7 +20,7 @@ import { Trash } from "lucide-react";
 import { calculateDayDifference } from "@/lib/utils";
 import { v4 as uuidv4 } from 'uuid';
 
-interface InvoiceEditDialogProps {
+interface InvoiceDialogProps {
     invoiceId?: string;
     isOpen: boolean;
     isNew?: boolean;
@@ -28,13 +28,13 @@ interface InvoiceEditDialogProps {
     onOpenChanged: () => void;
 }
 
-export default function InvoiceEditDialog({
+export default function InvoiceDialog({
     invoiceId,
     isOpen,
     isNew = false,
     formRef,
     onOpenChanged
-}: InvoiceEditDialogProps) {
+}: InvoiceDialogProps) {
 
     const [open, setOpen] = React.useState(isOpen);
     const [invoice, setInvoice] = React.useState<Invoice | null>(null);
@@ -42,6 +42,14 @@ export default function InvoiceEditDialog({
     const [isSaving, setIsSaving] = React.useState(false);
     const [bookingItems, setBookingItems] = React.useState<BookingInvoiceItem[]>([]);
     const [simpleItems, setSimpleItems] = React.useState<SimpleInvoiceItem[]>([]);
+
+    // Only show items that are not marked as deleted, but keep original array index for mapping back
+    const visibleBookingItems = bookingItems
+        .map((it, idx) => ({ __originalIndex: idx, ...it }))
+        .filter((i: any) => i.modelState !== 'deleted');
+    const visibleSimpleItems = simpleItems
+        .map((it, idx) => ({ __originalIndex: idx, ...it }))
+        .filter((i: any) => i.modelState !== 'deleted');
 
     // ============ CALCULATION HELPER FUNCTIONS ============
 
@@ -97,10 +105,14 @@ export default function InvoiceEditDialog({
     const updateInvoiceTotals = (updatedBookingItems?: BookingInvoiceItem[], updatedSimpleItems?: SimpleInvoiceItem[]) => {
         if (!invoice) return;
 
-        const bookingKWR = (updatedBookingItems || bookingItems).reduce((sum, item) => sum + (item.amountKWR || 0), 0);
-        const bookingTHB = (updatedBookingItems || bookingItems).reduce((sum, item) => sum + (item.amountTHB || 0), 0);
-        const simpleKWR = (updatedSimpleItems || simpleItems).reduce((sum, item) => sum + (item.amountKWR || 0), 0);
-        const simpleTHB = (updatedSimpleItems || simpleItems).reduce((sum, item) => sum + (item.amountTHB || 0), 0);
+        // exclude deleted items from totals
+        const bookingList = (updatedBookingItems || bookingItems).filter(i => i.modelState !== 'deleted');
+        const simpleList = (updatedSimpleItems || simpleItems).filter(i => i.modelState !== 'deleted');
+
+        const bookingKWR = bookingList.reduce((sum, item) => sum + (item.amountKWR || 0), 0);
+        const bookingTHB = bookingList.reduce((sum, item) => sum + (item.amountTHB || 0), 0);
+        const simpleKWR = simpleList.reduce((sum, item) => sum + (item.amountKWR || 0), 0);
+        const simpleTHB = simpleList.reduce((sum, item) => sum + (item.amountTHB || 0), 0);
 
         const totalKWR = bookingKWR + simpleKWR;
         const totalTHB = bookingTHB + simpleTHB;
@@ -333,14 +345,25 @@ export default function InvoiceEditDialog({
         newItem.amountKWR = 0;
         newItem.amountTHB = 0;
         const updatedItems = [...bookingItems, newItem];
-        setBookingItems(updatedItems);
-        updateInvoiceTotals(updatedItems, simpleItems);
+        setBookingItems(updatedItems as BookingInvoiceItem[]);
+        updateInvoiceTotals(updatedItems as BookingInvoiceItem[], simpleItems);
     };
 
     const deleteBookingItem = (rowIndex: number) => {
-        const updatedItems = bookingItems.filter((_, index) => index !== rowIndex);
-        setBookingItems(updatedItems);
-        updateInvoiceTotals(updatedItems, simpleItems);
+        const item = bookingItems[rowIndex];
+        if (!item) return;
+
+        // if the item was newly inserted in UI and not persisted yet, remove it outright
+        if (item.modelState === 'inserted') {
+            const updatedItems = bookingItems.filter((_, index) => index !== rowIndex);
+            setBookingItems(updatedItems as BookingInvoiceItem[]);
+            updateInvoiceTotals(updatedItems as BookingInvoiceItem[], simpleItems);
+        } else {
+            // mark existing items as deleted so server-side can remove them
+            const updatedItems = bookingItems.map((it, idx) => idx === rowIndex ? { ...it, modelState: 'deleted' } : it);
+            setBookingItems(updatedItems as BookingInvoiceItem[]);
+            updateInvoiceTotals(updatedItems.filter(i => i.modelState !== 'deleted') as BookingInvoiceItem[], simpleItems);
+        }
     };
 
     // Simple Items handlers - Fixed with proper number conversion
@@ -363,7 +386,7 @@ export default function InvoiceEditDialog({
 
                 return updatedItem;
             });
-            updateInvoiceTotals(bookingItems, updatedItems);
+            updateInvoiceTotals(bookingItems, updatedItems as SimpleInvoiceItem[]);
             return updatedItems;
         });
     };
@@ -375,14 +398,23 @@ export default function InvoiceEditDialog({
         newItem.amountKWR = 0;
         newItem.amountTHB = 0;
         const updatedItems = [...simpleItems, newItem];
-        setSimpleItems(updatedItems);
-        updateInvoiceTotals(bookingItems, updatedItems);
+        setSimpleItems(updatedItems as SimpleInvoiceItem[]);
+        updateInvoiceTotals(bookingItems, updatedItems as SimpleInvoiceItem[]);
     };
 
     const deleteSimpleItem = (rowIndex: number) => {
-        const updatedItems = simpleItems.filter((_, index) => index !== rowIndex);
-        setSimpleItems(updatedItems);
-        updateInvoiceTotals(bookingItems, updatedItems);
+        const item = simpleItems[rowIndex];
+        if (!item) return;
+
+        if (item.modelState === 'inserted') {
+            const updatedItems = simpleItems.filter((_, index) => index !== rowIndex);
+            setSimpleItems(updatedItems as SimpleInvoiceItem[]);
+            updateInvoiceTotals(bookingItems, updatedItems as SimpleInvoiceItem[]);
+        } else {
+            const updatedItems = simpleItems.map((it, idx) => idx === rowIndex ? { ...it, modelState: 'deleted' } : it);
+            setSimpleItems(updatedItems as SimpleInvoiceItem[]);
+            updateInvoiceTotals(bookingItems, updatedItems.filter(i => i.modelState !== 'deleted') as SimpleInvoiceItem[]);
+        }
     };
 
     const handlePrintInvoice = () => {
@@ -393,9 +425,10 @@ export default function InvoiceEditDialog({
         let totalTHB = 0;
         const address = `Mida Golf Club Kanchanaburi<br/>
 주소 : 123 moo7 Tambon Lad Ya, Kanchanaburi 71190<br/>
+Kaeng Krachan (KKC) Golf Club : <br/>
 19 M 2 Tayang-Kaengkrachan Rd Kaeng Krachan, Kaeng Krachan District, <br/>
  Phetchaburi 76130, Keng Kachan, Thailand, Phetchaburi<br/>
-연락처 - 01081862127, 01081852127, 01081782127, <br/>
+연락처 - 01081862127, 01081852127, 01081782127,
 01081732127, 01081742127`;
 
         let table = `<table style="width:100%;border-collapse:collapse;font-size:10pt;">`;
@@ -531,18 +564,18 @@ export default function InvoiceEditDialog({
             header: 'Description',
             cell: (row) => <InputCustom
                 size="sm"
-                key={`booking-desc-${row.row.original.id}-${row.row.index}`}
+                key={`booking-desc-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.description || ""}
-                onChange={e => handleBookingItemChange(row.row.index, "description", e.target.value)}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "description", e.target.value)}
             />
         },
         {
             accessorKey: "startDate",
             header: 'Start Date',
             cell: (row) => <DatePicker
-                key={`booking-start-${row.row.original.id}-${row.row.index}`}
+                key={`booking-start-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 selected={row.row.original.startDate}
-                onChange={(date: Date | null) => handleBookingItemChange(row.row.index, "startDate", date)}
+                onChange={(date: Date | null) => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "startDate", date)}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="sm" />}
                 isClearable
@@ -553,9 +586,9 @@ export default function InvoiceEditDialog({
             accessorKey: "endDate",
             header: 'End Date',
             cell: (row) => <DatePicker
-                key={`booking-end-${row.row.original.id}-${row.row.index}`}
+                key={`booking-end-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 selected={row.row.original.endDate}
-                onChange={(date: Date | null) => handleBookingItemChange(row.row.index, "endDate", date)}
+                onChange={(date: Date | null) => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "endDate", date)}
                 dateFormat="yyyy-MM-dd"
                 customInput={<InputCustom size="sm" />}
                 isClearable
@@ -567,10 +600,10 @@ export default function InvoiceEditDialog({
             header: 'Location',
             cell: (row) => <SelectCustom
                 size="sm"
-                key={`booking-loc-${row.row.original.id}-${row.row.index}`}
+                key={`booking-loc-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 items={locationItems}
                 value={row.row.original.location || ""}
-                onValueChange={(value) => handleBookingItemChange(row.row.index, "location", value)}
+                onValueChange={(value) => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "location", value)}
             />
         },
         {
@@ -578,9 +611,9 @@ export default function InvoiceEditDialog({
             header: 'Pax',
             cell: (row) => <InputCustom
                 size="sm"
-                key={`booking-pax-${row.row.original.id}-${row.row.index}`}
+                key={`booking-pax-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.pax || 0}
-                onChange={e => handleBookingItemChange(row.row.index, "pax", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "pax", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -588,9 +621,9 @@ export default function InvoiceEditDialog({
             header: 'No. of Days',
             cell: (row) => <InputCustom
                 size="sm"
-                key={`booking-days-${row.row.original.id}-${row.row.index}`}
+                key={`booking-days-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.noOfDays || 0}
-                onChange={e => handleBookingItemChange(row.row.index, "noOfDays", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "noOfDays", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -598,9 +631,9 @@ export default function InvoiceEditDialog({
             header: 'No. of Rooms',
             cell: (row) => <InputCustom
                 size="sm"
-                key={`booking-rooms-${row.row.original.id}-${row.row.index}`}
+                key={`booking-rooms-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.noOfRooms || 0}
-                onChange={e => handleBookingItemChange(row.row.index, "noOfRooms", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "noOfRooms", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -608,9 +641,9 @@ export default function InvoiceEditDialog({
             header: 'Rate KWR',
             cell: (row) => <InputCustom
                 size="sm"
-                key={`booking-rateKWR-${row.row.original.id}-${row.row.index}`}
+                key={`booking-rateKWR-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.rateKWR || 0}
-                onChange={e => handleBookingItemChange(row.row.index, "rateKWR", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "rateKWR", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -618,9 +651,9 @@ export default function InvoiceEditDialog({
             header: 'Amount KWR',
             cell: (row) => <InputCustom
                 size="sm"
-                key={`booking-amountKWR-${row.row.original.id}-${row.row.index}`}
+                key={`booking-amountKWR-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.amountKWR || 0}
-                onChange={e => handleBookingItemChange(row.row.index, "amountKWR", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountKWR", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -628,9 +661,9 @@ export default function InvoiceEditDialog({
             header: 'Rate THB',
             cell: (row) => <InputCustom
                 size="sm"
-                key={`booking-rateTHB-${row.row.original.id}-${row.row.index}`}
+                key={`booking-rateTHB-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.rateTHB || 0}
-                onChange={e => handleBookingItemChange(row.row.index, "rateTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "rateTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -638,9 +671,9 @@ export default function InvoiceEditDialog({
             header: 'Amount THB',
             cell: (row) => <InputCustom
                 size="sm"
-                key={`booking-amountTHB-${row.row.original.id}-${row.row.index}`}
+                key={`booking-amountTHB-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.amountTHB || 0}
-                onChange={e => handleBookingItemChange(row.row.index, "amountTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -649,7 +682,7 @@ export default function InvoiceEditDialog({
             cell: (row) => (
                 <button
                     type="button"
-                    onClick={() => deleteBookingItem(row.row.index)}
+                    onClick={() => deleteBookingItem((row.row.original as any).__originalIndex ?? row.row.index)}
                     className="text-red-500 hover:text-red-700"
                 >
                     <Trash className="w-4 h-4" />
@@ -670,9 +703,9 @@ export default function InvoiceEditDialog({
             header: 'Description',
             cell: (row) => <InputCustom
                 size="sm"
-                key={`simple-desc-${row.row.original.id}-${row.row.index}`}
+                key={`simple-desc-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.description || ""}
-                onChange={e => handleSimpleItemChange(row.row.index, "description", e.target.value)}
+                onChange={e => handleSimpleItemChange((row.row.original as any).__originalIndex ?? row.row.index, "description", e.target.value)}
             />
         },
         {
@@ -680,9 +713,9 @@ export default function InvoiceEditDialog({
             header: 'Amount KWR',
             cell: (row) => <InputCustom
                 size="sm"
-                key={`simple-amountKWR-${row.row.original.id}-${row.row.index}`}
+                key={`simple-amountKWR-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.amountKWR || 0}
-                onChange={e => handleSimpleItemChange(row.row.index, "amountKWR", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+                onChange={e => handleSimpleItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountKWR", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -690,9 +723,9 @@ export default function InvoiceEditDialog({
             header: 'Amount THB',
             cell: (row) => <InputCustom
                 size="sm"
-                key={`simple-amountTHB-${row.row.original.id}-${row.row.index}`}
+                key={`simple-amountTHB-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.amountTHB || 0}
-                onChange={e => handleSimpleItemChange(row.row.index, "amountTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+                onChange={e => handleSimpleItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -701,7 +734,7 @@ export default function InvoiceEditDialog({
             cell: (row) => (
                 <button
                     type="button"
-                    onClick={() => deleteSimpleItem(row.row.index)}
+                    onClick={() => deleteSimpleItem((row.row.original as any).__originalIndex ?? row.row.index)}
                     className="text-red-500 hover:text-red-700"
                 >
                     <Trash className="w-4 h-4" />
@@ -818,9 +851,9 @@ export default function InvoiceEditDialog({
                                     Add New Row
                                 </ButtonCustom>
                             </div>
-                            {bookingItems.length > 0 ? (
+                            {visibleBookingItems.length > 0 ? (
                                 <div className="overflow-x-auto">
-                                    <BillDataTable columns={bookingItemsColumns} data={bookingItems} />
+                                    <BillDataTable columns={bookingItemsColumns} data={visibleBookingItems} />
                                 </div>
                             ) : (
                                 <div className="text-center py-4 text-gray-500">No booking items added yet</div>
@@ -830,7 +863,7 @@ export default function InvoiceEditDialog({
                         {/* Simple Items Section */}
                         <div className="border-b pb-4">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-semibold">Simple Items</h3>
+                                <h3 className="text-lg font-semibold">Other Items</h3>
                                 <ButtonCustom
                                     type="button"
                                     variant="green"
@@ -840,9 +873,9 @@ export default function InvoiceEditDialog({
                                     Add New Row
                                 </ButtonCustom>
                             </div>
-                            {simpleItems.length > 0 ? (
+                            {visibleSimpleItems.length > 0 ? (
                                 <div className="overflow-x-auto">
-                                    <BillDataTable columns={simpleItemsColumns} data={simpleItems} />
+                                    <BillDataTable columns={simpleItemsColumns} data={visibleSimpleItems} />
                                 </div>
                             ) : (
                                 <div className="text-center py-4 text-gray-500">No simple items added yet</div>

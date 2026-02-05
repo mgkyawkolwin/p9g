@@ -44,30 +44,35 @@ export default class InvoiceService implements IInvoiceService {
         await this.dbClient.db.transaction(async (tx: TransactionType) => {
             createdInvoice = await this.invoiceRepository.create(invoice, tx as any);
 
-            // Create invoice simple items
+            // Create invoice simple items (use bulk create when possible)
             if (invoice.simpleItems && invoice.simpleItems.length > 0) {
-                for (const item of invoice.simpleItems) {
-                    // item.id = uuidv4();
+                const itemsToInsert = invoice.simpleItems.map(item => {
+                    if (!item.id) item.id = uuidv4();
                     item.invoiceId = createdInvoice.id;
                     item.createdAtUTC = new Date();
                     item.createdBy = sessionUser.id;
                     item.updatedAtUTC = new Date();
                     item.updatedBy = sessionUser.id;
-                    await this.simpleInvoiceItemRepository.create(item, tx as any);
-                }
+                    return item;
+                });
+
+                // use createMany for bulk insert when available
+                await this.simpleInvoiceItemRepository.createMany(itemsToInsert as any[], tx as any);
             }
 
-            // Create booking items
+            // Create booking items (use bulk create when possible)
             if (invoice.bookingItems && invoice.bookingItems.length > 0) {
-                for (const item of invoice.bookingItems) {
-                    // item.id = uuidv4();
+                const itemsToInsert = invoice.bookingItems.map(item => {
+                    if (!item.id) item.id = uuidv4();
                     item.invoiceId = createdInvoice.id;
                     item.createdAtUTC = new Date();
                     item.createdBy = sessionUser.id;
                     item.updatedAtUTC = new Date();
                     item.updatedBy = sessionUser.id;
-                    await this.bookingInvoiceItemRepository.create(item, tx as any);
-                }
+                    return item;
+                });
+
+                await this.bookingInvoiceItemRepository.createMany(itemsToInsert as any[], tx as any);
             }
         });
 
@@ -126,11 +131,33 @@ export default class InvoiceService implements IInvoiceService {
         const bookingInsertList = (invoice.bookingItems || []).filter(i => i.modelState === 'inserted');
         const bookingDeleteList = (invoice.bookingItems || []).filter(i => i.modelState === 'deleted');
 
-        // set timestamps
+        // If client provided full arrays (PUT/complete update), detect items removed by the client
+        // and treat them as deleted to handle UIs that remove rows instead of marking them deleted.
+        const existingSimpleItems = (await this.simpleInvoiceItemRepository.findMany(eq("invoiceId", id)))[0] || [];
+        const existingBookingItems = (await this.bookingInvoiceItemRepository.findMany(eq("invoiceId", id)))[0] || [];
+
+        if (invoice.simpleItems && invoice.simpleItems.length > 0) {
+            const incomingSimpleIds = invoice.simpleItems.filter(i => i.id).map(i => i.id);
+            const implicitlyDeleted = existingSimpleItems.filter(e => !incomingSimpleIds.includes(e.id)).map(e => ({ ...e, modelState: 'deleted' }));
+            // merge implicit deletes into simpleDeleteList
+            if (implicitlyDeleted.length > 0) {
+                simpleDeleteList.push(...implicitlyDeleted as any);
+            }
+        }
+
+        if (invoice.bookingItems && invoice.bookingItems.length > 0) {
+            const incomingBookingIds = invoice.bookingItems.filter(i => i.id).map(i => i.id);
+            const implicitlyDeleted = existingBookingItems.filter(e => !incomingBookingIds.includes(e.id)).map(e => ({ ...e, modelState: 'deleted' }));
+            if (implicitlyDeleted.length > 0) {
+                bookingDeleteList.push(...implicitlyDeleted as any);
+            }
+        }
+
+        // set timestamps and ensure ids for insert lists
         simpleUpdateList.forEach(i => { i.updatedAtUTC = new Date(); i.updatedBy = sessionUser.id; });
-        simpleInsertList.forEach(i => { i.createdAtUTC = new Date(); i.createdBy = sessionUser.id; i.updatedAtUTC = new Date(); i.updatedBy = sessionUser.id; i.invoiceId = id; });
+        simpleInsertList.forEach(i => { if (!i.id) i.id = uuidv4(); i.createdAtUTC = new Date(); i.createdBy = sessionUser.id; i.updatedAtUTC = new Date(); i.updatedBy = sessionUser.id; i.invoiceId = id; });
         bookingUpdateList.forEach(i => { i.updatedAtUTC = new Date(); i.updatedBy = sessionUser.id; });
-        bookingInsertList.forEach(i => { i.createdAtUTC = new Date(); i.createdBy = sessionUser.id; i.updatedAtUTC = new Date(); i.updatedBy = sessionUser.id; i.invoiceId = id; });
+        bookingInsertList.forEach(i => { if (!i.id) i.id = uuidv4(); i.createdAtUTC = new Date(); i.createdBy = sessionUser.id; i.updatedAtUTC = new Date(); i.updatedBy = sessionUser.id; i.invoiceId = id; });
 
         await this.dbClient.db.transaction(async (tx: TransactionType) => {
             // update invoice
@@ -152,12 +179,12 @@ export default class InvoiceService implements IInvoiceService {
                 await this.bookingInvoiceItemRepository.update(item.id, item, tx as any);
             }
 
-            // insert items
-            for (const item of simpleInsertList) {
-                await this.simpleInvoiceItemRepository.create(item, tx as any);
+            // insert items (use bulk create)
+            if (simpleInsertList.length > 0) {
+                await this.simpleInvoiceItemRepository.createMany(simpleInsertList as any[], tx as any);
             }
-            for (const item of bookingInsertList) {
-                await this.bookingInvoiceItemRepository.create(item, tx as any);
+            if (bookingInsertList.length > 0) {
+                await this.bookingInvoiceItemRepository.createMany(bookingInsertList as any[], tx as any);
             }
         });
 

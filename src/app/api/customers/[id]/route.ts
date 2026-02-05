@@ -11,15 +11,15 @@ import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
 
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
     try {
         c.fs("GET /api/customers/[id]");
-        c.d(JSON.stringify(await params));
+        c.d(JSON.stringify(await context.params));
         const session = await auth();
         if(!session?.user)
             throw new CustomError('Invalid session');
 
-        const { id } = await params;
+        const { id } = await context.params;
         const service = container.get<ICustomerService>(TYPES.ICustomerService);
         const result = await service.customerFindById(id, session.user);
         if (!result) {
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
     try {
         c.fs("PUT api/customers/[id]");
         const session = await auth();
@@ -46,7 +46,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             throw new CustomError('Invalid session');
         const body = await request.json();
         c.d(body);
-        const { id } = await params;
+        const { id } = await context.params;
         const service = container.get<ICustomerService>(TYPES.ICustomerService);
         // find existing user
         const user = await service.customerFindById(id,session.user);
@@ -79,7 +79,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
     // try {
     //     const { id } = await params;
     //     const service = container.get<IUserService>(TYPES.IUserService);

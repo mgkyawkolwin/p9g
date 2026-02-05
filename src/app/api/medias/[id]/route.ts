@@ -10,11 +10,11 @@ import { HttpStatusCode } from "@/core/constants";
 import ILogService from "@/core/services/contracts/ILogService";
 
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     c.fs("DELETE api/medias");
 
-    const { id } = await params;
+    const { id } = await context.params;
 
     const session = await auth();
     if (!session?.user)

@@ -8,7 +8,7 @@ import { CustomError } from "@/lib/errors";
 import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     c.fs("PATCH /api/reservations/[id]/dropoff");
     c.d(JSON.stringify(request));
@@ -22,7 +22,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const body = await request.json();
 
     //retrieve search params from request
-    const p = await params;
+    const p = await context.params;
     c.d(p);
     const { id } = p;
 

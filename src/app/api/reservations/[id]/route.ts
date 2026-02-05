@@ -11,7 +11,7 @@ import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
 
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     c.fs("GET /api/reservations/[id]/roomreservations");
     c.d(JSON.stringify(request));
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       throw new CustomError('Invalid session');
 
     //retrieve search params from request
-    const p = await params;
+    const p = await context.params;
     c.d(p);
     const { id } = p;
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     c.fs("PATCH api/reservations/[id]");
 
@@ -60,7 +60,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const body = await request.json();
     c.d(body);
 
-    const { id } = await params;
+    const { id } = await context.params;
 
     c.i("Validating post data.");
     const validatedReservation = await reservationPatchValidator.safeParseAsync(body);
@@ -90,7 +90,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 }
 
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     c.fs("PUT api/reservations/[id]/roomreservations");
 
@@ -101,7 +101,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const body = await request.json();
     c.d(body);
 
-    const { id } = await params;
+    const { id } = await context.params;
 
     c.i("Validating post data.");
     const validatedReservation = await reservationValidator.safeParseAsync(body);

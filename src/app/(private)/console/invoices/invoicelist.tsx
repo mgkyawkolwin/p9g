@@ -9,7 +9,7 @@ import { invoiceGetList } from "./actions";
 import React from "react";
 import { Loader } from "@/lib/components/web/react/uicustom/loader";
 import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
-import InvoiceEditDialog from "@/app/components/dialogs/invoiceeditdialog";
+import InvoiceDialog from "@/app/components/dialogs/invoicedialog";
 
 
 export default function InvoiceList() {
@@ -55,7 +55,7 @@ export default function InvoiceList() {
           </div>
         </GroupContent>
       </Group>
-      <InvoiceEditDialog isNew={true} isOpen={openNewDialog} formRef={formRef} onOpenChanged={() => setOpenNewDialog(false)} />
+      <InvoiceDialog isNew={true} isOpen={openNewDialog} formRef={formRef} onOpenChanged={() => setOpenNewDialog(false)} />
     </div>
   );
 }

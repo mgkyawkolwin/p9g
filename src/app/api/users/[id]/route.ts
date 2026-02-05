@@ -9,16 +9,16 @@ import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
 
 
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
     try {
         c.fs("GET /api/users/[id]");
-        c.d(JSON.stringify(await params));
+        c.d(JSON.stringify(await context.params));
 
         const session = await auth();
         if (!session?.user)
             throw new CustomError('Invalid session');
 
-        const { id } = await params;
+        const { id } = await context.params;
         const service = container.get<IUserService>(TYPES.IUserService);
         const result = await service.userFindById(id, session.user);
         if (!result) {
@@ -39,7 +39,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 }
 
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
     try {
         c.fs('PUT /api/users/[id]');
 
@@ -48,7 +48,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             throw new CustomError('Invalid session');
 
         const body = await request.json();
-        const { id } = await params;
+        const { id } = await context.params;
         const service = container.get<IUserService>(TYPES.IUserService);
         // find existing user
         const user = await service.userFindById(id, session.user);
@@ -73,7 +73,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
 
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
     try {
         c.fs('DELETE /api/users/[id]');
 
@@ -81,7 +81,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
         if (!session?.user)
             throw new CustomError('Invalid session');
 
-        const { id } = await params;
+        const { id } = await context.params;
         const service = container.get<IUserService>(TYPES.IUserService);
         await service.userDelete(id, session.user);
         

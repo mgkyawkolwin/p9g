@@ -8,7 +8,7 @@ import DataTable from "../../../lib/components/web/react/uicustom/datatable";
 import { FormState } from "@/core/types";
 import Invoice from "@/core/models/domain/Invoice";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
-import InvoiceEditDialog from "../dialogs/invoiceeditdialog";
+import InvoiceDialog from "../dialogs/invoicedialog";
 import { Loader } from "@/lib/components/web/react/uicustom/loader";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { invoiceDelete } from "@/app/(private)/console/invoices/actions";
@@ -170,7 +170,7 @@ export default function InvoiceListTable({
     <>
       <Loader isLoading={formState.error === false && !formState.data} />
       <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
-      <InvoiceEditDialog invoiceId={invoiceId} isOpen={openEditDialog} isNew={false} formRef={formRef} onOpenChanged={() => setOpenEditDialog(false)} />
+      <InvoiceDialog invoiceId={invoiceId} isOpen={openEditDialog} isNew={false} formRef={formRef} onOpenChanged={() => setOpenEditDialog(false)} />
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className="">
           <DialogHeader>

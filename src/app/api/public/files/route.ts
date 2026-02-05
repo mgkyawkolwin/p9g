@@ -15,7 +15,7 @@ export async function GET(
     console.log({fileUrl: fileUrl});
     const fileName = fileUrl.split("/").findLast(s => s.includes("."));
     console.log({fileName: fileName});
-    const filePath = path.resolve(process.cwd(), `public/${fileUrl}`);
+    const filePath = path.resolve(process.cwd(), `${fileUrl}`);
     console.log({filePath: filePath});
     if (!fs.existsSync(filePath)) {
         return new NextResponse("not found", { status: 400 });

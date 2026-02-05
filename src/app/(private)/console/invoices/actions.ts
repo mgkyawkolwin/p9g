@@ -112,7 +112,7 @@ export async function invoiceUpdate(id: string, invoice: Invoice): Promise<FormS
     c.d(invoice);
 
     const response = await fetch(process.env.API_URL + `invoices/${id}`, {
-      method: 'PATCH',
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'cookie': (await headers()).get('cookie')
