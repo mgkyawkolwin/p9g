@@ -2,6 +2,8 @@ import EntityBase from "@/lib/models/entity/EntityBase";
 
 export default class InvoiceEntity extends EntityBase {
     public agentName: string = '';
+    public bookingSource: string = '';
+    public bookingPerson: string = '';
     public invoiceNumber: string = '';
     public invoiceDate: Date = null;
     public customerName: string = '';

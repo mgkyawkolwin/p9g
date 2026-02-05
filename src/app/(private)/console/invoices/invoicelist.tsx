@@ -55,7 +55,7 @@ export default function InvoiceList() {
           </div>
         </GroupContent>
       </Group>
-      <InvoiceDialog isNew={true} isOpen={openNewDialog} formRef={formRef} onOpenChanged={() => setOpenNewDialog(false)} />
+      <InvoiceDialog isNew={true} isOpen={openNewDialog} formRef={formRef} onOpenChanged={() => setOpenNewDialog(!openNewDialog)} />
     </div>
   );
 }

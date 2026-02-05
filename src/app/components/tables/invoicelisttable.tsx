@@ -170,7 +170,7 @@ export default function InvoiceListTable({
     <>
       <Loader isLoading={formState.error === false && !formState.data} />
       <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
-      <InvoiceDialog invoiceId={invoiceId} isOpen={openEditDialog} isNew={false} formRef={formRef} onOpenChanged={() => setOpenEditDialog(false)} />
+      <InvoiceDialog invoiceId={invoiceId} isOpen={openEditDialog} isNew={false} formRef={formRef} onOpenChanged={() => setOpenEditDialog(!openEditDialog)} />
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
         <DialogContent className="">
           <DialogHeader>

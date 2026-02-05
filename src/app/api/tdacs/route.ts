@@ -62,7 +62,7 @@ export async function PATCH(request: NextRequest) {
 
         // TODO: Define your actual file storage path. Consider cloud storage (S3, etc.) for production.
         // This example saves to a local 'uploads' directory.
-        const uploadDir = path.join(process.cwd(), "public", "tdacs");
+        const uploadDir = path.join(process.cwd(), "tdacs");
         const filePath = path.join(uploadDir, serverFileName);
 
         await writeFile(filePath, buffer);
@@ -118,7 +118,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ message: "Invalid file url. Delete failed." }, { status: HttpStatusCode.BadRequest });
     }
 
-    const fileDir = path.join(process.cwd(), "public");
+    const fileDir = path.join(process.cwd());
     const filePath = path.join(fileDir, tdacFileUrl);
 
 

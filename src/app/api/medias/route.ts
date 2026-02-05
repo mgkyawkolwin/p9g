@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
         // TODO: Define your actual file storage path. Consider cloud storage (S3, etc.) for production.
         // This example saves to a local 'uploads' directory.
-        const uploadDir = path.join(process.cwd(), "public", "uploads");
+        const uploadDir = path.join(process.cwd(), "uploads");
         const filePath = path.join(uploadDir, serverFileName);
 
         await writeFile(filePath, buffer);

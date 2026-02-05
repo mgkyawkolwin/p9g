@@ -245,6 +245,7 @@ export default function InvoiceDialog({
 
     const handleSave = async () => {
         if (!invoice) return;
+        onOpenChanged();
 
         // Update invoice with current items
         const updatedInvoice = {
@@ -267,9 +268,9 @@ export default function InvoiceDialog({
 
         if (result.error) {
             toast.error(result.message);
+            onOpenChanged();
         } else {
             toast.success(result.message);
-            onOpenChanged();
             // setOpen(false);
             // Refresh the list
             formRef?.current?.requestSubmit();
@@ -349,20 +350,23 @@ export default function InvoiceDialog({
         updateInvoiceTotals(updatedItems as BookingInvoiceItem[], simpleItems);
     };
 
-    const deleteBookingItem = (rowIndex: number) => {
-        const item = bookingItems[rowIndex];
+    const deleteBookingItem = (id: string) => {
+        const item = bookingItems.find(item => item.id === id);
         if (!item) return;
 
         // if the item was newly inserted in UI and not persisted yet, remove it outright
         if (item.modelState === 'inserted') {
-            const updatedItems = bookingItems.filter((_, index) => index !== rowIndex);
-            setBookingItems(updatedItems as BookingInvoiceItem[]);
-            updateInvoiceTotals(updatedItems as BookingInvoiceItem[], simpleItems);
+            setBookingItems(prev => {
+                const updatedItems = prev.filter(x => x.id !== id);
+                updateInvoiceTotals(updatedItems as BookingInvoiceItem[], simpleItems);
+                return updatedItems as BookingInvoiceItem[];
+            });
         } else {
-            // mark existing items as deleted so server-side can remove them
-            const updatedItems = bookingItems.map((it, idx) => idx === rowIndex ? { ...it, modelState: 'deleted' } : it);
-            setBookingItems(updatedItems as BookingInvoiceItem[]);
-            updateInvoiceTotals(updatedItems.filter(i => i.modelState !== 'deleted') as BookingInvoiceItem[], simpleItems);
+            setBookingItems(prev => {
+                const updatedItems = prev.map(it => it.id === id ? { ...it, modelState: 'deleted' } : it);
+                updateInvoiceTotals(updatedItems.filter(i => i.modelState !== 'deleted') as BookingInvoiceItem[], simpleItems);
+                return updatedItems as BookingInvoiceItem[];
+            });
         }
     };
 
@@ -402,18 +406,25 @@ export default function InvoiceDialog({
         updateInvoiceTotals(bookingItems, updatedItems as SimpleInvoiceItem[]);
     };
 
-    const deleteSimpleItem = (rowIndex: number) => {
-        const item = simpleItems[rowIndex];
+    const deleteSimpleItem = (id: string) => {
+        const item = simpleItems.find(item => item.id === id);
         if (!item) return;
 
         if (item.modelState === 'inserted') {
-            const updatedItems = simpleItems.filter((_, index) => index !== rowIndex);
-            setSimpleItems(updatedItems as SimpleInvoiceItem[]);
-            updateInvoiceTotals(bookingItems, updatedItems as SimpleInvoiceItem[]);
+            const updatedItems = simpleItems.filter((x) => x.id !== id);
+            setSimpleItems(prev => {
+                const updatedItems = simpleItems.filter((x) => x.id !== id);
+                updateInvoiceTotals(bookingItems, updatedItems as SimpleInvoiceItem[]);
+                return updatedItems as SimpleInvoiceItem[];
+            });
+
         } else {
-            const updatedItems = simpleItems.map((it, idx) => idx === rowIndex ? { ...it, modelState: 'deleted' } : it);
-            setSimpleItems(updatedItems as SimpleInvoiceItem[]);
-            updateInvoiceTotals(bookingItems, updatedItems.filter(i => i.modelState !== 'deleted') as SimpleInvoiceItem[]);
+
+            setSimpleItems(prev => {
+                const updatedItems = prev.map(it => it.id === id ? { ...it, modelState: 'deleted' } : it);
+                updateInvoiceTotals(bookingItems, updatedItems.filter(i => i.modelState !== 'deleted') as SimpleInvoiceItem[]);
+                return updatedItems as SimpleInvoiceItem[];
+            });
         }
     };
 
@@ -435,6 +446,9 @@ Kaeng Krachan (KKC) Golf Club : <br/>
         table += `<thead><tr>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">#</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:left;background:#eee;">Description</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Start</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">End</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Loc</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Pax</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Days</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Rate KWR</th>` +
@@ -444,7 +458,7 @@ Kaeng Krachan (KKC) Golf Club : <br/>
             `</tr></thead><tbody>`;
 
         bookingItems.forEach((it, i) => {
-            const desc = `${it.description || ''}${it.startDate && it.endDate ? ` (${new Date(it.startDate).toLocaleDateString('sv-SE')} - ${new Date(it.endDate).toLocaleDateString('sv-SE')})` : ''}`;
+            const desc = `${it.description || ''}`;
             const pax = it.pax || '';
             const days = it.noOfDays || '';
             const rateK = it.rateKWR != null ? it.rateKWR : '';
@@ -457,6 +471,9 @@ Kaeng Krachan (KKC) Golf Club : <br/>
             table += `<tr>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${i + 1}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:left;">${desc}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${it.startDate ? new Date(it.startDate).toLocaleDateString('sv-SE') : ''}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${it.endDate ? new Date(it.endDate).toLocaleDateString('sv-SE') : ''}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${it.location}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${pax}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${days}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${rateK}</td>` +
@@ -481,6 +498,9 @@ Kaeng Krachan (KKC) Golf Club : <br/>
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtK}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtT}</td>` +
@@ -489,7 +509,7 @@ Kaeng Krachan (KKC) Golf Club : <br/>
 
         table += `</tbody>`;
         table += `<tfoot><tr>` +
-            `<td colspan="5" style="padding:6px;text-align:right;font-weight:bold;">Total KWR</td>` +
+            `<td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Total KWR</td>` +
             `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${totalKWR}</td>` +
             `<td style="padding:6px;text-align:right;font-weight:bold;">Total THB</td>` +
             `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${totalTHB}</td>` +
@@ -504,6 +524,7 @@ Kaeng Krachan (KKC) Golf Club : <br/>
             `<div style="flex:1;text-align:right;font-size:9pt;line-height:1.4;">` +
             `<div style="font-weight:bold;">Mida Golf Club Kanchanaburi</div>` +
             `<div>주소: 123 moo7 Tambon Lad Ya, Kanchanaburi 71190</div>` +
+            `<div style="font-weight:bold;">Kaeng Krachan (KKC) Club</div>` +
             `<div>19 M 2 Tayang-Kaengkrachan Rd Kaeng Krachan District, Phetchaburi 76130</div>` +
             `<div>Tel: 01081862127, 01081852127</div>` +
             `</div>` +
@@ -513,17 +534,17 @@ Kaeng Krachan (KKC) Golf Club : <br/>
 
         const invoiceInfo = `<table style="width:100%;font-size:10pt;margin-bottom:6px;border-collapse:collapse;">` +
             `<tr><td style="padding:4px;">예약번호: ${invoice.invoiceNumber || ''}</td><td style="text-align:right;padding:4px;">일자: ${invoice.invoiceDate ? (new Date(invoice.invoiceDate)).toLocaleDateString('sv-SE') : ''}</td></tr>` +
-            `<tr><td style="padding:4px;">에이전트: ${invoice.agentName || ''}</td><td style="text-align:right;padding:4px;">예약자: ${invoice.customerName || ''}</td></tr>` +
-            `<tr><td style="padding:4px;">인원: ${invoice.pax || ''}</td><td style="text-align:right;padding:4px;">예약출처: ${invoice.bookingSource || ''}</td></tr>` +
-            `<tr><td style="padding:4px;">담당자: ${invoice.bookingPerson || ''}</td><td style="text-align:right;padding:4px;"></td></tr>` +
+            `<tr><td style="padding:4px;">에이전트: ${invoice.agentName || ''}</td><td style="text-align:right;padding:4px;">예약 담당자: ${invoice.bookingPerson || ''}</td></tr>` +
+            `<tr><td style="padding:4px;">예약자: ${invoice.customerName || ''}</td><td style="text-align:right;padding:4px;">예약 채널: ${invoice.bookingSource || ''}</td></tr>` +
+            `<tr><td style="padding:4px;">인원: ${invoice.pax || ''}</td><td style="text-align:right;padding:4px;"></td></tr>` +
             `</table>`;
 
-        const html = `<html><style>@media print{ @page {margin:0;} }</style><body style="padding:0.5in;font-family:Arial,Helvetica,sans-serif;font-size:10pt;">` + 
-            header + 
-            centerLabel + 
-            invoiceInfo + 
-            `<div>${table}</div>` + 
-            `<div style="margin-top:12px;">` + includedHtml + notIncludedHtml + `</div>` + 
+        const html = `<html><style>@media print{ @page {margin:0;} }</style><body style="padding:0.5in;font-family:Arial,Helvetica,sans-serif;font-size:10pt;">` +
+            header +
+            centerLabel +
+            invoiceInfo +
+            `<div>${table}</div>` +
+            `<div style="margin-top:12px;">` + includedHtml + notIncludedHtml + `</div>` +
             `</body></html>`;
 
         const win = window.open('', 'Print', `width=${screen.availWidth},height=${screen.availHeight},left=0,top=0`);
@@ -599,7 +620,7 @@ Kaeng Krachan (KKC) Golf Club : <br/>
             accessorKey: "location",
             header: 'Location',
             cell: (row) => <SelectCustom
-                size="sm"
+                size="xs"
                 key={`booking-loc-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 items={locationItems}
                 value={row.row.original.location || ""}
@@ -610,7 +631,7 @@ Kaeng Krachan (KKC) Golf Club : <br/>
             accessorKey: "pax",
             header: 'Pax',
             cell: (row) => <InputCustom
-                size="sm"
+                size="xs"
                 key={`booking-pax-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.pax || 0}
                 onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "pax", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
@@ -618,9 +639,9 @@ Kaeng Krachan (KKC) Golf Club : <br/>
         },
         {
             accessorKey: "noOfDays",
-            header: 'No. of Days',
+            header: 'Days',
             cell: (row) => <InputCustom
-                size="sm"
+                size="xs"
                 key={`booking-days-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.noOfDays || 0}
                 onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "noOfDays", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
@@ -628,9 +649,9 @@ Kaeng Krachan (KKC) Golf Club : <br/>
         },
         {
             accessorKey: "noOfRooms",
-            header: 'No. of Rooms',
+            header: 'Rooms',
             cell: (row) => <InputCustom
-                size="sm"
+                size="xs"
                 key={`booking-rooms-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.noOfRooms || 0}
                 onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "noOfRooms", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
@@ -640,7 +661,7 @@ Kaeng Krachan (KKC) Golf Club : <br/>
             accessorKey: "rateKWR",
             header: 'Rate KWR',
             cell: (row) => <InputCustom
-                size="sm"
+                size="xs"
                 key={`booking-rateKWR-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.rateKWR || 0}
                 onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "rateKWR", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
@@ -660,7 +681,7 @@ Kaeng Krachan (KKC) Golf Club : <br/>
             accessorKey: "rateTHB",
             header: 'Rate THB',
             cell: (row) => <InputCustom
-                size="sm"
+                size="xs"
                 key={`booking-rateTHB-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.rateTHB || 0}
                 onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "rateTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
@@ -682,7 +703,7 @@ Kaeng Krachan (KKC) Golf Club : <br/>
             cell: (row) => (
                 <button
                     type="button"
-                    onClick={() => deleteBookingItem((row.row.original as any).__originalIndex ?? row.row.index)}
+                    onClick={() => deleteBookingItem(row.row.original.id)}
                     className="text-red-500 hover:text-red-700"
                 >
                     <Trash className="w-4 h-4" />
@@ -734,7 +755,7 @@ Kaeng Krachan (KKC) Golf Club : <br/>
             cell: (row) => (
                 <button
                     type="button"
-                    onClick={() => deleteSimpleItem((row.row.original as any).__originalIndex ?? row.row.index)}
+                    onClick={() => deleteSimpleItem(row.row.original.id)}
                     className="text-red-500 hover:text-red-700"
                 >
                     <Trash className="w-4 h-4" />
@@ -744,262 +765,264 @@ Kaeng Krachan (KKC) Golf Club : <br/>
     ], [simpleItems.length, invoiceId, isNew]);
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChanged}>
-            <DialogContent className="max-w-6xl max-h-[90vh] min-w-[90vw] overflow-y-auto">
-                <Loader isLoading={loading || isSaving} />
-                <DialogHeader>
-                    <DialogTitle>{isNew ? 'Create New Invoice' : 'Edit Invoice'}</DialogTitle>
-                    <DialogDescription>
-                    </DialogDescription>
-                </DialogHeader>
+        <>
+            <Loader isLoading={loading || isSaving} />
+            <Dialog open={isOpen} onOpenChange={onOpenChanged}>
+                <DialogContent className="max-w-6xl max-h-[90vh] min-w-[95vw] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>{isNew ? 'Create New Invoice' : 'Edit Invoice'}</DialogTitle>
+                        <DialogDescription>
+                        </DialogDescription>
+                    </DialogHeader>
 
-                {invoice && (
-                    <div className="flex flex-col gap-6">
-                        {/* General Fields Section */}
-                        <div className="border-b pb-4">
-                            <h3 className="text-lg font-semibold mb-4">General Information</h3>
-                            <div className="flex flex-wrap gap-4">
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Invoice Number</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.invoiceNumber}
-                                        onChange={(e) => handleInputChange("invoiceNumber", e.target.value)}
+                    {invoice && (
+                        <div className="flex flex-col gap-6">
+                            {/* General Fields Section */}
+                            <div className="border-b pb-4">
+                                <h3 className="text-lg font-semibold mb-4">General Information</h3>
+                                <div className="flex flex-wrap gap-4">
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Invoice Number</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.invoiceNumber}
+                                            onChange={(e) => handleInputChange("invoiceNumber", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Invoice Date</label>
+                                        <DatePicker
+                                            selected={invoice.invoiceDate}
+                                            onChange={(date: Date | null) => handleInputChange("invoiceDate", date)}
+                                            dateFormat="yyyy-MM-dd"
+                                            customInput={<InputCustom size="md" />}
+                                            placeholderText="yyyy-mm-dd"
+                                            isClearable={true}
+                                            showIcon
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Agent Name</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.agentName || ""}
+                                            onChange={(e) => handleInputChange("agentName", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Customer Name</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.customerName}
+                                            onChange={(e) => handleInputChange("customerName", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Booking Source</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.bookingSource || ""}
+                                            onChange={(e) => handleInputChange("bookingSource", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Booking Person</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.bookingPerson || ""}
+                                            onChange={(e) => handleInputChange("bookingPerson", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Status</label>
+                                        <SelectCustom
+                                            size="md"
+                                            items={invoiceStatusItems}
+                                            value={invoice.status}
+                                            onValueChange={(value) => handleInputChange("status", value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Pax</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.pax || ""}
+                                            onChange={(e) => handleInputChange("pax", e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Booking Items Section */}
+                            <div className="border-b pb-4">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-lg font-semibold">Booking Items</h3>
+                                    <ButtonCustom
+                                        type="button"
+                                        variant="green"
+                                        size="sm"
+                                        onClick={addBookingItem}
+                                    >
+                                        Add New Row
+                                    </ButtonCustom>
+                                </div>
+                                {visibleBookingItems.length > 0 ? (
+                                    <div className="overflow-x-auto">
+                                        <BillDataTable columns={bookingItemsColumns} data={visibleBookingItems} />
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-4 text-gray-500">No booking items added yet</div>
+                                )}
+                            </div>
+
+                            {/* Simple Items Section */}
+                            <div className="border-b pb-4">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-lg font-semibold">Other Items</h3>
+                                    <ButtonCustom
+                                        type="button"
+                                        variant="green"
+                                        size="sm"
+                                        onClick={addSimpleItem}
+                                    >
+                                        Add New Row
+                                    </ButtonCustom>
+                                </div>
+                                {visibleSimpleItems.length > 0 ? (
+                                    <div className="overflow-x-auto">
+                                        <BillDataTable columns={simpleItemsColumns} data={visibleSimpleItems} />
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-4 text-gray-500">No simple items added yet</div>
+                                )}
+                            </div>
+
+                            {/* Amount Fields Section */}
+                            <div className="border-t pt-4">
+                                <h3 className="text-lg font-semibold mb-4">Amount Details</h3>
+                                <div className="flex flex-wrap gap-4">
+                                    {/* KWR Section */}
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Total Amount (KWR)</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.totalAmountKWR || 0}
+                                            onChange={e => handleInputChange("totalAmountKWR", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Deposit (KWR)</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.depositKWR || 0}
+                                            onChange={e => handleInputChange("depositKWR", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Due Amount (KWR)</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.dueAmountKWR || 0}
+                                            onChange={e => handleInputChange("dueAmountKWR", e.target.value)}
+                                        />
+                                    </div>
+
+                                    {/* THB Section */}
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Total Amount (THB)</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.totalAmountTHB || 0}
+                                            onChange={e => handleInputChange("totalAmountTHB", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Deposit (THB)</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.depositTHB || 0}
+                                            onChange={e => handleInputChange("depositTHB", e.target.value)}
+                                            onBlur={e => {
+                                                const numValue = convertToNumber(e.target.value);
+                                                handleInputChange("depositTHB", numValue);
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Due Amount (THB)</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.dueAmountTHB || 0}
+                                            onChange={e => handleInputChange("dueAmountTHB", e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-row gap-2">
+                                <div className="flex flex-col flex-1 gap-2">
+                                    <label className="text-sm font-medium">Included Items</label>
+                                    <Textarea
+                                        value={invoice.included || ""}
+                                        onChange={(e) => handleInputChange("included", e.target.value)}
+                                        placeholder="Enter included items..."
+                                        className="min-h-[80px] max-h-[80px]"
+                                    />
+                                </div>
+                                <div className="flex flex-col flex-1 gap-2">
+                                    <label className="text-sm font-medium">Not Included Items</label>
+                                    <Textarea
+                                        value={invoice.notIncluded || ""}
+                                        onChange={(e) => handleInputChange("notIncluded", e.target.value)}
+                                        placeholder="Enter not included items..."
+                                        className="min-h-[80px] max-h-[80px]"
                                     />
                                 </div>
 
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Invoice Date</label>
-                                    <DatePicker
-                                        selected={invoice.invoiceDate}
-                                        onChange={(date: Date | null) => handleInputChange("invoiceDate", date)}
-                                        dateFormat="yyyy-MM-dd"
-                                        customInput={<InputCustom size="md" />}
-                                        placeholderText="yyyy-mm-dd"
-                                        isClearable={true}
-                                        showIcon
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Agent Name</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.agentName || ""}
-                                        onChange={(e) => handleInputChange("agentName", e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Customer Name</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.customerName}
-                                        onChange={(e) => handleInputChange("customerName", e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Booking Source</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.bookingSource || ""}
-                                        onChange={(e) => handleInputChange("bookingSource", e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Booking Person</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.bookingPerson || ""}
-                                        onChange={(e) => handleInputChange("bookingPerson", e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Status</label>
-                                    <SelectCustom
-                                        size="md"
-                                        items={invoiceStatusItems}
-                                        value={invoice.status}
-                                        onValueChange={(value) => handleInputChange("status", value)}
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Pax</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.pax || ""}
-                                        onChange={(e) => handleInputChange("pax", e.target.value)}
+                                <div className="flex flex-col flex-1 gap-2">
+                                    <label className="text-sm font-medium">Note</label>
+                                    <Textarea
+                                        value={invoice.note || ""}
+                                        onChange={(e) => handleInputChange("note", e.target.value)}
+                                        placeholder="Enter invoice note..."
+                                        className="min-h-[80px] max-h-[80px]"
                                     />
                                 </div>
                             </div>
                         </div>
+                    )}
 
-                        {/* Booking Items Section */}
-                        <div className="border-b pb-4">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-semibold">Booking Items</h3>
-                                <ButtonCustom
-                                    type="button"
-                                    variant="green"
-                                    size="sm"
-                                    onClick={addBookingItem}
-                                >
-                                    Add New Row
-                                </ButtonCustom>
-                            </div>
-                            {visibleBookingItems.length > 0 ? (
-                                <div className="overflow-x-auto">
-                                    <BillDataTable columns={bookingItemsColumns} data={visibleBookingItems} />
-                                </div>
-                            ) : (
-                                <div className="text-center py-4 text-gray-500">No booking items added yet</div>
-                            )}
-                        </div>
-
-                        {/* Simple Items Section */}
-                        <div className="border-b pb-4">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-semibold">Other Items</h3>
-                                <ButtonCustom
-                                    type="button"
-                                    variant="green"
-                                    size="sm"
-                                    onClick={addSimpleItem}
-                                >
-                                    Add New Row
-                                </ButtonCustom>
-                            </div>
-                            {visibleSimpleItems.length > 0 ? (
-                                <div className="overflow-x-auto">
-                                    <BillDataTable columns={simpleItemsColumns} data={visibleSimpleItems} />
-                                </div>
-                            ) : (
-                                <div className="text-center py-4 text-gray-500">No simple items added yet</div>
-                            )}
-                        </div>
-
-                        {/* Amount Fields Section */}
-                        <div className="border-t pt-4">
-                            <h3 className="text-lg font-semibold mb-4">Amount Details</h3>
-                            <div className="flex flex-wrap gap-4">
-                                {/* KWR Section */}
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Total Amount (KWR)</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.totalAmountKWR || 0}
-                                        onChange={e => handleInputChange("totalAmountKWR", e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Deposit (KWR)</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.depositKWR || 0}
-                                        onChange={e => handleInputChange("depositKWR", e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Due Amount (KWR)</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.dueAmountKWR || 0}
-                                        onChange={e => handleInputChange("dueAmountKWR", e.target.value)}
-                                    />
-                                </div>
-
-                                {/* THB Section */}
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Total Amount (THB)</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.totalAmountTHB || 0}
-                                        onChange={e => handleInputChange("totalAmountTHB", e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Deposit (THB)</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.depositTHB || 0}
-                                        onChange={e => handleInputChange("depositTHB", e.target.value)}
-                                        onBlur={e => {
-                                            const numValue = convertToNumber(e.target.value);
-                                            handleInputChange("depositTHB", numValue);
-                                        }}
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm font-medium">Due Amount (THB)</label>
-                                    <InputCustom
-                                        size="md"
-                                        value={invoice.dueAmountTHB || 0}
-                                        onChange={e => handleInputChange("dueAmountTHB", e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-row gap-2">
-                            <div className="flex flex-col flex-1 gap-2">
-                                <label className="text-sm font-medium">Included Items</label>
-                                <Textarea
-                                    value={invoice.included || ""}
-                                    onChange={(e) => handleInputChange("included", e.target.value)}
-                                    placeholder="Enter included items..."
-                                    className="min-h-[80px] max-h-[80px]"
-                                />
-                            </div>
-                            <div className="flex flex-col flex-1 gap-2">
-                                <label className="text-sm font-medium">Not Included Items</label>
-                                <Textarea
-                                    value={invoice.notIncluded || ""}
-                                    onChange={(e) => handleInputChange("notIncluded", e.target.value)}
-                                    placeholder="Enter not included items..."
-                                    className="min-h-[80px] max-h-[80px]"
-                                />
-                            </div>
-
-                            <div className="flex flex-col flex-1 gap-2">
-                                <label className="text-sm font-medium">Note</label>
-                                <Textarea
-                                    value={invoice.note || ""}
-                                    onChange={(e) => handleInputChange("note", e.target.value)}
-                                    placeholder="Enter invoice note..."
-                                    className="min-h-[80px] max-h-[80px]"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <DialogFooter>
-                    <DialogClose asChild>
-                        <ButtonCustom variant="ghost" size="default">
-                            Cancel
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <ButtonCustom variant="ghost" size="default">
+                                Cancel
+                            </ButtonCustom>
+                        </DialogClose>
+                        <ButtonCustom variant="gray" size="default" onClick={() => handlePrintInvoice()}>
+                            Print Invoice
                         </ButtonCustom>
-                    </DialogClose>
-                    <ButtonCustom variant="gray" size="default" onClick={() => handlePrintInvoice()}>
-                        Print Invoice
-                    </ButtonCustom>
-                    <ButtonCustom
-                        variant="green"
-                        size="default"
-                        onClick={handleSave}
-                        disabled={isSaving}
-                    >
-                        Save Changes
-                    </ButtonCustom>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                        <ButtonCustom
+                            variant="green"
+                            size="default"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                        >
+                            Save Changes
+                        </ButtonCustom>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }
