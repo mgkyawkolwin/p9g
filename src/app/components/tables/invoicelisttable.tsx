@@ -117,10 +117,8 @@ export default function InvoiceListTable({
         const today = new Date();
         const isOverdue = dueDate && dueDate < today && row.status !== 'PAID';
         
-        return <span className={isOverdue ? 'text-[#ff0000] font-bold' : ''}>
+        return <span>
           {dueDate ? dueDate.toLocaleDateString('sv-SE') : ''}
-          {isOverdue ? <br /> : ''}
-          {isOverdue ? <span className="text-[#ff0000]">OVERDUE</span> : ''}
         </span>;
       },
       cell: (row) => row.getValue(),

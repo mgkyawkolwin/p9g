@@ -166,7 +166,126 @@ export default function InvoiceDialog({
         newInvoice.bookingItems = [];
         newInvoice.modelState = 'inserted';
         newInvoice.included = `*숙박 : Standard Superior (2인1실)<br/>*식사 : 전일정 한식뷔페<br/>*무제한그린피, 무제한 2인1 카트 포함`;
-        newInvoice.notIncluded = `마이다 : *미팅&샌딩비 (편도 기준 )<br/>01인 탑승 시 01인당 - 100불<br/>02인 탑승 시 01인당 -   50불<br/>03인 탑승 시 01인당 -   35불<br/>04인 이상 탑승 시 01인당 - 25불 (차 01대에 06명 기준)<br/>*01캐디 (02인 01캐디 기준)  - 700바트 (캐디피+캐디팁 포함)<br/>*01인 01실 추가 비용 (싱글롬 + 싱글카트 포함) / 01인 01일 - 30,000원 (12월, 01월, 02월)/ 01인 01일 - 20,000원 (03월 ~ 11월)<br/>* Modern Deluxe 룸 Upgrade 추가 요금 (1인당 하루 10,000원)<br/>* 캥카찬 : <br/>* *미팅&샌딩비 (편도 기준 )<br/>01인 탑승 시 01인당 - 100불<br/>02인 탑승 시 01인당 -   50불<br/>03인 탑승 시 01인당 -   35불<br/>04인 이상 탑승 시 01인당 - 25불 (차 01대에 06명 기준)<br/>*01캐디 (02인 01캐디 기준)  - 700바트 (캐디피+캐디팁 포함)<br/>*01인 01실 추가 비용 / 01인 01일 - 30,000원 (12월, 01월, 02월)/ 01인 01일 - 20,000원 (03월 ~ 11월)<br/>*01인 01카트 사용 하는 경우 추가 비용 하루에 600바트 지불해야함`;
+        newInvoice.notIncluded = encodeHTML(`<table style="width:100%;border: 0;"><tr><td style="width:45%;border: 0;">
+        <span style="color: #000; font-weight: bold;">🚐 미팅 & 샌딩 (편도 / 1인 기준)</span><br/>
+    <table class="c">
+        <thead><tr>
+                <th>인원</th>
+                <th>요금 (1인 기준)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1인</td>
+                <td>USD 100</td>
+            </tr>
+            <tr>
+                <td>2인</td>
+                <td>USD 50</td>
+            </tr>
+            <tr>
+                <td>3인</td>
+                <td>USD 35</td>
+            </tr>
+            <tr>
+                <td>4인 이상 (최대 6명)</td>
+                <td>USD 25</td>
+            </tr>
+        </tbody>
+    </table><br/>
+        </td>
+        <td style="border: 0;">
+        <span style="color: #000; font-weight: bold;">🏌 캐디 (2인 1캐디)</span>
+    <table class="c">
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>요금</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>캐디피 + 캐디팁</td>
+                <td>700 THB</td>
+            </tr>
+        </tbody>
+    </table><br/>
+        </td>
+        </tr>
+        <tr>
+        <td style="border: 0;">
+        <span style="color: #000; font-weight: bold;">🛏 싱글룸 (1인 1일 기준)</span>
+    <table class="c" style=" border-collapse: collapse; font-size: 10pt;">
+        <thead>
+            <tr>
+                <th>시즌</th>
+                <th>요금</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>12월 · 1월 · 2월</td>
+                <td>KRW 30,000</td>
+            </tr>
+            <tr>
+                <td>3월 ~ 11월</td>
+                <td>KRW 20,000</td>
+            </tr>
+        </tbody>
+    </table><br/>
+        </td>
+        <td style="border: 0;">
+        <span style="color: #000; font-weight: bold;">🚗 싱글카트</span>
+    <table class="c">
+        <thead>
+            <tr>
+                <th>골프장</th>
+                <th>내용</th>
+                <th>요금</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>마이다 CC</td>
+                <td>싱글룸 이용 시 싱글카트 포함</td>
+                <td>추가 없음</td>
+            </tr>
+            <tr>
+                <td>캥카찬 CC</td>
+                <td>싱글카트 별도 사용 시</td>
+                <td>600 THB / 1일</td>
+            </tr>
+        </tbody>
+    </table><br/>
+        </td>
+        </tr>
+        <tr>
+        <td style="border: 0;">
+        <span style="color: #000; font-weight: bold;">🏨 Room Upgrade (마이다)</span>
+    <table class="c" style="border-collapse: collapse; font-size: 10pt;padding:15px">
+        <thead>
+            <tr>
+                <th>객실 타입</th>
+                <th>요금</th>
+            </tr>
+        </thead>
+        <tbody style="padding:15px;">
+            <tr>
+                <td>Modern Deluxe</td>
+                <td>KRW 10,000 / 1인 1일</td>
+            </tr>
+        </tbody>
+    </table><br/>
+        </td>
+        <td style="border: 0;">
+        <span style="color: #000; font-weight: bold;">예약 문의 안내</span><br/>
+    <span style="font-size: 9pt;">📞 가인 010-8173-2127</span><br/>
+    <span style="font-size: 9pt;">📞 지은 010-8186-2127</span><br/>
+    <span style="font-size: 9pt;">📞 가을 010-8178-2127</span><br/>
+    <span style="font-size: 9pt;">📞 사무실 010-8185-2125 / 010-8174-2127</span>
+        </td>
+        </tr>
+        </table>`);
         setInvoice(newInvoice);
         setBookingItems([]);
         setSimpleItems([]);
@@ -428,6 +547,14 @@ export default function InvoiceDialog({
         }
     };
 
+    function encodeHTML(html) {
+        return html;
+    }
+
+    function decodeHTML(base64) {
+       return base64;
+    }
+
     const handlePrintInvoice = () => {
         if (!invoice) return;
 
@@ -435,26 +562,24 @@ export default function InvoiceDialog({
         let totalKWR = 0;
         let totalTHB = 0;
         const address = `Mida Golf Club Kanchanaburi<br/>
-주소 : 123 moo7 Tambon Lad Ya, Kanchanaburi 71190<br/>
-Kaeng Krachan (KKC) Golf Club : <br/>
-19 M 2 Tayang-Kaengkrachan Rd Kaeng Krachan, Kaeng Krachan District, <br/>
- Phetchaburi 76130, Keng Kachan, Thailand, Phetchaburi<br/>
-연락처 - 01081862127, 01081852127, 01081782127,
-01081732127, 01081742127`;
+            주소 : 123 moo7 Tambon Lad Ya, Kanchanaburi 71190<br/>
+            Kaeng Krachan (KKC) Golf Club : <br/>
+            19 M 2 Tayang-Kaengkrachan Rd Kaeng Krachan, Kaeng Krachan District, <br/>
+            Phetchaburi 76130, Keng Kachan, Thailand, Phetchaburi<br/>
+            연락처 - 01081862127, 01081852127, 01081782127,
+            01081732127, 01081742127`;
 
         let table = `<table style="width:100%;border-collapse:collapse;font-size:10pt;">`;
         table += `<thead><tr>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">#</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:left;background:#eee;">Description</th>` +
-            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Start</th>` +
-            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">End</th>` +
-            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Loc</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Start Date</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">End Date</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Golf Course</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Pax</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Days</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Rate KWR</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Amount KWR</th>` +
-            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Rate THB</th>` +
-            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Amount THB</th>` +
             `</tr></thead><tbody>`;
 
         bookingItems.forEach((it, i) => {
@@ -478,8 +603,6 @@ Kaeng Krachan (KKC) Golf Club : <br/>
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${days}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${rateK}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtK}</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">${rateT}</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtT}</td>` +
                 `</tr>`;
         });
 
@@ -502,22 +625,22 @@ Kaeng Krachan (KKC) Golf Club : <br/>
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtK}</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtT}</td>` +
                 `</tr>`;
         });
 
         table += `</tbody>`;
-        table += `<tfoot><tr>` +
-            `<td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Total KWR</td>` +
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${totalKWR}</td>` +
-            `<td style="padding:6px;text-align:right;font-weight:bold;">Total THB</td>` +
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${totalTHB}</td>` +
-            `</tr></tfoot>`;
+        table += `<tfoot>` +
+            `<tr><td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Total Amount</td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.totalAmountKWR || 0}</td></tr>` +
+            `<tr><td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Deposit</td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.depositKWR || 0}</td></tr>` +
+            `<tr><td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Due Amount</td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.dueAmountKWR}</td></tr>` +
+            `</tfoot>`;
         table += `</table>`;
 
         const includedHtml = invoice.included ? `<div style="margin-top:12px;"><strong>포함: </strong><div>${invoice.included.replace(/\n/g, '<br/>')}</div></div>` : '';
-        const notIncludedHtml = invoice.notIncluded ? `<div style="margin-top:8px;"><strong>불포함: </strong><div>${invoice.notIncluded.replace(/\n/g, '<br/>')}</div></div>` : '';
+        const notIncludedHtml = invoice.notIncluded ? `<div style="margin-top:8px;"><strong>불포함 사항 안내: </strong><div>${invoice.notIncluded.replace(/\n/g, '')}</div></div>` : '';
 
         const header = `<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">` +
             `<div style="flex:1;"><img src="/p9glogowithtext.png" style="width:200px;"/></div>` +
@@ -539,12 +662,12 @@ Kaeng Krachan (KKC) Golf Club : <br/>
             `<tr><td style="padding:4px;">인원: ${invoice.pax || ''}</td><td style="text-align:right;padding:4px;"></td></tr>` +
             `</table>`;
 
-        const html = `<html><style>@media print{ @page {margin:0;} }</style><body style="padding:0.5in;font-family:Arial,Helvetica,sans-serif;font-size:10pt;">` +
+        const html = `<html><style>@media print{ @page {margin:0;} } table.c {border-collapse:collapse; margin: 10px 0 10px 0;font-size:10pt;} table.c thead tr th {background-color:#eee;} table.c tr td, table.c tr th {padding: 0 5px 0 5px; vertical-align:top;border: solid 1px #ccc;}</style><body style="padding:0.5in;font-family:Arial,Helvetica,sans-serif;font-size:10pt;">` +
             header +
             centerLabel +
             invoiceInfo +
             `<div>${table}</div>` +
-            `<div style="margin-top:12px;">` + includedHtml + notIncludedHtml + `</div>` +
+            `<div style="margin-top:12px;">` + decodeHTML(includedHtml) + decodeHTML(notIncludedHtml) + `</div>` +
             `</body></html>`;
 
         const win = window.open('', 'Print', `width=${screen.availWidth},height=${screen.availHeight},left=0,top=0`);
@@ -569,8 +692,8 @@ Kaeng Krachan (KKC) Golf Club : <br/>
     ]);
 
     const locationItems = new Map<string, string>([
-        ["MIDA", "MIDA"],
-        ["KKC", "KKC"]
+        ["마이다", "마이다"],
+        ["캥카찬", "캥카찬"]
     ]);
 
     const bookingItemsColumns = React.useMemo<ColumnDef<BookingInvoiceItem>[]>(() => [
@@ -618,7 +741,7 @@ Kaeng Krachan (KKC) Golf Club : <br/>
         },
         {
             accessorKey: "location",
-            header: 'Location',
+            header: 'Gof Course',
             cell: (row) => <SelectCustom
                 size="xs"
                 key={`booking-loc-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
@@ -678,26 +801,6 @@ Kaeng Krachan (KKC) Golf Club : <br/>
             />
         },
         {
-            accessorKey: "rateTHB",
-            header: 'Rate THB',
-            cell: (row) => <InputCustom
-                size="xs"
-                key={`booking-rateTHB-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
-                value={row.row.original.rateTHB || 0}
-                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "rateTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
-            />
-        },
-        {
-            accessorKey: "amountTHB",
-            header: 'Amount THB',
-            cell: (row) => <InputCustom
-                size="sm"
-                key={`booking-amountTHB-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
-                value={row.row.original.amountTHB || 0}
-                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
-            />
-        },
-        {
             accessorKey: "action",
             header: "Action",
             cell: (row) => (
@@ -737,16 +840,6 @@ Kaeng Krachan (KKC) Golf Club : <br/>
                 key={`simple-amountKWR-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.amountKWR || 0}
                 onChange={e => handleSimpleItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountKWR", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
-            />
-        },
-        {
-            accessorKey: "amountTHB",
-            header: 'Amount THB',
-            cell: (row) => <InputCustom
-                size="sm"
-                key={`simple-amountTHB-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
-                value={row.row.original.amountTHB || 0}
-                onChange={e => handleSimpleItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -943,28 +1036,6 @@ Kaeng Krachan (KKC) Golf Club : <br/>
                                             size="md"
                                             value={invoice.totalAmountTHB || 0}
                                             onChange={e => handleInputChange("totalAmountTHB", e.target.value)}
-                                        />
-                                    </div>
-
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium">Deposit (THB)</label>
-                                        <InputCustom
-                                            size="md"
-                                            value={invoice.depositTHB || 0}
-                                            onChange={e => handleInputChange("depositTHB", e.target.value)}
-                                            onBlur={e => {
-                                                const numValue = convertToNumber(e.target.value);
-                                                handleInputChange("depositTHB", numValue);
-                                            }}
-                                        />
-                                    </div>
-
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium">Due Amount (THB)</label>
-                                        <InputCustom
-                                            size="md"
-                                            value={invoice.dueAmountTHB || 0}
-                                            onChange={e => handleInputChange("dueAmountTHB", e.target.value)}
                                         />
                                     </div>
                                 </div>

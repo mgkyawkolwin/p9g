@@ -32,47 +32,143 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
         const worksheet = workbook.addWorksheet("DailySummaryIncomeReport");
 
         const table = reportRef.current as HTMLTableElement;
+
+        // Helper function to check if a value is numeric
+        const isNumericValue = (value: any): boolean => {
+            if (value === null || value === undefined || value === '') {
+                return false;
+            }
+
+            const stringValue = String(value);
+            // Remove commas for number checking
+            const withoutCommas = stringValue.replace(/,/g, '');
+
+            // Check if it's a valid number (including decimal numbers)
+            return !isNaN(parseFloat(withoutCommas)) && isFinite(parseFloat(withoutCommas));
+        };
+
+        // Helper function to process any row
+        const processRow = (row: HTMLTableRowElement, rowIndex: number, isHeader: boolean, isFooter: boolean = false) => {
+            const cells = row.querySelectorAll("th, td");
+            const rowValues: any[] = [];
+            const colspans: number[] = [];
+
+            // First pass: collect values and colspan info
+            cells.forEach((cell) => {
+                const cellElement = cell as HTMLTableCellElement;
+                const text = cellElement.textContent?.trim() || "";
+                const colspan = cellElement.colSpan || 1;
+
+                rowValues.push(text);
+                colspans.push(colspan);
+
+                // Add null placeholders for colspan
+                for (let i = 1; i < colspan; i++) {
+                    rowValues.push(null);
+                }
+            });
+
+            // Create the row
+            const excelRow = worksheet.addRow(rowValues);
+            let colIndex = 1;
+
+            // Second pass: apply styling based on original cells
+            cells.forEach((cell, cellIndex) => {
+                const cellElement = cell as HTMLTableCellElement;
+                const text = cellElement.textContent?.trim() || "";
+                const colspan = colspans[cellIndex];
+
+                const excelCell = excelRow.getCell(colIndex);
+
+                // Apply styling based on row type
+                if (isHeader) {
+                    excelCell.font = { bold: true };
+                    excelCell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFD3D3D3" }
+                    };
+                    excelCell.alignment = {
+                        horizontal: 'center',
+                        vertical: 'middle'
+                    };
+                } else if (isFooter) {
+                    excelCell.font = { bold: true };
+                    excelCell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFE6E6E6" }
+                    };
+                    // Apply alignment based on content
+                    if (isNumericValue(text)) {
+                        excelCell.alignment = { horizontal: 'right' };
+                    } else {
+                        excelCell.alignment = { horizontal: 'left' };
+                    }
+                } else {
+                    // Data row - apply alignment based on content
+                    if (isNumericValue(text)) {
+                        excelCell.alignment = { horizontal: 'right' };
+                    } else {
+                        excelCell.alignment = { horizontal: 'left' };
+                    }
+                }
+
+                // Apply borders
+                excelCell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+
+                // Handle colspan
+                if (colspan > 1) {
+                    worksheet.mergeCells(
+                        rowIndex,
+                        colIndex,
+                        rowIndex,
+                        colIndex + colspan - 1
+                    );
+
+                    // Apply borders to merged cells
+                    for (let i = 1; i < colspan; i++) {
+                        const mergedCell = excelRow.getCell(colIndex + i);
+                        mergedCell.border = {
+                            top: { style: 'thin' },
+                            left: { style: 'thin' },
+                            bottom: { style: 'thin' },
+                            right: { style: 'thin' }
+                        };
+                    }
+                }
+
+                colIndex += colspan;
+            });
+        };
+
+        // Process header rows
         const headerRows = table.querySelectorAll("thead tr");
-        
-        headerRows.forEach((headerRow) => {
-            const cells = headerRow.querySelectorAll("th");
-            const rowValues: (string | null)[] = [];
-            cells.forEach((cell) => {
-                rowValues.push(cell.textContent?.trim() || null);
-            });
-            if (rowValues.some(v => v !== null)) {
-                worksheet.addRow(rowValues.filter(v => v !== null));
-            }
+        headerRows.forEach((headerRow, index) => {
+            processRow(headerRow as HTMLTableRowElement, index + 1, true);
         });
 
+        // Process data rows
         const dataRows = table.querySelectorAll("tbody tr");
+        let dataRowIndex = headerRows.length + 1;
         dataRows.forEach((row) => {
-            const cells = row.querySelectorAll("td");
-            const rowValues: (string | null)[] = [];
-            cells.forEach((cell) => {
-                rowValues.push(cell.textContent?.trim() || null);
-            });
-            if (rowValues.some(v => v !== null)) {
-                worksheet.addRow(rowValues.filter(v => v !== null));
-            }
+            processRow(row as HTMLTableRowElement, dataRowIndex, false);
+            dataRowIndex++;
         });
 
+        // Process footer rows
         const footerRows = table.querySelectorAll("tfoot tr");
         footerRows.forEach((row) => {
-            const cells = row.querySelectorAll("th");
-            const rowValues: (string | null)[] = [];
-            cells.forEach((cell) => {
-                rowValues.push(cell.textContent?.trim() || null);
-            });
-            if (rowValues.some(v => v !== null)) {
-                worksheet.addRow(rowValues.filter(v => v !== null));
-            }
+            processRow(row as HTMLTableRowElement, dataRowIndex, false, true);
+            dataRowIndex++;
         });
 
-        const headerRow = worksheet.getRow(1);
-        headerRow.font = { bold: true };
-        headerRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD3D3D3" } };
-
+        // Auto-size columns
         worksheet.columns.forEach((column) => {
             let maxLength = 10;
             if (column.eachCell) {
@@ -83,7 +179,7 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                     }
                 });
             }
-            column.width = Math.min(maxLength + 2, 50);
+            column.width = Math.min(maxLength + 2, 30);
         });
 
         const buffer = await workbook.xlsx.writeBuffer();
@@ -367,80 +463,80 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                     </tbody>
                     <tfoot className={`${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder}`}>
                         <tr key={`headrow-${Math.random()}`} className={`border ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`}>
-                            <td className="p-2"></td>
-                            <td className="p-2">Total</td>
-                            <td className="p-2 text-right">{formatter.format(totalCheckInReservations)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalRoomCharge)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalDeposit)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalTaxAmount)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalDiscount)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalPaid)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalDue)}</td>
+                            <th className="p-2"></th>
+                            <th className="p-2">Total</th>
+                            <th className="p-2 text-right">{formatter.format(totalCheckInReservations)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalRoomCharge)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalDeposit)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalTaxAmount)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalDiscount)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalPaid)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalDue)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalDepositBankKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalDepositBankMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalDepositBankTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalDepositBankUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalDepositBankKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalDepositBankMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalDepositBankTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalDepositBankUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalDepositCashKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalDepositCashMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalDepositCashTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalDepositCashUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalDepositCashKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalDepositCashMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalDepositCashTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalDepositCashUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalRoomChargeBankKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalRoomChargeBankMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalRoomChargeBankTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalRoomChargeBankUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalRoomChargeBankKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalRoomChargeBankMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalRoomChargeBankTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalRoomChargeBankUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalRoomChargeCashKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalRoomChargeCashMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalRoomChargeCashTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalRoomChargeCashUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalRoomChargeCashKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalRoomChargeCashMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalRoomChargeCashTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalRoomChargeCashUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalPickUpBankKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalPickUpBankMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalPickUpBankTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalPickUpBankUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalPickUpBankKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalPickUpBankMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalPickUpBankTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalPickUpBankUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalPickUpCashKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalPickUpCashMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalPickUpCashTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalPickUpCashUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalPickUpCashKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalPickUpCashMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalPickUpCashTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalPickUpCashUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalDropOffBankKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalDropOffBankMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalDropOffBankTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalDropOffBankUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalDropOffBankKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalDropOffBankMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalDropOffBankTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalDropOffBankUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalDropOffCashKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalDropOffCashMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalDropOffCashTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalDropOffCashUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalDropOffCashKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalDropOffCashMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalDropOffCashTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalDropOffCashUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalBillBankKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalBillBankMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalBillBankTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalBillBankUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalBillBankKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalBillBankMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalBillBankTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalBillBankUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalBillCashKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalBillCashMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalBillCashTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalBillCashUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalBillCashKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalBillCashMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalBillCashTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalBillCashUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalBankKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalBankMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalBankTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalBankUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalBankKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalBankMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalBankTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalBankUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalCashKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalCashMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalCashTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalCashUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalCashKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalCashMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalCashTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalCashUSD)}</th>
 
-                            <td className="p-2 text-right">{formatter.format(totalKWR)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalMMK)}</td>
-                            <td className="p-2 text-right">{formatter.format(totalTHB)}</td>
-                            <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalUSD)}</td>
+                            <th className="p-2 text-right">{formatter.format(totalKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalUSD)}</th>
                         </tr>
                     </tfoot>
                 </table>

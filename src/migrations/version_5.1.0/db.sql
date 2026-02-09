@@ -18,7 +18,7 @@ CREATE TABLE `bookingInvoiceItem` (
 	`updatedBy` char(36) NOT NULL,
 	CONSTRAINT `bookingInvoiceItem_id` PRIMARY KEY(`id`)
 );
---> statement-breakpoint
+
 CREATE TABLE `invoice` (
 	`id` char(36) NOT NULL,
 	`invoiceNumber` varchar(50) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE `invoice` (
 	`dueAmountTHB` decimal NOT NULL DEFAULT '0',
 	`status` varchar(20) NOT NULL,
 	`included` varchar(1000),
-	`notIncluded` varchar(1000),
+	`notIncluded` text,
 	`note` varchar(1000),
 	`bookingSource` varchar(50),
 	`bookingPerson` varchar(50),
@@ -44,7 +44,7 @@ CREATE TABLE `invoice` (
 	`updatedBy` char(36) NOT NULL,
 	CONSTRAINT `invoice_id` PRIMARY KEY(`id`)
 );
---> statement-breakpoint
+
 CREATE TABLE `simpleInvoiceItem` (
 	`id` char(36) NOT NULL,
 	`invoiceId` char(36) NOT NULL,
@@ -57,6 +57,6 @@ CREATE TABLE `simpleInvoiceItem` (
 	`updatedBy` char(36) NOT NULL,
 	CONSTRAINT `simpleInvoiceItem_id` PRIMARY KEY(`id`)
 );
---> statement-breakpoint
-ALTER TABLE `bookingInvoiceItem` ADD CONSTRAINT `bookingInvoiceItem_invoiceId_invoice_id_fk` FOREIGN KEY (`invoiceId`) REFERENCES `invoice`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+
+ALTER TABLE `bookingInvoiceItem` ADD CONSTRAINT `bookingInvoiceItem_invoiceId_invoice_id_fk` FOREIGN KEY (`invoiceId`) REFERENCES `invoice`(`id`) ON DELETE cascade ON UPDATE no action;
 ALTER TABLE `simpleInvoiceItem` ADD CONSTRAINT `simpleInvoiceItem_invoiceId_invoice_id_fk` FOREIGN KEY (`invoiceId`) REFERENCES `invoice`(`id`) ON DELETE cascade ON UPDATE no action;

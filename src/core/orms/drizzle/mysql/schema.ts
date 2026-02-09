@@ -86,7 +86,7 @@ export const invoiceTable = mysqlTable("invoice", {
   dueAmountTHB: decimal("dueAmountTHB").notNull().default("0"),
   status: varchar("status", { length: 20 }).notNull(),
   included: varchar("included", { length: 1000 }),
-  notIncluded: varchar("notIncluded", { length: 1000 }),
+  notIncluded: text("notIncluded"),
   note: varchar("note", { length: 1000 }),
   bookingSource: varchar("bookingSource", { length: 50 }),
   bookingPerson: varchar("bookingPerson", { length: 50 }),
@@ -94,6 +94,11 @@ export const invoiceTable = mysqlTable("invoice", {
   createdBy: char("createdBy", { length: 36 }).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
   updatedBy: char("updatedBy", { length: 36 }).notNull()
+}, (table) => {
+    return {
+        charset: 'utf8mb4',
+        collate: 'utf8mb4_unicode_ci',
+    };
 });
 
 export const simpleInvoiceItemTable = mysqlTable("simpleInvoiceItem", {

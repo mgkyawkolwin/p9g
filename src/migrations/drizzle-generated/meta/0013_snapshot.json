@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "15c2d63d-5b0e-453d-a706-5fe68557c02a",
+  "id": "aab052ec-a00c-44cc-b590-4c42f1c91c84",
   "prevId": "dfd03a9a-448e-42df-98a6-adabef6169eb",
   "tables": {
     "bill": {
@@ -715,7 +715,7 @@
         },
         "notIncluded": {
           "name": "notIncluded",
-          "type": "varchar(1000)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

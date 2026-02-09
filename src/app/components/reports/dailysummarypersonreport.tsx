@@ -20,44 +20,146 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
         if (!reportRef.current) return;
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("DailySummaryPersonReport");
+        const worksheet = workbook.addWorksheet("DailySummaryIncomeReport");
 
         const table = reportRef.current as HTMLTableElement;
-        const headerCells = table.querySelectorAll("thead th");
-        const headerValues: (string | null)[] = [];
-        headerCells.forEach((cell) => {
-            headerValues.push(cell.textContent?.trim() || null);
-        });
-        worksheet.addRow(headerValues.filter(v => v !== null));
 
-        const dataRows = table.querySelectorAll("tbody tr");
-        dataRows.forEach((row) => {
-            const cells = row.querySelectorAll("td");
-            const rowValues: (string | null)[] = [];
-            cells.forEach((cell) => {
-                rowValues.push(cell.textContent?.trim() || null);
-            });
-            if (rowValues.some(v => v !== null)) {
-                worksheet.addRow(rowValues.filter(v => v !== null));
+        // Helper function to check if a value is numeric
+        const isNumericValue = (value: any): boolean => {
+            if (value === null || value === undefined || value === '') {
+                return false;
             }
+
+            const stringValue = String(value);
+            // Remove commas for number checking
+            const withoutCommas = stringValue.replace(/,/g, '');
+
+            // Check if it's a valid number (including decimal numbers)
+            return !isNaN(parseFloat(withoutCommas)) && isFinite(parseFloat(withoutCommas));
+        };
+
+        // Helper function to process any row
+        const processRow = (row: HTMLTableRowElement, rowIndex: number, isHeader: boolean, isFooter: boolean = false) => {
+            const cells = row.querySelectorAll("th, td");
+            const rowValues: any[] = [];
+            const colspans: number[] = [];
+
+            // First pass: collect values and colspan info
+            cells.forEach((cell) => {
+                const cellElement = cell as HTMLTableCellElement;
+                const text = cellElement.textContent?.trim() || "";
+                const colspan = cellElement.colSpan || 1;
+
+                rowValues.push(text);
+                colspans.push(colspan);
+
+                // Add null placeholders for colspan
+                for (let i = 1; i < colspan; i++) {
+                    rowValues.push(null);
+                }
+            });
+
+            // Create the row
+            const excelRow = worksheet.addRow(rowValues);
+            let colIndex = 1;
+
+            // Second pass: apply styling based on original cells
+            cells.forEach((cell, cellIndex) => {
+                const cellElement = cell as HTMLTableCellElement;
+                const text = cellElement.textContent?.trim() || "";
+                const colspan = colspans[cellIndex];
+
+                const excelCell = excelRow.getCell(colIndex);
+
+                // Apply styling based on row type
+                if (isHeader) {
+                    excelCell.font = { bold: true };
+                    excelCell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFD3D3D3" }
+                    };
+                    excelCell.alignment = {
+                        horizontal: 'center',
+                        vertical: 'middle'
+                    };
+                } else if (isFooter) {
+                    excelCell.font = { bold: true };
+                    excelCell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFE6E6E6" }
+                    };
+                    // Apply alignment based on content
+                    if (isNumericValue(text)) {
+                        excelCell.alignment = { horizontal: 'right' };
+                    } else {
+                        excelCell.alignment = { horizontal: 'left' };
+                    }
+                } else {
+                    // Data row - apply alignment based on content
+                    if (isNumericValue(text)) {
+                        excelCell.alignment = { horizontal: 'right' };
+                    } else {
+                        excelCell.alignment = { horizontal: 'left' };
+                    }
+                }
+
+                // Apply borders
+                excelCell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+
+                // Handle colspan
+                if (colspan > 1) {
+                    worksheet.mergeCells(
+                        rowIndex,
+                        colIndex,
+                        rowIndex,
+                        colIndex + colspan - 1
+                    );
+
+                    // Apply borders to merged cells
+                    for (let i = 1; i < colspan; i++) {
+                        const mergedCell = excelRow.getCell(colIndex + i);
+                        mergedCell.border = {
+                            top: { style: 'thin' },
+                            left: { style: 'thin' },
+                            bottom: { style: 'thin' },
+                            right: { style: 'thin' }
+                        };
+                    }
+                }
+
+                colIndex += colspan;
+            });
+        };
+
+        // Process header rows
+        const headerRows = table.querySelectorAll("thead tr");
+        headerRows.forEach((headerRow, index) => {
+            processRow(headerRow as HTMLTableRowElement, index + 1, true);
         });
 
+        // Process data rows
+        const dataRows = table.querySelectorAll("tbody tr");
+        let dataRowIndex = headerRows.length + 1;
+        dataRows.forEach((row) => {
+            processRow(row as HTMLTableRowElement, dataRowIndex, false);
+            dataRowIndex++;
+        });
+
+        // Process footer rows
         const footerRows = table.querySelectorAll("tfoot tr");
         footerRows.forEach((row) => {
-            const cells = row.querySelectorAll("th");
-            const rowValues: (string | null)[] = [];
-            cells.forEach((cell) => {
-                rowValues.push(cell.textContent?.trim() || null);
-            });
-            if (rowValues.some(v => v !== null)) {
-                worksheet.addRow(rowValues.filter(v => v !== null));
-            }
+            processRow(row as HTMLTableRowElement, dataRowIndex, false, true);
+            dataRowIndex++;
         });
 
-        const headerRow = worksheet.getRow(1);
-        headerRow.font = { bold: true };
-        headerRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD3D3D3" } };
-
+        // Auto-size columns
         worksheet.columns.forEach((column) => {
             let maxLength = 10;
             if (column.eachCell) {
@@ -68,7 +170,7 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
                     }
                 });
             }
-            column.width = Math.min(maxLength + 2, 50);
+            column.width = Math.min(maxLength + 2, 30);
         });
 
         const buffer = await workbook.xlsx.writeBuffer();
@@ -76,7 +178,7 @@ export default function DailySummaryPersonReport({ reportRows }: { reportRows: D
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `DailySummaryPersonReport_${new Date().toISOString().substring(0, 10)}.xlsx`;
+        a.download = `DailySummaryIncomeReport_${new Date().toISOString().substring(0, 10)}.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
