@@ -8,7 +8,7 @@ import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicu
 import DatePicker from "react-datepicker";
 import { CheckboxCustom } from "@/lib/components/web/react/uicustom/CheckboxCustom";
 import PookieTimeTable from "@/core/models/domain/PookieTimeTable";
-import { generateTimeTable, getRoomNames, getTimeTable, updateTimeTable } from "./actions";
+import { generateTimeTable, getRoomNames, getTimeTable, updateTimeTable, getNoDraw } from "./actions";
 import { toast } from "sonner";
 import { ColumnDef } from "@tanstack/react-table";
 import SimpleDataTable from "@/lib/components/web/react/uicustom/simpledatatable";
@@ -263,6 +263,114 @@ export default function TimeTable() {
         // await workbook.xlsx.writeFile(filename);
     };
 
+    const handleViewNoDraw = async () => {
+        if (!drawDate) {
+            toast("Please choose draw date");
+            return;
+        }
+        const res = await getNoDraw(drawDate.getLocalDateAsUTCDate());
+        if (res.message) {
+            if (res.error) {
+                toast(res.message);
+                return;
+            }
+        }
+        const rooms: string[] = res.data?.rooms || [];
+        const win = window.open('', 'NoDraw', `width=${Math.min(1000, screen.availWidth)},height=${Math.min(800, screen.availHeight)},left=0,top=0`);
+        if (win) {
+            let html = `<html><head><title>No Draw Rooms</title><style>table{border-collapse:collapse;width:80%;margin:20px auto;}td,th{border:1px solid #000;padding:8px;text-align:left;}h1,h2{text-align:center;}</style></head><body>`;
+            html += `<h1>No Draw Rooms</h1>`;
+            html += `<h2>Date: ${drawDate?.toISOFormatDateString()}</h2>`;
+            html += `<table><thead><tr><th>#</th><th>Room No</th></tr></thead><tbody>`;
+            rooms.forEach((r, idx) => {
+                html += `<tr><td>${idx + 1}</td><td>${r}</td></tr>`;
+            });
+            html += `</tbody></table></body></html>`;
+            win.document.open();
+            win.document.write(html);
+            win.document.close();
+            win.focus();
+        }
+    };
+
+    const handleDownloadNoDrawExcel = async () => {
+        if (!drawDate) {
+            toast("Please choose draw date");
+            return;
+        }
+        const res = await getNoDraw(drawDate.getLocalDateAsUTCDate());
+        if (res.message) {
+            if (res.error) {
+                toast(res.message);
+                return;
+            }
+        }
+        const rooms: string[] = res.data?.rooms || [];
+        
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('No Draw Rooms');
+        
+        // Set column widths
+        worksheet.columns = [
+            { key: 'col1', width: 10 },
+            { key: 'col2', width: 30 },
+        ];
+        
+        // Title row
+        worksheet.mergeCells('A1:B1');
+        const titleRow = worksheet.getRow(1);
+        titleRow.getCell(1).value = 'NO DRAW ROOMS';
+        titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF88AAFF' } };
+        titleRow.getCell(1).alignment = { horizontal: "center" };
+        
+        // Date row
+        worksheet.mergeCells('A2:B2');
+        const dateRow = worksheet.getRow(2);
+        dateRow.getCell(1).value = `Date: ${drawDate?.toISOFormatDateString()}`;
+        dateRow.getCell(1).alignment = { horizontal: "center" };
+        
+        // Header row
+        const headerRow = worksheet.getRow(3);
+        headerRow.getCell(1).value = '#';
+        headerRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF99BBFF' } };
+        headerRow.getCell(1).alignment = { horizontal: "center" };
+        headerRow.getCell(2).value = 'Room No';
+        headerRow.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF99BBFF' } };
+        headerRow.getCell(2).alignment = { horizontal: "center" };
+        
+        // Data rows
+        rooms.forEach((room, idx) => {
+            const row = worksheet.getRow(4 + idx);
+            const cellA = row.getCell(1);
+            const cellB = row.getCell(2);
+            
+            cellA.value = idx + 1;
+            cellB.value = room;
+            
+            cellA.alignment = { horizontal: "center" };
+            cellB.alignment = { horizontal: "left" };
+        });
+        
+        // Apply borders to all rows
+        for (let i = 1; i <= 3 + rooms.length; i++) {
+            const row = worksheet.getRow(i);
+            for (let j = 1; j <= 2; j++) {
+                const cell = row.getCell(j);
+                cell.border = {
+                    top:    { style: "thin" , color: { argb: "FF000000" } },
+                    left:   { style: "thin" , color: { argb: "FF000000" } },
+                    bottom: { style: "thin" , color: { argb: "FF000000" } },
+                    right:  { style: "thin" , color: { argb: "FF000000" } }
+                };
+            }
+        }
+        
+        // Generate and download
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, `NoDraw_${new Date().toISOString().substring(0, 10)}.xlsx`);
+    };
+
     // const handleDownloadExcel = (data: PookieTimeTable[]) => {
     //     const hole1 = data.filter(tt => (tt.hole === '1')).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
     //     const hole5 = data.filter(tt => (tt.hole === '5')).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
@@ -479,6 +587,8 @@ export default function TimeTable() {
                 <ButtonCustom>Print All</ButtonCustom>
                 <ButtonCustom>Delete Selection</ButtonCustom>
                 <ButtonCustom variant="green" onClick={e => handleDownloadExcel(timeTable)} >Download Excel</ButtonCustom>
+                <ButtonCustom variant="green" onClick={e => { handleViewNoDraw(); }} >View No Draw</ButtonCustom>
+                <ButtonCustom variant="green" onClick={e => { handleDownloadNoDrawExcel(); }} >Download No Draw Excel</ButtonCustom>
             </div>
             <section aria-label="Guest List" className="flex w-full h-fit place-content-between">
                 <div className="flex">

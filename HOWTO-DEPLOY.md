@@ -6,7 +6,11 @@
 npm run build
 
 # zip
-zip .next release.zip
+zip .next release.zip 
+
+# For Standalone Upload
+- Copy .next/static into .next/standalone/.next
+- zip .next/standalone/.next
 
 # upload
 sftp user@production.domain.com

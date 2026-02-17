@@ -93,7 +93,7 @@ export default class InvoiceService implements IInvoiceService {
 
         // load related items
         const [simpleItems] = await this.simpleInvoiceItemRepository.findMany(eq("invoiceId", id));
-        const [bookingItems] = await this.bookingInvoiceItemRepository.findMany(eq("invoiceId", id));
+        const [bookingItems] = await this.bookingInvoiceItemRepository.findMany(eq("invoiceId", id), asc("startDate"));
 
         invoice.simpleItems = simpleItems || [];
         invoice.bookingItems = bookingItems || [];

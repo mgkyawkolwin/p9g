@@ -109,15 +109,15 @@ export default function InvoiceDialog({
         const bookingList = (updatedBookingItems || bookingItems).filter(i => i.modelState !== 'deleted');
         const simpleList = (updatedSimpleItems || simpleItems).filter(i => i.modelState !== 'deleted');
 
-        const bookingKWR = bookingList.reduce((sum, item) => sum + (item.amountKWR || 0), 0);
-        const bookingTHB = bookingList.reduce((sum, item) => sum + (item.amountTHB || 0), 0);
-        const simpleKWR = simpleList.reduce((sum, item) => sum + (item.amountKWR || 0), 0);
-        const simpleTHB = simpleList.reduce((sum, item) => sum + (item.amountTHB || 0), 0);
+        const bookingKWR = bookingList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountKWR), 0);
+        const bookingTHB = bookingList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountTHB), 0);
+        const simpleKWR = simpleList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountKWR), 0);
+        const simpleTHB = simpleList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountTHB), 0);
 
-        const totalKWR = bookingKWR + simpleKWR;
-        const totalTHB = bookingTHB + simpleTHB;
-        const depositKWR = invoice.depositKWR || 0;
-        const depositTHB = invoice.depositTHB || 0;
+        const totalKWR = convertToNumber(bookingKWR) + convertToNumber(simpleKWR);
+        const totalTHB = convertToNumber(bookingTHB) + convertToNumber(simpleTHB);
+        const depositKWR = convertToNumber(invoice.depositKWR);
+        const depositTHB = convertToNumber(invoice.depositTHB);
 
         setInvoice({
             ...invoice,
@@ -557,10 +557,7 @@ export default function InvoiceDialog({
 
     const handlePrintInvoice = () => {
         if (!invoice) return;
-
-        // Combine booking and simple items into one paste-friendly HTML table
-        let totalKWR = 0;
-        let totalTHB = 0;
+        
         const address = `Mida Golf Club Kanchanaburi<br/>
             주소 : 123 moo7 Tambon Lad Ya, Kanchanaburi 71190<br/>
             Kaeng Krachan (KKC) Golf Club : <br/>
@@ -573,16 +570,42 @@ export default function InvoiceDialog({
         table += `<thead><tr>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">#</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:left;background:#eee;">Description</th>` +
-            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Start Date</th>` +
-            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">End Date</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;width:70px;">Start Date</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;width:70px;">End Date</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Golf Course</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Pax</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Days</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Rate KWR</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Amount KWR</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Rate THB</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Amount THB</th>` +
             `</tr></thead><tbody>`;
+            
+
+        
+        simpleItems.forEach((it, i) => {
+            const desc = it.description || '';
+            const amtK = it.amountKWR != null ? it.amountKWR : 0;
+            const amtT = it.amountTHB != null ? it.amountTHB : 0;
+
+            table += `<tr>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${i + 1}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:left;">${desc}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtK}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtT}</td>` +
+                `</tr>`;
+        });
 
         bookingItems.forEach((it, i) => {
+            const offset = simpleItems.length;
+            const idx = offset + i;
             const desc = `${it.description || ''}`;
             const pax = it.pax || '';
             const days = it.noOfDays || '';
@@ -590,11 +613,9 @@ export default function InvoiceDialog({
             const amtK = it.amountKWR != null ? it.amountKWR : 0;
             const rateT = it.rateTHB != null ? it.rateTHB : '';
             const amtT = it.amountTHB != null ? it.amountTHB : 0;
-            totalKWR += Number(amtK || 0);
-            totalTHB += Number(amtT || 0);
 
             table += `<tr>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">${i + 1}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${idx + 1}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:left;">${desc}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${it.startDate ? new Date(it.startDate).toLocaleDateString('sv-SE') : ''}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${it.endDate ? new Date(it.endDate).toLocaleDateString('sv-SE') : ''}</td>` +
@@ -603,39 +624,28 @@ export default function InvoiceDialog({
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${days}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${rateK}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtK}</td>` +
-                `</tr>`;
-        });
-
-        const offset = bookingItems.length;
-        simpleItems.forEach((it, i) => {
-            const idx = offset + i;
-            const desc = it.description || '';
-            const amtK = it.amountKWR != null ? it.amountKWR : 0;
-            const amtT = it.amountTHB != null ? it.amountTHB : 0;
-            totalKWR += Number(amtK || 0);
-            totalTHB += Number(amtT || 0);
-
-            table += `<tr>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">${idx + 1}</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:left;">${desc}</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
-                `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtK}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${rateT}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtT}</td>` +
                 `</tr>`;
         });
 
         table += `</tbody>`;
         table += `<tfoot>` +
             `<tr><td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Total Amount</td>` +
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.totalAmountKWR || 0}</td></tr>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.totalAmountKWR || 0}</td>`+
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>`+
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.totalAmountTHB || 0}</td>`+
+            `</tr>` +
             `<tr><td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Deposit</td>` +
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.depositKWR || 0}</td></tr>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.depositKWR || 0}</td>`+
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>`+
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.depositTHB || 0}</td>`+
+            `</tr>` +
             `<tr><td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Due Amount</td>` +
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.dueAmountKWR}</td></tr>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.dueAmountKWR || 0}</td>`+
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>`+
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.dueAmountTHB || 0}</td>`+
+            `</tr>` +
             `</tfoot>`;
         table += `</table>`;
 
@@ -801,6 +811,26 @@ export default function InvoiceDialog({
             />
         },
         {
+            accessorKey: "rateTHB",
+            header: 'Rate THB',
+            cell: (row) => <InputCustom
+                size="xs"
+                key={`booking-rateTHB-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
+                value={row.row.original.rateTHB || 0}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "rateTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+            />
+        },
+        {
+            accessorKey: "amountTHB",
+            header: 'Amount THB',
+            cell: (row) => <InputCustom
+                size="sm"
+                key={`booking-amountTHB-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
+                value={row.row.original.amountTHB || 0}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+            />
+        },
+        {
             accessorKey: "action",
             header: "Action",
             cell: (row) => (
@@ -840,6 +870,16 @@ export default function InvoiceDialog({
                 key={`simple-amountKWR-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.amountKWR || 0}
                 onChange={e => handleSimpleItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountKWR", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+            />
+        },
+        {
+            accessorKey: "amountTHB",
+            header: 'Amount THB',
+            cell: (row) => <InputCustom
+                size="sm"
+                key={`simple-amountTHB-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
+                value={row.row.original.amountTHB || 0}
+                onChange={e => handleSimpleItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -953,28 +993,6 @@ export default function InvoiceDialog({
                                 </div>
                             </div>
 
-                            {/* Booking Items Section */}
-                            <div className="border-b pb-4">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-lg font-semibold">Booking Items</h3>
-                                    <ButtonCustom
-                                        type="button"
-                                        variant="green"
-                                        size="sm"
-                                        onClick={addBookingItem}
-                                    >
-                                        Add New Row
-                                    </ButtonCustom>
-                                </div>
-                                {visibleBookingItems.length > 0 ? (
-                                    <div className="overflow-x-auto">
-                                        <BillDataTable columns={bookingItemsColumns} data={visibleBookingItems} />
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-4 text-gray-500">No booking items added yet</div>
-                                )}
-                            </div>
-
                             {/* Simple Items Section */}
                             <div className="border-b pb-4">
                                 <div className="flex justify-between items-center mb-4">
@@ -994,6 +1012,28 @@ export default function InvoiceDialog({
                                     </div>
                                 ) : (
                                     <div className="text-center py-4 text-gray-500">No simple items added yet</div>
+                                )}
+                            </div>
+
+                            {/* Booking Items Section */}
+                            <div className="border-b pb-4">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-lg font-semibold">Booking Items</h3>
+                                    <ButtonCustom
+                                        type="button"
+                                        variant="green"
+                                        size="sm"
+                                        onClick={addBookingItem}
+                                    >
+                                        Add New Row
+                                    </ButtonCustom>
+                                </div>
+                                {visibleBookingItems.length > 0 ? (
+                                    <div className="overflow-x-auto">
+                                        <BillDataTable columns={bookingItemsColumns} data={visibleBookingItems} />
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-4 text-gray-500">No booking items added yet</div>
                                 )}
                             </div>
 
@@ -1036,6 +1076,24 @@ export default function InvoiceDialog({
                                             size="md"
                                             value={invoice.totalAmountTHB || 0}
                                             onChange={e => handleInputChange("totalAmountTHB", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Deposit (THB)</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.depositTHB || 0}
+                                            onChange={e => handleInputChange("depositTHB", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Due Amount (THB)</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.dueAmountTHB || 0}
+                                            onChange={e => handleInputChange("dueAmountTHB", e.target.value)}
                                         />
                                     </div>
                                 </div>
