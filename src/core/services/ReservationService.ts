@@ -295,6 +295,12 @@ export default class ReservationService implements IReservationService {
         else if (list === 'checkout') {
             return await this.reservationRepository.reservationGetList(searchFormFields, pagerParams, list, sessionUser);
         }
+        else if (list === 'pickup') {
+            return await this.reservationRepository.reservationGetList(searchFormFields, pagerParams, list, sessionUser);
+        }
+        else if (list === 'dropoff') {
+            return await this.reservationRepository.reservationGetList(searchFormFields, pagerParams, list, sessionUser);
+        }
         else if (list === 'top') {
             pagerParams.orderBy = 'createdAtUTC';
             pagerParams.orderDirection = 'desc';

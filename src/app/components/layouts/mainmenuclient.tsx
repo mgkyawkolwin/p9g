@@ -206,6 +206,15 @@ export default function MainMenuClient({ role }) {
                       Daily Reservation Detail
                     </Link>
                   </li>
+                  <li>
+                    <Link
+                      href="/console/reports/pickupdropoff"
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setReportsOpen(false)}
+                    >
+                      Pickup & Dropoff Report
+                    </Link>
+                  </li>
                 </ul>
               </div>
             </li>

@@ -107,6 +107,7 @@ container.bind<IPookieService>(TYPES.IPookieService).to(PookieService).inRequest
 container.bind<IReportService>(TYPES.IReportService).to(ReportService).inRequestScope();
 container.bind<IReservationService>(TYPES.IReservationService).to(ReservationService).inRequestScope();
 container.bind<IUserService>(TYPES.IUserService).to(UserService).inRequestScope();
+// Pickup/dropoff report is provided by ReportService; no separate binding required
 
 // Bind Repositories
 container.bind<IRepository<Bill>>(TYPES.IBillRepository).toDynamicValue(context => {

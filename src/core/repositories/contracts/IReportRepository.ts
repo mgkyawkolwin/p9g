@@ -3,6 +3,7 @@ import DailySummaryGuestsRoomsReportRow from "@/core/models/dto/reports/DailySum
 import DailySummaryIncomeReportRow from "@/core/models/dto/reports/DailySummaryIncomeReportRow";
 import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
 import SessionUser from "@/core/models/dto/SessionUser";
+import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDropoffReportResponse';
 
 export default interface IReportRepository {
 
@@ -10,5 +11,6 @@ export default interface IReportRepository {
     getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]>;
     getDailySummaryIncomeReport(startDate: string, endDate: string, reservationType: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]>;
     getDailySummaryPersonReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]>;
+    getPickupDropoffReport(arrivalDepartureDate: string, sessionUser: SessionUser): Promise<PickupDropoffReportResponse>;
 
 }

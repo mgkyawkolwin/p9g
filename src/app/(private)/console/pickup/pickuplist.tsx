@@ -36,7 +36,7 @@ export default function PickUpList() {
             <form ref={formRef} action={formAction} className="flex flex-col gap-4">
               <PickUpListSearch formRef={formRef} />
               <PickUpListTable formState={state} formAction={formAction} formRef={formRef} />
-              <input type="hidden" name="searchReservationStatus" value={"NEW"} />
+              {/* <input type="hidden" name="searchReservationStatus" value={"NEW"} /> */}
             </form>
           </div>
         </GroupContent>
