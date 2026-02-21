@@ -9,7 +9,7 @@ import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
 
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string, billId: string }> }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string, billId: string }> }) {
     try {
         c.fs("POST /api/reservations/[id]/bills/[billId]");
         c.d(JSON.stringify(request));
@@ -19,7 +19,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             throw new CustomError('Invalid session');
 
         //retrieve search params from request
-        const p = await params;
+        const p = await context.params;
         c.d(p);
         const { id, billId } = p;
 

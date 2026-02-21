@@ -16,5 +16,6 @@ export default interface IPookieService {
     getTimeTable(date: Date, sessionUser: SessionUser): Promise<PookieTimeTable[]>;
     getPookieInfo(sessionUser: SessionUser): Promise<PookieInfo>;
     updatePookie(pookie: PookieTimeTable, sessionUser: SessionUser): Promise<void>;
+    getNoDraw(date: Date, sessionUser: SessionUser): Promise<string[]>;
 
 }

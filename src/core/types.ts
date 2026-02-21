@@ -31,6 +31,8 @@ export type SearchParam = {
 }
 
 export type SearchFormFields = {
+  searchAgentName?: string | undefined,
+  searchCustomerName?: string | undefined,
   searchArrivalDateTime?: string | undefined,
   searchBookingSource?: string | undefined,
   searchCheckInDate?: string | undefined,
@@ -42,10 +44,16 @@ export type SearchFormFields = {
   searchDepartureDateTime?: string | undefined,
   date?: string | undefined,
   searchDate?: string | undefined,
+  searchDueDateFrom?: string | undefined,
+  searchDueDateUntil?: string | undefined,
   searchEmail?: string | undefined,
   searchExistingReservations?: string | undefined,
   searchFlight?: string | undefined,
   searchId?: string | undefined,
+  searchInvoiceDateFrom?: string | undefined,
+  searchInvoiceDateUntil?: string | undefined,
+  searchInvoiceNumber?: string | undefined,
+  searchLocation?: string | undefined,
   searchName?: string | undefined,
   searchNationalId?: string | undefined,
   searchPassport?: string | undefined,
@@ -55,6 +63,9 @@ export type SearchFormFields = {
   searchRemark?: string | undefined,
   searchReservationStatus?: string | undefined,
   searchReservationType?: string | undefined,
+  searchInvoiceStatus?: string | undefined,
+  searchStartDateFrom?: string | undefined,
+  searchStartDateUntil?: string | undefined,
   searchUserName?: string | undefined,
 };
 
@@ -62,6 +73,7 @@ export const TYPES = {
   IAuthorizer: Symbol.for('IAuthorizer'),
   IAuthService: Symbol.for('IAuthService'),
   IBillRepository: Symbol.for('IBillRepository'),
+  IBookingInvoiceItemRepository: Symbol.for('IBookingInvoiceItemRepository'),
   ICacheAdapter: Symbol.for('ICacheAdapter'),
   IConfigRepository: Symbol.for('IConfigRepository'),
   ICustomerRepository: Symbol.for('ICustomerRepository'),
@@ -70,6 +82,8 @@ export const TYPES = {
   IDbType: Symbol.for('IDbType'),
   IFeedbackService: Symbol.for('IFeedbackService'),
   IFeedbackRepository: Symbol.for('IFeedbackRepository'),
+  IInvoiceRepository: Symbol.for('IInvoiceRepository'),
+  IInvoiceService: Symbol.for('IInvoiceService'),
   ILogRepository: Symbol.for('ILogRepository'),
   ILogService: Symbol.for('ILogService'),
   IMapper: Symbol.for('IMapper'),
@@ -95,6 +109,7 @@ export const TYPES = {
   IRoomChargeRepository: Symbol.for('IRoomChargeRepository'),
   IRoomReservationRepository: Symbol.for('IRoomReservationRepository'),
   IRoomTypeRepository: Symbol.for('IRoomTypeRepository'),
+  ISimpleInvoiceItemRepository: Symbol.for('ISimpleInvoiceItemRepository'),
   IUserRepository: Symbol.for('IUserRepository'),
   IUserService: Symbol.for('IUserService'),
 }

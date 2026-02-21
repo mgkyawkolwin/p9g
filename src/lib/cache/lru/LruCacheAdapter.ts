@@ -22,8 +22,8 @@ export default class LruCacheAdapter implements ICacheAdapter{
 
     async clear() : Promise<void> {
         console.log(`CACHE: Clearing all caches`);
-        this.cache.clear();
-        this.cache.reset();
+        // this.cache.clear();
+        // this.cache.reset();
         this.keyMap = [];
     }
 

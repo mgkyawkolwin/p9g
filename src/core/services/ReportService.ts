@@ -7,6 +7,7 @@ import DailySummaryIncomeReportRow from "../models/dto/reports/DailySummaryIncom
 import DailySummaryPersonReportRow from "../models/dto/reports/DailySummaryPersonReportRow";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import SessionUser from "../models/dto/SessionUser";
+import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDropoffReportResponse';
 import DailyReservationDetailReportRow from "../models/dto/reports/DailyReservationDetailReportRow";
 
 @injectable()
@@ -39,6 +40,11 @@ export default class ReportService implements IReportService {
     async getDailySummaryPersonReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]> {
         c.fs('ReportService > getDailySummaryPersonReport');
         return await this.reportRepository.getDailySummaryPersonReport(startDate, endDate, reservationStatus, sessionUser);
+    }
+
+    async getPickupDropoffReport(arrivalDepartureDate: string, sessionUser: SessionUser): Promise<PickupDropoffReportResponse> {
+        c.fs('ReportService > getPickupDropoffReport');
+        return await this.reportRepository.getPickupDropoffReport(arrivalDepartureDate, sessionUser);
     }
 
 }

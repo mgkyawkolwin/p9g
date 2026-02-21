@@ -140,3 +140,28 @@ export async function updateTimeTable(timeTable:PookieTimeTable): Promise<FormSt
     return {error:true, message : "Unknown error occured."};
   }
 }
+
+
+export async function getNoDraw(drawDate: Date): Promise<FormState> {
+  try{
+    c.fs('Actions > getNoDraw');
+    const response = await fetch(process.env.API_URL + `pookie/nodraw?drawDate=${drawDate.toISOString()}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      }
+    });
+    const responseData = await response.json();
+
+    if(!response.ok){
+      return {error:true, message : `getNoDraw failed. ${responseData.message}`};
+    }
+
+    c.fe('Actions > getNoDraw');
+    return { error: false, message: undefined, data: { rooms: responseData.data.rooms } };
+  }catch(error){
+    c.e(error instanceof Error ? error.message : String(error));
+    return {error:true, message : "Unknown error occured."};
+  }
+}

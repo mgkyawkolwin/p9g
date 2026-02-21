@@ -10,6 +10,7 @@ import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryP
 import type ICacheAdapter from "@/lib/cache/ICacheAdapter";
 import SessionUser from "@/core/models/dto/SessionUser";
 import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
+import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDropoffReportResponse';
 
 
 @injectable()
@@ -109,5 +110,25 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
 
         return object;
 
+    }
+
+    async getPickupDropoffReport(arrivalDepartureDate: string, sessionUser: SessionUser): Promise<PickupDropoffReportResponse> {
+        c.fs('Repository > getPickupDropoffReport');
+
+        const cacheTag = `pickupdropoff-${arrivalDepartureDate}-${sessionUser.location}`;
+        const startTime = performance.now();
+
+        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
+        if (cacheObject) {
+            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+            return cacheObject;
+        }
+
+        const object = await this.repository.getPickupDropoffReport(arrivalDepartureDate, sessionUser);
+
+        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
+
+        return object;
     }
 }

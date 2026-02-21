@@ -256,6 +256,32 @@ export default class PookieService implements IPookieService {
     }
 
 
+    async getNoDraw(date: Date, sessionUser: SessionUser): Promise<string[]> {
+        c.fs('PookieService > getNoDraw');
+        const roomsAndPax = await this.reservationRepository.getRoomsAndPax(date, sessionUser);
+        c.d(roomsAndPax?.length);
+
+        if (!roomsAndPax || roomsAndPax.length === 0) {
+            c.fe('PookieService > getNoDraw');
+            return [];
+        }
+
+        const [drewResults, _] = await this.pookieRepository.findMany(
+            and(
+                eq("location", sessionUser.location),
+                eq('date', date.toISOString())
+            )
+        );
+
+        const filtered = roomsAndPax.filter(r =>
+            !drewResults.some(dr => dr.rooms.includes(r.roomNo))
+        );
+
+        c.fe('PookieService > getNoDraw');
+        return filtered.map(r => r.roomNo);
+    }
+
+
     async getTimeTable(date: Date, sessionUser: SessionUser): Promise<PookieTimeTable[]> {
         c.fs('PookieService > getTimeTable');
         const [table, count] = await this.pookieRepository.findMany(

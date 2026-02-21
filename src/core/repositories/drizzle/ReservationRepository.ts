@@ -229,7 +229,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
 
         const conditions = [];
 
-        if (list === 'checkin' || list === 'checkout') {
+        if (list === 'checkin' || list === 'checkout' || list === 'pickup' || list === 'dropoff') {
             const [reservationStatus] = await this.dbClient.db.select().from(configTable)
                 .where(and(
                     eq(configTable.group, ConfigGroup.RESERVATION_STATUS),

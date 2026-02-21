@@ -11,7 +11,7 @@ import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
 
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
     try {
         c.fs("GET /api/reservations/[id]/payments");
         c.d(JSON.stringify(request));
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             throw new CustomError('Invalid session');
 
         //retrieve search params from request
-        const p = await params;
+        const p = await context.params;
         c.d(p);
         const { id } = p;
 
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
     try {
         c.fs("POST /api/reservations/[id]/payments");
         c.d(JSON.stringify(request));
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             throw new CustomError('Invalid session');
 
         //retrieve search params from request
-        const p = await params;
+        const p = await context.params;
         c.d(p);
         const { id } = p;
 

@@ -9,12 +9,14 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
         Object.entries(queryObject).filter(([key, value]) => value !== 'DEFAULT' && value !== '')
     );
     if (!queryStringObject) return null;
+
     if (queryStringObject.searchArrivalDateTime) {
         conditions.push(and(
             gte('arrivalDateTime', queryStringObject.searchArrivalDateTime),
             lte('arrivalDateTime', getUTCDateMidNight(queryStringObject.searchArrivalDateTime as Date))
         ));
     }
+
     if (queryStringObject.searchCheckInDate) {
         conditions.push(eq('checkInDate', queryStringObject.searchCheckInDate));
     }
@@ -26,9 +28,11 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
     } else if (queryStringObject.searchCheckInDateUntil) {
         conditions.push(lte('checkInDate', queryStringObject.searchCheckInDateUntil));
     }
+
     if (queryStringObject.searchCheckOutDate) {
         conditions.push(eq('checkOutDate', queryStringObject.searchCheckOutDate));
     }
+
     if (queryStringObject.searchCreatedDateFrom && queryStringObject.searchCreatedDateUntil) {
         conditions.push(and(
             gte('createdAtUTC', queryStringObject.searchCreatedDateFrom),
@@ -39,18 +43,22 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
     } else if (queryStringObject.searchCreatedDateUntil) {
         conditions.push(lte('createdAtUTC', queryStringObject.searchCreatedDateUntil));
     }
+
     if (queryStringObject.searchDate) {
         conditions.push(eq('date', queryStringObject.searchDate));
     }
+
     if (queryStringObject.searchDepartureDateTime) {
         conditions.push(and(
             gte('departureDateTime', queryStringObject.searchDepartureDateTime),
             lte('departureDateTime', getUTCDateMidNight(queryStringObject.searchDepartureDateTime as Date))
         ));
     }
+
     if (queryStringObject.searchId) {
         conditions.push(or(eq('id', queryStringObject.searchId), like('id', `%${queryStringObject.searchId}%`)));
     }
+
     if (queryStringObject.searchName) {
         conditions.push(
             or(
@@ -60,36 +68,84 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
                 like('englishName', `${queryStringObject.searchName}`)
             ));
     }
+
     if (queryStringObject.searchNationalId) {
         conditions.push(or(eq('nationalId', queryStringObject.searchNationalId), like('nationalId', `%${queryStringObject.searchNationalId}%`)));
     }
+
     if (queryStringObject.searchPassport) {
         conditions.push(or(eq('passport', queryStringObject.searchPassport), like('passport', `%${queryStringObject.searchPassport}%`)));
     }
+
     if (queryStringObject.searchPhone) {
         conditions.push(or(eq('phone', queryStringObject.searchPhone), like('phone', `%${queryStringObject.searchPhone}%`)));
     }
+
     if (queryStringObject.searchPrepaidPackage) {
         conditions.push(eq('prepaidPackage', queryStringObject.searchPrepaidPackage));
     }
+
     if (queryStringObject.searchPromotionPackage) {
         conditions.push(eq('promotionPackage', queryStringObject.searchPromotionPackage));
     }
+
     if (queryStringObject.searchRemark) {
         conditions.push(or(eq('remark', queryStringObject.searchRemark), like('remark', `%${queryStringObject.searchRemark}%`)));
     }
+
     if (queryStringObject.searchReservationStatus) {
         conditions.push(eq('reservationStatus', queryStringObject.searchReservationStatus));
     }
+
     if (queryStringObject.searchReservationType) {
         conditions.push(eq('reservationType', queryStringObject.searchReservationType));
     }
+
     if (queryStringObject.searchUserName) {
         conditions.push(eq('userName', queryStringObject.searchUserName));
     }
+
     if (queryStringObject.searchEmail) {
         conditions.push(eq('email', queryStringObject.searchEmail));
     }
+
+    if (queryStringObject.searchAgentName) {
+        conditions.push(like('agentName', `%${queryStringObject.searchAgentName}%`));
+    }
+
+    if (queryStringObject.searchCustomerName) {
+        conditions.push(like('customerName', `%${queryStringObject.searchCustomerName}%`));
+    }
+
+    if (queryStringObject.searchInvoiceDateFrom && queryStringObject.searchInvoiceDateUntil) {
+        conditions.push(and(
+            gte('invoiceDate', queryStringObject.searchInvoiceDateFrom),
+            lte('invoiceDate', queryStringObject.searchInvoiceDateUntil)
+        ));
+    } else if (queryStringObject.searchInvoiceDateFrom) {
+        conditions.push(gte('invoiceDate', queryStringObject.searchInvoiceDateFrom));
+    } else if (queryStringObject.searchInvoiceDateUntil) {
+        conditions.push(lte('invoiceDate', queryStringObject.searchInvoiceDateUntil));
+    }
+    if (queryStringObject.searchInvoiceNumber) {
+        conditions.push(or(eq('invoiceNumber', queryStringObject.searchInvoiceNumber), like('invoiceNumber', `%${queryStringObject.searchInvoiceNumber}%`)));
+    }
+
+    if (queryStringObject.searchDueDateFrom && queryStringObject.searchDueDateUntil) {
+        conditions.push(and(
+            gte('dueDate', queryStringObject.searchDueDateFrom),
+            lte('dueDate', queryStringObject.searchDueDateUntil)
+        ));
+    } else if (queryStringObject.searchDueDateFrom) {
+        conditions.push(gte('dueDate', queryStringObject.searchDueDateFrom));
+    } else if (queryStringObject.searchDueDateUntil) {
+        conditions.push(lte('dueDate', queryStringObject.searchDueDateUntil));
+    }
+
+    if (queryStringObject.searchInvoiceStatus && queryStringObject.searchInvoiceStatus !== 'DEFAULT') {
+        conditions.push(eq('status', queryStringObject.searchInvoiceStatus));
+    }
+
     if (conditions.length === 0) return null;
 
     return conditions.length > 1 ? and(...conditions) : conditions[0];

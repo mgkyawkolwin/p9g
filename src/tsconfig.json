@@ -1,20 +1,28 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
+    "types": [
+      "node",
+      "@testing-library/jest-dom"
+    ],
     "skipLibCheck": true,
     "strict": false,
     "noEmit": false,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
-    "noUnusedLocals": false,       // Disable unused variable errors
-    "noUnusedParameters": false,   // Disable unused parameter errors
-    "noImplicitAny": false,        // Allow implicit 'any' types
+    "noUnusedLocals": false, // Disable unused variable errors
+    "noUnusedParameters": false, // Disable unused parameter errors
+    "noImplicitAny": false, // Allow implicit 'any' types
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -22,11 +30,22 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     },
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.d.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.d.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

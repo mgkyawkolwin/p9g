@@ -63,7 +63,7 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
         domain = await super.create(domain, transaction);
 
         await Promise.all([
-            revalidateTag(`${this.tableName}`)
+            revalidateTag(`${this.tableName}`, '')
         ]);
         c.fe("CacheRepository > create");
         return domain;
@@ -76,7 +76,7 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
         super.createMany(domains, transaction);
 
         await Promise.all([
-            revalidateTag(`${this.tableName}`)
+            revalidateTag(`${this.tableName}`, '')
         ]);
 
         c.fe("CacheRepository > createMany");
@@ -204,8 +204,8 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
         super.update(id, entity, transaction);
 
         await Promise.all([
-            revalidateTag(`${this.tableName}`),
-            revalidateTag(`${this.tableName}:${id}`)
+            revalidateTag(`${this.tableName}`, ''),
+            revalidateTag(`${this.tableName}:${id}`, '')
         ]);
 
         c.fe('CacheRepository > update');
@@ -218,8 +218,8 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
         super.delete(id, transaction);
 
         await Promise.all([
-            revalidateTag(`${this.tableName}`),
-            revalidateTag(`${this.tableName}:${id}`)
+            revalidateTag(`${this.tableName}`, ''),
+            revalidateTag(`${this.tableName}:${id}`, '')
         ]);
 
         c.fe('CacheRepository > delete');
@@ -232,7 +232,7 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
         await super.deleteWhere(query, transaction);
 
         await Promise.all([
-            revalidateTag(`${this.tableName}`)
+            revalidateTag(`${this.tableName}`, '')
         ]);
 
         c.fe('CacheRepository > deleteMany');

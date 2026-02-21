@@ -46,6 +46,8 @@ export async function reservationGetList(formState : FormState, formData: FormDa
       c.d(queryString);
     }
 
+    queryString = queryString ? queryString + '&list=dropoff' : 'list=dropoff';
+
     //retrieve users
     c.i("Update successful. Get the updated list based on query string.");
     const response = await fetch(process.env.API_URL + `reservations?${queryString}`, {

@@ -13,7 +13,7 @@ import RoomReservation from "@/core/models/domain/RoomReservation";
 import { auth } from "@/app/auth";
 
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     c.fs("GET /api/reservations/[id]/roomreservations");
     c.d(JSON.stringify(request));
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!session?.user)
       throw new CustomError('Invalid session');
 
-    const p = await params;
+    const p = await context.params;
     c.d(p);
     const { id } = p;
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     c.fs("PUT api/reservations/{id}/roomreservations");
 
@@ -57,7 +57,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!session?.user)
       throw new CustomError('Invalid session');
 
-    const p = await params;
+    const p = await context.params;
     c.d(p);
     const { id } = p;
     const body = await request.json();
