@@ -364,7 +364,7 @@ export default function InvoiceDialog({
 
     const handleSave = async () => {
         if (!invoice) return;
-        onOpenChanged();
+        // onOpenChanged();
 
         // Update invoice with current items
         const updatedInvoice = {
@@ -387,8 +387,8 @@ export default function InvoiceDialog({
 
         if (result.error) {
             toast.error(result.message);
-            onOpenChanged();
         } else {
+            onOpenChanged();
             toast.success(result.message);
             // setOpen(false);
             // Refresh the list
@@ -464,6 +464,8 @@ export default function InvoiceDialog({
         newItem.noOfRooms = 0;
         newItem.amountKWR = 0;
         newItem.amountTHB = 0;
+        newItem.createdAtUTC = new Date();
+        newItem.updatedAtUTC = new Date();
         const updatedItems = [...bookingItems, newItem];
         setBookingItems(updatedItems as BookingInvoiceItem[]);
         updateInvoiceTotals(updatedItems as BookingInvoiceItem[], simpleItems);
@@ -520,6 +522,8 @@ export default function InvoiceDialog({
         newItem.modelState = "inserted";
         newItem.amountKWR = 0;
         newItem.amountTHB = 0;
+        newItem.createdAtUTC = new Date();
+        newItem.updatedAtUTC = new Date();
         const updatedItems = [...simpleItems, newItem];
         setSimpleItems(updatedItems as SimpleInvoiceItem[]);
         updateInvoiceTotals(bookingItems, updatedItems as SimpleInvoiceItem[]);

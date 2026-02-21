@@ -1,4 +1,5 @@
 import { se } from 'date-fns/locale';
+import { create } from 'node:domain';
 import { z } from 'zod';
 
 
@@ -261,7 +262,9 @@ export const simpleInvoiceItemValidator = z.object({
   description: z.coerce.string().optional(),
   amountKWR: z.coerce.number().default(0),
   amountTHB: z.coerce.number().default(0),
-  modelState: z.string().optional()
+  modelState: z.string().optional(),
+  createdAtUTC: z.coerce.date().optional(),
+  updatedAtUTC: z.coerce.date().optional()
 });
 
 export const bookingInvoiceItemValidator = z.object({
@@ -277,7 +280,9 @@ export const bookingInvoiceItemValidator = z.object({
   amountTHB: z.coerce.number().default(0),
   noOfRooms: z.coerce.number().default(0),
   noOfDays: z.coerce.number().default(0),
-  modelState: z.string().optional()
+  modelState: z.string().optional(),
+  createdAtUTC: z.coerce.date().optional(),
+  updatedAtUTC: z.coerce.date().optional()
 });
 
 export const invoiceValidator = z.object({

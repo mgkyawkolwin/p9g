@@ -15,4 +15,6 @@ export default class BookingInvoiceItem extends DomainBase {
     public amountTHB: number = 0;
     public noOfRooms: number = 0;
     public noOfDays: number = 0;
+    public createdAtUTC: Date;
+    public updatedAtUTC: Date;
 }

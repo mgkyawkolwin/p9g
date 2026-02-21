@@ -49,7 +49,7 @@ export default class InvoiceService implements IInvoiceService {
                 const itemsToInsert = invoice.simpleItems.map(item => {
                     if (!item.id) item.id = uuidv4();
                     item.invoiceId = createdInvoice.id;
-                    item.createdAtUTC = new Date();
+                    // item.createdAtUTC = new Date(); // front end ui will set createdAtUTC for sorting purposes
                     item.createdBy = sessionUser.id;
                     item.updatedAtUTC = new Date();
                     item.updatedBy = sessionUser.id;
@@ -65,7 +65,7 @@ export default class InvoiceService implements IInvoiceService {
                 const itemsToInsert = invoice.bookingItems.map(item => {
                     if (!item.id) item.id = uuidv4();
                     item.invoiceId = createdInvoice.id;
-                    item.createdAtUTC = new Date();
+                    // item.createdAtUTC = new Date(); // front end ui will set createdAtUTC for sorting purposes
                     item.createdBy = sessionUser.id;
                     item.updatedAtUTC = new Date();
                     item.updatedBy = sessionUser.id;
@@ -92,8 +92,8 @@ export default class InvoiceService implements IInvoiceService {
         }
 
         // load related items
-        const [simpleItems] = await this.simpleInvoiceItemRepository.findMany(eq("invoiceId", id));
-        const [bookingItems] = await this.bookingInvoiceItemRepository.findMany(eq("invoiceId", id), asc("startDate"));
+        const [simpleItems] = await this.simpleInvoiceItemRepository.findMany(eq("invoiceId", id), asc("createdAtUTC"));
+        const [bookingItems] = await this.bookingInvoiceItemRepository.findMany(eq("invoiceId", id), asc("createdAtUTC"));
 
         invoice.simpleItems = simpleItems || [];
         invoice.bookingItems = bookingItems || [];
