@@ -180,6 +180,7 @@ export const pookieConfigTable = mysqlTable("pookieConfig", {
   contactUrl: varchar("contactUrl", {length: 500}).notNull(),
   key: char("key", {length: 36}).notNull(),
   version: varchar("version", {length: 10}).notNull(),
+  seeResultUntil: int("seeResultUntil").notNull(),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", { length: 36 }).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
