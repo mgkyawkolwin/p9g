@@ -99,6 +99,13 @@
       "when": 1770618118494,
       "tag": "0013_futuristic_mentor",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1771826418423,
+      "tag": "0014_equal_caretaker",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE `pookieConfig` ADD `seeResultUntil` int NOT NULL;

@@ -1,4 +1,5 @@
 export default class PookieInfo {
-    public version : string = '';
     public contactUrl : string = '';
+    public seeResultUntil : number = 0;
+    public version : string = '';
 }

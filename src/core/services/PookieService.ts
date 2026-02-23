@@ -303,6 +303,7 @@ export default class PookieService implements IPookieService {
         const pookieInfo = new PookieInfo();
         pookieInfo.contactUrl = qr[0].contactUrl;
         pookieInfo.version = qr[0].version;
+        pookieInfo.seeResultUntil = qr[0].seeResultUntil;
 
         c.fe('PookieService > getVersion');
         return pookieInfo;
