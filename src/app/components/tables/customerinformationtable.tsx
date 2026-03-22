@@ -136,19 +136,27 @@ export default function CustomerInformationTable({
         )
       },
     },
+    // {
+    //   accessorKey: "country",
+    //   header: ({ column }) => {
+    //     return (
+    //       <Button
+    //         variant="ghost"
+    //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //       >
+    //         Country
+    //         <ArrowUpDown className="ml-2 h-4 w-4" />
+    //       </Button>
+    //     )
+    //   },
+    // },
     {
-      accessorKey: "country",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Country
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
+      accessorKey: "isBlackListed",
+      header: "Blacklist",
+      cell: ({ row }) => {
+        const val = row.getValue('isBlackListed');
+        return <div>{val ? <div style={{color: "red"}}>Blacklist</div> : ''}</div>
+      }
     },
     {
       accessorKey: "action",

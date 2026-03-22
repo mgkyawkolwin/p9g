@@ -73,13 +73,21 @@ export default function CustomerChooseTable({
       accessorKey: "phone",
       header: 'Phone',
     },
+    // {
+    //   accessorKey: "email",
+    //   header: 'Email',
+    // },
+    // {
+    //   accessorKey: "country",
+    //   header: 'Country',
+    // },
     {
-      accessorKey: "email",
-      header: 'Email',
-    },
-    {
-      accessorKey: "country",
-      header: 'Country',
+      accessorKey: "isBlackListed",
+      header: "Blacklist",
+      cell: ({ row }) => {
+        const val = row.getValue('isBlackListed');
+        return <div>{val ? <div style={{color: "red"}}>Blacklist</div> : ''}</div>
+      }
     },
     {
       accessorKey: "action",

@@ -1,6 +1,6 @@
 'use server';
 
-import { customerValidator, pagerValidator, searchValidator } from '@/core/validators/zodschema';
+import { customerSearchValidator, customerValidator, pagerValidator, searchValidator } from '@/core/validators/zodschema';
 import { FormState } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
@@ -37,7 +37,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
 
     //validate and parse search input
     c.i("Parsing search fields from from entries.");
-    const searchFields = searchValidator.safeParse(formObject);
+    const searchFields = customerSearchValidator.safeParse(formObject);
     c.d(searchFields);
 
     //table pager field validatd, build query string

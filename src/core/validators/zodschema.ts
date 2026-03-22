@@ -19,6 +19,19 @@ export const billValidator = z.object({
   modelState: z.string()
 });
 
+export const customerSearchValidator = z.object({
+  searchCustomerName: z.string().optional(),
+  searchId: z.string().optional(),
+  searchEmail: z.string().optional(),
+  searchIsBlackListed: z.string().nullish().transform(val => val === 'true'),
+  searchIsDeleted: z.string().nullish().transform(val => val === 'true'),
+  searchName: z.string().optional(),
+  searchNationalId: z.string().optional(),
+  searchPassport: z.string().optional(),
+  searchPhone: z.string().optional(),
+  searchRemark: z.string().optional(),
+});
+
 
 export const customerValidator = z.object({
   id: z.string().length(36),
@@ -33,6 +46,8 @@ export const customerValidator = z.object({
   dob: z.string().nullish().catch(undefined).optional(),
   address: z.string().nullish().optional(),
   remarks: z.string().nullish().optional(),
+  isBlackListed: z.coerce.boolean().optional(),
+  isDeleted: z.coerce.boolean().optional(),
   modelState: z.string().optional()
 });
 
@@ -97,6 +112,7 @@ export const paymentValidator = z.object({
 export const reservationPatchValidator = z.object({
   id: z.coerce.string().length(36),
   golfCart: z.coerce.string().optional(),
+  paymentRemark: z.coerce.string().nullish().optional(),
 });
 
 
@@ -148,6 +164,7 @@ export const reservationValidator = z.object({
   roomNo: z.coerce.string().nullish(),
   tax: z.coerce.number(),
   tourCompany: z.coerce.string().nullish(),
+  paymentRemark: z.coerce.string().nullish().catch(undefined),
   modelState: z.coerce.string(),
 });
 
@@ -262,7 +279,7 @@ export const simpleInvoiceItemValidator = z.object({
   description: z.coerce.string().optional(),
   amountKWR: z.coerce.number().default(0),
   amountTHB: z.coerce.number().default(0),
-  modelState: z.string().optional(),
+  modelState: z.coerce.string().optional(),
   createdAtUTC: z.coerce.date().optional(),
   updatedAtUTC: z.coerce.date().optional()
 });
@@ -289,9 +306,9 @@ export const invoiceValidator = z.object({
   id: z.coerce.string().optional(),
   agentName: z.coerce.string().optional(),
   invoiceNumber: z.coerce.string().min(1, 'Invoice number is required'),
-  invoiceDate: z.coerce.date().nullish().optional(),
+  invoiceDate: z.coerce.string().min(1, 'Invoice date is required').pipe(z.coerce.date({ message: 'Invalid invoice date' })),
   customerName: z.coerce.string().min(1, 'Customer name is required'),
-  pax: z.coerce.string().optional(),
+  pax: z.coerce.string().min(1, 'Pax is required'),
   depositKWR: z.coerce.number().default(0),
   depositTHB: z.coerce.number().default(0),
   totalAmountKWR: z.coerce.number().default(0),
@@ -304,8 +321,8 @@ export const invoiceValidator = z.object({
   included: z.coerce.string().optional(),
   notIncluded: z.coerce.string().optional(),
   note: z.coerce.string().optional(),
-  simpleItems: z.array(simpleInvoiceItemValidator).optional(),
-  bookingItems: z.array(bookingInvoiceItemValidator).optional(),
+  simpleItems: z.array(simpleInvoiceItemValidator).catch([]),
+  bookingItems: z.array(bookingInvoiceItemValidator).default([]),
   modelState: z.string().optional()
 });
 

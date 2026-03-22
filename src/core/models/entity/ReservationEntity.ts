@@ -40,6 +40,7 @@ export default class ReservationEntity extends EntityBase{
     public prepaidPackageId: string  = '';
     public promotionPackageId: string  = '';
     public remark: string = "";
+    public paymentRemark: string = "";
     public roomNo: string = "";
     public reservationStatusId: string  = '';
     public reservationTypeId: string  = '';

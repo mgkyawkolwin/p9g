@@ -11,7 +11,7 @@ import SessionUser from "@/core/models/dto/SessionUser";
 import type { IDatabaseClient } from "@/lib/db/IDatabase";
 import { TransactionType } from "@/core/db/mysql/MySqlDatabase";
 import { asc, desc, eq } from "@/lib/transformers/types";
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { buildAnyCondition } from "../helpers";
 import { any } from "zod";
 
@@ -29,9 +29,36 @@ export default class InvoiceService implements IInvoiceService {
     async invoiceCreate(invoice: Invoice, sessionUser: SessionUser): Promise<Invoice> {
         c.fs('InvoiceService > invoiceCreate');
 
-        if (!invoice) throw new CustomError('Service: Invoice is required.');
-        if (!invoice.invoiceNumber) throw new CustomError('Service: Invoice number is required.');
-        if (!invoice.customerName) throw new CustomError('Service: Customer name is required.');
+        if (!invoice) throw new CustomError('Invoice is required.');
+        if (!invoice.invoiceNumber) throw new CustomError('Invoice number is required.');
+        if (!invoice.customerName) throw new CustomError('Customer name is required.');
+        if (!invoice.invoiceDate) throw new CustomError('Invoice date is required.');
+        if (!invoice.pax) throw new CustomError('Pax is required.');
+
+        //check duplicate invoice number
+        // const existing = await this.invoiceRepository.findOne(eq("invoiceNumber", invoice.invoiceNumber));
+        // if (existing) throw new CustomError('Invoice number already exists.');
+
+        // validate date simple items descriptions
+        if (invoice.simpleItems && invoice.simpleItems.length > 0) {
+            for (const item of invoice.simpleItems) {
+                if (!item.description) throw new CustomError('Description is required for simple invoice items.');
+                if (item.description.trim() === '') throw new CustomError('Description cannot be empty for simple invoice items.');
+                if (item.amountKWR <= 0 && item.amountTHB <= 0) throw new CustomError('At least one of amountKWR or amountTHB must be greater than 0 for simple invoice items.');
+            }
+        }
+
+        // validate booking items descriptions
+        if (invoice.bookingItems && invoice.bookingItems.length > 0) {
+            for (const item of invoice.bookingItems) {
+                if (!item.description) throw new CustomError('Description is required for booking invoice items.');
+                if (item.description.trim() === '') throw new CustomError('Description cannot be empty for booking invoice items.');
+                if(!item.startDate) throw new CustomError('Start date is required for booking invoice items.');
+                if(!item.endDate) throw new CustomError('End date is required for booking invoice items.');
+                if(item.startDate > item.endDate) throw new CustomError('Start date cannot be after end date for booking invoice items.');
+                if (item.amountKWR <= 0 && item.amountTHB <= 0) throw new CustomError('At least one of amountKWR or amountTHB must be greater than 0 for booking invoice items.');
+            }
+        }
 
         // invoice.id = uuidv4();
         invoice.createdAtUTC = new Date();
@@ -106,9 +133,9 @@ export default class InvoiceService implements IInvoiceService {
         c.fs('InvoiceService > invoiceGetList');
 
         const anyCondition = buildAnyCondition(searchFormFields);
-        
+
         const [invoices, count] = await this.invoiceRepository.findMany(anyCondition, desc("createdAtUTC"), (pagerParams.pageIndex - 1) * pagerParams.pageSize, pagerParams.pageSize);
-        
+
         c.fe('InvoiceService > invoiceGetList');
         return [invoices, count];
     }

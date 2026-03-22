@@ -7,7 +7,8 @@ import {
 } from "@tanstack/react-table";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
-import { paymentsDelete, paymentsGet, paymentsSave } from "@/app/(private)/console/reservations/actions";
+import { paymentsDelete, paymentsGet, paymentsSave, getReservation, reservationPatch } from "@/app/(private)/console/reservations/actions";
+import { Textarea } from "../../../lib/components/web/react/ui/textarea";
 import { toast } from "sonner";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
 import { SelectCustom } from "../../../lib/components/web/react/uicustom/selectcustom";
@@ -34,6 +35,7 @@ export default function PaymentDialog({
   const [open, setOpen] = React.useState(false);
   const [payments, setPayments] = React.useState<Payment[]>([]);
   const [reloadDataToggle, setReloadDataToggle] = React.useState(false);
+  const [paymentRemark, setPaymentRemark] = React.useState<string>('');
 
   const openDialog = (open: boolean) => {
     setOpen(open);
@@ -52,20 +54,20 @@ export default function PaymentDialog({
     if (compute)
       setPayments(prev =>
         prev.map((payment, index) =>
-          index === rowIndex ? { 
-            ...payment, 
+          index === rowIndex ? {
+            ...payment,
             [field]: value,
-            modelState: payment.modelState == "inserted" ? "inserted" : "updated" 
+            modelState: payment.modelState == "inserted" ? "inserted" : "updated"
           } : payment
         )
       );
     else {
       setPayments(prev =>
         prev.map((payment, index) =>
-          index === rowIndex ? { 
-            ...payment, 
+          index === rowIndex ? {
+            ...payment,
             [field]: value,
-            modelState: payment.modelState == "inserted" ? "inserted" : "updated" 
+            modelState: payment.modelState == "inserted" ? "inserted" : "updated"
           } : payment
         )
       );
@@ -174,6 +176,11 @@ export default function PaymentDialog({
           }
         ));
         setPayments(b);
+        // load reservation details to get paymentRemark
+        const r = await getReservation(reservationId);
+        if (r && r.data && r.data.reservation) {
+          setPaymentRemark(r.data.reservation.paymentRemark ?? '');
+        }
       }
     };
     fetchPayments();
@@ -205,15 +212,27 @@ export default function PaymentDialog({
         <DialogHeader>
           <DialogTitle>Payments</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-1">
-          <BillDataTable columns={columns} data={payments} />
+        <div className="">
+          <div className="w-full">
+            <BillDataTable columns={columns} data={payments} />
+          </div>
+          <br/><br/>
+          <div className="flex flex-col gap-2">
+            <label className="block text-sm font-medium text-gray-700">Payment Remark</label>
+            <Textarea value={paymentRemark ?? ''} onChange={(e: any) => setPaymentRemark(e.target.value)} />
+          </div>
         </div>
         <DialogFooter>
           <ButtonCustom type="button" variant="green" onClick={async () => {
             const response = await paymentsSave(reservationId, payments);
-            toast(response.message);
-            if (!response.error)
-              setOpen(false);
+            let message = response.message;
+            if (!response.error) {
+              // save paymentRemark via reservation patch
+              const rp = await reservationPatch(reservationId, { id: reservationId, paymentRemark });
+              if (rp.error && rp.message) message = rp.message;
+              if (!rp.error) setOpen(false);
+            }
+            if(message) toast(message);
           }}>Save Payment</ButtonCustom>
           <ButtonCustom type="button" onClick={() => {
             const payment = new Payment();
