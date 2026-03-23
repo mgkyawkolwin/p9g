@@ -231,6 +231,8 @@ export function getPagerWithDefaults(inputObject: PagerParams): PagerParams {
         return `text-[#888888] dark:text-[#888888]`;
     else if (status === 'CCL')
         return `text-[#cc0000] dark:text-[#ff0000]`;
+    else if (status === 'WTG')
+        return `text-[#cc0000] dark:text-[#ffff00]`;
 }
 /**
  * Get check-in date based on arrival date.

@@ -1,2 +1,13 @@
-# Version 5.3.2
-- add result valid until column and return value for pookie app
+# Version 5.4.1 Release Note
+- display remark in customer list
+- display Blacklist column in customer list
+- added "Black List" checkbox in customer new/edit dialog
+- added Delete button in customer list
+- display English Name in pickup/dropoff report
+- allow Reception Role to access pickup/dropoff report
+- added "WTG" waiting status in reservation status
+- added remark field in Payment dialog
+- display remark in receipt print
+- added extra signing people in receipt print
+- added Reservation Type in receipt print
+- display detial validation error in invoice dialog
