@@ -1,0 +1,2 @@
+INSERT INTO `config` (`id`, `group`, `value`, `text`, `createdAtUTC`, `createdBy`, `updatedAtUTC`, `updatedBy`) VALUES
+(uuid(), 'RESERVATION_STATUS', 'WTG', 'WTG', '1900-01-01 00:00:00', '00000000-0000-0000-0000-000000000000', '1900-01-01 00:00:00', '00000000-0000-0000-0000-000000000000');

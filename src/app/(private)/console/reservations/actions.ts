@@ -1,5 +1,5 @@
 'use server';
-import { billValidator, pagerValidator, paymentValidator, roomChargeValidator, roomReservationValidator, searchValidator } from '@/core/validators/zodschema';
+import { billValidator, pagerValidator, paymentValidator, roomChargeValidator, roomReservationValidator, searchValidator, reservationPatchValidator } from '@/core/validators/zodschema';
 import { FormState } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { buildQueryString } from "@/lib/utils";
@@ -218,6 +218,42 @@ export async function getReservation(reservationId:string){
     const reservation = responseData.data;
     c.fe("Action > getReservation");
     return {error:false, data:{reservation:reservation}};
+}
+
+export async function reservationPatch(reservationId: string, patchData: any): Promise<FormState> {
+  try {
+    c.fs('Actions > reservationPatch');
+    c.d(reservationId);
+    c.d(patchData);
+
+    const validated = reservationPatchValidator.safeParse(patchData);
+    c.d(validated);
+    if (!validated.success) {
+      c.d(validated.error.flatten().fieldErrors);
+      return { error: true, message: 'Invalid inputs.' };
+    }
+
+    const response = await fetch(process.env.API_URL + `reservations/${reservationId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie')
+      },
+      body: JSON.stringify(validated.data)
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      c.e(result.message);
+      return { error: true, message: `Failed to update reservation. ${result.message}` };
+    }
+
+    c.fe('Actions > reservationPatch');
+    return { error: false, message: result.message, data: result.data };
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return { error: true, message: 'Failed to update reservation.' };
+  }
 }
 
 

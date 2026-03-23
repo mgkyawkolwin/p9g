@@ -123,6 +123,13 @@ export default function ReservationListTable({
       cell: (row) => row.getValue(),
     },
     {
+      accessorKey: "bookingSource",
+      header: 'Source',
+      cell: (row) => {
+        return <div className="flex max-w-[150px] whitespace-normal" >{String(row.getValue())}</div>
+      }
+    },
+    {
       accessorKey: "remark",
       header: 'Remark',
       cell: (row) => {

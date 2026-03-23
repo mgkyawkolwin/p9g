@@ -19,6 +19,7 @@ import BillDataTable from "../../../lib/components/web/react/uicustom/billdatata
 import { Trash } from "lucide-react";
 import { calculateDayDifference } from "@/lib/utils";
 import { v4 as uuidv4 } from 'uuid';
+import { start } from "node:repl";
 
 interface InvoiceDialogProps {
     invoiceId?: string;
@@ -40,16 +41,30 @@ export default function InvoiceDialog({
     const [invoice, setInvoice] = React.useState<Invoice | null>(null);
     const [loading, setLoading] = React.useState(false);
     const [isSaving, setIsSaving] = React.useState(false);
-    const [bookingItems, setBookingItems] = React.useState<BookingInvoiceItem[]>([]);
-    const [simpleItems, setSimpleItems] = React.useState<SimpleInvoiceItem[]>([]);
+    // const [bookingItems, setBookingItems] = React.useState<BookingInvoiceItem[]>([]);
+    // const [simpleItems, setSimpleItems] = React.useState<SimpleInvoiceItem[]>([]);
+    // const [visibleBookingItems, setVisibleBookingItems] = React.useState<BookingInvoiceItem[]>([]);
+    // const [visibleSimpleItems, setVisibleSimpleItems] = React.useState<SimpleInvoiceItem[]>([]);
+    const simpleItems = React.useMemo(() => invoice?.simpleItems || [], [invoice]);
+    const bookingItems = React.useMemo(() => invoice?.bookingItems || [], [invoice]);
+    const visibleBookingItems = React.useMemo(
+        () => bookingItems.filter(c => c.modelState !== 'deleted'),
+        [bookingItems]
+    );
+    const visibleSimpleItems = React.useMemo(
+        () => simpleItems.filter(c => c.modelState !== 'deleted'),
+        [simpleItems]
+    );
+    // React.useEffect(() => {
+    //     // Filter out deleted items for display
+    //     setVisibleBookingItems(prev => prev.filter(item => item.modelState !== 'deleted'));
+    // }, [bookingItems]);
 
-    // Only show items that are not marked as deleted, but keep original array index for mapping back
-    const visibleBookingItems = bookingItems
-        .map((it, idx) => ({ __originalIndex: idx, ...it }))
-        .filter((i: any) => i.modelState !== 'deleted');
-    const visibleSimpleItems = simpleItems
-        .map((it, idx) => ({ __originalIndex: idx, ...it }))
-        .filter((i: any) => i.modelState !== 'deleted');
+
+    // React.useEffect(() => {
+    //     // Filter out deleted items for display
+    //     setVisibleSimpleItems(prev => prev.filter(item => item.modelState !== 'deleted'));
+    // }, [simpleItems]);
 
     // ============ CALCULATION HELPER FUNCTIONS ============
 
@@ -102,43 +117,44 @@ export default function InvoiceDialog({
     /**
      * Update invoice totals based on item amounts
      */
-    const updateInvoiceTotals = (updatedBookingItems?: BookingInvoiceItem[], updatedSimpleItems?: SimpleInvoiceItem[]) => {
+    const updateInvoiceTotals = () => {
         if (!invoice) return;
 
-        // exclude deleted items from totals
-        const bookingList = (updatedBookingItems || bookingItems).filter(i => i.modelState !== 'deleted');
-        const simpleList = (updatedSimpleItems || simpleItems).filter(i => i.modelState !== 'deleted');
+        setInvoice(prev => {
+            // exclude deleted items from totals
+            const bookingList = prev.bookingItems.filter(i => i.modelState !== 'deleted');
+            const simpleList = prev.simpleItems.filter(i => i.modelState !== 'deleted');
 
-        const bookingKWR = bookingList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountKWR), 0);
-        const bookingTHB = bookingList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountTHB), 0);
-        const simpleKWR = simpleList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountKWR), 0);
-        const simpleTHB = simpleList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountTHB), 0);
+            const bookingKWR = bookingList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountKWR), 0);
+            const bookingTHB = bookingList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountTHB), 0);
+            const simpleKWR = simpleList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountKWR), 0);
+            const simpleTHB = simpleList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountTHB), 0);
 
-        const totalKWR = convertToNumber(bookingKWR) + convertToNumber(simpleKWR);
-        const totalTHB = convertToNumber(bookingTHB) + convertToNumber(simpleTHB);
-        const depositKWR = convertToNumber(invoice.depositKWR);
-        const depositTHB = convertToNumber(invoice.depositTHB);
-
-        setInvoice({
-            ...invoice,
-            totalAmountKWR: totalKWR,
-            totalAmountTHB: totalTHB,
-            dueAmountKWR: totalKWR - depositKWR,
-            dueAmountTHB: totalTHB - depositTHB,
-            modelState: invoice.modelState === "inserted" ? "inserted" : "updated"
+            const totalKWR = convertToNumber(bookingKWR) + convertToNumber(simpleKWR);
+            const totalTHB = convertToNumber(bookingTHB) + convertToNumber(simpleTHB);
+            const depositKWR = convertToNumber(prev.depositKWR);
+            const depositTHB = convertToNumber(prev.depositTHB);
+            return {
+                ...prev,
+                totalAmountKWR: totalKWR,
+                totalAmountTHB: totalTHB,
+                dueAmountKWR: totalKWR - depositKWR,
+                dueAmountTHB: totalTHB - depositTHB,
+                modelState: prev.modelState === "inserted" ? "inserted" : "updated"
+            }
         });
     };
 
-    const openDialog = (open: boolean) => {
-        setOpen(open);
-        if (open) {
-            if (isNew) {
-                loadNewInvoice();
-            } else {
-                loadInvoice();
-            }
-        }
-    };
+    // const openDialog = (open: boolean) => {
+    //     setOpen(open);
+    //     if (open) {
+    //         if (isNew) {
+    //             loadNewInvoice();
+    //         } else {
+    //             loadInvoice();
+    //         }
+    //     }
+    // };
 
     React.useEffect(() => {
         setOpen(isOpen);
@@ -149,7 +165,11 @@ export default function InvoiceDialog({
                 loadInvoice();
             }
         }
-    }, [isOpen]);
+    }, [isOpen, isNew, invoiceId]);
+
+    React.useEffect(() => {
+
+    }, [invoiceId, isNew]);
 
     // React.useEffect(() => {
     //     if (callbackFunctions) {
@@ -287,8 +307,10 @@ export default function InvoiceDialog({
         </tr>
         </table>`);
         setInvoice(newInvoice);
-        setBookingItems([]);
-        setSimpleItems([]);
+        // setBookingItems([]);
+        // setVisibleBookingItems([]);
+        // setSimpleItems([]);
+        // setVisibleSimpleItems([]);
     };
 
     const loadInvoice = async () => {
@@ -318,7 +340,9 @@ export default function InvoiceDialog({
                 pax: item.pax || 0,
                 noOfRooms: item.noOfRooms || 0,
                 amountKWR: item.amountKWR || 0,
-                amountTHB: item.amountTHB || 0
+                amountTHB: item.amountTHB || 0,
+                startDate: item.startDate ? new Date(item.startDate) : null,
+                endDate: item.endDate ? new Date(item.endDate) : null
             }));
 
             // Ensure simple items have proper defaults
@@ -328,8 +352,10 @@ export default function InvoiceDialog({
                 amountTHB: item.amountTHB || 0
             }));
 
-            setBookingItems(bookingItemsWithDefaults);
-            setSimpleItems(simpleItemsWithDefaults);
+            // setBookingItems(bookingItemsWithDefaults);
+            // setVisibleBookingItems(bookingItemsWithDefaults);
+            // setSimpleItems(simpleItemsWithDefaults);
+            // setVisibleSimpleItems(simpleItemsWithDefaults);
         } else {
             toast.error(result.message);
         }
@@ -339,27 +365,28 @@ export default function InvoiceDialog({
     const handleInputChange = (field: string, value: string | Date | number | undefined) => {
         if (!invoice) return;
 
-        let updatedValue: any = value;
+        setInvoice(prev => {
+            let updatedValue: any = value;
 
-        // Handle number fields with same conversion as BillEditDialog
-        if (field === 'depositKWR' || field === 'depositTHB') {
-            updatedValue = convertToNumber(value as string | number);
-        }
+            // Handle number fields with same conversion as BillEditDialog
+            if (field === 'depositKWR' || field === 'depositTHB') {
+                updatedValue = convertToNumber(value as string | number);
+            }
 
-        const updatedInvoice: Invoice = {
-            ...invoice,
-            [field]: updatedValue,
-            modelState: invoice.modelState === "inserted" ? "inserted" : "updated"
-        };
+            const updatedInvoice: Invoice = {
+                ...prev,
+                [field]: updatedValue,
+                modelState: prev.modelState === "inserted" ? "inserted" : "updated"
+            };
 
-        // Recalculate due amounts if deposit changed
-        if (field === 'depositKWR') {
-            updatedInvoice.dueAmountKWR = (updatedInvoice.totalAmountKWR || 0) - updatedValue;
-        } else if (field === 'depositTHB') {
-            updatedInvoice.dueAmountTHB = (updatedInvoice.totalAmountTHB || 0) - updatedValue;
-        }
-
-        setInvoice(updatedInvoice);
+            // Recalculate due amounts if deposit changed
+            if (field === 'depositKWR') {
+                updatedInvoice.dueAmountKWR = (updatedInvoice.totalAmountKWR || 0) - updatedValue;
+            } else if (field === 'depositTHB') {
+                updatedInvoice.dueAmountTHB = (updatedInvoice.totalAmountTHB || 0) - updatedValue;
+            }
+            return updatedInvoice;
+        });
     };
 
     const handleSave = async () => {
@@ -367,20 +394,29 @@ export default function InvoiceDialog({
         // onOpenChanged();
 
         // Update invoice with current items
-        const updatedInvoice = {
-            ...invoice,
-            bookingItems: bookingItems,
-            simpleItems: simpleItems,
-            modelState: isNew ? 'inserted' : 'updated'
-        };
+        // const updatedInvoice = {
+        //     ...invoice,
+        //     bookingItems: [],
+        //     simpleItems: simpleItems ?? [],
+        //     modelState: isNew ? 'inserted' : 'updated'
+        // };
+
+        // setInvoice(prev => ({ ...prev,
+        //     bookingItems: bookingItems ?? [],  
+        //     simpleItems: simpleItems ?? [],
+        //     modelState: isNew ? 'inserted' : 'updated'
+        //  }));
+        // setInvoice(prev => ({...prev, simpleItems: []}));
 
         setIsSaving(true);
 
+        const pocoInvoice = JSON.parse(JSON.stringify(invoice));
+
         let result;
         if (isNew) {
-            result = await invoiceCreate(updatedInvoice as Invoice);
+            result = await invoiceCreate(pocoInvoice as Invoice);
         } else {
-            result = await invoiceUpdate(invoiceId!, updatedInvoice as Invoice);
+            result = await invoiceUpdate(invoiceId!, pocoInvoice as Invoice);
         }
 
         setIsSaving(false);
@@ -398,8 +434,8 @@ export default function InvoiceDialog({
 
     // Booking Items handlers - Fixed to prevent values disappearing
     const handleBookingItemChange = (rowIndex: number, field: string, value: any) => {
-        setBookingItems(prev => {
-            const updatedItems = prev.map((item, index) => {
+        setInvoice(prev => {
+            const updatedItems = prev.bookingItems.map((item, index) => {
                 if (index !== rowIndex) return item;
 
                 let updatedItem: BookingInvoiceItem = {
@@ -412,7 +448,7 @@ export default function InvoiceDialog({
                 if (field === 'startDate' || field === 'endDate') {
                     const startDate = field === 'startDate' ? value : item.startDate;
                     const endDate = field === 'endDate' ? value : item.endDate;
-                    if (startDate && endDate) {
+                    if (startDate instanceof Date && endDate instanceof Date) {
                         updatedItem.noOfDays = calculateDayDifference(startDate, endDate);
                     } else {
                         updatedItem.noOfDays = 0;
@@ -448,12 +484,33 @@ export default function InvoiceDialog({
 
                 return updatedItem;
             });
-            updateInvoiceTotals(updatedItems, simpleItems);
-            return updatedItems;
+            // setVisibleBookingItems(updatedItems.filter(i => i.modelState !== 'deleted'));
+            prev.bookingItems = updatedItems;
+            return prev;
         });
+        updateInvoiceTotals();
     };
 
     const addBookingItem = () => {
+        // setBookingItems(prev => {
+        //     const current = prev || [];
+        //     const newItem = new BookingInvoiceItem();
+        //     newItem.id = uuidv4();
+        //     newItem.modelState = "inserted";
+        //     newItem.rateKWR = 0;
+        //     newItem.rateTHB = 0;
+        //     newItem.noOfDays = 0;
+        //     newItem.pax = 0;
+        //     newItem.noOfRooms = 0;
+        //     newItem.amountKWR = 0;
+        //     newItem.amountTHB = 0;
+        //     newItem.createdAtUTC = new Date();
+        //     newItem.updatedAtUTC = new Date();
+        //     const updatedItems = [...current, newItem];
+        //     // updateInvoiceTotals(updatedItems as BookingInvoiceItem[], simpleItems);
+        //     // setVisibleBookingItems(updatedItems.filter(i => i.modelState !== 'deleted'));
+        //     return updatedItems as BookingInvoiceItem[];
+        // });
         const newItem = new BookingInvoiceItem();
         newItem.id = uuidv4();
         newItem.modelState = "inserted";
@@ -466,9 +523,7 @@ export default function InvoiceDialog({
         newItem.amountTHB = 0;
         newItem.createdAtUTC = new Date();
         newItem.updatedAtUTC = new Date();
-        const updatedItems = [...bookingItems, newItem];
-        setBookingItems(updatedItems as BookingInvoiceItem[]);
-        updateInvoiceTotals(updatedItems as BookingInvoiceItem[], simpleItems);
+        setInvoice(prev => ({ ...prev, bookingItems: [...(prev.bookingItems || []), newItem], modelState: prev?.modelState === "inserted" ? "inserted" : "updated" }));
     };
 
     const deleteBookingItem = (id: string) => {
@@ -477,24 +532,23 @@ export default function InvoiceDialog({
 
         // if the item was newly inserted in UI and not persisted yet, remove it outright
         if (item.modelState === 'inserted') {
-            setBookingItems(prev => {
-                const updatedItems = prev.filter(x => x.id !== id);
-                updateInvoiceTotals(updatedItems as BookingInvoiceItem[], simpleItems);
-                return updatedItems as BookingInvoiceItem[];
+            setInvoice(prev => {
+                const updatedItems = prev.bookingItems.filter(x => x.id !== id);
+                return { ...prev, bookingItems: updatedItems };
             });
         } else {
-            setBookingItems(prev => {
-                const updatedItems = prev.map(it => it.id === id ? { ...it, modelState: 'deleted' } : it);
-                updateInvoiceTotals(updatedItems.filter(i => i.modelState !== 'deleted') as BookingInvoiceItem[], simpleItems);
-                return updatedItems as BookingInvoiceItem[];
+            setInvoice(prev => {
+                const updatedItems = prev.bookingItems.map(it => it.id === id ? { ...it, modelState: 'deleted' as const } : it);
+                return { ...prev, bookingItems: updatedItems };
             });
         }
+        updateInvoiceTotals();
     };
 
     // Simple Items handlers - Fixed with proper number conversion
     const handleSimpleItemChange = (rowIndex: number, field: string, value: any) => {
-        setSimpleItems(prev => {
-            const updatedItems = prev.map((item, index) => {
+        setInvoice(prev => {
+            const updatedItems = prev.simpleItems.map((item, index) => {
                 if (index !== rowIndex) return item;
 
                 const updatedItem: SimpleInvoiceItem = {
@@ -511,9 +565,9 @@ export default function InvoiceDialog({
 
                 return updatedItem;
             });
-            updateInvoiceTotals(bookingItems, updatedItems as SimpleInvoiceItem[]);
-            return updatedItems;
+            return { ...prev, simpleItems: updatedItems };
         });
+        updateInvoiceTotals();
     };
 
     const addSimpleItem = () => {
@@ -524,9 +578,14 @@ export default function InvoiceDialog({
         newItem.amountTHB = 0;
         newItem.createdAtUTC = new Date();
         newItem.updatedAtUTC = new Date();
-        const updatedItems = [...simpleItems, newItem];
-        setSimpleItems(updatedItems as SimpleInvoiceItem[]);
-        updateInvoiceTotals(bookingItems, updatedItems as SimpleInvoiceItem[]);
+        // setSimpleItems(prev => {
+        //     const updatedItems = [...prev, newItem];
+        //     updateInvoiceTotals(bookingItems, updatedItems as SimpleInvoiceItem[]);
+        //     // setVisibleSimpleItems(updatedItems.filter(i => i.modelState !== 'deleted'));
+        //     return updatedItems as SimpleInvoiceItem[];
+        // });
+        setInvoice(prev => ({ ...prev, simpleItems: [...prev.simpleItems ?? [], newItem], modelState: prev?.modelState === "inserted" ? "inserted" : "updated" }));
+        // setVisibleSimpleItems(simpleItems.filter(i => i.modelState !== 'deleted'));
     };
 
     const deleteSimpleItem = (id: string) => {
@@ -534,21 +593,18 @@ export default function InvoiceDialog({
         if (!item) return;
 
         if (item.modelState === 'inserted') {
-            const updatedItems = simpleItems.filter((x) => x.id !== id);
-            setSimpleItems(prev => {
-                const updatedItems = simpleItems.filter((x) => x.id !== id);
-                updateInvoiceTotals(bookingItems, updatedItems as SimpleInvoiceItem[]);
-                return updatedItems as SimpleInvoiceItem[];
+            setInvoice(prev => {
+                const updatedItems = prev.simpleItems.filter((x) => x.id !== id);
+                return { ...prev, simpleItems: updatedItems };
             });
-
         } else {
+            setInvoice(prev => {
+                const updatedItems = prev.simpleItems.map(it => it.id === id ? { ...it, modelState: 'deleted' as const } : it);
+                return { ...prev, simpleItems: updatedItems };
 
-            setSimpleItems(prev => {
-                const updatedItems = prev.map(it => it.id === id ? { ...it, modelState: 'deleted' } : it);
-                updateInvoiceTotals(bookingItems, updatedItems.filter(i => i.modelState !== 'deleted') as SimpleInvoiceItem[]);
-                return updatedItems as SimpleInvoiceItem[];
             });
         }
+        updateInvoiceTotals();
     };
 
     function encodeHTML(html) {
@@ -556,12 +612,12 @@ export default function InvoiceDialog({
     }
 
     function decodeHTML(base64) {
-       return base64;
+        return base64;
     }
 
     const handlePrintInvoice = () => {
         if (!invoice) return;
-        
+
         const address = `Mida Golf Club Kanchanaburi<br/>
             주소 : 123 moo7 Tambon Lad Ya, Kanchanaburi 71190<br/>
             Kaeng Krachan (KKC) Golf Club : <br/>
@@ -584,9 +640,9 @@ export default function InvoiceDialog({
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Rate THB</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Amount THB</th>` +
             `</tr></thead><tbody>`;
-            
 
-        
+
+
         simpleItems.forEach((it, i) => {
             const desc = it.description || '';
             const amtK = it.amountKWR != null ? it.amountKWR : 0;
@@ -636,19 +692,19 @@ export default function InvoiceDialog({
         table += `</tbody>`;
         table += `<tfoot>` +
             `<tr><td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Total Amount</td>` +
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.totalAmountKWR || 0}</td>`+
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>`+
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.totalAmountTHB || 0}</td>`+
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.totalAmountKWR || 0}</td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.totalAmountTHB || 0}</td>` +
             `</tr>` +
             `<tr><td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Deposit</td>` +
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.depositKWR || 0}</td>`+
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>`+
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.depositTHB || 0}</td>`+
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.depositKWR || 0}</td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.depositTHB || 0}</td>` +
             `</tr>` +
             `<tr><td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Due Amount</td>` +
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.dueAmountKWR || 0}</td>`+
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>`+
-            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.dueAmountTHB || 0}</td>`+
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.dueAmountKWR || 0}</td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.dueAmountTHB || 0}</td>` +
             `</tr>` +
             `</tfoot>`;
         table += `</table>`;
@@ -719,7 +775,7 @@ export default function InvoiceDialog({
         },
         {
             accessorKey: "description",
-            header: 'Description',
+            header: 'Description *',
             cell: (row) => <InputCustom
                 size="sm"
                 key={`booking-desc-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
@@ -858,7 +914,7 @@ export default function InvoiceDialog({
         },
         {
             accessorKey: "description",
-            header: 'Description',
+            header: 'Description *',
             cell: (row) => <InputCustom
                 size="sm"
                 key={`simple-desc-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
@@ -919,7 +975,7 @@ export default function InvoiceDialog({
                                 <h3 className="text-lg font-semibold mb-4">General Information</h3>
                                 <div className="flex flex-wrap gap-4">
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium">Invoice Number</label>
+                                        <label className="text-sm font-medium">Invoice Number *</label>
                                         <InputCustom
                                             size="md"
                                             value={invoice.invoiceNumber}
@@ -928,7 +984,7 @@ export default function InvoiceDialog({
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium">Invoice Date</label>
+                                        <label className="text-sm font-medium">Invoice Date *</label>
                                         <DatePicker
                                             selected={invoice.invoiceDate}
                                             onChange={(date: Date | null) => handleInputChange("invoiceDate", date)}
@@ -950,7 +1006,7 @@ export default function InvoiceDialog({
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium">Customer Name</label>
+                                        <label className="text-sm font-medium">Customer Name *</label>
                                         <InputCustom
                                             size="md"
                                             value={invoice.customerName}
@@ -977,7 +1033,7 @@ export default function InvoiceDialog({
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium">Status</label>
+                                        <label className="text-sm font-medium">Status *</label>
                                         <SelectCustom
                                             size="md"
                                             items={invoiceStatusItems}
@@ -987,7 +1043,7 @@ export default function InvoiceDialog({
                                     </div>
 
                                     <div className="flex flex-col gap-2">
-                                        <label className="text-sm font-medium">Pax</label>
+                                        <label className="text-sm font-medium">Pax *</label>
                                         <InputCustom
                                             size="md"
                                             value={invoice.pax || ""}

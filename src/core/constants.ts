@@ -96,7 +96,8 @@ export const SelectList = {
         ["CFM", "CFM"],
         ["CIN", "CIN"],
         ["OUT", "OUT"],
-        ["CCL", "CCL"]
+        ["CCL", "CCL"],
+        ["WTG", "WTG"],
     ]),
 
     RESERVATION_TYPE: new Map<string, string>([

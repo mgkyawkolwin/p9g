@@ -62,8 +62,9 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
 
     if (!validatedInvoice.success) {
       c.d("Invoice data is invalid.");
-      c.d(validatedInvoice.error.flatten());
-      return NextResponse.json({ message: "Update failed." }, { status: HttpStatusCode.BadRequest });
+      c.d(validatedInvoice.error.message);
+      const msg = JSON.parse(validatedInvoice.error.message).map((e: any) => e.message).join(", ");
+      return NextResponse.json({ message: `Validation failed. ${msg}` }, { status: HttpStatusCode.BadRequest });
     }
 
     // patch invoice
@@ -112,8 +113,9 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
 
     if (!validatedInvoice.success) {
       c.d("Invoice data is invalid.");
-      c.d(validatedInvoice.error.flatten());
-      return NextResponse.json({ message: "Update failed." }, { status: HttpStatusCode.BadRequest });
+      c.d(validatedInvoice.error.message);
+      const msg = JSON.parse(validatedInvoice.error.message).map((e: any) => e.message).join(", ");
+      return NextResponse.json({ message: `Update failed. ${msg}` }, { status: HttpStatusCode.BadRequest });
     }
 
     // update invoice

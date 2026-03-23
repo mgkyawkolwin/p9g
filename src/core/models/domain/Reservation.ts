@@ -52,6 +52,7 @@ export default class Reservation extends DomainBase{
     public promotionPackageId: string  = '';
     public promotionPackageText: string  = '';
     public remark: string = "";
+    public paymentRemark: string = "";
     public roomNo: string = "";
     public reservationStatus: string = 'NEW';
     public reservationStatusId: string  = '';

@@ -155,21 +155,21 @@ export default function MainMenuClient({ role }) {
       )}
 
       {/* Reports Menu - Only if user has reports permission */}
-      {role === "ADMIN" && (
-        <nav>
-          <ul className="flex space-x-4">
-            <li className="relative" ref={reportsRef}>
-              <div className="inline-block">
-                <button
-                  onClick={toggleReports}
-                  className="text-sm font-medium text-white hover:text-blue-600 focus:outline-none"
-                >
-                  Reports
-                </button>
-                <ul
-                  className={`absolute left-0 mt-1 w-48 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${reportsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-                    }`}
-                >
+      <nav>
+        <ul className="flex space-x-4">
+          <li className="relative" ref={reportsRef}>
+            <div className="inline-block">
+              <button
+                onClick={toggleReports}
+                className="text-sm font-medium text-white hover:text-blue-600 focus:outline-none"
+              >
+                Reports
+              </button>
+              <ul
+                className={`absolute left-0 mt-1 w-48 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${reportsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                  }`}
+              >
+                {role === 'ADMIN' && (
                   <li>
                     <Link
                       href="/console/reports/dailysummaryperson"
@@ -179,6 +179,8 @@ export default function MainMenuClient({ role }) {
                       Daily Summary (Person)
                     </Link>
                   </li>
+                )}
+                {role === 'ADMIN' && (
                   <li>
                     <Link
                       href="/console/reports/dailysummaryguestsrooms"
@@ -187,7 +189,8 @@ export default function MainMenuClient({ role }) {
                     >
                       Daily Summary (Guests & Rooms)
                     </Link>
-                  </li>
+                  </li>)}
+                {role === 'ADMIN' && (
                   <li>
                     <Link
                       href="/console/reports/dailysummaryincome"
@@ -196,7 +199,8 @@ export default function MainMenuClient({ role }) {
                     >
                       Daily Summary (Income)
                     </Link>
-                  </li>
+                  </li>)}
+                {role === 'ADMIN' && (
                   <li>
                     <Link
                       href="/console/reports/dailyreservationdetail"
@@ -206,6 +210,8 @@ export default function MainMenuClient({ role }) {
                       Daily Reservation Detail
                     </Link>
                   </li>
+                )}
+                {(role === 'ADMIN' || role === 'RECEPTION') && (
                   <li>
                     <Link
                       href="/console/reports/pickupdropoff"
@@ -215,12 +221,12 @@ export default function MainMenuClient({ role }) {
                       Pickup & Dropoff Report
                     </Link>
                   </li>
-                </ul>
-              </div>
-            </li>
-          </ul>
-        </nav>
-      )}
+                )}
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </nav>
 
       {/* Settings Menu */}
       {role === 'ADMIN' && (
@@ -256,42 +262,42 @@ export default function MainMenuClient({ role }) {
         </nav>
       )}
       <nav>
-          <ul className="flex space-x-4">
-            <li className="relative" ref={pookieRef}>
-              <div className="inline-block">
-                <button
-                  onClick={togglePookie}
-                  className="text-sm font-medium text-white hover:text-blue-600 focus:outline-none"
-                >
-                  Pookie
-                </button>
-                <ul
-                  className={`absolute left-0 mt-1 w-48 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${pookieOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-                    }`}
-                >
-                  <li>
-                    <Link
-                      href="/pookie/draw" target='new'
-                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
-                      onClick={() => setPookieOpen(false)}
-                    >
-                      Draw
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/console/pookie/timetable"
-                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
-                      onClick={() => setPookieOpen(false)}
-                    >
-                      Time Table
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </li>
-          </ul>
-        </nav>
+        <ul className="flex space-x-4">
+          <li className="relative" ref={pookieRef}>
+            <div className="inline-block">
+              <button
+                onClick={togglePookie}
+                className="text-sm font-medium text-white hover:text-blue-600 focus:outline-none"
+              >
+                Pookie
+              </button>
+              <ul
+                className={`absolute left-0 mt-1 w-48 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${pookieOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                  }`}
+              >
+                <li>
+                  <Link
+                    href="/pookie/draw" target='new'
+                    className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                    onClick={() => setPookieOpen(false)}
+                  >
+                    Draw
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/console/pookie/timetable"
+                    className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                    onClick={() => setPookieOpen(false)}
+                  >
+                    Time Table
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 }

@@ -55,8 +55,10 @@ export default class CustomerService implements ICustomerService {
 
   async customerFindMany(searchFormFields: SearchFormFields, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[Customer[], number]> {
     c.fs('CustomerService > customerFindMany');
+    c.d(searchFormFields);
     const anyCondition = buildAnyCondition(searchFormFields);
-    return await this.customerRepository.findMany(anyCondition, asc("name"), (pagerParams.pageIndex - 1) * pagerParams.pageSize, pagerParams.pageSize);
+    c.d(anyCondition);
+    return await this.customerRepository.findMany(anyCondition, (asc("englishName"), asc("name")), (pagerParams.pageIndex - 1) * pagerParams.pageSize, pagerParams.pageSize);
   }
 
 

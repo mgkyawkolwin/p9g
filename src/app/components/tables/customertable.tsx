@@ -10,6 +10,9 @@ import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttonc
 import Customer from "@/core/models/domain/Customer"
 import CustomerEditForm from "../forms/customereditform";
 import { CopyIcon } from "lucide-react";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
+import { toast } from "sonner";
+import { customerUpdate } from "@/app/(private)/console/customers/[id]/edit/actions";
 
 
 interface DataTableProps {
@@ -25,6 +28,8 @@ export default function CustomerTable({
 }: DataTableProps) {
 
   const openCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void, setEditCustomer: (customer: Customer) => void } | undefined>(undefined);
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+  const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
 
   const [clientState, setClientState] = React.useState(formState);
   const nameRefs = React.useRef<Record<string, HTMLInputElement>>({});
@@ -117,33 +122,52 @@ export default function CustomerTable({
         </div>
       }
     },
+    // {
+    //   accessorKey: "address",
+    //   header: "Address",
+    //   cell: ({ row }) => {
+    //     return <div>
+    //       {row.getValue('address')}
+    //     </div>
+    //   }
+    // },
+    // {
+    //   accessorKey: "country",
+    //   header: "Country",
+    //   cell: ({ row }) => {
+    //     return <div>
+    //       {row.getValue('country')}
+    //     </div>
+    //   }
+    // },
     {
-      accessorKey: "address",
-      header: "Address",
+      accessorKey: "isBlackListed",
+      header: "Blacklist",
       cell: ({ row }) => {
-        return <div>
-          {row.getValue('address')}
-        </div>
+        const val = row.getValue('isBlackListed');
+        return <div>{val ? <div style={{color: "red"}}>Blacklist</div> : ''}</div>
       }
     },
     {
-      accessorKey: "country",
-      header: "Country",
+      accessorKey: "remarks",
+      header: "Remark",
       cell: ({ row }) => {
-        return <div>
-          {row.getValue('country')}
-        </div>
+        return <div className="flex max-w-[150px] whitespace-normal" >{String(row.getValue('remarks'))}</div>
       }
     },
     {
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => {
-        return <div>
+        return <div className="flex gap-2">
           <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={(e) => {
             openCallbackFunc.current?.setEditCustomer(row.original);
             openCallbackFunc.current?.openDialog(true);
           }}>Edit</ButtonCustom>
+          {!row.original.isDeleted && <ButtonCustom variant={"red"} size={"sm"} type="button" onClick={() => {
+            setSelectedCustomer(row.original);
+            setOpenDeleteDialog(true);
+          }}>Delete</ButtonCustom>}
         </div>
       }
     },
@@ -159,6 +183,33 @@ export default function CustomerTable({
       <DataTable columns={columns} formState={clientState} formAction={formAction} formRef={formRef} />
       <section className="flex">
         <CustomerEditForm openCallback={(func) => openCallbackFunc.current = func} onSaved={handleSave} />
+      </section>
+      <section className="flex">
+        <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+          <DialogContent className="">
+            <DialogHeader>
+              <DialogTitle>Confirm!</DialogTitle>
+              <DialogDescription>Are you sure you want to delete the customer?</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <ButtonCustom variant={"red"} type="button" onClick={async () => {
+                setOpenDeleteDialog(false);
+                if (selectedCustomer) {
+                  const updated = { ...selectedCustomer, isDeleted: true } as Customer;
+                  const response = await customerUpdate(updated);
+                  if (response.message) toast(response.message);
+                  if (!response.error) {
+                    window.location.reload();
+                  }
+                  setSelectedCustomer(null);
+                }
+              }}>Yes</ButtonCustom>
+              <DialogClose asChild>
+                <ButtonCustom variant="black" onClick={() => { setSelectedCustomer(null); setOpenDeleteDialog(false); }}>No</ButtonCustom>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </section>
     </div>
   )

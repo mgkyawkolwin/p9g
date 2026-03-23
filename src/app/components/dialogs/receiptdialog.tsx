@@ -203,8 +203,16 @@ export default function ReceiptDialog({
         `<html><style>@media print{ @page {margin:0;}}</style>` +
         `<body style="padding:0.5in;font-size:10pt;"><div><img src="/p9glogowithtext.png" style="width:200px;" /></div>` +
         `<div style="display:block;width:100%;text-align:center;font-size:18pt;">Receipt</div><br/><br/>` +
-        `<table style="width:100%;font-size:10pt;"><tr><td>Customer: ${reservation?.customers?.reduce((acc, c) => acc + (acc ? ", " : "") + (c.englishName && c.englishName?.trim() !== "" ? c.englishName : c.name), "")}</td><td style="text-align:right;">Date: ____/____/________</td></tr></table>` +
-        `<div><br/>${content}</div><br/><br/><br/><div style="width:100%;text-align:right;">Cashier Singature : ____________________</div><br/>` +
+        `<table style="width:100%;font-size:10pt;">` +
+        `<tr><td>Customer: ${reservation?.customers?.reduce((acc, c) => acc + (acc ? ", " : "") + (c.englishName && c.englishName?.trim() !== "" ? c.englishName : c.name), "")}</td><td style="text-align:right;">Date: ____/____/________</td></tr>` + 
+        `<tr><td>Reservation Type: ${reservation?.reservationType}</td><td></td></tr>` +
+        `</table>` +
+        `<div><br/>${content}</div><br/><br/><br/>` +
+        `<table style="cell-padding:5px;border:0;width:100%;">` +
+        `<tr><td>____________________</td><td>____________________</td><td>____________________</td><td>____________________</td></tr>` +
+        `<tr><td style="text-align:center;">Cashier SIgn</td><td style="text-align:center;">In-charge Sign</td><td style="text-align:center;">Finance Cashier Sign</td><td style="text-align:center;">Accountant Sign</td></tr>` +
+        `</table>` +
+        `Remark: <br/> ${reservation?.paymentRemark ?? ''}<br/><br/>` +
         `<div style="display:block;width:100%;align:middle;">가성비는 물론, 가치와 의미까지 담은 선택  : 파워나인 (태국 마이다 CC · 캥카찬 CC · 미얀마 힐링힐스 CC)<br/>예약 문의 안내<br/>📞 가인 010-8173-2127<br/>📞 지은 010-8186-2127<br/>📞 가을 010-8178-2127<br/>📞 사무실 010-8185-2125 / 010-8174-2127</div></body></html>`
       );
       win.document.close();

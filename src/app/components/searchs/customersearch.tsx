@@ -5,7 +5,18 @@ import { FormState } from "@/core/types";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import CustomerNewForm from "../forms/customernewform";
 import Customer from "@/core/models/domain/Customer";
+import { CheckboxCustom } from "@/lib/components/web/react/uicustom/CheckboxCustom";
+import { Checkbox } from "@/lib/components/web/react/ui/checkbox";
 
+const initialData = {
+    searchId: "",
+    searchName: "",
+    searchNationalId: "",
+    searchPassport: "",
+    searchPhone: "",
+    showBlackListOnly: false,
+    showDeleted: false
+};
 
 interface DataTableProps {
   formState?: FormState
@@ -23,11 +34,13 @@ export default function CustomerSearch({
 
     const openCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
     
-    const [searchId, setSearchId] = React.useState("");
-    const [searchName, setSearchName] = React.useState("");
-    const [searchNationalId, setSearchNationalId] = React.useState("");
-    const [searchPassport, setSearchPassport] = React.useState("");
-    const [searchPhone, setSearchPhone] = React.useState("");
+    const [searchId, setSearchId] = React.useState(initialData.searchId);
+    const [searchName, setSearchName] = React.useState(initialData.searchName);
+    const [searchNationalId, setSearchNationalId] = React.useState(initialData.searchNationalId);
+    const [searchPassport, setSearchPassport] = React.useState(initialData.searchPassport);
+    const [searchPhone, setSearchPhone] = React.useState(initialData.searchPhone);
+    const [isShowBlackListOnly, setIsShowBlackListOnly] = React.useState(initialData.showBlackListOnly);
+    const [isShowDeleted, setIsShowDeleted] = React.useState(initialData.showDeleted);
 
     const handleSave = (customer: Customer) => {
           window.location.reload();
@@ -44,12 +57,23 @@ export default function CustomerSearch({
                 <InputWithLabel size="sm" label="Phone"  name="searchPhone" defaultValue={searchPhone} onBlur={(e) => setSearchPhone(e.target.value)} />
                 <ButtonCustom variant={"black"} onClick={() => formRef?.current?.requestSubmit()}>Search</ButtonCustom>
                 <ButtonCustom type="button" variant="green" onClick={() => { openCallbackFunc.current?.openDialog(true); }}>New Customer</ButtonCustom>
-                
+            </div>
+            <div className="flex gap-4 items-center">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="showBlackListOnly" name="xxx" checked={isShowBlackListOnly} onCheckedChange={(checked:boolean) => setIsShowBlackListOnly(checked)} />
+                  <label htmlFor="showBlackListOnly">Show Blacklist Customers</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="showDeleted" name="xx" checked={isShowDeleted} onCheckedChange={(checked:boolean) => setIsShowDeleted(checked)} />
+                  <label htmlFor="showDeleted">Show Deleted Customers</label>
+                  <input type="hidden" name="searchIsBlackListed" value={String(isShowBlackListOnly)} />
+                  <input type="hidden" name="searchIsDeleted" value={String(isShowDeleted)} />
+                </div>
             </div>
           </section>
           <section className="flex">
-          <CustomerNewForm openCallback={(func) => openCallbackFunc.current = func} onSaved={handleSave} />
-        </section>
+            <CustomerNewForm openCallback={(func) => openCallbackFunc.current = func} onSaved={handleSave} />
+          </section>
         </div>
     );
 }

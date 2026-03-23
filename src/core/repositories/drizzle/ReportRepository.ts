@@ -204,7 +204,7 @@ export default class ReportRepository implements IReportRepository {
                 }, [] as any[]);
 
                 return reservations.map((r: any) => {
-                    const names = (r.customers || []).map((c: any) => c.name || c.englishName).filter(Boolean);
+                    const names = (r.customers || []).map((c: any) => c.englishName || c.name).filter(Boolean);
                     const arrivalDate = r.arrivalDateTime;
                     const arrivalTime = r.arrivalDateTime;
                     // sending fee: find bill with paymentType === 'DROPOFF' (one per reservation expected)

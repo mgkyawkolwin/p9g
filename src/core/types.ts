@@ -53,6 +53,8 @@ export type SearchFormFields = {
   searchInvoiceDateFrom?: string | undefined,
   searchInvoiceDateUntil?: string | undefined,
   searchInvoiceNumber?: string | undefined,
+  searchIsBlackListed?: boolean | string | undefined,
+  searchIsDeleted?: boolean | string | undefined,
   searchLocation?: string | undefined,
   searchName?: string | undefined,
   searchNationalId?: string | undefined,

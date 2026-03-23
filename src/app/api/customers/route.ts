@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { container } from "@/core/di/dicontainer";
 import { TYPES, SearchParam } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
-import { customerValidator, pagerValidator, searchValidator } from "@/core/validators/zodschema";
+import { customerSearchValidator, customerValidator, pagerValidator, searchValidator } from "@/core/validators/zodschema";
 import { HttpStatusCode } from "@/core/constants";
 import { getPagerWithDefaults } from "@/core/helpers";
 import ICustomerService from "@/core/services/contracts/ICustomerService";
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     //validate search params
     // let searchFields: SearchParam[] = [];
-    const searchValidatedFields = await searchValidator.safeParseAsync(searchParams);
+    const searchValidatedFields = await customerSearchValidator.safeParseAsync(searchParams);
     c.d(JSON.stringify(searchValidatedFields));
     // if (searchValidatedFields.success) {
     //   //validation successful, build search objects
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     //call service to retrieve data
     const customerService = container.get<ICustomerService>(TYPES.ICustomerService);
     const result = await customerService.customerFindMany(searchValidatedFields.data, pager, session.user);
-    c.d(JSON.stringify(result));
+    c.d(JSON.stringify(result[0]?.length > 0 ? result[0][0] : []));
 
     pager.records = result[1];
     pager.pages = Math.ceil(pager.records / pager.pageSize);

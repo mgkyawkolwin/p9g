@@ -109,6 +109,21 @@ export function buildAnyCondition(queryObject: any): AnyCondition | null {
         conditions.push(eq('email', queryStringObject.searchEmail));
     }
 
+    // show blacklist only filter
+    if (queryStringObject.searchIsBlackListed === true || queryStringObject.searchIsBlackListed === 'true') {
+        conditions.push(eq('isBlackListed', true));
+    }
+
+    // showDeleted: if not explicitly true, exclude deleted records
+    if (queryStringObject.searchIsDeleted === true || queryStringObject.searchIsDeleted === 'true') {
+        conditions.push(eq('isDeleted', true));
+    }
+
+    // special case for isDeleted case, if not explicitly set to true, we want to exclude deleted records, so we add condition to filter out deleted records
+    if (queryStringObject.searchIsDeleted === false || queryStringObject.searchIsDeleted === 'false') {
+        conditions.push(eq('isDeleted', false));
+    }
+
     if (queryStringObject.searchAgentName) {
         conditions.push(like('agentName', `%${queryStringObject.searchAgentName}%`));
     }
@@ -216,6 +231,8 @@ export function getPagerWithDefaults(inputObject: PagerParams): PagerParams {
         return `text-[#888888] dark:text-[#888888]`;
     else if (status === 'CCL')
         return `text-[#cc0000] dark:text-[#ff0000]`;
+    else if (status === 'WTG')
+        return `text-[#cc0000] dark:text-[#ffff00]`;
 }
 /**
  * Get check-in date based on arrival date.

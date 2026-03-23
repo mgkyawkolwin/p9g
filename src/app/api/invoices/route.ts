@@ -71,8 +71,9 @@ export async function POST(request: NextRequest) {
 
     if (!validatedInvoice.success) {
       c.d("Invoice data is invalid. Return result.");
-      c.d(validatedInvoice.error.flatten());
-      return NextResponse.json({ message: "Create failed." }, { status: HttpStatusCode.BadRequest });
+      c.d(validatedInvoice.error.message);
+      const msg = JSON.parse(validatedInvoice.error.message).map((e: any) => e.message).join(", ");
+      return NextResponse.json({ message: `Validation failed. ${msg}` }, { status: HttpStatusCode.BadRequest });
     }
 
     // create invoice

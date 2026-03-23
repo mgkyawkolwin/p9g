@@ -89,6 +89,15 @@ export default function CustomerDetailForm({ customer, resetDataToggle, onDataCh
             <Textarea id="remarks" name="remarks" placeholder=" ..." value={localCustomer?.remarks ?? ''} onBlur={() => onDataChanged(localCustomer)}
                 onChange={(e) => setLocalCustomer(prev => ({ ...prev, remarks: e.target.value }))} />
 
+            <div className="flex items-center gap-2">
+                <input id="isBlackListed" name="isBlackListed" type="checkbox" checked={!!localCustomer?.isBlackListed}
+                    onChange={(e) => {
+                        setLocalCustomer(prev => ({ ...prev, isBlackListed: e.target.checked }));
+                        onDataChanged({ ...localCustomer, isBlackListed: e.target.checked });
+                    }} />
+                <Label htmlFor="isBlackListed">Black List</Label>
+            </div>
+
         </div>
     );
 };
