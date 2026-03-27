@@ -207,7 +207,9 @@ export default class PookieService implements IPookieService {
 
     async getRoomNames(date: Date, list: string, sessionUser: SessionUser): Promise<string[]> {
         c.fs('PookieService > getRoomNames');
-        const [rooms, count] = await this.roomRepository.findMany(eq("location", sessionUser.location));
+        const [rooms, count] = await this.roomRepository.findMany(
+            eq("location", sessionUser.location), asc("roomNo")
+        );
 
         const [drewResults, _] = await this.pookieRepository.findMany(
             and(

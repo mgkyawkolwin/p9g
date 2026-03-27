@@ -1,13 +1,8 @@
-# Version 5.4.1 Release Note
-- display remark in customer list
-- display Blacklist column in customer list
-- added "Black List" checkbox in customer new/edit dialog
-- added Delete button in customer list
-- display English Name in pickup/dropoff report
-- allow Reception Role to access pickup/dropoff report
-- added "WTG" waiting status in reservation status
-- added remark field in Payment dialog
-- display remark in receipt print
-- added extra signing people in receipt print
-- added Reservation Type in receipt print
-- display detial validation error in invoice dialog
+# Version 5.5.0 Release Note
+- remove amount validation in invoice creation
+- display reservation's original check-in/check-out date in room move table
+- include reservations till check-out date in pookie room list
+- check out date calculation: check-out date will not be increased for departure time until 1PM
+e.g. 
+Departure Date/Time: 2026-03-27 12:59PM => Check Out Date: 2026-03-26
+Departure Date/Time: 2026-03-27 01:00PM => Check Out Date: 2026-03-27

@@ -55,12 +55,12 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 and(
                     and(
                         lte(reservationTable.checkInDate, drawDate),
-                        gt(reservationTable.checkOutDate, drawDate)
+                        gte(reservationTable.checkOutDate, drawDate)
                     ),
                     ne(configTable.value, "CCL"),
                     eq(reservationTable.location, sessionUser.location)
                 )
-            );
+            ).orderBy(asc(reservationTable.roomNo));
         c.d(reservations?.length);
         if (!reservations || reservations.length == 0) return [];
 
@@ -80,8 +80,8 @@ export default class ReservationRepository extends Repository<Reservation, Reser
 
         if (!roomsAndPax || roomsAndPax.length === 0) return [];
 
-        const sortedRoomsAndPax = roomsAndPax.sort((a, b) => a.roomNo > b.roomNo ? 1 : -1);
-        return sortedRoomsAndPax;
+        // const sortedRoomsAndPax = roomsAndPax.sort((a, b) => a.roomNo > b.roomNo ? 1 : -1);
+        return roomsAndPax;
     }
 
 
@@ -420,8 +420,8 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .select({
                 roomId: roomReservationTable.roomId,
                 reservationId: reservationTable.id,
-                checkInDate: roomReservationTable.checkInDate,
-                checkOutDate: roomReservationTable.checkOutDate,
+                checkInDate: reservationTable.checkInDate,
+                checkOutDate: reservationTable.checkOutDate,
                 noOfDays: reservationTable.noOfDays,
                 noOfGuests: reservationTable.noOfGuests,
                 golfCart: reservationTable.golfCart
