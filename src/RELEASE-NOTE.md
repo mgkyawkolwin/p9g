@@ -1,8 +1,2 @@
-# Version 5.5.0 Release Note
-- remove amount validation in invoice creation
-- display reservation's original check-in/check-out date in room move table
-- include reservations till check-out date in pookie room list
-- check out date calculation: check-out date will not be increased for departure time until 1PM
-e.g. 
-Departure Date/Time: 2026-03-27 12:59PM => Check Out Date: 2026-03-26
-Departure Date/Time: 2026-03-27 01:00PM => Check Out Date: 2026-03-27
+# Version 5.6.0 Release Note
+- Temporary fix to pookie service's getResult to use server date/time. In future, need to use the mobile's date/time instead to be able to handle customers from Thai and Myanmar.

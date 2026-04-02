@@ -194,9 +194,22 @@ export default class PookieService implements IPookieService {
 
     async getResult(date: Date, roomName: string, sessionUser: SessionUser): Promise<PookieTimeTable> {
         c.fs('PookieService > getResult');
+        const drawDate = new Date();
+        drawDate.setUTCHours(0, 0, 0, 0);
+
+        const todayCutoff = new Date();
+        todayCutoff.setHours(9, 0, 0, 0);
+
+        const now = new Date();
+        now.setHours(now.getHours() + 7, 0, 0, 0);
+
+        if( now > todayCutoff) {
+            drawDate.setUTCDate(drawDate.getUTCDate() + 1);
+        }
+
         const result = await this.pookieRepository.findOne(
             and(
-                eq("date", date.toISOString()),
+                eq("date", drawDate.toISOString()),
                 eq("location", sessionUser.location),
                 like("rooms", roomName)
             ));
