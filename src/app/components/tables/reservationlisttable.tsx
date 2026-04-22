@@ -177,7 +177,7 @@ export default function ReservationListTable({
           </div>
           <div className="flex gap-1">
             <ButtonCustom type="button" variant={"black"} size={"sm"} onClick={() => {
-              router.push(`/console/reservations/${row.original.id}/edit`);
+              router.push(`/${location}/console/reservations/${row.original.id}/edit`);
             }} >Edit</ButtonCustom>
             <ButtonCustom type="button" variant={"red"} size={"sm"} onClick={() => {
               setCancelId(row.original.id);
@@ -205,6 +205,7 @@ export default function ReservationListTable({
     formData.append('file', files[0]);
     formData.append('reservationId', reservationId);
     formData.append('customerId', customerId);
+    formData.append('location', location);
 
     try {
       const xhr = new XMLHttpRequest();
@@ -238,6 +239,7 @@ export default function ReservationListTable({
 
       xhr.open('PATCH', '/api/tdacs');
       xhr.setRequestHeader('Accept', 'application/json');
+      xhr.setRequestHeader('X-Resort-Location', location);
       xhr.send(formData);
 
       const result = await promise;
@@ -273,7 +275,8 @@ export default function ReservationListTable({
       const response = await fetch(`/api/tdacs?reservationId=${reservationId}&customerId=${customerId}&tdacFileUrl=${tdacFileUrl}`, {
             method: 'DELETE',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'X-Resort-Location': location
             }
           });
           const responseData = await response.json();

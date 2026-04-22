@@ -1,2 +1,2 @@
-# Version 5.6.0 Release Note
-- Temporary fix to pookie service's getResult to use server date/time. In future, need to use the mobile's date/time instead to be able to handle customers from Thai and Myanmar.
+# Version 6.0.0 Release Note
+- Resort based url

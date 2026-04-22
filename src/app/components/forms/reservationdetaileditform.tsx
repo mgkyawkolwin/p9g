@@ -42,7 +42,7 @@ export default function ReservationDetailEditForm({
         if (response.message) toast(response.message);
         if (!response.error) {
             if(onReservationSaved) onReservationSaved();
-            router.push('/console/reservations');
+            router.push(`/${location}/console/reservations`);
         }
     }
 

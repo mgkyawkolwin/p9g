@@ -214,7 +214,7 @@ export default function Draw() {
                                     return;
                                 }
                                 
-                                const response = await draw(drawDate, rooms, noOfPeople);
+                                const response = await draw(drawDate, rooms, noOfPeople, location);
                                 if (response.message)
                                     toast(response.message);
                                 if (!response.error) {

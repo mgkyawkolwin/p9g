@@ -6,7 +6,7 @@ import { headers } from 'next/headers';
 import PookieTimeTable from '@/core/models/domain/PookieTimeTable';
 
 
-export async function draw(date:Date, rooms: string, noOfPeople: number): Promise<FormState> {
+export async function draw(date:Date, rooms: string, noOfPeople: number, location: string): Promise<FormState> {
   try{
     c.fs('Actions > draw');
     
@@ -15,7 +15,8 @@ export async function draw(date:Date, rooms: string, noOfPeople: number): Promis
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'cookie': (await headers()).get('cookie')
+        'cookie': (await headers()).get('cookie'),
+        'X-Resort-Location': location
       }
     });
     const responseData = await response.json();
