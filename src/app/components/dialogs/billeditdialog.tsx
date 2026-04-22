@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-table";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog"
-import { billDelete, billsGet, billsSave } from "@/app/(private)/console/reservations/actions"
+import { billDelete, billsGet, billsSave } from "@/app/(private)/[location]/console/reservations/actions"
 import { toast } from "sonner"
 import Bill from "@/core/models/domain/Bill"
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom"
@@ -18,6 +18,7 @@ import { Checkbox } from "../../../lib/components/web/react/ui/checkbox";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { CheckboxCustom } from "@/lib/components/web/react/uicustom/CheckboxCustom";
+import { useParams } from "next/navigation";
 
 
 interface DataTableProps {
@@ -32,6 +33,8 @@ export default function BillEditDialog({
   callbackFunctions
 }: DataTableProps) {
 
+  const params = useParams();
+  const location = params.location as string;
 
   const [open, setOpen] = React.useState(false);
   const [bills, setBills] = React.useState<Bill[]>([]);
@@ -205,7 +208,7 @@ export default function BillEditDialog({
     if (bill && bill.modelState !== 'inserted') {
       return <ButtonCustom type="button" variant={"red"} size={"sm"}
         onClick={async () => {
-          const result = await billDelete(reservationId, id);
+          const result = await billDelete(reservationId, id, location);
           if (result.message) toast(result.message);
           if (!result.error) setBills(prev => prev.filter((bill, index) => index !== rowIndex));
         }}>Delete</ButtonCustom>;
@@ -223,7 +226,7 @@ export default function BillEditDialog({
     if (!open) return;
     setBills([]);
     const fetchBills = async () => {
-      const response = await billsGet(reservationId);
+      const response = await billsGet(reservationId, location);
       if (response.message)
         toast(response.message);
       if (response.data) {
@@ -252,7 +255,7 @@ export default function BillEditDialog({
         </div>
         <DialogFooter>
           <ButtonCustom type="submit" variant="green" onClick={async () => {
-            const response = await billsSave(reservationId, bills);
+            const response = await billsSave(reservationId, bills, location);
             toast(response.message);
             if (!response.error)
               setOpen(false);

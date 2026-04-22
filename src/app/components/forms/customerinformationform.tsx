@@ -1,7 +1,7 @@
 import Customer from "@/core/models/domain/Customer";
 import CustomerInformationTable from "../tables/customerinformationtable";
 import { Group, GroupContent, GroupTitle } from "../../../lib/components/web/react/uicustom/group";
-
+import { useParams } from "next/navigation";
 
 interface GuestInformationFormProps {
     data: Customer[];

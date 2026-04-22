@@ -17,6 +17,11 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     if (!session?.user)
       throw new CustomError('Invalid session');
 
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
+
     const searchParams = Object.fromEntries(request.nextUrl.searchParams);
 
     const body = await request.json();

@@ -18,6 +18,11 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
         if (!session?.user)
             throw new CustomError('Invalid session');
 
+        if (!request.headers.get('X-Resort-Location'))
+            throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+        session.user.location = request.headers.get('X-Resort-Location') || undefined;
+        c.d(session.user);
+
         const { id } = await context.params;
         const service = container.get<IUserService>(TYPES.IUserService);
         const result = await service.userFindById(id, session.user);
@@ -46,6 +51,11 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
         const session = await auth();
         if (!session?.user)
             throw new CustomError('Invalid session');
+
+        if (!request.headers.get('X-Resort-Location'))
+            throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+        session.user.location = request.headers.get('X-Resort-Location') || undefined;
+        c.d(session.user);
 
         const body = await request.json();
         const { id } = await context.params;
@@ -81,10 +91,15 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
         if (!session?.user)
             throw new CustomError('Invalid session');
 
+        if (!request.headers.get('X-Resort-Location'))
+            throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+        session.user.location = request.headers.get('X-Resort-Location') || undefined;
+        c.d(session.user);
+
         const { id } = await context.params;
         const service = container.get<IUserService>(TYPES.IUserService);
         await service.userDelete(id, session.user);
-        
+
         c.fe('DELETE /api/users/[id]');
         return NextResponse.json({ message: "Deleted" }, { status: 200 });
     } catch (error) {

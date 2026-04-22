@@ -11,10 +11,10 @@ import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttonc
 import InvoiceDialog from "../dialogs/invoicedialog";
 import { Loader } from "@/lib/components/web/react/uicustom/loader";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
-import { invoiceDelete } from "@/app/(private)/console/invoices/actions";
+import { invoiceDelete } from "@/app/(private)/[location]/console/invoices/actions";
 import { toast } from "sonner";
 import { Trash } from "lucide-react";
-import { set } from "zod";
+import { useParams } from "next/navigation";
 
 
 interface DataTableProps {
@@ -28,6 +28,8 @@ export default function InvoiceListTable({
   formAction,
   formRef
 }: DataTableProps) {
+  const params = useParams();
+  const location = params.location as string;
 
   const editDialogCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void } | undefined>(undefined);
   const [invoiceId, setInvoiceId] = React.useState('');
@@ -178,7 +180,7 @@ export default function InvoiceListTable({
           <DialogFooter>
             <ButtonCustom variant={"red"} type="button" onClick={async () => {
               setOpenDeleteDialog(false);
-              const response = await invoiceDelete(deleteId);
+              const response = await invoiceDelete(deleteId, location);
               if (response.message) toast(response.message);
               if (!response.error) formRef.current?.requestSubmit();
               setDeleteId('');

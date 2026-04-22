@@ -21,6 +21,11 @@ export async function POST(request: NextRequest) {
     if (!session?.user)
       throw new CustomError('Invalid session');
 
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
+
     const body = await request.json();
     c.d(body);
 

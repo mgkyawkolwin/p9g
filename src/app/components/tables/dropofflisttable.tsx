@@ -11,12 +11,10 @@ import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttonc
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
 import { toast } from "sonner";
-import { updateDropOffInfo } from "@/app/(private)/console/dropoff/actions";
+import { updateDropOffInfo } from "@/app/(private)/[location]/console/dropoff/actions";
 import { getReservationStatusColorClass } from "@/core/helpers";
 import { CopyIcon } from "lucide-react";
-
-
-
+import { useParams } from "next/navigation";
 
 interface DataTableProps {
   formState: FormState
@@ -29,6 +27,8 @@ export default function DropOffListTable({
   formAction,
   formRef
 }: DataTableProps) {
+  const params = useParams();
+  const location = params.location as string;
 
   // const [carNos, setCarNos] = React.useState<{[key:number]:string|undefined}>({});
 
@@ -38,7 +38,7 @@ export default function DropOffListTable({
       header: "ID",
       accessorFn: (row) => {
         return <span>
-          <div className="whitespace-nowrap"><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a>&nbsp;&nbsp;&nbsp;<CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} /></div>
+          <div className="whitespace-nowrap"><a href={`/${location}/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a>&nbsp;&nbsp;&nbsp;<CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} /></div>
           <span className={`font-bold ${getReservationStatusColorClass(row.reservationStatusText)}`}>{row.reservationStatusText}</span><br />
           <span>{row.reservationTypeText}</span>
           {row.prepaidPackageText ? <span className="font-bold text-[#ff00ff] dark:text-[#ff00ff]"><br />{row.prepaidPackageText}</span> : ''}
@@ -119,7 +119,8 @@ export default function DropOffListTable({
           <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={async () => {
             const response = await updateDropOffInfo(row.original.id,
               (document.getElementById(`car${row.original.id}`) as HTMLInputElement)?.value,
-              (document.getElementById(`driver${row.original.id}`) as HTMLInputElement)?.value);
+              (document.getElementById(`driver${row.original.id}`) as HTMLInputElement)?.value,
+              location);
             if (response.message)
               toast(response.message);
           }} >Save Car No</ButtonCustom>

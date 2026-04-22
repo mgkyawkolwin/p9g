@@ -17,6 +17,11 @@ export async function GET(request: NextRequest) {
     if(!session?.user)
       throw new CustomError('Invalid session');
 
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
+
     // update user
     c.i("Calling service.");
     const roomService = container.get<IRoomService>(TYPES.IRoomService);

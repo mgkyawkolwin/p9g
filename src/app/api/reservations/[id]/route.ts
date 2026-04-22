@@ -20,6 +20,11 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     if (!session?.user)
       throw new CustomError('Invalid session');
 
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
+
     //retrieve search params from request
     const p = await context.params;
     c.d(p);
@@ -56,6 +61,11 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     const session = await auth();
     if (!session?.user)
       throw new CustomError('Invalid session');
+
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
 
     const body = await request.json();
     c.d(body);
@@ -97,6 +107,11 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     const session = await auth();
     if (!session?.user)
       throw new CustomError('Invalid session');
+
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
 
     const body = await request.json();
     c.d(body);

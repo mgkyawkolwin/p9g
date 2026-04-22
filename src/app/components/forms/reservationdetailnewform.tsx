@@ -4,12 +4,13 @@ import React from "react";
 import ReservationDetailForm from "../basicforms/reservationdetailform";
 import { Group, GroupContent, GroupTitle } from "../../../lib/components/web/react/uicustom/group";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
-import { saveReservationAction } from "@/app/(private)/console/reservations/new/actions";
+import { saveReservationAction } from "@/app/(private)/[location]/console/reservations/new/actions";
 import { toast } from "sonner";
 import Customer from "@/core/models/domain/Customer";
 import Reservation from "@/core/models/domain/Reservation";
 import { Loader } from "../../../lib/components/web/react/uicustom/loader";
 import {v4 as uuidv4} from 'uuid';
+import { useParams } from "next/navigation";
 
 interface ReservationDetailNewFormProps {
     customers?: Customer[];
@@ -17,7 +18,9 @@ interface ReservationDetailNewFormProps {
 }
 
 export default function ReservationDetailNewForm({ customers, onReservationSaved }: ReservationDetailNewFormProps) {
-    
+    const params = useParams();
+    const location = params.location as string;
+
 
     const [isPending, setIsPending] = React.useState(false);
     const [reservation, setReservation] = React.useState<Reservation>({...new Reservation(), modelState: "inserted"});
@@ -34,7 +37,7 @@ export default function ReservationDetailNewForm({ customers, onReservationSaved
         setIsPending(true);
         const r = detailFormRef.current?.getReservation();
         r.customers = customers.map(c => ({ id: c.id } as Customer));
-        const response = await saveReservationAction(r as unknown as Reservation);
+        const response = await saveReservationAction(r as unknown as Reservation, location);
         if (response.message) toast(response.message);
         if (!response.error && onReservationSaved){ 
             onReservationSaved(true);
@@ -48,7 +51,7 @@ export default function ReservationDetailNewForm({ customers, onReservationSaved
         setIsPending(true);
         const r = detailFormRef.current?.getReservation();
         r.customers = customers.map(c => ({ id: c.id } as Customer))
-        const response = await saveReservationAction(JSON.parse(JSON.stringify(r)) as unknown as Reservation);
+        const response = await saveReservationAction(JSON.parse(JSON.stringify(r)) as unknown as Reservation, location);
         if (response.message) toast(response.message);
         if (!response.error && onReservationSaved) {
             onReservationSaved(false);

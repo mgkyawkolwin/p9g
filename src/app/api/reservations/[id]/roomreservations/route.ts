@@ -22,6 +22,11 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     if (!session?.user)
       throw new CustomError('Invalid session');
 
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
+
     const p = await context.params;
     c.d(p);
     const { id } = p;

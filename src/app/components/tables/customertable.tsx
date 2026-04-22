@@ -12,8 +12,8 @@ import CustomerEditForm from "../forms/customereditform";
 import { CopyIcon } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { toast } from "sonner";
-import { customerUpdate } from "@/app/(private)/console/customers/[id]/edit/actions";
-
+import { customerUpdate } from "@/app/(private)/[location]/console/customers/[id]/edit/actions";
+import { useParams } from "next/navigation";
 
 interface DataTableProps {
   formState: FormState;
@@ -26,6 +26,8 @@ export default function CustomerTable({
   formAction,
   formRef,
 }: DataTableProps) {
+  const params = useParams();
+  const location = params.location as string;
 
   const openCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void, setEditCustomer: (customer: Customer) => void } | undefined>(undefined);
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
@@ -196,7 +198,7 @@ export default function CustomerTable({
                 setOpenDeleteDialog(false);
                 if (selectedCustomer) {
                   const updated = { ...selectedCustomer, isDeleted: true } as Customer;
-                  const response = await customerUpdate(updated);
+                  const response = await customerUpdate(updated, location);
                   if (response.message) toast(response.message);
                   if (!response.error) {
                     window.location.reload();

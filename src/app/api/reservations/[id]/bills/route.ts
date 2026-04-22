@@ -19,6 +19,11 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
         if (!session?.user)
             throw new CustomError('Invalid session');
 
+        if (!request.headers.get('X-Resort-Location'))
+            throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+        session.user.location = request.headers.get('X-Resort-Location') || undefined;
+        c.d(session.user);
+
         //retrieve search params from request
         const p = await context.params;
         c.d(p);
@@ -34,7 +39,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
         const result = await reservationService.billGetListById(id, session.user);
 
         c.i('Return GET /api/reservations/[id]/bills');
-        return NextResponse.json({data:{ bills: result[0] }}, { status: HttpStatusCode.Ok });
+        return NextResponse.json({ data: { bills: result[0] } }, { status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));
         if (error instanceof CustomError)
@@ -53,6 +58,11 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
         const session = await auth();
         if (!session?.user)
             throw new CustomError('Invalid session');
+
+        if (!request.headers.get('X-Resort-Location'))
+            throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+        session.user.location = request.headers.get('X-Resort-Location') || undefined;
+        c.d(session.user);
 
         //retrieve search params from request
         const p = await context.params;

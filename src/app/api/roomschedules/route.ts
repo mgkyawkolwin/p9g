@@ -19,6 +19,11 @@ export async function GET(request: NextRequest) {
     if (!session?.user)
       throw new CustomError('Invalid session');
 
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
+
     c.i('Converting url search params into form object.')
     const searchFormData = Object.fromEntries(request.nextUrl.searchParams);
     c.d(JSON.stringify(searchFormData));

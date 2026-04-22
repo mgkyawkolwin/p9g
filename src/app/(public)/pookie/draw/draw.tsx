@@ -13,15 +13,17 @@ import MultiBadgeSelect from "@/lib/components/web/react/uicustom/multibadgesele
 import { draw } from "./actions";
 import "@/lib/extensions/dateextensions";
 import "react-datepicker/dist/react-datepicker.css";
-import { getRoomNames } from "@/app/(private)/console/pookie/timetable/actions";
+import { getRoomNames } from "@/app/(private)/[location]/console/pookie/timetable/actions";
 import { SelectCustom } from "@/lib/components/web/react/uicustom/selectcustom";
 import { SelectListForm } from "@/core/constants";
-
+import { useParams } from "next/navigation";
 
 
 export default function Draw() {
 
     const [drawDate, setDrawDate] = React.useState<Date>(new Date().getUTCDateAsLocalDate());
+    const urlParams = useParams();
+    const location = urlParams.location as string;
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const [isPending, setIsPending] = React.useState(false);
     const [noOfPeople, setNoOfPeople] = React.useState(0);
@@ -135,7 +137,7 @@ export default function Draw() {
         date = date.getUTCDateAsLocalDate();
         setDrawDate(date);
 
-        getRoomNames(date).then(response => {
+        getRoomNames(date, location).then(response => {
             if(response.message){
                 toast(response.message);
             }

@@ -14,6 +14,7 @@ export type FormState = {
   formData?: FormData | null,
   pager?: PagerParams,
   reload?: boolean
+  location?: string
 };
 
 export type PagerParams = {

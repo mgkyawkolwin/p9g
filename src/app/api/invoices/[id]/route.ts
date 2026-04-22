@@ -21,6 +21,11 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     if (!session?.user)
       throw new CustomError('Invalid session');
 
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
+
     //call service to retrieve data
     const invoiceService = container.get<IInvoiceService>(TYPES.IInvoiceService);
     const invoice = await invoiceService.invoiceGetById(id, session.user);
@@ -56,6 +61,11 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     const session = await auth();
     if (!session?.user)
       throw new CustomError('Invalid session');
+
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
 
     c.i("Validating patch data.");
     const validatedInvoice = await invoiceValidator.safeParseAsync(body);
@@ -108,6 +118,11 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     if (!session?.user)
       throw new CustomError('Invalid session');
 
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
+
     c.i("Validating put data.");
     const validatedInvoice = await invoiceValidator.safeParseAsync(body);
 
@@ -146,6 +161,11 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
     const session = await auth();
     if (!session?.user)
       throw new CustomError('Invalid session');
+
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
 
     // delete invoice
     c.i("Calling service.");

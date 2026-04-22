@@ -10,13 +10,11 @@ import Reservation from "@/core/models/domain/Reservation";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
-import { updatePickUpInfo } from "@/app/(private)/console/pickup/actions";
+import { updatePickUpInfo } from "@/app/(private)/[location]/console/pickup/actions";
 import { toast } from "sonner";
 import { getReservationStatusColorClass } from "@/core/helpers";
 import { CopyIcon } from "lucide-react";
-
-
-
+import { useParams } from "next/navigation";
 
 interface DataTableProps {
   formState: FormState
@@ -29,6 +27,8 @@ export default function PickUpListTable({
   formAction,
   formRef
 }: DataTableProps) {
+  const params = useParams();
+  const location = params.location as string;
 
   // const [carNos, setCarNos] = React.useState<{[key:number]:string|undefined}>({});
 
@@ -38,7 +38,7 @@ export default function PickUpListTable({
       header: "ID",
       accessorFn: (row) => {
         return <span>
-          <div className="whitespace-nowrap"><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a>&nbsp;&nbsp;&nbsp;<CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} /></div>
+          <div className="whitespace-nowrap"><a href={`/${location}/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a>&nbsp;&nbsp;&nbsp;<CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} /></div>
           <span className={`font-bold ${getReservationStatusColorClass(row.reservationStatusText)}`}>{row.reservationStatusText}</span><br />
           <span>{row.reservationTypeText}</span>
           {row.prepaidPackageText ? <span className="font-bold text-[#ff00ff] dark:text-[#ff00ff]"><br />{row.prepaidPackageText}</span> : ''}
@@ -119,7 +119,8 @@ export default function PickUpListTable({
           <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={async () => {
             const response = await updatePickUpInfo(row.original.id,
               (document.getElementById(`car${row.original.id}`) as HTMLInputElement)?.value,
-              (document.getElementById(`driver${row.original.id}`) as HTMLInputElement)?.value);
+              (document.getElementById(`driver${row.original.id}`) as HTMLInputElement)?.value,
+              location);
             if (response.message)
               toast(response.message);
           }} >Save Car No</ButtonCustom>

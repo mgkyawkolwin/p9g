@@ -9,7 +9,7 @@ import { FormState } from "@/core/types";
 import Reservation from "@/core/models/domain/Reservation";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
-import { reservationCheckOut } from "@/app/(private)/console/checkout/actions";
+import { reservationCheckOut } from "@/app/(private)/[location]/console/checkout/actions";
 import { toast } from "sonner";
 import { getReservationStatusColorClass } from "@/core/helpers";
 import ReceiptDialog from "../dialogs/receiptdialog";
@@ -19,10 +19,8 @@ import BillDialog from "../dialogs/billdialog";
 import RoomChargeDialog from "../dialogs/roomschargedialog";
 import { useRouter } from "next/navigation";
 import { CopyIcon } from "lucide-react";
-import { reservationCancel } from "@/app/(private)/console/reservations/actions";
-
-
-
+import { reservationCancel } from "@/app/(private)/[location]/console/reservations/actions";
+import { useParams } from "next/navigation";
 
 interface DataTableProps {
   formState: FormState
@@ -35,6 +33,8 @@ export default function CheckOutListTable({
   formAction,
   formRef
 }: DataTableProps) {
+  const params = useParams();
+  const location = params.location as string;
 
   const router = useRouter();
 
@@ -44,7 +44,7 @@ export default function CheckOutListTable({
       header: "ID",
       accessorFn: (row) => {
         return <span>
-          <div className="whitespace-nowrap"><a href={`/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a>&nbsp;&nbsp;&nbsp;<CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} /></div>
+          <div className="whitespace-nowrap"><a href={`/${location}/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a>&nbsp;&nbsp;&nbsp;<CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} /></div>
           <span className={`font-bold ${getReservationStatusColorClass(row.reservationStatusText)}`}>{row.reservationStatusText}</span><br />
           <span>{row.reservationTypeText}</span>
           {row.prepaidPackageText ? <span className="font-bold text-[#ff00ff] dark:text-[#ff00ff]"><br />{row.prepaidPackageText}</span> : ''}
@@ -183,7 +183,7 @@ export default function CheckOutListTable({
             <DialogFooter>
               <ButtonCustom variant={"red"} type="button" onClick={async () => {
                 setOpenCancelDialog(false);
-                const response = await reservationCancel(cancelId);
+                const response = await reservationCancel(cancelId, location);
                 toast(response.message);
                 setCancelId('');
                 //reload page
@@ -209,7 +209,7 @@ export default function CheckOutListTable({
             <DialogFooter>
               <ButtonCustom variant={"green"} type="button" onClick={async () => {
                 setOpenCheckOutDialog(false);
-                const response = await reservationCheckOut(checkOutId);
+                const response = await reservationCheckOut(checkOutId, location);
                 toast(response.message);
                 setCheckOutId('');
                 await formRef.current?.requestSubmit();

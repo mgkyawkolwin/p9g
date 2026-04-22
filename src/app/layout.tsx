@@ -5,7 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/lib/components/web/react/ui/sonner";
 import GlobalErrorHandler from "./globalerrorhandler";
-import ThemeProviderWrapper from "./(private)/themeproviderwrapper";
+import ThemeProviderWrapper from "./(private)/[location]/console/themeproviderwrapper";
 
 
 const geistSans = Geist({

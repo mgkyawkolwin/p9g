@@ -29,6 +29,11 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        if (!request.headers.get('X-Resort-Location'))
+            throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+        session.user.location = request.headers.get('X-Resort-Location') || undefined;
+        c.d(session.user);
+
         if (!file) {
             return NextResponse.json(
                 { error: "No file uploaded" },
@@ -86,12 +91,12 @@ export async function POST(request: NextRequest) {
         });
 
     } catch (error) {
-    c.e(error instanceof Error ? error.message : String(error));
-    const logService = container.get<ILogService>(TYPES.ILogService);
-    await logService.logError(error);
-    if (error instanceof CustomError)
-      return NextResponse.json({ message: error.message }, { status: error.statusCode });
-    else
-      return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
-  }
+        c.e(error instanceof Error ? error.message : String(error));
+        const logService = container.get<ILogService>(TYPES.ILogService);
+        await logService.logError(error);
+        if (error instanceof CustomError)
+            return NextResponse.json({ message: error.message }, { status: error.statusCode });
+        else
+            return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
+    }
 }

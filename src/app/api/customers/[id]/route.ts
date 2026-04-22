@@ -16,8 +16,13 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
         c.fs("GET /api/customers/[id]");
         c.d(JSON.stringify(await context.params));
         const session = await auth();
-        if(!session?.user)
+        if (!session?.user)
             throw new CustomError('Invalid session');
+
+        if (!request.headers.get('X-Resort-Location'))
+            throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+        session.user.location = request.headers.get('X-Resort-Location') || undefined;
+        c.d(session.user);
 
         const { id } = await context.params;
         const service = container.get<ICustomerService>(TYPES.ICustomerService);
@@ -42,14 +47,20 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     try {
         c.fs("PUT api/customers/[id]");
         const session = await auth();
-        if(!session?.user)
+        if (!session?.user)
             throw new CustomError('Invalid session');
+
+        if (!request.headers.get('X-Resort-Location'))
+            throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+        session.user.location = request.headers.get('X-Resort-Location') || undefined;
+        c.d(session.user);
+
         const body = await request.json();
         c.d(body);
         const { id } = await context.params;
         const service = container.get<ICustomerService>(TYPES.ICustomerService);
         // find existing user
-        const user = await service.customerFindById(id,session.user);
+        const user = await service.customerFindById(id, session.user);
         if (!user) {
             return NextResponse.json({ message: "Not found." }, { status: HttpStatusCode.NotFound });
         }

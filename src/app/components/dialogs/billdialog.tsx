@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-table";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog"
-import { getReservation, invoiceView } from "@/app/(private)/console/reservations/actions"
+import { getReservation, invoiceView } from "@/app/(private)/[location]/console/reservations/actions"
 import { toast } from "sonner"
 import Bill from "@/core/models/domain/Bill"
 import BillDataTable from "../../../lib/components/web/react/uicustom/billdatatable"
@@ -15,6 +15,7 @@ import Invoice from "@/core/models/dto/Invoice";
 import { Checkbox } from "@/lib/components/web/react/ui/checkbox";
 import Reservation from "@/core/models/domain/Reservation";
 import { CheckboxCustom } from "@/lib/components/web/react/uicustom/CheckboxCustom";
+import { useParams } from "next/navigation";
 
 interface DataTableProps {
   reservationId: string;
@@ -27,6 +28,8 @@ export default function BillDialog({
   reservationId,
   callbackFunctions
 }: DataTableProps) {
+  const params = useParams();
+  const location = params.location as string;
 
   const [open, setOpen] = React.useState(false);
   const [invoice, setInvoice] = React.useState<Invoice>(new Invoice());
@@ -256,14 +259,14 @@ export default function BillDialog({
     //reset
     setPrintBills([]);
     const fetchInvoice = async () => {
-      const r = await getReservation(reservationId);
+      const r = await getReservation(reservationId, location);
       if (r.message)
         toast(r.message);
       if (r.data) {
         setReservation(r.data.reservation as unknown as Reservation);
       }
 
-      const response = await invoiceView(reservationId);
+      const response = await invoiceView(reservationId, location);
       if (response.message)
         toast(response.message);
       if (response.data) {
