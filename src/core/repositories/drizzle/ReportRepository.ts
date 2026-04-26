@@ -11,6 +11,7 @@ import { alias } from "drizzle-orm/mysql-core";
 import { CustomError } from "@/lib/errors";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import DailySummaryIncomeReportRow from "@/core/models/dto/reports/DailySummaryIncomeReportRow";
+import DailySummaryZoneGuestsReportRow from "@/core/models/dto/reports/DailySummaryZoneGuestsReportRow";
 import Bill from "@/core/models/domain/Bill";
 import Payment from "@/core/models/domain/Payment";
 import Reservation from "@/core/models/domain/Reservation";
@@ -548,6 +549,112 @@ export default class ReportRepository implements IReportRepository {
         c.d(reports?.length);
         c.d(reports?.length > 0 ? reports[0] : []);
         c.fe("Repository > getDailySummaryPersonReport");
+        return reports;
+    }
+
+
+    async getDailySummaryZoneGuestsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryZoneGuestsReportRow[]> {
+        c.fs("Repository > getDailySummaryZoneGuestsReport");
+        c.d(startDate);
+        c.d(endDate);
+
+        const reports: DailySummaryZoneGuestsReportRow[] = [];
+        const dateRanges = getUTCDateRange(startDate, endDate);
+        c.d(dateRanges);
+        if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
+
+        const zonesResult = await this.dbClient.db.select({ zone: roomTable.zone })
+            .from(roomTable)
+            .where(eq(roomTable.location, sessionUser.location))
+            .groupBy(roomTable.zone);
+
+        const zones = zonesResult.map(z => z.zone);
+
+        c.i('Generating zone-based report.');
+        for (const dr of dateRanges) {
+            const start: Date = new Date(dr);
+
+            for (const zone of zones) {
+                const report = new DailySummaryZoneGuestsReportRow();
+                report.date = start;
+                report.zone = zone;
+
+                const [guestsCheckIn] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
+                    .from(reservationTable)
+                    .innerJoin(roomTable, eq(roomTable.roomNo, reservationTable.roomNo))
+                    .where(
+                        and(
+                            eq(reservationTable.checkInDate, start),
+                            eq(roomTable.zone, zone),
+                            eq(reservationTable.location, sessionUser.location),
+                            eq(roomTable.location, sessionUser.location)
+                        )).limit(1);
+                report.guestsCheckIn = Number(guestsCheckIn.sum ?? 0);
+
+                const [guestsCheckOut] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
+                    .from(reservationTable)
+                    .innerJoin(roomTable, eq(roomTable.roomNo, reservationTable.roomNo))
+                    .where(
+                        and(
+                            eq(reservationTable.checkOutDate, start),
+                            eq(roomTable.zone, zone),
+                            eq(reservationTable.location, sessionUser.location),
+                            eq(roomTable.location, sessionUser.location)
+                        )).limit(1);
+                report.guestsCheckOut = Number(guestsCheckOut.sum ?? 0);
+
+                const [guestsSameDayCheckOut] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
+                    .from(reservationTable)
+                    .innerJoin(roomTable, eq(roomTable.roomNo, reservationTable.roomNo))
+                    .where(
+                        and(
+                            eq(reservationTable.checkInDate, reservationTable.checkOutDate),
+                            eq(reservationTable.checkInDate, start),
+                            eq(roomTable.zone, zone),
+                            eq(reservationTable.location, sessionUser.location),
+                            eq(roomTable.location, sessionUser.location)
+                        )).limit(1);
+                report.guestsSameDayCheckOut = Number(guestsSameDayCheckOut.sum ?? 0);
+
+                const [guestsExisting] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
+                    .from(reservationTable)
+                    .innerJoin(roomTable, eq(roomTable.roomNo, reservationTable.roomNo))
+                    .where(
+                        and(
+                            lt(reservationTable.checkInDate, start),
+                            gt(reservationTable.checkOutDate, start),
+                            eq(roomTable.zone, zone),
+                            eq(reservationTable.location, sessionUser.location),
+                            eq(roomTable.location, sessionUser.location)
+                        )).limit(1);
+
+                report.guestsTotal = Number(guestsExisting.sum ?? 0) + report.guestsCheckIn + report.guestsCheckOut - report.guestsSameDayCheckOut;
+
+                const [roomsTotal] = await this.dbClient.db.select({ count: countDistinct(reservationTable.roomNo) })
+                    .from(reservationTable)
+                    .innerJoin(roomTable, eq(roomTable.roomNo, reservationTable.roomNo))
+                    .where(
+                        and(
+                            lte(reservationTable.checkInDate, start),
+                            or(
+                                eq(reservationTable.checkOutDate, start),
+                                gt(reservationTable.checkOutDate, start)
+                            ),
+                            eq(roomTable.zone, zone),
+                            eq(reservationTable.location, sessionUser.location),
+                            eq(roomTable.location, sessionUser.location)
+                        ));
+
+                report.reservationTotal = guestsCheckIn.count + guestsCheckOut.count + guestsExisting.count - guestsSameDayCheckOut.count;
+                report.roomsTotal = roomsTotal.count;
+
+                reports.push(report);
+            }
+        }
+
+        c.d(reports?.length);
+        c.d(reports?.length > 0 ? reports[0] : []);
+        c.fe("Repository > getDailySummaryZoneGuestsReport");
         return reports;
     }
 

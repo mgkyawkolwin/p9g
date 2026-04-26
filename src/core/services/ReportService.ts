@@ -5,6 +5,7 @@ import { TYPES } from '@/core/types';
 import type IReportRepository from "@/core/repositories/contracts/IReportRepository";
 import DailySummaryIncomeReportRow from "../models/dto/reports/DailySummaryIncomeReportRow";
 import DailySummaryPersonReportRow from "../models/dto/reports/DailySummaryPersonReportRow";
+import DailySummaryZoneGuestsReportRow from "../models/dto/reports/DailySummaryZoneGuestsReportRow";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import SessionUser from "../models/dto/SessionUser";
 import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDropoffReportResponse';
@@ -40,6 +41,11 @@ export default class ReportService implements IReportService {
     async getDailySummaryPersonReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]> {
         c.fs('ReportService > getDailySummaryPersonReport');
         return await this.reportRepository.getDailySummaryPersonReport(startDate, endDate, reservationStatus, sessionUser);
+    }
+
+    async getDailySummaryZoneGuestsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryZoneGuestsReportRow[]> {
+        c.fs('ReportService > getDailySummaryZoneGuestsReport');
+        return await this.reportRepository.getDailySummaryZoneGuestsReport(startDate, endDate, sessionUser);
     }
 
     async getPickupDropoffReport(arrivalDepartureDate: string, sessionUser: SessionUser): Promise<PickupDropoffReportResponse> {

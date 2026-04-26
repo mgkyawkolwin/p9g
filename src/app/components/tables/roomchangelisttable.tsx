@@ -45,8 +45,16 @@ export default function RoomChangeListTable({
       header: "Room",
     },
     {
+      accessorKey: "zone",
+      header: "Zone",
+    },
+    {
       accessorKey: "roomTypeText",
       header: "Room Type",
+    },
+    {
+      accessorKey: "bedType",
+      header: "Bed Type",
     },
     {
       accessorKey: "reservationId",

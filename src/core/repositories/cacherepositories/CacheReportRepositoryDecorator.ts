@@ -7,6 +7,7 @@ import { getCacheKey } from "@/lib/utils";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import DailySummaryIncomeReportRow from "@/core/models/dto/reports/DailySummaryIncomeReportRow";
 import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
+import DailySummaryZoneGuestsReportRow from "@/core/models/dto/reports/DailySummaryZoneGuestsReportRow";
 import type ICacheAdapter from "@/lib/cache/ICacheAdapter";
 import SessionUser from "@/core/models/dto/SessionUser";
 import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
@@ -110,6 +111,26 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
 
         return object;
 
+    }
+
+    async getDailySummaryZoneGuestsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryZoneGuestsReportRow[]> {
+        c.fs("Repository > getDailySummaryZoneGuestsReport");
+        const cacheTag = `guestsroom-${startDate}-${endDate}-${sessionUser.location}`;
+
+        const startTime = performance.now();
+
+        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
+        if (cacheObject) {
+            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+            return cacheObject;
+        }
+
+        const object = await this.repository.getDailySummaryZoneGuestsReport(startDate, endDate, sessionUser);
+
+        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
+
+        return object;
     }
 
     async getPickupDropoffReport(arrivalDepartureDate: string, sessionUser: SessionUser): Promise<PickupDropoffReportResponse> {

@@ -173,7 +173,7 @@ export default function MainMenuClient({ role }) {
                 className={`absolute left-0 mt-1 w-48 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${reportsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
                   }`}
               >
-                {role === 'ADMIN' && (
+                {(role === 'ADMIN' || role === 'RECEPTION') && (
                   <li>
                     <Link
                       href={`/${location}/console/reports/dailysummaryperson`}
@@ -192,6 +192,16 @@ export default function MainMenuClient({ role }) {
                       onClick={() => setReportsOpen(false)}
                     >
                       Daily Summary (Guests & Rooms)
+                    </Link>
+                  </li>)}
+                {role === 'ADMIN' && (
+                  <li>
+                    <Link
+                      href={`/${location}/console/reports/dailysummaryzoneguests`}
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setReportsOpen(false)}
+                    >
+                      Daily Summary (Zone Guests)
                     </Link>
                   </li>)}
                 {role === 'ADMIN' && (

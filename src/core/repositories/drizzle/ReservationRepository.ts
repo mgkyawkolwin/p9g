@@ -22,7 +22,7 @@ import c from "@/lib/loggers/console/ConsoleLogger";
 import type IMapper from "@/lib/mappers/IMapper";
 import type IQueryTranformer from "@/lib/transformers/IQueryTransformer";
 import { getISODateTimeString, getUTCDateMidNight } from "@/lib/utils";
-import { and, asc, between, count, desc, eq, gt, gte, like, lt, lte, ne, or } from "drizzle-orm";
+import { and, asc, between, count, countDistinct, desc, eq, gt, gte, inArray, like, lt, lte, ne, or } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { inject, injectable } from "inversify";
 import { Repository } from "../../../lib/repositories/drizzle/Repository";
@@ -187,7 +187,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         const pickUpAlias = alias(configTable, 'pickUpAlias');
         const dropOffAlias = alias(configTable, 'dropOffAlias');
 
-        let countQuery = this.dbClient.db.select({ count: count() })
+        let countQuery = this.dbClient.db.select({ count: countDistinct(reservationTable.id) })
             .from(reservationTable)
             .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
             .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
@@ -197,6 +197,19 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
             .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id));
+
+        let distinctReservationsQuery = this.dbClient.db.selectDistinct({id: reservationTable.id})
+            .from(reservationTable)
+            .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
+            .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+            .leftJoin(promotionTable, eq(promotionTable.id, reservationTable.promotionPackageId))
+            .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
+            .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
+            .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
+            .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
+            .offset(offset)
+            .limit(pagerParams.pageSize);
 
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
@@ -223,9 +236,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
-            .offset(offset)
-            .limit(pagerParams.pageSize);
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id));
 
         const conditions = [];
 
@@ -342,16 +353,33 @@ export default class ReservationRepository extends Repository<Reservation, Reser
 
         if (conditions) {
             countQuery.where(and(...conditions, eq(reservationTable.location, sessionUser.location)));
-            dataQuery.where(and(...conditions, eq(reservationTable.location, sessionUser.location)));
+            distinctReservationsQuery.where(and(...conditions, eq(reservationTable.location, sessionUser.location)));
         } else {
             countQuery.where(eq(reservationTable.location, sessionUser.location));
-            dataQuery.where(eq(reservationTable.location, sessionUser.location));
+            distinctReservationsQuery.where(eq(reservationTable.location, sessionUser.location));
         }
 
+        const [countResult, uniqueIdsResult] = await Promise.all([
+            countQuery.execute(),
+            distinctReservationsQuery.execute()
+        ]);
+
+        c.i('COUNT QUERY RESULT');
+        c.d(countResult[0]?.count);
+
         //order
-        dataQuery.orderBy(pagerParams.orderDirection === 'desc' ? desc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]) : asc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]));
-        c.d(dataQuery.toSQL());
-        const dataqueryresult = await dataQuery;
+        c.d(uniqueIdsResult);
+        const reservationIds = uniqueIdsResult.map(r => r.id);
+        c.d(reservationIds);
+
+        // Then conditionally get full data
+        let dataqueryresult = [];
+        if (reservationIds.length > 0) {
+            dataQuery.where(inArray(reservationTable.id, reservationIds));
+            dataQuery.orderBy(pagerParams.orderDirection === 'desc' ? desc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]) : asc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]));
+            c.d(dataQuery.toSQL());
+            dataqueryresult = await dataQuery.execute();
+        }
         c.d('dataqueryresult');
         c.d(dataqueryresult.length);
         c.d(dataQuery.toSQL());
@@ -396,19 +424,15 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             return acc;
         }, [] as Reservation[]);
 
-        const [countResult] = await countQuery;
-        c.i('COUNT QUERY RESULT');
-        c.d(countResult);
-
         //update number of pages
-        pagerParams = { ...pagerParams, records: countResult.count, pages: Math.ceil((countResult.count) / pagerParams.pageSize) };
+        pagerParams = { ...pagerParams, records: countResult[0]?.count ?? 0, pages: Math.ceil((countResult[0]?.count ?? 0) / pagerParams.pageSize) };
         c.d(pagerParams);
 
         c.d(reservations.length);
         c.d(reservations.length > 0 ? reservations[0] : []);
 
         c.fe('ReservationRepository > reservationGetList');
-        return [reservations, countResult.count];
+        return [reservations, countResult[0]?.count ?? 0];
     }
 
 
@@ -447,7 +471,9 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         const dataQuery = this.dbClient.db
             .select({
                 roomNo: roomTable.roomNo,
+                zone: roomTable.zone,
                 roomTypeText: roomTypeTable.roomTypeText,
+                bedType: roomTable.bedType,
                 reservationId: asRsv.reservationId,
                 checkInDate: asRsv.checkInDate,
                 checkOutDate: asRsv.checkOutDate,

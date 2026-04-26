@@ -337,6 +337,8 @@ export const roomTable = mysqlTable("room", {
   roomTypeId: char("roomTypeId", { length: 36 }).notNull(),
   isAvailable: boolean("isAvailable").default(true).notNull(),
   location: varchar("location", { length: 10 }),
+  zone: varchar("zone", { length: 10 }).notNull(),
+  bedType: varchar("bedType", { length: 10 }).notNull(),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", { length: 36 }).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),

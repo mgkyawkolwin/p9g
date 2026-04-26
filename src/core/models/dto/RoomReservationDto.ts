@@ -2,7 +2,9 @@ import Customer from "../domain/Customer";
 
 export default class RoomReservationDto{
     public roomNo: string = '';
+    public zone: string = '';
     public roomTypeText:string = '';
+    public bedType: string = '';
     public reservationId: string = '';
     public checkInDate: string = '';
     public checkOutDate: string = '';
