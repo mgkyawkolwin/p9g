@@ -364,6 +364,9 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                     like(customerTable.englishName, `%${searchFormFields.searchName}%`)
                 ));
             }
+            if (searchFormFields.searchTdacStatus) {
+                conditions.push(eq(tdacStatusAlias.value, searchFormFields.searchTdacStatus));
+            }
             if (searchFormFields.searchId) {
                 conditions.push(like(reservationTable.id, `%${searchFormFields.searchId}%`));
             }
@@ -473,7 +476,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                     if (c.id === reservationCustomer.customerId) {
                         c.reservationCustomerId = reservationCustomer.id;
                         c.tdacStatusId = reservationCustomer.tdacStatusId;
-                        c.tdacStatusValue = reservationCustomer.tdacStatusValue;
+                        c.tdacStatus = reservationCustomer.tdacStatusValue;
                         c.tdacStatusText = reservationCustomer.tdacStatusText;
                     }
                 });

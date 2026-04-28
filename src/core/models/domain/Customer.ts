@@ -19,7 +19,7 @@ export default class Customer extends DomainBase {
     public phone: string = '';
     public remarks: string = '';
     public tdacStatusId: string = '';
-    public tdacStatusValue: string = '';
+    public tdacStatus: string = '';
     public tdacStatusText: string = '';
     public reservationCustomerId: string = '';
     public tdacFileUrl: string = '';

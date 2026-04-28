@@ -24,6 +24,7 @@ export default function CustomerInformationTable({
   data,
   setData
 }: DataTableProps) {
+  console.log(data);
 
   const columns: ColumnDef<Customer>[] = [
     {
@@ -161,18 +162,18 @@ export default function CustomerInformationTable({
       }
     },
     {
-      accessorKey: "tdacStatusValue",
+      accessorKey: "tdacStatus",
       header: "TDAC Status",
       cell: ({ row }) => {
-        const currentStatus = String(row.getValue('tdacStatusValue') || 'NOT_REQUIRED');
-
         return (
           <SelectCustom
+            name="tdacStatus"
+            size="md"
             items={SelectListForm.TDAC_STATUS}
-            value={currentStatus}
+            value={String(row.getValue('tdacStatus'))}
             onValueChange={(e) => {
               const value = e;
-              setData(prev => prev.map((customer, index) => index === row.index ? { ...customer, tdacStatusValue: value } : customer));
+              setData(prev => prev.map((customer, index) => index === row.index ? { ...customer, tdacStatus: value } : customer));
             }}
           />
         );

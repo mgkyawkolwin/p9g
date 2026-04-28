@@ -92,10 +92,10 @@ export default function ReservationListTable({
               {customer.englishName} {customer.name}<br /> ({customer.nationalId} / {customer.passport} / {customer.phone} / {customer.email})
               <br />
               <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-                <button type="button" className={`flex items-center gap-1 text-left ${customer.tdacStatusValue === 'REQUIRED' ? 'text-[#ff0000]' : 'text-[#000000] dark:text-[#ffffff]'}`} onClick={() => openTdacDialog(row.original.id, customer)}>
+                <button type="button" className={`flex cursor-pointer items-center gap-1 text-left ${customer.tdacStatus === 'REQUIRED' ? 'text-[#ff0000]' : 'text-[#000000] dark:text-[#ffffff]'}`} onClick={() => openTdacDialog(row.original.id, customer)}>
                   <span className="font-bold">TDAC :</span>&nbsp;{customer.tdacStatusText || 'Unknown'}
                 </button>
-                <button type="button" className="flex items-center gap-1 text-sm text-[#555] hover:text-[#000]" onClick={() => openTdacDialog(row.original.id, customer)}>
+                <button type="button" className="flex cursor-pointer items-center gap-1 text-sm text-[#555] hover:text-[#000]" onClick={() => openTdacDialog(row.original.id, customer)}>
                   <FileText className="w-4 h-4" />
                   Files {customer.medias?.length ? `(${customer.medias.length})` : ''}
                 </button>
@@ -628,12 +628,12 @@ export default function ReservationListTable({
             />
           </div>
           <DialogFooter>
-            <ButtonCustom variant={"black"} type="button" onClick={saveInvoiceStatus} disabled={invoiceUpdating}>
+            <ButtonCustom variant={"green"} type="button" onClick={saveInvoiceStatus} disabled={invoiceUpdating}>
               Save
             </ButtonCustom>
             <DialogClose asChild>
-              <ButtonCustom variant={"red"} type="button" onClick={() => setInvoiceDialogReservation(null)}>
-                Cancel
+              <ButtonCustom variant={"black"} type="button" onClick={() => setInvoiceDialogReservation(null)}>
+                Close
               </ButtonCustom>
             </DialogClose>
           </DialogFooter>

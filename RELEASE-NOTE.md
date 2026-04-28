@@ -6,3 +6,5 @@
 - Allow Reception Role to view "Daily Summary (Person)" report
 - Added Invoice Status
 - Added TDAC Status
+- Fix room rate calculation for moving room of 90 days customers
+- Added Myanmar country list in invoice module

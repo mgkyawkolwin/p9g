@@ -69,6 +69,7 @@ export type SearchFormFields = {
   searchInvoiceStatus?: string | undefined,
   searchStartDateFrom?: string | undefined,
   searchStartDateUntil?: string | undefined,
+  searchTdacStatus?: string | undefined,
   searchUserName?: string | undefined,
 };
 

@@ -170,7 +170,7 @@ export default function MainMenuClient({ role }) {
                 Reports
               </button>
               <ul
-                className={`absolute left-0 mt-1 w-48 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${reportsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                className={`absolute left-0 mt-1 w-68 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${reportsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
                   }`}
               >
                 {(role === 'ADMIN' || role === 'RECEPTION') && (

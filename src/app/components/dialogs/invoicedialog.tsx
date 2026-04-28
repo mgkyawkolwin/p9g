@@ -766,7 +766,8 @@ export default function InvoiceDialog({
 
     const locationItems = new Map<string, string>([
         ["마이다", "마이다"],
-        ["캥카찬", "캥카찬"]
+        ["캥카찬", "캥카찬"],
+        ["힐링힐스CC", "힐링힐스CC"]
     ]);
 
     const bookingItemsColumns = React.useMemo<ColumnDef<BookingInvoiceItem>[]>(() => [
@@ -816,7 +817,7 @@ export default function InvoiceDialog({
             accessorKey: "location",
             header: 'Gof Course',
             cell: (row) => <SelectCustom
-                size="xs"
+                size="sm"
                 key={`booking-loc-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 items={locationItems}
                 value={row.row.original.location || ""}

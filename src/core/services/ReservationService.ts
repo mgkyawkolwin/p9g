@@ -402,7 +402,7 @@ export default class ReservationService implements IReservationService {
                 c.i('Customers exist. Prepare to insert.');
                 const newReservationCustomers = await Promise.all(reservation.customers.map(async (customer) => {
                     c.i('Retrieve TDAC status for customers');
-                    const tdacStatusConfig = await this.configRepository.findOne(and(eq("group", ConfigGroup.TDAC_STATUS), eq("value", customer.tdacStatusValue)));
+                    const tdacStatusConfig = await this.configRepository.findOne(and(eq("group", ConfigGroup.TDAC_STATUS), eq("value", customer.tdacStatus)));
                     if (!tdacStatusConfig) throw new CustomError('Cannot find TDAC status config for customer.');
                     const rc = new ReservationCustomer();
                     rc.reservationId = createdReservation.id;
@@ -705,23 +705,31 @@ export default class ReservationService implements IReservationService {
             if (existingCustomers) {
                 c.i('Existing customers for the reservation.');
                 if (reservation.customers?.length > 0) {
-                    c.i('There are new customers for the reservation. Compare customers.');
-                    for(const newCustomer of reservation.customers){
-                        const foundCustomer = existingCustomers.find(ec => newCustomer.id === ec.customerId);
+                    c.i('There are customers for the reservation. Compare customers.');
+                    for(const incomingCustomer of reservation.customers){
+                        const foundCustomer = existingCustomers.find(ec => incomingCustomer.id === ec.customerId);
                         if(!foundCustomer){
                             c.i('New customer not found in existing, insert new');
-                            c.i(`Find tdac status for new customer with value: ${newCustomer.tdacStatusValue}`);
-                            const tdacStatusConfig = await this.configRepository.findOne(and(eq("group", ConfigGroup.TDAC_STATUS), eq("value", newCustomer.tdacStatusValue)));
+                            c.i(`Find tdac status for new customer with value: ${incomingCustomer.tdacStatus}`);
+                            const tdacStatusConfig = await this.configRepository.findOne(and(eq("group", ConfigGroup.TDAC_STATUS), eq("value", incomingCustomer.tdacStatus)));
                             if (!tdacStatusConfig) throw new CustomError('Cannot find TDAC status config for customer.');
                             const rc = new ReservationCustomer();
                             rc.reservationId = reservation.id;
                             rc.tdacStatusId = tdacStatusConfig.id;
-                            rc.customerId = newCustomer.id;
+                            rc.customerId = incomingCustomer.id;
                             rc.createdAtUTC = new Date();
                             rc.createdBy = sessionUser.id;
                             rc.updatedAtUTC = new Date();
                             rc.updatedBy = sessionUser.id;
                             await this.reservationCustomerRepository.create(rc, tx as any);
+                        }else{
+                            c.i('Existing customer found in new list. Compare TDAC status.');
+                            const tdacStatusConfig = await this.configRepository.findOne(and(eq("group", ConfigGroup.TDAC_STATUS), eq("value", incomingCustomer.tdacStatus)));
+                            if (!tdacStatusConfig) throw new CustomError('Cannot find TDAC status config for customer.');
+                            if(foundCustomer.tdacStatusId !== tdacStatusConfig.id){
+                                c.i('TDAC status changed. Update.');
+                                await this.reservationCustomerRepository.update(foundCustomer.id, { tdacStatusId: tdacStatusConfig.id, updatedAtUTC: new Date(), updatedBy: sessionUser.id } as ReservationCustomer, tx as any);
+                            }
                         }
                     }
                     c.i('Removing existing customers if not exit in new customer list.');
@@ -733,7 +741,7 @@ export default class ReservationService implements IReservationService {
                         }
                     }
                 } else {
-                    c.i('There are no new customers for the reservation. Deleting existing');
+                    c.i('There are no customers for the reservation. Deleting existing');
                     await this.reservationCustomerRepository.deleteWhere(eq("reservationId", id));
                 }
             } else {
@@ -741,8 +749,8 @@ export default class ReservationService implements IReservationService {
                 if (reservation.customers?.length > 0) {
                     c.i('There are new customers for the reservation');
                     const newReservationCustomers = await Promise.all(reservation.customers.map(async (customer) => {
-                        c.i(`Find tdac status for new customer with value: ${customer.tdacStatusValue}`);
-                        const tdacStatusConfig = await this.configRepository.findOne(and(eq("group", ConfigGroup.TDAC_STATUS), eq("value", customer.tdacStatusValue)));
+                        c.i(`Find tdac status for new customer with value: ${customer.tdacStatus}`);
+                        const tdacStatusConfig = await this.configRepository.findOne(and(eq("group", ConfigGroup.TDAC_STATUS), eq("value", customer.tdacStatus)));
                         if (!tdacStatusConfig) throw new CustomError('Cannot find TDAC status config for customer.');
                         const rc = new ReservationCustomer();
                         rc.reservationId = reservation.id;

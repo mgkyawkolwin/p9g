@@ -148,7 +148,7 @@ export const reservationValidator = z.object({
     z.array(
       z.object({
       id: z.string().min(1, "Customer ID is required"),
-      tdacStatusValue: z.string().min(1, "Customer ID is required")
+      tdacStatus: z.string().min(1, "TDAC status is required")
     })
   ).optional()
   ),
@@ -252,6 +252,7 @@ export const searchValidator = z.object({
   searchReservationStatus: z.string().optional(),
   searchReservationType: z.string().optional(),
   searchInvoiceStatus: z.string().optional(),
+  searchTdacStatus: z.string().optional(),
   searchUserName: z.string().optional(),
   startDate: z.coerce.date().optional()
 });

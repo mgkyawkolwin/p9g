@@ -102,7 +102,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
 
 export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    c.fs("PUT api/reservations/[id]/roomreservations");
+    c.fs("PUT api/reservations/[id]");
 
     const session = await auth();
     if (!session?.user)
@@ -132,7 +132,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     const reservationService = container.get<IReservationService>(TYPES.IReservationService);
     await reservationService.reservationUpdate(id, validatedReservation.data as unknown as Reservation, session.user);
 
-    c.fe("PUT api/reservations/[id]/roomreservations");
+    c.fe("PUT api/reservations/[id]");
     return NextResponse.json({ message: "Updated" }, { status: HttpStatusCode.Ok });
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));

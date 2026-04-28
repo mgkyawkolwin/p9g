@@ -1,6 +1,6 @@
 export const AppUrl = {
     signin : '/auth/signin',
-    main : '/console/reservations'
+    main : '/MIDA/console/reservations'
 } as const;
 
 export const ConfigGroup = {
