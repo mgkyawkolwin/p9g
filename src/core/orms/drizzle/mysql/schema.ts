@@ -138,6 +138,7 @@ export const bookingInvoiceItemTable = mysqlTable("bookingInvoiceItem", {
 export const mediaTable = mysqlTable("media", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
   reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'restrict' } ),
+  mediaGroupId: char("mediaGroupId", { length: 36 }).notNull().references(() => configTable.id, { onDelete: 'restrict' } ),
   customerId: char("customerId", { length: 36 }).references(() => customerTable.id, { onDelete: 'set null' } ),
   url: varchar("url", { length: 500 }).notNull(),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
@@ -268,7 +269,9 @@ export const promotionTable = mysqlTable("promotion", {
 
 export const reservationTable = mysqlTable("reservation", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
-  reservationTypeId: char("reservationTypeId", { length: 36 }).references(() => configTable.id),
+  reservationTypeId: char("reservationTypeId", { length: 36 }).notNull().references(() => configTable.id),
+  invoiceStatusId: char("invoiceStatusId", { length: 36 }).notNull().references(() => configTable.id),
+  invoiceNumber: varchar("invoiceNumber", { length: 10 }),
   tourCompany: varchar("tourCompany", { length: 100 }),
   arrivalDateTime: datetime("arrivalDateTime"),
   arrivalFlight: varchar("arrivalFlight", { length: 50 }),
@@ -324,7 +327,8 @@ export const reservationCustomerTable = mysqlTable("reservationCustomer", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
   reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'set null' }),
   customerId: char("customerId", { length: 36 }).notNull().references(() => customerTable.id, { onDelete: 'set null' }),
-  tdacFileUrl: varchar("tdacFileUrl", {length: 50}),
+  tdacStatusId: char("tdacStatusId", { length: 36 }).notNull().references(() => configTable.id, { onDelete: 'set null' }),
+  // tdacFileUrl: varchar("tdacFileUrl", {length: 50}),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", { length: 36 }).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
@@ -439,6 +443,11 @@ export const reservationRelations = relations(reservationTable, ({ one, many }) 
     fields: [reservationTable.reservationStatusId],
     references: [configTable.id],
     relationName: 'reservation_status' // Explicit relation name
+  }),
+  invoiceStatus: one(configTable, {
+    fields: [reservationTable.invoiceStatusId],
+    references: [configTable.id],
+    relationName: 'invoice_status' // Explicit relation name
   }),
   reservationType: one(configTable, {
     fields: [reservationTable.reservationTypeId],

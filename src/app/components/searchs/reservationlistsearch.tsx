@@ -26,6 +26,8 @@ const initialData = {
     promotionPackage: "DEFAULT",
     reservationStatus: "DEFAULT",
     reservationType: "DEFAULT",
+    invoiceStatus: "DEFAULT",
+    tdacStatus: "DEFAULT",
     remark: ""
 };
 
@@ -133,6 +135,22 @@ export default function ReservationListSearch({
                     <input type="hidden" name="searchExistingReservations" defaultValue={formData.existingCheckIn ? formData.existingCheckIn.toISOFormatDateTimeString() : ''} />
                 </div>
                 <InputWithLabel labelPosition="top" size="md" name="searchBookingSource" label="Booking Source" defaultValue={formData.bookingSource} onChange={(e) => setFormData({ ...formData, bookingSource: e.target.value })} />
+                <SelectWithLabel
+                    label="Invoice Status"
+                    labelPosition="top"
+                    items={SelectListSearch.INVOICE_STATUS}
+                    defaultValue={formData.invoiceStatus}
+                    onValueChange={(value) => setFormData({ ...formData, invoiceStatus: value })}
+                />
+                <SelectWithLabel
+                    label="TDAC Status"
+                    labelPosition="top"
+                    items={SelectListSearch.TDAC_STATUS}
+                    defaultValue={formData.tdacStatus}
+                    onValueChange={(value) => setFormData({ ...formData, tdacStatus: value })}
+                />
+                <input type="hidden" name="searchInvoiceStatus" value={formData.invoiceStatus} />
+                <input type="hidden" name="searchTdacStatus" value={formData.tdacStatus} />
                 <ButtonCustom onClick={() => formRef?.current?.requestSubmit()}>Search</ButtonCustom>
             </div>
         </section>

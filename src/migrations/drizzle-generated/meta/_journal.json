@@ -113,13 +113,6 @@
       "when": 1774180190936,
       "tag": "0015_careful_quasar",
       "breakpoints": true
-    },
-    {
-      "idx": 16,
-      "version": "5",
-      "when": 1777193760521,
-      "tag": "0016_chunky_silvermane",
-      "breakpoints": true
     }
   ]
 }

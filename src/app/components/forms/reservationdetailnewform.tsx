@@ -36,7 +36,7 @@ export default function ReservationDetailNewForm({ customers, onReservationSaved
     async function saveAndCopyReservation() {
         setIsPending(true);
         const r = detailFormRef.current?.getReservation();
-        r.customers = customers.map(c => ({ id: c.id } as Customer));
+        r.customers = customers.map(c => ({ id: c.id, tdacStatusValue: c.tdacStatusValue } as Customer));
         const response = await saveReservationAction(r as unknown as Reservation, location);
         if (response.message) toast(response.message);
         if (!response.error && onReservationSaved){ 
@@ -50,7 +50,7 @@ export default function ReservationDetailNewForm({ customers, onReservationSaved
     async function saveReservation() {
         setIsPending(true);
         const r = detailFormRef.current?.getReservation();
-        r.customers = customers.map(c => ({ id: c.id } as Customer))
+        r.customers = customers.map(c => ({ id: c.id, tdacStatusValue: c.tdacStatusValue } as Customer))
         const response = await saveReservationAction(JSON.parse(JSON.stringify(r)) as unknown as Reservation, location);
         if (response.message) toast(response.message);
         if (!response.error && onReservationSaved) {

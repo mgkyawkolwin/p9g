@@ -93,10 +93,16 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         const reservationStatusAlias = alias(configTable, 'reservation_status');
         const pickUpAlias = alias(configTable, 'pickUpAlias');
         const dropOffAlias = alias(configTable, 'dropOffAlias');
+        const invoiceStatusAlias = alias(configTable, 'invoice_status');
+        const tdacStatusAlias = alias(configTable, 'tdac_status');
 
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
-            customer: { ...customerTable },
+            customer: { 
+                ...customerTable,
+                tdacStatus: tdacStatusAlias.value,
+                tdacStatusText: tdacStatusAlias.text
+            },
             bill: { ...billTable },
             reservationStatus: reservationStatusAlias.value,
             reservationStatusText: reservationStatusAlias.text,
@@ -109,7 +115,9 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             promotionPackage: promotionTable.value,
             promotionPackageText: promotionTable.text,
             prepaidPackage: prepaidTable.value,
-            prepardPackageText: prepaidTable.text
+            prepardPackageText: prepaidTable.text,
+            invoiceStatus: invoiceStatusAlias.value,
+            invoiceStatusText: invoiceStatusAlias.text,
         })
             .from(reservationTable)
             .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
@@ -118,9 +126,11 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
+            .leftJoin(invoiceStatusAlias, eq(reservationTable.invoiceStatusId, invoiceStatusAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
             .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
             .leftJoin(billTable, eq(billTable.reservationId, reservationTable.id))
+            .leftJoin(tdacStatusAlias, eq(reservationCustomerTable.tdacStatusId, tdacStatusAlias.id))
             .where(eq(reservationTable.id, id));
 
         const dataqueryresult = await dataQuery;
@@ -186,43 +196,72 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         const reservationStatusAlias = alias(configTable, 'reservation_status');
         const pickUpAlias = alias(configTable, 'pickUpAlias');
         const dropOffAlias = alias(configTable, 'dropOffAlias');
+        const invoiceStatusAlias = alias(configTable, 'invoice_status');
+        const tdacStatusAlias = alias(configTable, 'tdac_status');
+        const mediaGroupAlias = alias(configTable, 'media_group');
 
         let countQuery = this.dbClient.db.select({ count: countDistinct(reservationTable.id) })
             .from(reservationTable)
             .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
             .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
-            .leftJoin(promotionTable, eq(promotionTable.id, reservationTable.promotionPackageId))
-            .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
-            .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
-            .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
-            .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id));
-
-        let distinctReservationsQuery = this.dbClient.db.selectDistinct({id: reservationTable.id})
-            .from(reservationTable)
-            .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
-            .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+            .leftJoin(invoiceStatusAlias, eq(reservationTable.invoiceStatusId, invoiceStatusAlias.id))
             .leftJoin(promotionTable, eq(promotionTable.id, reservationTable.promotionPackageId))
             .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
             .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
-            .offset(offset)
+            .leftJoin(tdacStatusAlias, eq(reservationCustomerTable.tdacStatusId, tdacStatusAlias.id))
+            .leftJoin(mediaTable, eq(mediaTable.reservationId, reservationTable.id))
+            .leftJoin(mediaGroupAlias, and(
+                eq(mediaTable.mediaGroupId, mediaGroupAlias.id),
+                eq(mediaGroupAlias.group, ConfigGroup.MEDIA_GROUP),
+                eq(mediaGroupAlias.value, 'TDAC')
+            ));
+
+        let distinctReservationsQuery = this.dbClient.db.selectDistinct({id: reservationTable.id})
+            .from(reservationTable)
+            .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
+            .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+            .leftJoin(invoiceStatusAlias, eq(reservationTable.invoiceStatusId, invoiceStatusAlias.id))
+            .leftJoin(promotionTable, eq(promotionTable.id, reservationTable.promotionPackageId))
+            .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
+            .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
+            .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
+            .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
+            .leftJoin(tdacStatusAlias, eq(reservationCustomerTable.tdacStatusId, tdacStatusAlias.id))
+            .leftJoin(mediaTable, eq(mediaTable.reservationId, reservationTable.id))
+            .leftJoin(mediaGroupAlias, and(
+                eq(mediaTable.mediaGroupId, mediaGroupAlias.id),
+                eq(mediaGroupAlias.group, ConfigGroup.MEDIA_GROUP),
+                eq(mediaGroupAlias.value, 'TDAC')
+            )).offset(offset)
             .limit(pagerParams.pageSize);
 
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
             customer: { ...customerTable },
-            reservationCustomer: { ...reservationCustomerTable },
+            reservationCustomer: { 
+                ...reservationCustomerTable, 
+                tdacStatusId: reservationCustomerTable.tdacStatusId, 
+                tdacStatusValue: tdacStatusAlias.value,
+                tdacStatusText: tdacStatusAlias.text 
+            },
             reservationStatus: reservationStatusAlias.value,
             reservationStatusText: reservationStatusAlias.text,
             reservationType: reservationTypeAlias.value,
             reservationTypeText: reservationTypeAlias.text,
+            invoiceStatus: invoiceStatusAlias.value,
+            invoiceStatusText: invoiceStatusAlias.text,
             pickUpType: pickUpAlias.value,
             pickUpTypeText: pickUpAlias.text,
             dropOffType: dropOffAlias.value,
             dropOffTypeText: dropOffAlias.text,
+            tdacStatus: tdacStatusAlias.value,
+            tdacStatusText: tdacStatusAlias.text,
+            tdacMediaGroupId: mediaGroupAlias.id,
+            media: mediaTable,
             promotionPackage: promotionTable.value,
             promotionPackageText: promotionTable.text,
             prepaidPackage: prepaidTable.value,
@@ -231,12 +270,20 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .from(reservationTable)
             .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
             .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+            .leftJoin(invoiceStatusAlias, eq(reservationTable.invoiceStatusId, invoiceStatusAlias.id))
             .leftJoin(promotionTable, eq(promotionTable.id, reservationTable.promotionPackageId))
             .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id));
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
+            .leftJoin(tdacStatusAlias, eq(reservationCustomerTable.tdacStatusId, tdacStatusAlias.id))
+            .leftJoin(mediaTable, eq(mediaTable.reservationId, reservationTable.id))
+            .leftJoin(mediaGroupAlias, and(
+                eq(mediaTable.mediaGroupId, mediaGroupAlias.id),
+                eq(mediaGroupAlias.group, ConfigGroup.MEDIA_GROUP),
+                eq(mediaGroupAlias.value, 'TDAC')
+            ));
 
         const conditions = [];
 
@@ -291,6 +338,9 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             }
             if (searchFormFields.searchReservationType) {
                 conditions.push(eq(reservationTypeAlias.value, searchFormFields.searchReservationType));
+            }
+            if (searchFormFields.searchInvoiceStatus) {
+                conditions.push(eq(invoiceStatusAlias.value, searchFormFields.searchInvoiceStatus));
             }
             if (searchFormFields.searchCheckInDate) {
                 let d: Date = new Date(getISODateTimeString(searchFormFields.searchCheckInDate));
@@ -349,12 +399,16 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                         ne(reservationTable.reservationStatusId, config.id)
                     ));
             }
+            c.d(`Conditions length: ${conditions.length}`);
         }
 
         if (conditions) {
+            c.d('Applying conditions');
             countQuery.where(and(...conditions, eq(reservationTable.location, sessionUser.location)));
             distinctReservationsQuery.where(and(...conditions, eq(reservationTable.location, sessionUser.location)));
+            c.d(`Count Query with conditions: ${JSON.stringify(countQuery.toSQL())}`);
         } else {
+            c.d('Applying location condition only');
             countQuery.where(eq(reservationTable.location, sessionUser.location));
             distinctReservationsQuery.where(eq(reservationTable.location, sessionUser.location));
         }
@@ -410,13 +464,28 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             if (customer) {
                 const [existingCustomer] = rsvn?.customers?.filter(c => c.id === customer.id);
                 if (!existingCustomer) {
+                    customer.medias = [];
                     rsvn?.customers?.push(customer);
                 }
             }
             if (reservationCustomer) {
                 rsvn?.customers?.forEach(c => {
-                    if (c.id === reservationCustomer.customerId && reservationCustomer.tdacFileUrl) {
-                        c.tdacFileUrl = reservationCustomer.tdacFileUrl;
+                    if (c.id === reservationCustomer.customerId) {
+                        c.reservationCustomerId = reservationCustomer.id;
+                        c.tdacStatusId = reservationCustomer.tdacStatusId;
+                        c.tdacStatusValue = reservationCustomer.tdacStatusValue;
+                        c.tdacStatusText = reservationCustomer.tdacStatusText;
+                    }
+                });
+            }
+
+            if (current.media && current.tdacMediaGroupId) {
+                rsvn?.customers?.forEach(c => {
+                    if (c.id === current.media.customerId) {
+                        let existingMedia = c.medias.find(m => m.id === current.media.id);
+                        if (!existingMedia) {
+                            c.medias.push(current.media);
+                        }
                     }
                 });
             }
@@ -468,6 +537,8 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             ).as('asRsv');
         c.i('Subquery constructed.');
 
+        const mediaGroupAlias = alias(configTable, 'media_group');
+
         const dataQuery = this.dbClient.db
             .select({
                 roomNo: roomTable.roomNo,
@@ -491,6 +562,11 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .leftJoin(customerTable, eq(customerTable.id, reservationCustomerTable.customerId))
             .leftJoin(feedbackTable, eq(feedbackTable.reservationId, asRsv.reservationId))
             .leftJoin(mediaTable, eq(mediaTable.reservationId, asRsv.reservationId))
+            .leftJoin(mediaGroupAlias, and(
+                eq(mediaTable.mediaGroupId, mediaGroupAlias.id),
+                eq(mediaGroupAlias.group, 'MEDIA_GROUP'),
+                eq(mediaGroupAlias.value, 'GENERAL')
+            ))
             .where(
                 eq(roomTable.location, sessionUser.location)
             ).orderBy(asc(roomTypeTable.roomTypeText), asc(roomTable.roomNo));

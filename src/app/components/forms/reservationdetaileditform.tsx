@@ -36,7 +36,7 @@ export default function ReservationDetailEditForm({
     async function saveReservation() {
         setIsPending(true);
         const r = detailFormRef.current?.getReservation();
-        r.customers = customers.map(c => ({ id: c.id } as Customer))
+        r.customers = customers.map(c => ({ id: c.id, tdacStatusValue: c.tdacStatusValue } as Customer))
         const response = await updateReservationAction(JSON.parse(JSON.stringify(r)) as unknown as Reservation, location);
         setIsPending(false);
         if (response.message) toast(response.message);

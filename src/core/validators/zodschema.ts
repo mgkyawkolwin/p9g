@@ -59,6 +59,15 @@ export const feedbackValidator = z.object({
   feedback: z.coerce.string().optional(),
 });
 
+export const invoiceStatusUpdateValidator = z.object({
+  invoiceStatus: z.string().min(1, 'Invoice status is required'),
+  invoiceNumber: z.string().optional()
+});
+
+export const tdacStatusUpdateValidator = z.object({
+  tdacStatusValue: z.string().min(1, 'TDAC status value is required')
+});
+
 export const userInsertSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   password: z.string().min(1, 'Password is required'),
@@ -113,6 +122,8 @@ export const reservationPatchValidator = z.object({
   id: z.coerce.string().length(36),
   golfCart: z.coerce.string().optional(),
   paymentRemark: z.coerce.string().nullish().optional(),
+  invoiceStatus: z.string().optional(),
+  invoiceNumber: z.string().optional(),
 });
 
 
@@ -136,7 +147,8 @@ export const reservationValidator = z.object({
     },
     z.array(
       z.object({
-      id: z.string().min(1, "Customer ID is required")
+      id: z.string().min(1, "Customer ID is required"),
+      tdacStatusValue: z.string().min(1, "Customer ID is required")
     })
   ).optional()
   ),
@@ -161,6 +173,8 @@ export const reservationValidator = z.object({
   remark: z.coerce.string().nullish().catch(undefined),
   reservationStatus: z.string().nullish(),
   reservationType: z.string().nullish(),
+  invoiceStatus: z.string().nullish(),
+  invoiceNumber: z.string().nullish(),
   roomNo: z.coerce.string().nullish(),
   tax: z.coerce.number(),
   tourCompany: z.coerce.string().nullish(),

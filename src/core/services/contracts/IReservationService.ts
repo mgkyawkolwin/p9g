@@ -26,6 +26,7 @@ export default interface IReservationService {
     reservationGetList(searchParams: Record<string, any>, pagerParams: PagerParams, list: string, sessionUser: SessionUser): Promise<[Reservation[], number]>;
     reservationMoveRoom(id: string, roomNo: string, date: string, sessionUser: SessionUser): Promise<void>;
     reservationPatch(id: string, reservation: Reservation, sessionUser: SessionUser): Promise<void>;
+    reservationUpdateInvoiceStatus(id: string, invoiceStatus: string, invoiceNumber: string | undefined, sessionUser: SessionUser): Promise<void>;
     reservationUpdate(id: string, reservation: Reservation, sessionUser: SessionUser): Promise<void>;
     roomChargeGetListById(reservationId: string, sessionUser: SessionUser): Promise<RoomCharge[]>;
     roomReservationGetList(searchParam: Record<string, any>, sessionUser: SessionUser): Promise<RoomReservationDto[]>;

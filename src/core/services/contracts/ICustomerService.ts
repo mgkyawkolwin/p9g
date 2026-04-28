@@ -12,4 +12,5 @@ export default interface ICustomerService {
     customerFindMany(searchParams: Record<string, any>, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[Customer[], number]>;
     customerUpdate(id: string, user: Customer, sessionUser: SessionUser): Promise<void>;
     customerUpdateTdac(reservationId: string, customerId: string, tdacFileUrl: string, sessionUser: SessionUser): Promise<void>;
+    customerUpdateTdacStatus(reservationCustomerId: string, tdacStatusId: string, sessionUser: SessionUser): Promise<void>;
 }

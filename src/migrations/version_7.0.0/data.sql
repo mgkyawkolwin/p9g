@@ -1,3 +1,5 @@
+START TRANSACTION;
+
 UPDATE `room` SET `zone`='MODERN', `bedType`='SINGLE' WHERE `roomNo`='A801' AND `location`='MIDA';
 UPDATE `room` SET `zone`='MODERN', `bedType`='SINGLE' WHERE `roomNo`='A802' AND `location`='MIDA';
 UPDATE `room` SET `zone`='MODERN', `bedType`='DOUBLE' WHERE `roomNo`='A803' AND `location`='MIDA';
@@ -222,3 +224,5 @@ UPDATE `room` SET `zone`='A', `bedType`='SINGLE' WHERE `roomNo`='A121' AND `loca
 UPDATE `room` SET `zone`='A', `bedType`='SINGLE' WHERE `roomNo`='A122' AND `location`='HH';
 UPDATE `room` SET `zone`='A', `bedType`='SINGLE' WHERE `roomNo`='A123' AND `location`='HH';
 UPDATE `room` SET `zone`='A', `bedType`='SINGLE' WHERE `roomNo`='A124' AND `location`='HH';
+
+COMMIT;

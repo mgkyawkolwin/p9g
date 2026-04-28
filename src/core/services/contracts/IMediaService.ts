@@ -4,7 +4,7 @@ import SessionUser from "@/core/models/dto/SessionUser";
 
 export default interface IMediaService {
 
-    createMedia(media: Media, sessionUser: SessionUser): Promise<void>;
+    createMedia(media: Media, sessionUser: SessionUser, mediaGroupValue?: string): Promise<void>;
     deleteMedia(mediaId: string, sessionUser: SessionUser): Promise<void>;
 
 }

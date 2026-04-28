@@ -4,3 +4,5 @@
 - Modify reservation service to return the correct reservation numbers based on the pagination
 - Added new report "Daily Summary (Zone Guests)"
 - Allow Reception Role to view "Daily Summary (Person)" report
+- Added Invoice Status
+- Added TDAC Status

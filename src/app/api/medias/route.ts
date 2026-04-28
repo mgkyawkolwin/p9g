@@ -16,6 +16,7 @@ import ILogService from "@/core/services/contracts/ILogService";
 
 export async function POST(request: NextRequest) {
     try {
+        c.fs('POST /api/media/upload');
         const formData = await request.formData();
         const file = formData.get("file") as File;
         const reservationId = formData.get("reservationId") as string;
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
 
         // TODO: Add validation for file size and type here
         // TODO: Authenticate the request (e.g., check session)
+        c.i(`Received file: ${file.name}, reservationId: ${reservationId}, customerId: ${customerId}`);
 
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
@@ -70,6 +72,7 @@ export async function POST(request: NextRequest) {
         // This example saves to a local 'uploads' directory.
         const uploadDir = path.join(process.cwd(), "uploads");
         const filePath = path.join(uploadDir, serverFileName);
+        c.d(`Saving file to: ${filePath}`);
 
         await writeFile(filePath, buffer);
 

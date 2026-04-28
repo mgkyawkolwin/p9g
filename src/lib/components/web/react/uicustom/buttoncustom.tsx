@@ -17,7 +17,7 @@ const buttonVariants = cva(
         default:
           "bg-[#333333] dark:bg-[#666666] text-[#eeeeee] shadow-xs hover:bg-[#444444]",
         black:
-            "bg-[#333333] dark:bg-[$666666] text-[#eeeeee] shadow-xs hover:bg-[#444444]",
+            "bg-[#333333] dark:bg-[#666666] text-[#eeeeee] shadow-xs hover:bg-[#444444]",
         gray:
             "bg-[#666666] text-[#eeeeee] shadow-xs hover:bg-primary/90",
         red:
