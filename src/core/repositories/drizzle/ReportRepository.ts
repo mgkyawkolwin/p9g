@@ -248,13 +248,16 @@ export default class ReportRepository implements IReportRepository {
 
     async getDailySummaryIncomeReport(startDate: string, endDate: string, reservationType: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
         c.fs("Repository > getDailySummaryIncomeReport");
-        c.d({ startDate, endDate, reservationStatus: reservationType, sessionUser });
+        c.d({ startDate, endDate, reservationType, sessionUser });
 
         var reservationTypeId = null;
         if (reservationType) {
             const [result] = await this.dbClient.db
                 .select().from(configTable)
-                .where(eq(configTable.value, reservationType));
+                .where(and(
+                    eq(configTable.value, reservationType),
+                    eq(configTable.group, 'RESERVATION_TYPE')
+                ));
             if (result) reservationTypeId = result.id;
             c.d(reservationTypeId);
             c.d(result);
@@ -265,6 +268,7 @@ export default class ReportRepository implements IReportRepository {
         c.d(dateRanges ? dateRanges[0] : []);
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
 
+        const reservationStatusTable = alias(configTable, "reservationStatus");
         const reservationTypeTable = alias(configTable, "reservationType");
 
         c.i('Generating report.');
@@ -272,24 +276,42 @@ export default class ReportRepository implements IReportRepository {
             const start: Date = new Date(dr);
             const report = new DailySummaryIncomeReportRow();
             report.date = start;
+            const conditions = [];
+            conditions.push(eq(reservationTable.checkInDate, start));
+            conditions.push(ne(reservationStatusTable.value, 'CCL'));
+            conditions.push(eq(reservationTable.location, sessionUser.location));
+            if (reservationTypeId) {
+                conditions.push(eq(reservationTable.reservationTypeId, reservationTypeId));
+            }
 
             const totalCheckInReservations: Reservation[] = await this.dbClient.db
                 .select(
                     { ...reservationTable }
                 )
                 .from(reservationTable)
-                .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+                .innerJoin(reservationStatusTable, eq(reservationStatusTable.id, reservationTable.reservationStatusId))
                 .innerJoin(reservationTypeTable, and(
-                    eq(reservationTypeTable.id, reservationTable.reservationTypeId),
-                    reservationTypeId ? eq(reservationTypeTable.id, reservationTypeId) : sql`1 = 1`
+                    eq(reservationTypeTable.id, reservationTable.reservationTypeId)
                 ))
                 .where(
                     and(
-                        eq(reservationTable.checkInDate, start),
-                        ne(configTable.value, 'CCL'),
-                        eq(reservationTable.location, sessionUser.location)
+                        ...conditions
+                    ));
+            const query = this.dbClient.db
+                .select(
+                    { ...reservationTable }
+                )
+                .from(reservationTable)
+                .innerJoin(reservationStatusTable, eq(reservationStatusTable.id, reservationTable.reservationStatusId))
+                .innerJoin(reservationTypeTable, and(
+                    eq(reservationTypeTable.id, reservationTable.reservationTypeId)
+                ))
+                .where(
+                    and(
+                        ...conditions
                     ));
             report.totalCheckInReservations = Number(totalCheckInReservations.length ?? 0);
+            c.d(`Total check-in reservations: ${report.totalCheckInReservations}`);
 
             for (const reservation of totalCheckInReservations) {
                 report.totalRoomCharge = report.totalRoomCharge + Number(reservation.totalAmount ?? 0);
@@ -463,10 +485,10 @@ export default class ReportRepository implements IReportRepository {
         if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
 
         let reservationStatusCondition = ne(configTable.value, 'CCL');
-        if(reservationStatus){
-            if(reservationStatus === "NEW"){
+        if (reservationStatus) {
+            if (reservationStatus === "NEW") {
                 reservationStatusCondition = eq(configTable.value, 'NEW');
-            }else{
+            } else {
                 reservationStatusCondition = and(ne(configTable.value, 'NEW'), ne(configTable.value, 'CCL'))
             }
         }
@@ -582,50 +604,58 @@ export default class ReportRepository implements IReportRepository {
                 const [guestsCheckIn] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
                     .from(reservationTable)
                     .innerJoin(roomTable, eq(roomTable.roomNo, reservationTable.roomNo))
+                    .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                     .where(
                         and(
                             eq(reservationTable.checkInDate, start),
                             eq(roomTable.zone, zone),
                             eq(reservationTable.location, sessionUser.location),
-                            eq(roomTable.location, sessionUser.location)
+                            eq(roomTable.location, sessionUser.location),
+                            eq(configTable.value, 'CIN')
                         )).limit(1);
                 report.guestsCheckIn = Number(guestsCheckIn.sum ?? 0);
 
                 const [guestsCheckOut] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
                     .from(reservationTable)
                     .innerJoin(roomTable, eq(roomTable.roomNo, reservationTable.roomNo))
+                    .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                     .where(
                         and(
                             eq(reservationTable.checkOutDate, start),
                             eq(roomTable.zone, zone),
                             eq(reservationTable.location, sessionUser.location),
-                            eq(roomTable.location, sessionUser.location)
+                            eq(roomTable.location, sessionUser.location),
+                            eq(configTable.value, 'CIN')
                         )).limit(1);
                 report.guestsCheckOut = Number(guestsCheckOut.sum ?? 0);
 
                 const [guestsSameDayCheckOut] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
                     .from(reservationTable)
                     .innerJoin(roomTable, eq(roomTable.roomNo, reservationTable.roomNo))
+                    .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                     .where(
                         and(
                             eq(reservationTable.checkInDate, reservationTable.checkOutDate),
                             eq(reservationTable.checkInDate, start),
                             eq(roomTable.zone, zone),
                             eq(reservationTable.location, sessionUser.location),
-                            eq(roomTable.location, sessionUser.location)
+                            eq(roomTable.location, sessionUser.location),
+                            eq(configTable.value, 'CIN')
                         )).limit(1);
                 report.guestsSameDayCheckOut = Number(guestsSameDayCheckOut.sum ?? 0);
 
                 const [guestsExisting] = await this.dbClient.db.select({ sum: sum(reservationTable.noOfGuests), count: count(reservationTable.id) })
                     .from(reservationTable)
                     .innerJoin(roomTable, eq(roomTable.roomNo, reservationTable.roomNo))
+                    .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                     .where(
                         and(
                             lt(reservationTable.checkInDate, start),
                             gt(reservationTable.checkOutDate, start),
                             eq(roomTable.zone, zone),
                             eq(reservationTable.location, sessionUser.location),
-                            eq(roomTable.location, sessionUser.location)
+                            eq(roomTable.location, sessionUser.location),
+                            eq(configTable.value, 'CIN')
                         )).limit(1);
 
                 report.guestsTotal = Number(guestsExisting.sum ?? 0) + report.guestsCheckIn + report.guestsCheckOut - report.guestsSameDayCheckOut;
@@ -633,6 +663,7 @@ export default class ReportRepository implements IReportRepository {
                 const [roomsTotal] = await this.dbClient.db.select({ count: countDistinct(reservationTable.roomNo) })
                     .from(reservationTable)
                     .innerJoin(roomTable, eq(roomTable.roomNo, reservationTable.roomNo))
+                    .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
                     .where(
                         and(
                             lte(reservationTable.checkInDate, start),
@@ -642,7 +673,8 @@ export default class ReportRepository implements IReportRepository {
                             ),
                             eq(roomTable.zone, zone),
                             eq(reservationTable.location, sessionUser.location),
-                            eq(roomTable.location, sessionUser.location)
+                            eq(roomTable.location, sessionUser.location),
+                            eq(configTable.value, 'CIN')
                         ));
 
                 report.reservationTotal = guestsCheckIn.count + guestsCheckOut.count + guestsExisting.count - guestsSameDayCheckOut.count;
@@ -686,7 +718,7 @@ export default class ReportRepository implements IReportRepository {
                     eq(configTable.group, "RESERVATION_TYPE"),
                     eq(configTable.value, reservationType)
                 )
-            ); c.d(reservationTypeId);c.d(reservationTypeId.id);
+            ); c.d(reservationTypeId); c.d(reservationTypeId.id);
             if (!reservationTypeId) throw new CustomError("Cannot find reservation type id");
             conditions.push(eq(reservationTable.reservationTypeId, reservationTypeId.id));
         }
@@ -700,7 +732,7 @@ export default class ReportRepository implements IReportRepository {
                         ne(configTable.value, "CCL")
                     )
                 );
-            }else{
+            } else {
                 [reservationStatusId] = await this.dbClient.db.select().from(configTable).where(
                     and(
                         eq(configTable.group, "RESERVATION_STATUS"),
@@ -727,8 +759,8 @@ export default class ReportRepository implements IReportRepository {
 
             if (checkInFrom)
                 localConditions.push(eq(reservationTable.checkInDate, start));
-            if (createdFrom){
-                
+            if (createdFrom) {
+
                 localConditions.push(
                     and(
                         gte(reservationTable.createdAtUTC, start),
@@ -736,7 +768,7 @@ export default class ReportRepository implements IReportRepository {
                     )
                 );
             }
-            if (updatedFrom){
+            if (updatedFrom) {
                 localConditions.push(
                     and(
                         gte(reservationTable.updatedAtUTC, start),

@@ -33,7 +33,7 @@ export default class ReportService implements IReportService {
 
     async getDailySummaryIncomeReport(startDate: string, endDate: string, reservationType: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
         c.fs('ReportService > getDailySummaryIncomeReport');
-        c.d({startDate, endDate, reservationStatus: reservationType, sessionUser});
+        c.d({startDate, endDate, reservationType, sessionUser});
         return await this.reportRepository.getDailySummaryIncomeReport(startDate, endDate, reservationType, sessionUser);
     }
 

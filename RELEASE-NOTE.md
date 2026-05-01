@@ -1,10 +1,6 @@
-# Version 7.0.0 Release Note
-- Added Zone and Bed Type for Rooms
-- Display Zone and Bed Type in Room Change page
-- Modify reservation service to return the correct reservation numbers based on the pagination
-- Added new report "Daily Summary (Zone Guests)"
-- Allow Reception Role to view "Daily Summary (Person)" report
-- Added Invoice Status
-- Added TDAC Status
-- Fix room rate calculation for moving room of 90 days customers
-- Added Myanmar country list in invoice module
+# Version 7.1.0 Release Note
+- Added password change form
+- Added reservation log
+- Added room charge log
+- Fixed daily reservation income report: status filter problem
+- Fixed zone report: filtered by check-in status

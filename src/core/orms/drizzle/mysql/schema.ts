@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { binary, boolean, char, date, datetime, decimal, int, mysqlTable, smallint, tinyint, varchar, text } from "drizzle-orm/mysql-core";
+import { binary, boolean, char, date, datetime, decimal, int, mysqlTable, smallint, tinyint, varchar, text, mysqlEnum, bigint } from "drizzle-orm/mysql-core";
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -323,6 +323,65 @@ export const reservationTable = mysqlTable("reservation", {
   updatedBy: char("updatedBy", { length: 36 }).notNull()
 });
 
+export const reservationLogTable = mysqlTable("reservation_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  reservationTypeId: char("reservationTypeId", { length: 36 }).notNull().references(() => configTable.id),
+  invoiceStatusId: char("invoiceStatusId", { length: 36 }).notNull().references(() => configTable.id),
+  invoiceNumber: varchar("invoiceNumber", { length: 10 }),
+  tourCompany: varchar("tourCompany", { length: 100 }),
+  arrivalDateTime: datetime("arrivalDateTime"),
+  arrivalFlight: varchar("arrivalFlight", { length: 50 }),
+  bookingSource: varchar("bookingSource", { length: 50}),
+  departureDateTime: datetime("departureDateTime"),
+  departureFlight: varchar("departureFlight", { length: 50 }),
+  checkInDate: datetime("checkInDate"),
+  checkOutDate: datetime("checkOutDate"),
+  noOfDays: smallint("noOfDays"),
+  depositAmount: int("depositAmount"),
+  depositAmountInCurrency: int("depositAmountInCurrency"),
+  depositCurrency: char("depositCurrency", { length: 3 }),
+  depositDateUTC: date("depositDateUTC"),
+  depositPaymentMode: varchar("depositPaymentMode", { length: 10 }),
+  roomNo: varchar("roomNo", { length: 10 }),
+  isSingleOccupancy: boolean("isSingleOccupancy"),
+  noOfGuests: tinyint("noOfGuests"),
+  pickUpTypeId: char("pickUpTypeId", { length: 36 }).references(() => configTable.id),
+  pickUpFee: tinyint("pickUpFee"),
+  pickUpFeeCurrency: char("pickUpFeeCurrency", { length: 3 }),
+  pickUpFeePaidOnUTC: datetime("pickUpFeePaidOnUTC"),
+  pickUpCarNo: varchar("pickUpCarNo", { length: 10 }),
+  pickUpDriver: varchar("pickUpDriver", { length: 50 }),
+  prepaidCode: char('prepaidCode', { length: 8 }),
+  prepaidPackageId: char("prepaidPackageId", { length: 36 }).references(() => prepaidTable.id),
+  promotionPackageId: char("promotionPackageId", { length: 36 }).references(() => promotionTable.id),
+  dropOffTypeId: char("dropOffTypeId", { length: 36 }).references(() => configTable.id),
+  dropOffFee: tinyint("dropOffFee"),
+  dropOffFeeCurrency: char("dropOffFeeCurrency", { length: 3 }),
+  dropOffFeePaidOnUTC: datetime("dropOffFeePaidOnUTC"),
+  dropOffCarNo: varchar("dropOffCarNo", { length: 10 }),
+  dropOffDriver: varchar("dropOffDriver", { length: 50 }),
+  reservationStatusId: char("reservationStatusId", { length: 36 }).notNull().references(() => configTable.id),
+  remark: varchar("remark", { length: 500 }),
+  paymentRemark: varchar("paymentRemark", { length: 500 }),
+  totalAmount: decimal("totalAmount"),
+  paidAmount: decimal("paidAmount"),
+  discountAmount: decimal("discountAmount"),
+  tax: decimal("tax"),
+  taxAmount: decimal("taxAmount"),
+  netAmount: decimal("netAmount"),
+  dueAmount: decimal("dueAmount"),
+  golfCart: varchar("golfCart", { length: 20 }),
+  // feedback: text("feedback"),
+  location: varchar("location", { length: 10 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
 export const reservationCustomerTable = mysqlTable("reservationCustomer", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
   reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'set null' }),
@@ -368,6 +427,30 @@ export const roomChargeTable = mysqlTable("roomCharge", {
   createdBy: char("createdBy", { length: 36 }).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
   updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
+export const roomChargeLogTable = mysqlTable("roomCharge_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'set null' }),
+  startDate: datetime("startDate"),
+  endDate: datetime("endDate"),
+  roomId: char("roomId"),
+  roomTypeId: char("roomTypeId", { length: 36 }).notNull(),
+  roomRate: decimal("roomRate").notNull(),
+  roomSurcharge: decimal("roomSurcharge").notNull(),
+  singleRate: decimal("singleRate").notNull(),
+  seasonSurcharge: decimal("seasonSurcharge").notNull(),
+  extraBedRate: decimal("extraBedRate").notNull(),
+  totalRate: decimal("totalRate").notNull(),
+  noOfDays: tinyint("noOfDays").notNull(),
+  totalAmount: decimal("totalAmount").notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
 });
 
 export const roomReservationTable = mysqlTable("roomReservation", {

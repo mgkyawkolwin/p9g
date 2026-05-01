@@ -154,7 +154,7 @@ export default function DailySummaryZoneGuestsReport({ reportRows }: { reportRow
         <div className="flex flex-col w-full gap-4">
             <div className="text-center text-[18pt]">
                 <ButtonCustom variant="green" size="sm" className="float-left" onClick={downloadExcel}>Download Excel</ButtonCustom>
-                Daily Summary Report (Zone Guests)
+                Daily Summary Report (Check-In Guests By Zone)
             </div>
             <div>
                 <table ref={reportRef} className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>

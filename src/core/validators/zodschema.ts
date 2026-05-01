@@ -95,6 +95,11 @@ export const userUpdateSchema = z.object({
   modelState: z.string()
 });
 
+export const userPasswordChangeSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(1, 'New password is required'),
+  confirmPassword: z.string().min(1, 'Confirm password is required')
+});
 
 export const pagerValidator = z.object({
   orderBy: z.string().regex(RegExp('[a-zA-Z]'),'Invalid orderBy column.').optional(),

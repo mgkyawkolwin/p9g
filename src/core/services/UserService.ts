@@ -1,4 +1,5 @@
 import { injectable, inject } from 'inversify';
+import argon2 from 'argon2';
 
 import c from '@/lib/loggers/console/ConsoleLogger';
 import type IUserService from "./contracts/IUserService";
@@ -96,6 +97,25 @@ export default class UserService implements IUserService {
 
     await this.userRepository.update(id, userPosted);
     c.fe('UserService > userUpdate');
+  }
+
+  async userUpdatePassword(id: string, currentPassword: string, newPassword: string, sessionUser: SessionUser): Promise<void> {
+    c.fs('UserService > userUpdatePassword');
+    if (!id) throw new CustomError('User id is required.');
+    if (!currentPassword || !newPassword) throw new CustomError('Password is required.');
+
+    const existingUser = await this.userRepository.findById(id);
+    if (!existingUser) throw new CustomError('User not found.');
+
+    const isValid = await argon2.verify(existingUser.password, currentPassword);
+    if (!isValid) throw new CustomError('Current password is incorrect.');
+
+    existingUser.password = await argon2.hash(newPassword);
+    existingUser.updatedAtUTC = new Date();
+    existingUser.updatedBy = sessionUser.id;
+
+    await this.userRepository.update(id, existingUser);
+    c.fe('UserService > userUpdatePassword');
   }
 
 }

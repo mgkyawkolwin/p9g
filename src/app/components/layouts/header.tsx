@@ -3,8 +3,7 @@
 
 import Link from 'next/link';
 import MainMenu from './mainmenu';
-import SignOutButton from '@/lib/components/web/react/uicustom/signoutbutton';
-import { signOutAction } from '@/app/actions';
+import UserMenu from './usermenu';
 import { TabSwitcher } from './tabswitcher';
 
 interface HeaderProps {
@@ -35,8 +34,7 @@ export async function Header({ location, userName }: HeaderProps) {
         </div>
         
         <div className="flex items-center gap-4">
-          <span className="text-sm text-white">{userName}</span>
-          <SignOutButton action={signOutAction} />
+          <UserMenu location={location} userName={userName} />
         </div>
       </div>
       
