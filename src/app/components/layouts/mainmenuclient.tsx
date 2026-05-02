@@ -231,6 +231,36 @@ export default function MainMenuClient({ role }) {
                 {role === 'ADMIN' && (
                   <li>
                     <Link
+                      href={`/${location}/console/reports/dailysummaryreservationstatus`}
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setReportsOpen(false)}
+                    >
+                      Daily Summary (Reservation Status)
+                    </Link>
+                  </li>)}
+                {role === 'ADMIN' && (
+                  <li>
+                    <Link
+                      href={`/${location}/console/reports/dailysummaryroomoccupancy`}
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setReportsOpen(false)}
+                    >
+                      Daily Summary (Room Occupancy)
+                    </Link>
+                  </li>)}
+                {role === 'ADMIN' && (
+                  <li>
+                    <Link
+                      href={`/${location}/console/reports/monthlysummaryreservationstatus`}
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setReportsOpen(false)}
+                    >
+                      Monthly Summary (Reservation Status)
+                    </Link>
+                  </li>)}
+                {role === 'ADMIN' && (
+                  <li>
+                    <Link
                       href={`/${location}/console/reports/dailyreservationdetail`}
                       className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
                       onClick={() => setReportsOpen(false)}

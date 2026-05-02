@@ -11,11 +11,14 @@ import { alias } from "drizzle-orm/mysql-core";
 import { CustomError } from "@/lib/errors";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import DailySummaryIncomeReportRow from "@/core/models/dto/reports/DailySummaryIncomeReportRow";
+import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
+import DailySummaryReservationStatusReportRow from "@/core/models/dto/reports/DailySummaryReservationStatusReportRow";
+import DailySummaryRoomOccupancyReportRow, { DailySummaryRoomOccupancyCell } from "@/core/models/dto/reports/DailySummaryRoomOccupancyReportRow";
 import DailySummaryZoneGuestsReportRow from "@/core/models/dto/reports/DailySummaryZoneGuestsReportRow";
+import MonthlySummaryReservationStatusReportRow from "@/core/models/dto/reports/MonthlySummaryReservationStatusReportRow";
 import Bill from "@/core/models/domain/Bill";
 import Payment from "@/core/models/domain/Payment";
 import Reservation from "@/core/models/domain/Reservation";
-import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
 import SessionUser from "@/core/models/dto/SessionUser";
 import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
 import { PickupDropoffReportResponse, PickupDropoffRow, PickupDropoffSummary } from '@/core/models/dto/reports/PickupDropoffReportResponse';
@@ -572,6 +575,260 @@ export default class ReportRepository implements IReportRepository {
         c.d(reports?.length > 0 ? reports[0] : []);
         c.fe("Repository > getDailySummaryPersonReport");
         return reports;
+    }
+
+    async getDailySummaryReservationStatusReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryReservationStatusReportRow[]> {
+        c.fs("Repository > getDailySummaryReservationStatusReport");
+        c.d(startDate);
+        c.d(endDate);
+
+        const reports: DailySummaryReservationStatusReportRow[] = [];
+        const dateRanges = getUTCDateRange(startDate, endDate);
+        c.d(dateRanges);
+        if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
+
+        c.i('Generating report.');
+        for (const dr of dateRanges) {
+            const start: Date = new Date(dr);
+            const reportDate = new Date(start);
+
+            const conditions: any[] = [
+                eq(reservationTable.checkInDate, reportDate),
+                eq(reservationTable.location, sessionUser.location)
+            ];
+
+            const report = new DailySummaryReservationStatusReportRow();
+            report.date = reportDate;
+
+            const rows = await this.dbClient.db.select({
+                reservationStatus: configTable.value,
+                reservationCount: count(reservationTable.id)
+            })
+                .from(reservationTable)
+                .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+                .where(and(...conditions))
+                .groupBy(configTable.value);
+
+            let total = 0;
+            for (const row of rows) {
+                const status = row.reservationStatus ?? '';
+                const countValue = Number(row.reservationCount ?? 0);
+                switch (status) {
+                    case 'NEW':
+                        report.newCount = countValue;
+                        break;
+                    case 'CFM':
+                        report.confirmedCount = countValue;
+                        break;
+                    case 'CIN':
+                        report.checkedInCount = countValue;
+                        break;
+                    case 'OUT':
+                        report.checkedOutCount = countValue;
+                        break;
+                    case 'WTG':
+                        report.waitingCount = countValue;
+                        break;
+                    case 'CCL':
+                        report.cancelledCount = countValue;
+                        break;
+                }
+                total += countValue;
+            }
+            reports.push(report);
+        }
+
+        c.d(reports?.length);
+        c.d(reports?.length > 0 ? reports[0] : []);
+        c.fe("Repository > getDailySummaryReservationStatusReport");
+        return reports;
+    }
+
+    async getDailySummaryRoomOccupancyReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryRoomOccupancyReportRow[]> {
+        c.fs("Repository > getDailySummaryRoomOccupancyReport");
+        c.d(startDate);
+        c.d(endDate);
+
+        const dateRanges = getUTCDateRange(startDate, endDate);
+        c.d(dateRanges);
+        if (!dateRanges || dateRanges.length === 0) throw new CustomError("Invalid date range calculated in report generation.");
+
+        const startDateTime = new Date(startDate);
+        const endDateTime = new Date(endDate);
+
+        const reservations = await this.dbClient.db.select({
+            roomNo: reservationTable.roomNo,
+            checkInDate: reservationTable.checkInDate,
+            checkOutDate: reservationTable.checkOutDate,
+            reservationStatus: configTable.value
+        })
+            .from(reservationTable)
+            .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+            .where(
+                and(
+                    lte(reservationTable.checkInDate, endDateTime),
+                    gte(reservationTable.checkOutDate, startDateTime),
+                    eq(reservationTable.location, sessionUser.location)
+                )
+            )
+            .orderBy(reservationTable.roomNo);
+
+        const getDateKey = (date: Date) => date.toISOString().split('T')[0];
+
+        const createEmptyCell = (): DailySummaryRoomOccupancyCell => ({
+            newCount: 0,
+            confirmedCount: 0,
+            waitingCount: 0,
+            checkedInCount: 0,
+            checkedOutCount: 0,
+            cancelCount: 0,
+            noRoomCount: 0,
+            totalCount: 0
+        });
+
+        const createRow = (roomNo: string): DailySummaryRoomOccupancyReportRow => {
+            const row = new DailySummaryRoomOccupancyReportRow();
+            row.roomNo = roomNo;
+            for (const date of dateRanges) {
+                row.occupancyByDate[getDateKey(date)] = createEmptyCell();
+            }
+            return row;
+        };
+
+        const noRoomRow = createRow('No Room');
+        const rooms = new Map<string, DailySummaryRoomOccupancyReportRow>();
+
+        for (const reservation of reservations) {
+            const roomNo = reservation.roomNo?.trim() ?? '';
+            const targetRow = roomNo ? (rooms.get(roomNo) ?? createRow(roomNo)) : noRoomRow;
+            if (roomNo && !rooms.has(roomNo)) {
+                rooms.set(roomNo, targetRow);
+            }
+
+            const checkInDate = new Date(reservation.checkInDate);
+            const checkOutDate = new Date(reservation.checkOutDate);
+            const status = reservation.reservationStatus ?? '';
+
+            for (const date of dateRanges) {
+                if (date >= checkInDate && date <= checkOutDate) {
+                    const key = getDateKey(date);
+                    const cell = targetRow.occupancyByDate[key];
+                    cell.totalCount = (cell.totalCount ?? 0) + 1;
+
+                    if (!roomNo) {
+                        cell.noRoomCount = (cell.noRoomCount ?? 0) + 1;
+                    }
+
+                    switch (status) {
+                        case 'NEW':
+                            cell.newCount = (cell.newCount ?? 0) + 1;
+                            break;
+                        case 'CFM':
+                            cell.confirmedCount = (cell.confirmedCount ?? 0) + 1;
+                            break;
+                        case 'WTG':
+                            cell.waitingCount = (cell.waitingCount ?? 0) + 1;
+                            break;
+                        case 'CIN':
+                            cell.checkedInCount = (cell.checkedInCount ?? 0) + 1;
+                            break;
+                        case 'OUT':
+                            cell.checkedOutCount = (cell.checkedOutCount ?? 0) + 1;
+                            break;
+                        case 'CCL':
+                            cell.cancelCount = (cell.cancelCount ?? 0) + 1;
+                            break;
+                        default:
+                            cell.newCount = (cell.newCount ?? 0) + 1;
+                            break;
+                    }
+                }
+            }
+        }
+
+        const reportRows = [noRoomRow, ...Array.from(rooms.values()).sort((a, b) => a.roomNo.localeCompare(b.roomNo))];
+        c.d(reportRows.length);
+        c.d(reportRows.length > 0 ? reportRows[0] : []);
+        c.fe("Repository > getDailySummaryRoomOccupancyReport");
+        return reportRows;
+    }
+
+    async getMonthlySummaryReservationStatusReport(year: string, sessionUser: SessionUser): Promise<MonthlySummaryReservationStatusReportRow[]> {
+        c.fs("Repository > getMonthlySummaryReservationStatusReport");
+        c.d(year);
+
+        const yearNumber = Number(year);
+        if (Number.isNaN(yearNumber) || yearNumber < 1900) {
+            throw new CustomError('Invalid year provided for monthly report.');
+        }
+
+        const reportRows: MonthlySummaryReservationStatusReportRow[] = [];
+        const months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+            const row = new MonthlySummaryReservationStatusReportRow();
+            row.month = months[monthIndex];
+            row.monthNumber = monthIndex + 1;
+            reportRows.push(row);
+        }
+
+        const start = new Date(Date.UTC(yearNumber, 0, 1, 0, 0, 0, 0));
+        const end = new Date(Date.UTC(yearNumber, 11, 31, 23, 59, 59, 999));
+
+        const rows = await this.dbClient.db.select({
+            month: sql`MONTH(${reservationTable.checkInDate})`,
+            reservationStatus: configTable.value,
+            reservationCount: count(reservationTable.id)
+        })
+            .from(reservationTable)
+            .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+            .where(
+                and(
+                    gte(reservationTable.checkInDate, start),
+                    lte(reservationTable.checkInDate, end),
+                    eq(reservationTable.location, sessionUser.location)
+                )
+            )
+            .groupBy(sql`MONTH(${reservationTable.checkInDate})`, configTable.value)
+            .orderBy(sql`MONTH(${reservationTable.checkInDate})`, 'asc');
+
+        for (const rowData of rows) {
+            const monthValue = Number(rowData.month ?? 0);
+            const status = rowData.reservationStatus ?? '';
+            const countValue = Number(rowData.reservationCount ?? 0);
+            const reportRow = reportRows[monthValue - 1];
+            if (!reportRow) continue;
+
+            switch (status) {
+                case 'NEW':
+                    reportRow.newCount = countValue;
+                    break;
+                case 'CFM':
+                    reportRow.confirmedCount = countValue;
+                    break;
+                case 'CIN':
+                    reportRow.checkedInCount = countValue;
+                    break;
+                case 'OUT':
+                    reportRow.checkedOutCount = countValue;
+                    break;
+                case 'WTG':
+                    reportRow.waitingCount = countValue;
+                    break;
+                case 'CCL':
+                    reportRow.cancelledCount = countValue;
+                    break;
+            }
+            reportRow.totalCount += countValue;
+        }
+
+        c.d(reportRows.length);
+        c.d(reportRows.length > 0 ? reportRows[0] : []);
+        c.fe("Repository > getMonthlySummaryReservationStatusReport");
+        return reportRows;
     }
 
 

@@ -1,6 +1,4 @@
-# Version 7.1.0 Release Note
-- Added password change form
-- Added reservation log
-- Added room charge log
-- Fixed daily reservation income report: status filter problem
-- Fixed zone report: filtered by check-in status
+# Version 7.2.0 Release Note
+- Added daily summary report (reservation status)
+- Added monthly summary report (reservation status)
+- Added daily summary report (room occupancy)
