@@ -40,6 +40,7 @@ export const SelectList = {
     BILL_PAYMENT_TYPE: new Map<string, string>([
         ["DROPOFF","DROPOFF"],
         ["PICKUP","PICKUP"],
+        ["NINETYDAYS","NINETY DAYS"],
         ["OTHER","OTHER"]
     ]),
 

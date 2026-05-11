@@ -1,4 +1,3 @@
-# Version 7.2.0 Release Note
-- Added daily summary report (reservation status)
-- Added monthly summary report (reservation status)
-- Added daily summary report (room occupancy)
+# Version 7.3.0 Release Note
+- Display 90 days amount in daily reservation detail report
+- Added NINETYDAYS payment type in bill

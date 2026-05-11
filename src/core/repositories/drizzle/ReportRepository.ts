@@ -1045,14 +1045,18 @@ export default class ReportRepository implements IReportRepository {
                             customer: true
                         }
                     },
-                    roomCharges: true
+                    roomCharges: true,
+                    bills: true
                 },
                 where: and(
                     ...localConditions
                 ),
             });
 
-            reservations.forEach(r => {
+            c.i('Looping reservations');
+            c.d(`Total reservations: ${reservations.length}`);
+            reservations.forEach((r) => {
+                c.d(`Processing reservation ID: ${r.id}`);
                 const rep = new DailyReservationDetailReportRow();
                 rep.date = start;
                 rep.bookingSource = r.bookingSource;
@@ -1070,14 +1074,11 @@ export default class ReportRepository implements IReportRepository {
                 rep.arrivalFlight = r.arrivalFlight;
                 rep.departureDateTime = r.departureDateTime;
                 rep.departureFlight = r.departureFlight;
-                rep.totalAmount = Number(r.totalAmount ?? 0);
-                rep.paidAmount = Number(r.paidAmount ?? 0);
-                rep.depositAmount = Number(r.depositAmount ?? 0);
-                rep.discountAmount = Number(r.discountAmount ?? 0);
-                rep.taxAmount = Number(r.taxAmount ?? 0);
-                rep.netAmount = Number(r.netAmount ?? 0);
 
+                c.d(`Total bills: ${r.bills?.length ?? 0}`);
                 r.bills?.forEach((b: Bill) => {
+                    c.d(`Processing bill ID: ${b.id}`);
+                    c.d(b);
                     if (b.paymentType === 'PICKUP') {
                         if (b.currency === 'KWR') {
                             rep.pickUpFeeKWR = Number(b.amount ?? 0);
@@ -1098,13 +1099,24 @@ export default class ReportRepository implements IReportRepository {
                         } else if (b.currency === 'USD') {
                             rep.dropOffFeeUSD = Number(b.amount ?? 0);
                         }
+                    } else if (b.paymentType === 'NINETYDAYS') {
+                        rep.extraChargeAmount = Number(rep.extraChargeAmount ?? 0) + Number(b.amount ?? 0);
                     }
                 });
 
+                c.d(`Total room charges: ${r.roomCharges?.length ?? 0}`);
                 r.roomCharges?.forEach((rc: RoomCharge) => {
+                    c.d(`Processing room charge ID: ${rc.id}`);
+                    c.d(rc);
                     rep.singleChargeAmount = rep.singleChargeAmount + Number(rc.singleRate * rc.noOfDays);
                     rep.extraChargeAmount = Number(rep.extraChargeAmount) + Number(rc.roomSurcharge * rc.noOfDays * r.noOfGuests);
                 });
+                rep.totalAmount = Number(r.totalAmount ?? 0) + Number(rep.singleChargeAmount ?? 0) + Number(rep.extraChargeAmount ?? 0);
+                rep.paidAmount = Number(r.paidAmount ?? 0);
+                rep.depositAmount = Number(r.depositAmount ?? 0);
+                rep.discountAmount = Number(r.discountAmount ?? 0);
+                rep.taxAmount = Number(r.taxAmount ?? 0);
+                rep.netAmount = rep.totalAmount - rep.depositAmount - rep.discountAmount + rep.taxAmount;
                 reports.push(rep);
             });
         };

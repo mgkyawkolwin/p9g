@@ -563,6 +563,13 @@ export const roomChargeReservationRelations = relations(roomChargeTable, ({ one 
   })
 }));
 
+export const billReservationRelations = relations(billTable, ({ one }) => ({
+  reservation: one(reservationTable, {
+    fields: [billTable.reservationId],
+    references: [reservationTable.id]
+  })
+}));
+
 // 2. Fix the reservationCustomer relations
 export const reservationCustomerRelations = relations(reservationCustomerTable, ({ one }) => ({
   reservation: one(reservationTable, {
