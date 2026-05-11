@@ -29,6 +29,7 @@ export default class DailyReservationDetailReportRow{
     public reservationId: string = '';
     public reservationStatus: string = '';
     public reservationType: string = '';
+    public roomChargeAmount: number = 0;
     public roomNo: string = '';
     public singleChargeAmount: number = 0;
     public taxAmount: number = 0;
