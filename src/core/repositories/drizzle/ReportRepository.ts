@@ -1112,7 +1112,7 @@ export default class ReportRepository implements IReportRepository {
                     rep.singleChargeAmount = Number(rep.singleChargeAmount) + Number(rc.singleRate * rc.noOfDays);
                     rep.extraChargeAmount = Number(rep.extraChargeAmount) + Number(rc.roomSurcharge * rc.noOfDays * r.noOfGuests);
                 });
-                rep.totalAmount = Number(r.roomChargeAmount ?? 0) + Number(rep.singleChargeAmount ?? 0) + Number(rep.extraChargeAmount ?? 0);
+                rep.totalAmount = Number(rep.roomChargeAmount ?? 0) + Number(rep.singleChargeAmount ?? 0) + Number(rep.extraChargeAmount ?? 0);
                 rep.paidAmount = Number(r.paidAmount ?? 0);
                 rep.depositAmount = Number(r.depositAmount ?? 0);
                 rep.discountAmount = Number(r.discountAmount ?? 0);
