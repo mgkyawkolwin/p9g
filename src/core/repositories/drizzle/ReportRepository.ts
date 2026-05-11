@@ -1100,7 +1100,7 @@ export default class ReportRepository implements IReportRepository {
                             rep.dropOffFeeUSD = Number(b.amount ?? 0);
                         }
                     } else if (b.paymentType === 'NINETYDAYS') {
-                        rep.extraChargeAmount = Number(rep.extraChargeAmount ?? 0) + Number(b.amount ?? 0);
+                        rep.ninetyDaysAmount = Number(rep.ninetyDaysAmount ?? 0) + Number(b.amount ?? 0);
                     }
                 });
 
@@ -1108,11 +1108,11 @@ export default class ReportRepository implements IReportRepository {
                 r.roomCharges?.forEach((rc: RoomCharge) => {
                     c.d(`Processing room charge ID: ${rc.id}`);
                     c.d(rc);
-                    rep.roomChargeAmount = Number(rep.roomChargeAmount) + Number((rc.roomRate + rc.seasonSurcharge) * rc.noOfDays * rep.noOfGuests);
+                    // rep.roomChargeAmount = Number(rep.roomChargeAmount) + Number((rc.roomRate + rc.seasonSurcharge) * rc.noOfDays * rep.noOfGuests);
                     rep.singleChargeAmount = Number(rep.singleChargeAmount) + Number(rc.singleRate * rc.noOfDays);
                     rep.extraChargeAmount = Number(rep.extraChargeAmount) + Number(rc.roomSurcharge * rc.noOfDays * r.noOfGuests);
                 });
-                rep.totalAmount = Number(rep.roomChargeAmount ?? 0) + Number(rep.singleChargeAmount ?? 0) + Number(rep.extraChargeAmount ?? 0);
+                rep.totalAmount = Number(r.totalAmount ?? 0) + Number(rep.ninetyDaysAmount ?? 0);
                 rep.paidAmount = Number(r.paidAmount ?? 0);
                 rep.depositAmount = Number(r.depositAmount ?? 0);
                 rep.discountAmount = Number(r.discountAmount ?? 0);

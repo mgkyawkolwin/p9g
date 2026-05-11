@@ -18,6 +18,7 @@ export default class DailyReservationDetailReportRow{
     public dropOffFeeUSD: number = 0;
     public extraChargeAmount: number = 0;
     public netAmount: number = 0;
+    public ninetyDaysAmount: number = 0;
     public noOfDays: number = 0;
     public noOfGuests: number = 0;
     public paidAmount: number = 0;
