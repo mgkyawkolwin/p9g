@@ -9,6 +9,7 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
         style: "decimal"
     });
     const reportRef = React.useRef(null);
+    const [highlightedRows, setHighlightedRows] = React.useState<Record<number, boolean>>({});
 
     let totalCheckInReservations = 0, totalRoomCharge = 0, totalDeposit = 0, totalTaxAmount = 0, totalPaid = 0, totalDiscount = 0, totalDue = 0;
     let totalDepositBankKWR = 0, totalDepositBankMMK = 0, totalDepositBankTHB = 0, totalDepositBankUSD = 0;
@@ -24,6 +25,13 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
     let totalBankKWR = 0, totalBankMMK = 0, totalBankTHB = 0, totalBankUSD = 0;
     let totalCashKWR = 0, totalCashMMK = 0, totalCashTHB = 0, totalCashUSD = 0;
     let totalKWR = 0, totalMMK = 0, totalTHB = 0, totalUSD = 0;
+
+    const toggleRowHighlight = (index: number) => {
+        setHighlightedRows(prev => ({
+            ...prev,
+            [index]: !prev[index],
+        }));
+    };
 
     const downloadExcel = async () => {
         if (!reportRef.current) return;
@@ -309,6 +317,7 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                     <tbody>
                         {reportRows?.length === 0 && <tr className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}><td className="p-2" colSpan={6}>No Data</td></tr>}
                         {reportRows.map((rp, index) => {
+                            const rowStyle = highlightedRows[index] ? { backgroundColor: '#8888aa', color: 'black' } : undefined;
                             totalCheckInReservations += Number(rp.totalCheckInReservations);
                             totalRoomCharge += Number(rp.totalRoomCharge);
                             totalDeposit += Number(rp.totalDeposit);
@@ -383,9 +392,14 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                             totalUSD += Number(rp.totalUSD);
 
 
-                            return <tr key={index} className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
-                                <td className="p-2">{index + 1}</td>
-                                <td className="p-2">{new Date(rp.date).toLocaleDateString('sv-SE')}</td>
+                            return <tr
+                                key={index}
+                                style={rowStyle}
+                                className={`border p-8 ${Theme.Style.tableCellBg} ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} cursor-pointer`}
+                                onClick={() => toggleRowHighlight(index)}
+                            >
+                                <td style={rowStyle} className="p-2">{index + 1}</td>
+                                <td style={rowStyle} className="p-2">{new Date(rp.date).toLocaleDateString('sv-SE')}</td>
                                 <td className="p-2 text-right">{formatter.format(rp.totalCheckInReservations)}</td>
                                 <td className="p-2 text-right">{formatter.format(rp.totalRoomCharge)}</td>
                                 <td className="p-2 text-right">{formatter.format(rp.totalDeposit)}</td>

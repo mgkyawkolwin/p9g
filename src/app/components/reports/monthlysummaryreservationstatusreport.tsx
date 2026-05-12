@@ -6,6 +6,7 @@ import { ButtonCustom } from '@/lib/components/web/react/uicustom/buttoncustom';
 
 export default function MonthlySummaryReservationStatusReport({ reportRows }: { reportRows: MonthlySummaryReservationStatusReportRow[] }) {
     const reportRef = React.useRef(null);
+    const [highlightedRows, setHighlightedRows] = React.useState<Record<number, boolean>>({});
 
     const statusColumns = React.useMemo(
         () => [
@@ -47,8 +48,14 @@ export default function MonthlySummaryReservationStatusReport({ reportRows }: { 
         return !isNaN(parseFloat(withoutCommas)) && isFinite(parseFloat(withoutCommas));
     };
 
+    const toggleRowHighlight = (index: number) => {
+        setHighlightedRows(prev => ({
+            ...prev,
+            [index]: !prev[index],
+        }));
+    };
+
     const downloadExcel = async () => {
-        if (!reportRef.current) return;
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('MonthlySummaryReservationStatusReport');
@@ -197,15 +204,21 @@ export default function MonthlySummaryReservationStatusReport({ reportRows }: { 
                                 (sum, column) => sum + Number((rp as any)[column.key] ?? 0),
                                 0
                             );
+                            const rowStyle = highlightedRows[index] ? { backgroundColor: '#8888aa', color: 'black', paddingRight: '16px' } : { paddingRight: '16px' };
 
                             return (
-                                <tr key={`${rp.month}-${index}`} className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
-                                    <td className="p-2 text-right pr-4">{index + 1}</td>
-                                    <td className="text-left pr-4">{rp.month}</td>
+                                <tr
+                                    key={`${rp.month}-${index}`}
+                                    style={rowStyle}
+                                    className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} cursor-pointer`}
+                                    onClick={() => toggleRowHighlight(index)}
+                                >
+                                    <td style={rowStyle} className="p-2 text-right pr-4">{index + 1}</td>
+                                    <td style={rowStyle} className="text-left pr-4">{rp.month}</td>
                                     {statusColumns.map((column) => (
-                                        <td key={column.key} className="text-right pr-4" style={{ paddingRight: '16px' }}>{Number((rp as any)[column.key] ?? 0)}</td>
+                                        <td key={column.key} style={rowStyle} className="text-right pr-4">{Number((rp as any)[column.key] ?? 0)}</td>
                                     ))}
-                                    <td className="text-right pr-4" style={{ paddingRight: '16px' }}>{rowTotal}</td>
+                                    <td style={rowStyle} className="text-right pr-4">{rowTotal}</td>
                                 </tr>
                             );
                         })}

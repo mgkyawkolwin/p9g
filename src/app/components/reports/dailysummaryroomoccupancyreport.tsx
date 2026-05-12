@@ -7,6 +7,14 @@ interface DailySummaryRoomOccupancyReportProps {
     dateColumns: Date[];
 }
 
+function getCellBackgroundStyle(activeCount: number, cancelCount: number): React.CSSProperties {
+    if (activeCount === 1) return { backgroundColor: '#448844' };
+    if (activeCount === 2) return { backgroundColor: '#bb8822' };
+    if (activeCount > 2) return { backgroundColor: '#882222' };
+    if (cancelCount > 0) return { backgroundColor: '#333333' };
+    return { backgroundColor: '#222222' };
+}
+
 function getCellBorderStyle(activeCount: number, cancelCount: number): React.CSSProperties {
     if (activeCount === 1) return { border: '1px solid #00ff00' };
     if (activeCount === 2) return { border: '1px solid #f59e0b' };
@@ -18,11 +26,11 @@ function getCellBorderStyle(activeCount: number, cancelCount: number): React.CSS
 function getStatusCircleStyle(status: string): React.CSSProperties {
     switch (status) {
         case 'NEW':
-            return { backgroundColor: '#94a3b8', color: '#000000' };
+            return { backgroundColor: '#ffffff', color: '#000000' };
         case 'CFM':
             return { backgroundColor: '#2563eb', color: '#ffffff' };
         case 'WTG':
-            return { backgroundColor: '#991b1b', color: '#ffffff' };
+            return { backgroundColor: '#dda200', color: '#ffffff' };
         case 'CIN':
             return { backgroundColor: '#16a34a', color: '#ffffff' };
         case 'OUT':
@@ -47,9 +55,9 @@ export default function DailySummaryRoomOccupancyReport({ reportRows, dateColumn
     ];
 
     const borderLegendItems = [
-        { label: '1 reservation', color: '#00ff00' },
-        { label: '2 reservations', color: '#f59e0b' },
-        { label: '3+ reservations', color: '#ff0000' }
+        { label: '1 reservation', backgroundColor: '#448844' },
+        { label: '2 reservations', backgroundColor: '#f59e0b' },
+        { label: '3+ reservations', backgroundColor: '#882222' }
     ];
 
     const sortedRows = [...(reportRows ?? [])].sort((a, b) => {
@@ -72,7 +80,7 @@ export default function DailySummaryRoomOccupancyReport({ reportRows, dateColumn
             <div className="flex flex-wrap justify-center gap-3 text-sm text-slate-700">
                 {borderLegendItems.map((item) => (
                     <div key={item.label} className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-50 px-3 py-1">
-                        <span style={{ width: 20, height: 14, borderRadius: 4, border: `3px solid ${item.color}`, display: 'inline-flex' }} />
+                        <span style={{ width: 20, height: 14, borderRadius: 4, backgroundColor: item.backgroundColor, display: 'inline-flex' }} />
                         <span>{item.label}</span>
                     </div>
                 ))}
@@ -115,6 +123,7 @@ export default function DailySummaryRoomOccupancyReport({ reportRows, dateColumn
                                     const activeCount = cell.newCount + cell.confirmedCount + cell.waitingCount + cell.checkedInCount + cell.checkedOutCount;
                                     const cancelCount = cell.cancelCount ?? 0;
                                     const cellBorderStyle = getCellBorderStyle(activeCount, cancelCount);
+                                    const cellBgStyle = getCellBackgroundStyle(activeCount, cancelCount);
 
                                     const statusEntries = [
                                         { status: 'NEW', count: cell.newCount },
@@ -126,7 +135,7 @@ export default function DailySummaryRoomOccupancyReport({ reportRows, dateColumn
                                     ].filter((entry) => entry.count > 0);
 
                                     return (
-                                        <td key={key} className="p-1 text-center" style={{ ...cellBorderStyle, minWidth: 20, maxWidth: 50 }}>
+                                        <td key={key} className="p-1 text-center" style={{ ...cellBgStyle, minWidth: 20, maxWidth: 50 }}>
                                             {statusEntries.length > 0 ? (
                                                 <div className="flex flex-wrap justify-center gap-1">
                                                     {statusEntries.map((entry) => (
