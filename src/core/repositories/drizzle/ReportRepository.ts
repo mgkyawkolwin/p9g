@@ -418,17 +418,7 @@ export default class ReportRepository implements IReportRepository {
                             }
                         }
                     } else if (bill.paymentMode === 'CASH') {
-                        if (bill.paymentType === 'OTHER') {
-                            if (bill.currency === 'KWR') {
-                                report.totalBillCashKWR = report.totalBillCashKWR + Number(bill.amount ?? 0);
-                            } else if (bill.currency === 'MMK') {
-                                report.totalBillCashMMK = report.totalBillCashMMK + Number(bill.amount ?? 0);
-                            } else if (bill.currency === 'THB') {
-                                report.totalBillCashTHB = report.totalBillCashTHB + Number(bill.amount ?? 0);
-                            } else if (bill.currency === 'USD') {
-                                report.totalBillCashUSD = report.totalBillCashUSD + Number(bill.amount ?? 0);
-                            }
-                        } else if (bill.paymentType === 'PICKUP') {
+                        if (bill.paymentType === 'PICKUP') {
                             if (bill.currency === 'KWR') {
                                 report.totalPickUpCashKWR = report.totalPickUpCashKWR + Number(bill.amount ?? 0);
                             } else if (bill.currency === 'MMK') {
@@ -447,6 +437,16 @@ export default class ReportRepository implements IReportRepository {
                                 report.totalDropOffCashTHB = report.totalDropOffCashTHB + Number(bill.amount ?? 0);
                             } else if (bill.currency === 'USD') {
                                 report.totalDropOffCashUSD = report.totalDropOffCashUSD + Number(bill.amount ?? 0);
+                            }
+                        } else {
+                            if (bill.currency === 'KWR') {
+                                report.totalBillCashKWR = report.totalBillCashKWR + Number(bill.amount ?? 0);
+                            } else if (bill.currency === 'MMK') {
+                                report.totalBillCashMMK = report.totalBillCashMMK + Number(bill.amount ?? 0);
+                            } else if (bill.currency === 'THB') {
+                                report.totalBillCashTHB = report.totalBillCashTHB + Number(bill.amount ?? 0);
+                            } else if (bill.currency === 'USD') {
+                                report.totalBillCashUSD = report.totalBillCashUSD + Number(bill.amount ?? 0);
                             }
                         }
                     }
@@ -1113,6 +1113,7 @@ export default class ReportRepository implements IReportRepository {
                     rep.extraChargeAmount = Number(rep.extraChargeAmount) + Number(rc.roomSurcharge * rc.noOfDays * r.noOfGuests);
                 });
                 rep.totalAmount = Number(r.totalAmount ?? 0) + Number(rep.ninetyDaysAmount ?? 0);
+                rep.extraChargeAmount = Number(rep.extraChargeAmount ?? 0) + Number(rep.ninetyDaysAmount ?? 0);
                 rep.paidAmount = Number(r.paidAmount ?? 0);
                 rep.depositAmount = Number(r.depositAmount ?? 0);
                 rep.discountAmount = Number(r.discountAmount ?? 0);
