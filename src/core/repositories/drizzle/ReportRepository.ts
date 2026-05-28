@@ -22,6 +22,7 @@ import Reservation from "@/core/models/domain/Reservation";
 import SessionUser from "@/core/models/dto/SessionUser";
 import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
 import { PickupDropoffReportResponse, PickupDropoffRow, PickupDropoffSummary } from '@/core/models/dto/reports/PickupDropoffReportResponse';
+import { PickupDropoffReportNewResponse, PickupDropoffReportNewRow, PickupDropoffReportNewSummary } from '@/core/models/dto/reports/PickupDropoffReportNewResponse';
 import RoomCharge from "@/core/models/domain/RoomCharge";
 
 
@@ -246,6 +247,104 @@ export default class ReportRepository implements IReportRepository {
 
         c.fe('Repository > getPickupDropoffReport');
         return result as PickupDropoffReportResponse;
+    }
+
+    async getPickupDropoffReportNew(
+        arrivalStartDateTime: string,
+        arrivalEndDateTime: string,
+        departureStartDateTime: string,
+        departureEndDateTime: string,
+        sessionUser: SessionUser
+    ): Promise<PickupDropoffReportNewResponse> {
+        c.fs('Repository > getPickupDropoffReportNew');
+        c.d({ arrivalStartDateTime, arrivalEndDateTime, departureStartDateTime, departureEndDateTime, location: sessionUser.location });
+
+        const arrivalStart = new Date(arrivalStartDateTime);
+        const arrivalEnd = new Date(arrivalEndDateTime);
+        const departureStart = new Date(departureStartDateTime);
+        const departureEnd = new Date(departureEndDateTime);
+
+        const checkInRowsRaw = await this.dbClient.db.select({ ...reservationTable, customer: { ...customerTable }, bill: { ...billTable } })
+            .from(reservationTable)
+            .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+            .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
+            .leftJoin(billTable, eq(billTable.reservationId, reservationTable.id))
+            .where(
+                and(
+                    gte(reservationTable.arrivalDateTime, arrivalStart),
+                    lte(reservationTable.arrivalDateTime, arrivalEnd),
+                    ne(configTable.value, 'CCL'),
+                    eq(reservationTable.location, sessionUser.location)
+                )
+            )
+            .orderBy(reservationTable.arrivalDateTime, 'asc');
+
+        const checkOutRowsRaw = await this.dbClient.db.select({ ...reservationTable, customer: { ...customerTable }, bill: { ...billTable } })
+            .from(reservationTable)
+            .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+            .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
+            .leftJoin(billTable, eq(billTable.reservationId, reservationTable.id))
+            .where(
+                and(
+                    gte(reservationTable.departureDateTime, departureStart),
+                    lte(reservationTable.departureDateTime, departureEnd),
+                    ne(configTable.value, 'CCL'),
+                    eq(reservationTable.location, sessionUser.location)
+                )
+            )
+            .orderBy(reservationTable.departureDateTime, 'asc');
+
+        const transform = (rows: any[], isCheckOut = false) => {
+            const reservations = rows.reduce((acc: any[], current: any) => {
+                const { customer, bill, ...reservation } = current;
+                let r = acc.find(x => x.id === current.id);
+                if (!r) {
+                    r = { ...reservation, customers: [], bills: [] };
+                    r.noOfGuests = Number(r.noOfGuests ?? 0);
+                    acc.push(r);
+                }
+                if (customer && !r.customers.find((c: any) => c.id === customer.id)) r.customers.push(customer);
+                if (bill && !r.bills.find((b: any) => b.id === bill.id)) r.bills.push(bill);
+                return acc;
+            }, [] as any[]);
+
+            return reservations.map((r: any) => {
+                const customers = (r.customers || []).map((c: any) => ({ englishName: c.englishName, name: c.name })).filter((c: any) => c.englishName || c.name);
+                const arrivalDate = r.arrivalDateTime;
+                const arrivalTime = r.arrivalDateTime;
+                const dropOffBill = (r.bills || []).find((b: any) => ((b.paymentType || '').toUpperCase() === 'DROPOFF'));
+                const sendingFee = dropOffBill ? `${dropOffBill.amount}${dropOffBill.currency}${dropOffBill.isPaid ? '(Paid)' : '(Unpaid)'}` : undefined;
+                const remark = isCheckOut ? `${r.dropOffDriver ?? ''}(${r.dropOffCarNo ?? ''})`.trim() : `${r.pickUpDriver ?? ''}(${r.pickUpCarNo ?? ''})`.trim();
+                const row: PickupDropoffReportNewRow = {
+                    reservationId: r.id,
+                    customers,
+                    pax: Number(r.noOfGuests ?? 0),
+                    arrivalDate,
+                    flightNo: r.arrivalFlight ?? '',
+                    arrivalTime,
+                    room: r.roomNo ?? '',
+                    remark,
+                    sendingFee: isCheckOut ? sendingFee : undefined
+                };
+                return row;
+            });
+        };
+
+        const checkIn = transform(checkInRowsRaw || [], false);
+        const checkOut = transform(checkOutRowsRaw || [], true);
+
+        const summary: PickupDropoffReportNewSummary = {
+            location: sessionUser.location ?? '',
+            totalCheckIn: checkIn.length,
+            totalCheckInPax: checkIn.reduce((s, r) => s + Number(r.pax ?? 0), 0),
+            totalCheckOut: checkOut.length,
+            totalCheckOutPax: checkOut.reduce((s, r) => s + Number(r.pax ?? 0), 0)
+        };
+
+        c.fe('Repository > getPickupDropoffReportNew');
+        return { summary, checkIn, checkOut } as PickupDropoffReportNewResponse;
     }
 
 

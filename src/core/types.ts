@@ -35,6 +35,8 @@ export type SearchFormFields = {
   searchAgentName?: string | undefined,
   searchCustomerName?: string | undefined,
   searchArrivalDateTime?: string | undefined,
+  searchArrivalDateTimeFrom?: string | undefined,
+  searchArrivalDateTimeTo?: string | undefined,
   searchBookingSource?: string | undefined,
   searchCheckInDate?: string | undefined,
   searchCheckInDateFrom?: string | undefined,

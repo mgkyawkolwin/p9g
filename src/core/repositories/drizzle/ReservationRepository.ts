@@ -300,14 +300,16 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         if (searchFormFields && Object.entries(searchFormFields).length > 0) {
             c.i('Building condtions');
 
-            if (searchFormFields.searchArrivalDateTime) {
-                const startDate = new Date(getISODateTimeString(searchFormFields.searchArrivalDateTime));
-                const endDate = getUTCDateMidNight(new Date(searchFormFields.searchArrivalDateTime));
-                conditions.push(and(
-                    gte(reservationTable.arrivalDateTime, startDate),
-                    lte(reservationTable.arrivalDateTime, endDate)
-                ));
-            }
+            if (searchFormFields.searchArrivalDateTimeFrom || searchFormFields.searchArrivalDateTimeTo) {
+                if (searchFormFields.searchArrivalDateTimeFrom) {
+                    const startDate = new Date(searchFormFields.searchArrivalDateTimeFrom);
+                    conditions.push(gte(reservationTable.arrivalDateTime, startDate));
+                }
+                if (searchFormFields.searchArrivalDateTimeTo) {
+                    const endDate = new Date(searchFormFields.searchArrivalDateTimeTo);
+                    conditions.push(lte(reservationTable.arrivalDateTime, endDate));
+                }
+            } 
             if (searchFormFields.searchDepartureDateTime) {
                 const startDate = new Date(getISODateTimeString(searchFormFields.searchDepartureDateTime));
                 const endDate = getUTCDateMidNight(new Date(searchFormFields.searchDepartureDateTime));

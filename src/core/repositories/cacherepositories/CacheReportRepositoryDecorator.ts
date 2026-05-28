@@ -14,6 +14,7 @@ import type ICacheAdapter from "@/lib/cache/ICacheAdapter";
 import SessionUser from "@/core/models/dto/SessionUser";
 import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
 import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDropoffReportResponse';
+import { PickupDropoffReportNewResponse } from '@/core/models/dto/reports/PickupDropoffReportNewResponse';
 import DailySummaryReservationStatusReportRow from "@/core/models/dto/reports/DailySummaryReservationStatusReportRow";
 
 
@@ -208,6 +209,38 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
         }
 
         const object = await this.repository.getPickupDropoffReport(arrivalDepartureDate, sessionUser);
+
+        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
+
+        return object;
+    }
+
+    async getPickupDropoffReportNew(
+        arrivalStartDateTime: string,
+        arrivalEndDateTime: string,
+        departureStartDateTime: string,
+        departureEndDateTime: string,
+        sessionUser: SessionUser
+    ): Promise<PickupDropoffReportNewResponse> {
+        c.fs('Repository > getPickupDropoffReportNew');
+
+        const cacheTag = `pickupdropoffnew-${arrivalStartDateTime}-${arrivalEndDateTime}-${departureStartDateTime}-${departureEndDateTime}-${sessionUser.location}`;
+        const startTime = performance.now();
+
+        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
+        if (cacheObject) {
+            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+            return cacheObject;
+        }
+
+        const object = await this.repository.getPickupDropoffReportNew(
+            arrivalStartDateTime,
+            arrivalEndDateTime,
+            departureStartDateTime,
+            departureEndDateTime,
+            sessionUser
+        );
 
         console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
         await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);

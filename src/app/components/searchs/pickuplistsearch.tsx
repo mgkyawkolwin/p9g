@@ -9,7 +9,16 @@ import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcus
 
 
 const initialData = {
-    arrivalDate: new Date(new Date().toDateString()),
+    arrivalDateTimeFrom: (() => {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        return d;
+    })(),
+    arrivalDateTimeTo: (() => {
+        const d = new Date();
+        d.setHours(23, 59, 59, 999);
+        return d;
+    })(),
     id: "",
     name: "",
     nationalId: "",
@@ -32,19 +41,38 @@ export default function PickUpListSearch({
     return (
         <section aria-label="Reservatoin List Search" className="flex w-full flex-col gap-4">
             <div className="flex gap-4 items-center">
-                <Label>Arrival Date</Label>
-                <DatePicker
-                    selected={formData.arrivalDate}
-                    onChange={(date: Date | null) => {
-                        setFormData(prev => ({ ...prev, arrivalDate: date }))
-                    }}
-                    dateFormat="yyyy-MM-dd"
-                    customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
-                    placeholderText="yyyy-mm-dd"
-                    isClearable={true}
-                    showIcon
-                />
-                <input type="hidden" name="searchArrivalDateTime" defaultValue={formData.arrivalDate ? formData.arrivalDate.toLocaleDateString('sv-SE') : ''} />
+                <div className="grid gap-2">
+                    <Label>Arrival Date/Time From</Label>
+                    <DatePicker
+                        selected={formData.arrivalDateTimeFrom}
+                        onChange={(date: Date | null) => {
+                            setFormData(prev => ({ ...prev, arrivalDateTimeFrom: date }))
+                        }}
+                        showTimeSelect
+                        timeFormat="HH:mm"
+                        timeIntervals={15}
+                        dateFormat="yyyy-MM-dd HH:mm"
+                        customInput={<InputCustom size="md" />}
+                        placeholderText="yyyy-mm-dd HH:mm"
+                    />
+                    <input type="hidden" name="searchArrivalDateTimeFrom" value={formData.arrivalDateTimeFrom ? formData.arrivalDateTimeFrom.toISOFormatDateTimeString() : ''} />
+                </div>
+                <div className="grid gap-2">
+                    <Label>Arrival Date/Time To</Label>
+                    <DatePicker
+                        selected={formData.arrivalDateTimeTo}
+                        onChange={(date: Date | null) => {
+                            setFormData(prev => ({ ...prev, arrivalDateTimeTo: date }))
+                        }}
+                        showTimeSelect
+                        timeFormat="HH:mm"
+                        timeIntervals={15}
+                        dateFormat="yyyy-MM-dd HH:mm"
+                        customInput={<InputCustom size="md" />}
+                        placeholderText="yyyy-mm-dd HH:mm"
+                    />
+                    <input type="hidden" name="searchArrivalDateTimeTo" value={formData.arrivalDateTimeTo ? formData.arrivalDateTimeTo.toISOFormatDateTimeString() : ''} />
+                </div>
                 <InputWithLabel size="md" name="searchRemark" label="Remark" defaultValue={formData.remark} onChange={(e) => setFormData({ ...formData, remark: e.target.value })} />
             </div>
             <div className="flex gap-4 items-center">
