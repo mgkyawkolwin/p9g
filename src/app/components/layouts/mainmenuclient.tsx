@@ -280,17 +280,6 @@ export default function MainMenuClient({ role }) {
                     </Link>
                   </li>
                 )}
-                {(role === 'ADMIN' || role === 'RECEPTION') && (
-                  <li>
-                    <Link
-                      href={`/${location}/console/reports/pickupdropoffnew`}
-                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
-                      onClick={() => setReportsOpen(false)}
-                    >
-                      PickUp And DropOff Report (NEW)
-                    </Link>
-                  </li>
-                )}
               </ul>
             </div>
           </li>
