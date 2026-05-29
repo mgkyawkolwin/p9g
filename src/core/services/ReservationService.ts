@@ -564,21 +564,21 @@ export default class ReservationService implements IReservationService {
     }
 
 
-    async reservationUpdateDropOffInfo(id: string, carNo: string, driver: string, sessionUser: SessionUser): Promise<void> {
+    async reservationUpdateDropOffInfo(id: string, carNo: string, driver: string, dropOffRemark: string, sessionUser: SessionUser): Promise<void> {
         c.fs('ReservationService > reservationUpdateDropOffInfo');
         if (!id || id === 'undefined')
             throw new Error('Car number update failed. Id is required.');
 
-        return await this.reservationRepository.update(id, { dropOffCarNo: carNo, dropOffDriver: driver } as Reservation);
+        return await this.reservationRepository.update(id, { dropOffCarNo: carNo, dropOffDriver: driver, dropOffRemark } as Reservation);
     }
 
 
-    async reservationUpdatePickUpInfo(id: string, carNo: string, driver: string, sessionUser: SessionUser): Promise<void> {
+    async reservationUpdatePickUpInfo(id: string, carNo: string, driver: string, pickupRemark: string, sessionUser: SessionUser): Promise<void> {
         c.i('ReservationService > reservationUpdatePickUpInfo');
         if (!id || id === 'undefined')
             throw new Error('Car number update failed. Id is required.');
 
-        return await this.reservationRepository.update(id, { pickUpCarNo: carNo, pickUpDriver: driver } as Reservation);
+        return await this.reservationRepository.update(id, { pickUpCarNo: carNo, pickUpDriver: driver, pickupRemark } as Reservation);
     }
 
 

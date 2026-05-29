@@ -5,272 +5,211 @@ import ExcelJS from 'exceljs';
 import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDropoffReportResponse';
 
 export default function PickupDropoffReport({ report }: { report: PickupDropoffReportResponse }) {
-    const reportRef = React.useRef<HTMLTableElement | null>(null);
+    const reportRef = React.useRef<HTMLDivElement | null>(null);
+
+    const formatCustomerName = (customer: any) => {
+        const englishName = customer.englishName?.trim();
+        const name = customer.name?.trim();
+        if (englishName && name && englishName !== name) {
+            return `${englishName} (${name})`;
+        }
+        return englishName || name || '';
+    };
 
     const downloadExcel = async () => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('PickupDropoffReport');
-
-        // layout: place left (MIDA) starting at column B (2) so header spans B+C,
-        // and right (KKC) starting at column L (12) so header spans L+M
-        const leftCol = 2; // column B
-        const rightCol = 12; // column L
-
         const borderStyle = { style: 'thin' } as any;
+        let rowIndex = 1;
 
-        const writeSummary = (summary: any, startRow: number, startCol: number): number => {
-            let r = startRow;
-            // Two rows: Total Check In and Total Check Out
-            const rows = [
-                { label: 'Total Check In' , pax: `${summary.totalCheckInPax} Pax` },
-                { label: 'Total Check Out', pax: `${summary.totalCheckOutPax} Pax` }
-            ];
-            rows.forEach(row => {
-                const excelRow = worksheet.getRow(r);
-                // No column small
-                const noCell = excelRow.getCell(startCol);
-                noCell.value = '';
-                noCell.border = { top: borderStyle, left: borderStyle, bottom: borderStyle, right: borderStyle };
+        const header = worksheet.getRow(rowIndex);
+        header.getCell(1).value = `Pickup & Dropoff Report`;
+        header.getCell(1).font = { bold: true, size: 14 };
+        worksheet.mergeCells(rowIndex, 1, rowIndex, 10);
+        header.commit();
+        rowIndex += 2;
 
-                const nameCell = excelRow.getCell(startCol + 1);
-                nameCell.value = `${row.label}`;
-                nameCell.font = { bold: true };
-                nameCell.border = { top: borderStyle, left: borderStyle, bottom: borderStyle, right: borderStyle };
+        const summaryRow = worksheet.getRow(rowIndex);
+        summaryRow.getCell(1).value = 'Total Check In';
+        summaryRow.getCell(2).value = report.summary.totalCheckIn;
+        summaryRow.getCell(3).value = 'Total Check In Pax';
+        summaryRow.getCell(4).value = report.summary.totalCheckInPax;
+        summaryRow.getCell(5).value = 'Total Check Out';
+        summaryRow.getCell(6).value = report.summary.totalCheckOut;
+        summaryRow.getCell(7).value = 'Total Check Out Pax';
+        summaryRow.getCell(8).value = report.summary.totalCheckOutPax;
+        for (let i = 1; i <= 8; i++) {
+            const cell = summaryRow.getCell(i);
+            cell.border = { top: borderStyle, left: borderStyle, bottom: borderStyle, right: borderStyle };
+            cell.font = { bold: true };
+        }
+        summaryRow.commit();
+        rowIndex += 2;
 
-                const paxCell = excelRow.getCell(startCol + 2);
-                paxCell.value = row.pax;
-                paxCell.border = { top: borderStyle, left: borderStyle, bottom: borderStyle, right: borderStyle };
+        const writeCheckTable = (rows: any[], title: string, startRow: number, includeSendingFee = false): number => {
+            const titleRow = worksheet.getRow(startRow);
+            titleRow.getCell(1).value = title;
+            titleRow.getCell(1).font = { bold: true };
+            worksheet.mergeCells(startRow, 1, startRow, includeSendingFee ? 10 : 9);
+            titleRow.commit();
+            let currentRow = startRow + 1;
 
-                excelRow.commit();
-                r++;
-            });
-            return r + 1; // leave one blank row after summary
-        };
+            const headers = includeSendingFee
+                ? ['No', 'Customers', 'Pax', 'Departure Date', 'Flight No', 'Departure Time', 'Room', 'Sending Fee', 'Driver/Car', 'Remark']
+                : ['No', 'Customers', 'Pax', 'Arrival Date', 'Flight No', 'Arrival Time', 'Room', 'Driver/Car', 'Remark'];
 
-        const writeCheckTable = (rowsData: any[], headers: string[], startRow: number, startCol: number): number => {
-            let r = startRow;
-            // write header
-            const headerRow = worksheet.getRow(r);
-            headers.forEach((h, i) => {
-                const c = headerRow.getCell(startCol + i);
-                c.value = h;
-                c.font = { bold: true };
-                c.alignment = { vertical: 'middle', horizontal: 'center' } as any;
-                c.border = { top: borderStyle, left: borderStyle, bottom: borderStyle, right: borderStyle };
+            const headerRow = worksheet.getRow(currentRow);
+            headers.forEach((text, idx) => {
+                const cell = headerRow.getCell(idx + 1);
+                cell.value = text;
+                cell.font = { bold: true };
+                cell.alignment = { horizontal: 'center', vertical: 'middle' } as any;
+                cell.border = { top: borderStyle, left: borderStyle, bottom: borderStyle, right: borderStyle };
             });
             headerRow.commit();
-            r++;
+            currentRow++;
 
-            // write rows
-            rowsData.forEach((d, idx) => {
-                const excelRow = worksheet.getRow(r);
-                headers.forEach((h, i) => {
-                    const key = (h || '').toString().toLowerCase();
-                    let value: any = '';
-                    switch (key) {
-                        case 'no': value = `${idx + 1}`; break;
-                        case 'name': value = (d.names || []).join('\n'); break;
-                        case 'pax': value = `${d.pax ?? ''}`; break;
-                        case 'arrival date': value = `${d.arrivalDate ? new Date(d.arrivalDate).getUTCDateTimeAsLocalDateTime().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}`; break;
-                        case 'flight no': value = `${d.flightNo ?? ''}`; break;
-                        case 'arrival time': value = `${d.arrivalTime ? new Date(d.arrivalTime).getUTCDateTimeAsLocalDateTime().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''}`; break;
-                        case 'room': value = `${d.room ?? ''}`; break;
-                        case 'sending fee': value = `${d.sendingFee ?? ''}`; break;
-                        case 'remark': value = `${d.remark ?? ''}`; break;
-                        default: value = '';
-                    }
-                    const c = excelRow.getCell(startCol + i);
+            rows.forEach((row: any, index: number) => {
+                const excelRow = worksheet.getRow(currentRow);
+                const nameValue = (row.names || []).filter(Boolean).join('\n');
+                const dateValue = includeSendingFee ? new Date(row.departureDate).toISODateString() || '' : new Date(row.arrivalDate).toISODateString() || '';
+                const timeValue = includeSendingFee ? new Date(row.departureTime).toISOShortTimeString() || '' : new Date(row.arrivalTime).toISOShortTimeString() || '';
+                const values = [
+                    index + 1,
+                    nameValue,
+                    row.pax,
+                    dateValue,
+                    row.flightNo || '',
+                    timeValue,
+                    row.room || '',
+                    ...(includeSendingFee ? [row.sendingFee || '', row.driverCar || '', row.remark || ''] : [row.driverCar || '', row.remark || ''])
+                ];
+                values.forEach((value, idx) => {
+                    const c = excelRow.getCell(idx + 1);
                     c.value = value;
-                    // enable wrapText when value contains newline so Excel shows lines
-                    if (typeof value === 'string' && value.indexOf('\n') >= 0) {
-                        c.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true } as any;
-                    } else {
-                        c.alignment = { vertical: 'middle', horizontal: 'left' } as any;
-                    }
                     c.border = { top: borderStyle, left: borderStyle, bottom: borderStyle, right: borderStyle };
+                    c.alignment = { vertical: 'top', horizontal: 'left', wrapText: true } as any;
                 });
                 excelRow.commit();
-                r++;
+                currentRow++;
             });
-            return r + 1; // blank row after
+            return currentRow + 1;
         };
 
-        const writeLocationFromData = (locData: any, startCol: number, locLabel: string) => {
-            if (!locData) return;
-            let rowPtr = 1;
+        rowIndex = writeCheckTable(report.checkIn, 'Check-In', rowIndex, false);
+        rowIndex = writeCheckTable(report.checkOut, 'Check-Out', rowIndex, true);
 
-            // main location header (colspan 2)
-            const headerRow = worksheet.getRow(rowPtr);
-            const headerCell = headerRow.getCell(startCol);
-            headerCell.value = locLabel;
-            headerCell.font = { bold: true, size: 14 };
-            headerCell.alignment = { vertical: 'middle', horizontal: 'center' } as any;
-            // merge two columns for main header
-            try { worksheet.mergeCells(rowPtr, startCol, rowPtr, startCol + 1); } catch { }
-            headerRow.commit();
-            rowPtr++;
-
-            rowPtr = writeSummary(locData.summary, rowPtr, startCol);
-
-            // Check-In (Pickup) section header with date
-            const pickupDate = (locData.checkIn && locData.checkIn[0] && locData.checkIn[0].arrivalDate) ? new Date(locData.checkIn[0].arrivalDate).getUTCDateTimeAsLocalDateTime().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
-            const pickupTitleRow = worksheet.getRow(rowPtr);
-            const pickupTitle = `PICK UP LIST ${pickupDate ? `(${pickupDate})` : ''}`;
-            pickupTitleRow.getCell(startCol).value = pickupTitle;
-            pickupTitleRow.getCell(startCol).font = { bold: true };
-            try { worksheet.mergeCells(rowPtr, startCol, rowPtr, startCol + 7); } catch { }
-            pickupTitleRow.commit();
-            rowPtr++;
-
-            // Check-In table
-            const checkInHeaders = ['No', 'Name', 'Pax', 'Arrival Date', 'Flight No', 'Arrival Time', 'Room', 'Remark'];
-            rowPtr = writeCheckTable(locData.checkIn || [], checkInHeaders, rowPtr, startCol);
-
-            // Check-Out (Dropoff) section header with date
-            const dropDate = (locData.checkOut && locData.checkOut[0] && locData.checkOut[0].arrivalDate) ? new Date(locData.checkOut[0].arrivalDate).getUTCDateTimeAsLocalDateTime().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
-            const dropTitleRow = worksheet.getRow(rowPtr);
-            const dropTitle = `DROP OFF LIST ${pickupDate ? `(${pickupDate})` : ''}`;
-            dropTitleRow.getCell(startCol).value = dropTitle;
-            dropTitleRow.getCell(startCol).font = { bold: true };
-            try { worksheet.mergeCells(rowPtr, startCol, rowPtr, startCol + 8); } catch { }
-            dropTitleRow.commit();
-            rowPtr++;
-
-            // Check-Out table (with Sending Fee inserted before Remark)
-            const checkOutHeaders = ['No', 'Name', 'Pax', 'Arrival Date', 'Flight No', 'Arrival Time', 'Room', 'Sending Fee', 'Remark'];
-            rowPtr = writeCheckTable(locData.checkOut || [], checkOutHeaders, rowPtr, startCol);
-        };
-
-        writeLocationFromData((report as any).mida, leftCol, "MIDA");
-        writeLocationFromData((report as any).kkc, rightCol, "KKC");
-
-        // set some reasonable column widths
-        for (let i = leftCol; i < leftCol + 10; i++) worksheet.getColumn(i).width = 18;
-        for (let i = rightCol; i < rightCol + 10; i++) worksheet.getColumn(i).width = 18;
+        for (let i = 1; i <= 10; i++) worksheet.getColumn(i).width = 18;
 
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `PickupDropoffReport_${new Date().toISOString().substring(0,10)}.xlsx`;
+        a.download = `PickupDropoffReport_${new Date().toISOString().substring(0, 10)}.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
     };
 
-    const renderLocation = (locKey: 'mida' | 'kkc', locLabel: string) => {
-        const data = (report as any)[locKey];
-        if (!data) return null;
-        return (
-            <div className="mb-6">
-                <div className="text-center text-[14pt] font-bold mb-2">{locLabel}</div>
+    const renderRows = (rows: any[], includeSendingFee = false) => {
+        if (!rows?.length) {
+            return (
+                <tr>
+                    <td colSpan={includeSendingFee ? 9 : 8} className="p-2">No Data</td>
+                </tr>
+            );
+        }
+        return rows.map((row: any, index: number) => {
+            return (
+                <tr key={row.reservationId ?? index} className="even:bg-slate-100">
+                    <td className="p-2 text-left">{index + 1}</td>
+                    <td>{row.names?.map((n: string, i: number) => <div key={i}>{n}</div>)}</td>
+                    <td className="p-2">{row.pax}</td>
+                    <td className="p-2">{includeSendingFee ? new Date(row.departureDate).toISODateString() : new Date(row.arrivalDate).toISODateString()}</td>
+                    <td className="p-2">{row.flightNo}</td>
+                    <td className="p-2">{includeSendingFee ? new Date(row.departureTime).toISOShortTimeString() : new Date(row.arrivalTime).toISOShortTimeString()}</td>
+                    <td className="p-2">{row.room}</td>
+                    {includeSendingFee && <td className="p-2">{row.sendingFee || ''}</td>}
+                    <td className="p-2">{row.driverCar || ''}</td>
+                    <td className="p-2">{row.remark || ''}</td>
+                </tr>
+            );
+        });
+    };
+
+    return (
+        <div className="flex flex-col w-full gap-4" ref={reportRef}>
+            <div className="flex items-center justify-between">
+                <ButtonCustom variant="green" size="sm" onClick={downloadExcel}>Download Excel</ButtonCustom>
+            </div>
+            <div>
+                <div className="font-semibold mb-2">Summary</div>
                 <table className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>
                     <thead>
                         <tr className={`${Theme.Style.tableHeadBg}`}>
-                            <th colSpan={2} className="p-2">{data.summary.location}</th>
+                            <th className="p-2">Summary</th>
+                            <th className="p-2"></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td className="p-2">Total Check In</td>
-                            <td className="p-2">{data.summary.totalCheckInPax} Pax</td>
+                            <td className="p-2">{report.summary.totalCheckIn}</td>
+                        </tr>
+                        <tr>
+                            <td className="p-2">Total Check In Pax</td>
+                            <td className="p-2">{report.summary.totalCheckInPax}</td>
                         </tr>
                         <tr>
                             <td className="p-2">Total Check Out</td>
-                            <td className="p-2">{data.summary.totalCheckOutPax} Pax</td>
+                            <td className="p-2">{report.summary.totalCheckOut}</td>
+                        </tr>
+                        <tr>
+                            <td className="p-2">Total Check Out Pax</td>
+                            <td className="p-2">{report.summary.totalCheckOutPax}</td>
                         </tr>
                     </tbody>
                 </table>
-
-                <div className="mt-4">
-                    <div className="font-semibold">Check-In</div>
-                    <table className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>
-                        <thead>
-                            <tr className={`${Theme.Style.tableHeadBg}`}>
-                                <th> No</th>
-                                <th>Name</th>
-                                <th>Pax</th>
-                                <th>Arrival Date</th>
-                                <th>Flight No</th>
-                                <th>Arrival Time</th>
-                                <th>Room</th>
-                                <th>Remark</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.checkIn?.length === 0 && <tr><td colSpan={8}>No Data</td></tr>}
-                            {data.checkIn?.map((r: any, idx: number) => (
-                                <tr key={r.reservationId ?? idx}>
-                                    <td style={{paddingLeft: "5px"}}>{idx + 1}</td>
-                                    <td>{r.names?.map((n: string, i: number) => <div key={i}>{n}</div>)}</td>
-                                    <td>{r.pax}</td>
-                                    <td>{r.arrivalDate ? new Date(r.arrivalDate).getUTCDateTimeAsLocalDateTime().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</td>
-                                    <td>{r.flightNo}</td>
-                                    <td>{r.arrivalTime ? new Date(r.arrivalTime).getUTCDateTimeAsLocalDateTime().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''}</td>
-                                    <td>{r.room}</td>
-                                    <td>{r.remark}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className="mt-4">
-                    <div className="font-semibold">Check-Out</div>
-                    <table className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>
-                        <thead>
-                            <tr className={`${Theme.Style.tableHeadBg}`}>
-                                <th>No</th>
-                                <th>Name</th>
-                                <th>Pax</th>
-                                <th>Arrival Date</th>
-                                <th>Flight No</th>
-                                <th>Arrival Time</th>
-                                <th>Room</th>
-                                <th>Sending Fee</th>
-                                <th>Remark</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.checkOut?.length === 0 && <tr><td colSpan={9}>No Data</td></tr>}
-                            {data.checkOut?.map((r: any, idx: number) => (
-                                <tr key={r.reservationId ?? idx}>
-                                    <td style={{paddingLeft: "5px"}}>{idx + 1}</td>
-                                    <td>{r.names?.map((n: string, i: number) => <div key={i}>{n}</div>)}</td>
-                                    <td>{r.pax}</td>
-                                    <td>{r.arrivalDate ? new Date(r.arrivalDate).getUTCDateTimeAsLocalDateTime().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</td>
-                                    <td>{r.flightNo}</td>
-                                    <td>{r.arrivalTime ? new Date(r.arrivalTime).getUTCDateTimeAsLocalDateTime().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }) : ''}</td>
-                                    <td>{r.room}</td>
-                                    <td>{r.sendingFee ?? ''}</td>
-                                    <td>{r.remark}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        );
-    };
-
-    return (
-        <div className="flex flex-col w-full gap-4">
-            <div className="flex items-center justify-between">
-                <div className="text-[16pt] font-bold">Pick-Up & Drop-Off Report</div>
-                <ButtonCustom variant="green" size="sm" onClick={downloadExcel}>Download Excel</ButtonCustom>
             </div>
             <div>
-                <table ref={reportRef} className="w-full">
-                    <tbody>
-                        <tr>
-                            <td></td>
-                            <td className="align-top">{renderLocation('mida', 'MIDA')}</td>
-                            <td style={{ width: '20px' }}>&nbsp;</td>
-                            <td className="align-top">{renderLocation('kkc', 'KKC')}</td>
+                <div className="font-semibold mb-2">Check-In</div>
+                <table className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>
+                    <thead>
+                        <tr className={`${Theme.Style.tableHeadBg}`}>
+                            <th className="p-2 max-w-[20px] text-left" style={{maxWidth: '20px'}}>No</th>
+                            <th className="p-2 text-left">Name</th>
+                            <th className="p-2 max-w-[20px] text-left" style={{maxWidth: '20px'}}>Pax</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Arrival Date</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Flight No</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Arrival Time</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Room</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Driver/Car</th>
+                            <th className="p-2 text-left">Remark</th>
                         </tr>
-                    </tbody>
+                    </thead>
+                    <tbody>{renderRows(report.checkIn)}</tbody>
+                </table>
+            </div>
+            <div>
+                <div className="font-semibold mb-2">Check-Out</div>
+                <table className={`w-full text-[10pt] ${Theme.Style.tableBg}`}>
+                    <thead>
+                        <tr className={`${Theme.Style.tableHeadBg}`}>
+                            <th className="p-2 max-w-[20px] text-left" style={{maxWidth: '20px'}}>No</th>
+                            <th className="p-2 max-w-[30px] text-left">Name</th>
+                            <th className="p-2 max-w-[20px] text-left" style={{maxWidth: '20px'}}>Pax</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Departure Date</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Flight No</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Departure Time</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Room</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Sending Fee</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Driver/Car</th>
+                            <th className="p-2 text-left">Remark</th>
+                        </tr>
+                    </thead>
+                    <tbody>{renderRows(report.checkOut, true)}</tbody>
                 </table>
             </div>
         </div>

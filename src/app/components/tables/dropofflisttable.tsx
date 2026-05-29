@@ -58,6 +58,17 @@ export default function DropOffListTable({
       cell: ({ row }) => <InputCustom variant="table" size="md" id={`driver${row.original.id}`} defaultValue={String(row.original.dropOffDriver ?? '')} />,
     },
     {
+      accessorKey: "dropOffRemark",
+      header: "Drop-Off Remark",
+      cell: ({ row }) => (
+        <textarea
+          id={`dropOffRemark${row.original.id}`}
+          defaultValue={String(row.original.dropOffRemark ?? '')}
+          className="w-full min-h-[45px] rounded border border-[#bbbbbb] bg-[#f8f8f8] p-2 text-[10pt]"
+        />
+      ),
+    },
+    {
       accessorKey: "customers",
       header: () => {
         return (
@@ -97,14 +108,6 @@ export default function DropOffListTable({
       cell: (row) => row.getValue(),
     },
     {
-      accessorKey: "depositInfo",
-      header: "Deposit",
-      accessorFn: (row) => {
-        return <span>{row.depositAmount > 0 ? row.depositAmount + ' ' + row.depositCurrency : ''} <br /> {row.depositDateUTC ? new Date(row.depositDateUTC).toLocaleDateString('sv-SE') : ""}</span>;
-      },
-      cell: (row) => row.getValue(),
-    },
-    {
       accessorKey: "remark",
       header: 'Remark',
       cell: (row) => {
@@ -120,10 +123,11 @@ export default function DropOffListTable({
             const response = await updateDropOffInfo(row.original.id,
               (document.getElementById(`car${row.original.id}`) as HTMLInputElement)?.value,
               (document.getElementById(`driver${row.original.id}`) as HTMLInputElement)?.value,
+              (document.getElementById(`dropOffRemark${row.original.id}`) as HTMLTextAreaElement)?.value,
               location);
             if (response.message)
               toast(response.message);
-          }} >Save Car No</ButtonCustom>
+          }} >Save</ButtonCustom>
         </div>
       }
     },

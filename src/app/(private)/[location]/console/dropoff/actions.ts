@@ -83,10 +83,11 @@ export async function reservationGetList(formState : FormState, formData: FormDa
 }
 
 
-export async function updateDropOffInfo(id:string, carNo:string, driver:string, location: string) : Promise<FormState>{
+export async function updateDropOffInfo(id:string, carNo:string, driver:string, dropOffRemark:string, location: string) : Promise<FormState>{
   c.fs('Action > updateDropOffInfo');
   c.d(id);
   c.d(carNo);
+  c.d(dropOffRemark);
     const response = await fetch(process.env.API_URL + `reservations/${id}/dropoff`, {
       method: 'PATCH',
       headers: {
@@ -94,7 +95,7 @@ export async function updateDropOffInfo(id:string, carNo:string, driver:string, 
         'cookie': (await headers()).get('cookie'),
         'X-Resort-Location': location
       },
-      body: JSON.stringify({carNo:carNo, driver:driver})
+      body: JSON.stringify({carNo:carNo, driver:driver, dropOffRemark: dropOffRemark})
     });
 
     const responseData = await response.json();

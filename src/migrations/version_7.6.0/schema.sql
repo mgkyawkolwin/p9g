@@ -1,0 +1,34 @@
+ALTER TABLE `reservation_log` ADD `pickupRemark` varchar(500);
+ALTER TABLE `reservation_log` ADD `dropOffRemark` varchar(500);
+ALTER TABLE `reservation` ADD `pickupRemark` varchar(500);
+ALTER TABLE `reservation` ADD `dropOffRemark` varchar(500);
+
+
+DELIMITER $$
+
+-- Triggers for reservation
+DROP TRIGGER IF EXISTS `reservation_after_insert`$$
+CREATE TRIGGER `reservation_after_insert` AFTER INSERT ON `reservation`
+FOR EACH ROW
+BEGIN
+  INSERT INTO `reservation_log` (`id`,`reservationTypeId`,`invoiceStatusId`,`invoiceNumber`,`tourCompany`,`arrivalDateTime`,`arrivalFlight`,`bookingSource`,`departureDateTime`,`departureFlight`,`checkInDate`,`checkOutDate`,`noOfDays`,`depositAmount`,`depositAmountInCurrency`,`depositCurrency`,`depositDateUTC`,`depositPaymentMode`,`roomNo`,`isSingleOccupancy`,`noOfGuests`,`pickUpTypeId`,`pickUpFee`,`pickUpFeeCurrency`,`pickUpFeePaidOnUTC`,`pickUpCarNo`,`pickUpDriver`,`prepaidCode`,`prepaidPackageId`,`promotionPackageId`,`dropOffTypeId`,`dropOffFee`,`dropOffFeeCurrency`,`dropOffFeePaidOnUTC`,`dropOffCarNo`,`dropOffDriver`,`reservationStatusId`,`remark`,`paymentRemark`,`totalAmount`,`paidAmount`,`discountAmount`,`tax`,`taxAmount`,`pickupRemark`,`dropOffRemark`,`netAmount`,`dueAmount`,`golfCart`,`location`,`createdAtUTC`,`createdBy`,`updatedAtUTC`,`updatedBy`,`trigger`)
+  VALUES (NEW.`id`,NEW.`reservationTypeId`,NEW.`invoiceStatusId`,NEW.`invoiceNumber`,NEW.`tourCompany`,NEW.`arrivalDateTime`,NEW.`arrivalFlight`,NEW.`bookingSource`,NEW.`departureDateTime`,NEW.`departureFlight`,NEW.`checkInDate`,NEW.`checkOutDate`,NEW.`noOfDays`,NEW.`depositAmount`,NEW.`depositAmountInCurrency`,NEW.`depositCurrency`,NEW.`depositDateUTC`,NEW.`depositPaymentMode`,NEW.`roomNo`,NEW.`isSingleOccupancy`,NEW.`noOfGuests`,NEW.`pickUpTypeId`,NEW.`pickUpFee`,NEW.`pickUpFeeCurrency`,NEW.`pickUpFeePaidOnUTC`,NEW.`pickUpCarNo`,NEW.`pickUpDriver`,NEW.`prepaidCode`,NEW.`prepaidPackageId`,NEW.`promotionPackageId`,NEW.`dropOffTypeId`,NEW.`dropOffFee`,NEW.`dropOffFeeCurrency`,NEW.`dropOffFeePaidOnUTC`,NEW.`dropOffCarNo`,NEW.`dropOffDriver`,NEW.`reservationStatusId`,NEW.`remark`,NEW.`paymentRemark`,NEW.`totalAmount`,NEW.`paidAmount`,NEW.`discountAmount`,NEW.`tax`,NEW.`taxAmount`,NEW.`pickupRemark`,NEW.`dropOffRemark`,NEW.`netAmount`,NEW.`dueAmount`,NEW.`golfCart`,NEW.`location`,NEW.`createdAtUTC`,NEW.`createdBy`,NEW.`updatedAtUTC`,NEW.`updatedBy`,'INSERT');
+END$$
+
+DROP TRIGGER IF EXISTS `reservation_after_update`$$
+CREATE TRIGGER `reservation_after_update` AFTER UPDATE ON `reservation`
+FOR EACH ROW
+BEGIN
+  INSERT INTO `reservation_log` (`id`,`reservationTypeId`,`invoiceStatusId`,`invoiceNumber`,`tourCompany`,`arrivalDateTime`,`arrivalFlight`,`bookingSource`,`departureDateTime`,`departureFlight`,`checkInDate`,`checkOutDate`,`noOfDays`,`depositAmount`,`depositAmountInCurrency`,`depositCurrency`,`depositDateUTC`,`depositPaymentMode`,`roomNo`,`isSingleOccupancy`,`noOfGuests`,`pickUpTypeId`,`pickUpFee`,`pickUpFeeCurrency`,`pickUpFeePaidOnUTC`,`pickUpCarNo`,`pickUpDriver`,`prepaidCode`,`prepaidPackageId`,`promotionPackageId`,`dropOffTypeId`,`dropOffFee`,`dropOffFeeCurrency`,`dropOffFeePaidOnUTC`,`dropOffCarNo`,`dropOffDriver`,`reservationStatusId`,`remark`,`paymentRemark`,`totalAmount`,`paidAmount`,`discountAmount`,`tax`,`taxAmount`,`pickupRemark`,`dropOffRemark`,`netAmount`,`dueAmount`,`golfCart`,`location`,`createdAtUTC`,`createdBy`,`updatedAtUTC`,`updatedBy`,`trigger`)
+  VALUES (NEW.`id`,NEW.`reservationTypeId`,NEW.`invoiceStatusId`,NEW.`invoiceNumber`,NEW.`tourCompany`,NEW.`arrivalDateTime`,NEW.`arrivalFlight`,NEW.`bookingSource`,NEW.`departureDateTime`,NEW.`departureFlight`,NEW.`checkInDate`,NEW.`checkOutDate`,NEW.`noOfDays`,NEW.`depositAmount`,NEW.`depositAmountInCurrency`,NEW.`depositCurrency`,NEW.`depositDateUTC`,NEW.`depositPaymentMode`,NEW.`roomNo`,NEW.`isSingleOccupancy`,NEW.`noOfGuests`,NEW.`pickUpTypeId`,NEW.`pickUpFee`,NEW.`pickUpFeeCurrency`,NEW.`pickUpFeePaidOnUTC`,NEW.`pickUpCarNo`,NEW.`pickUpDriver`,NEW.`prepaidCode`,NEW.`prepaidPackageId`,NEW.`promotionPackageId`,NEW.`dropOffTypeId`,NEW.`dropOffFee`,NEW.`dropOffFeeCurrency`,NEW.`dropOffFeePaidOnUTC`,NEW.`dropOffCarNo`,NEW.`dropOffDriver`,NEW.`reservationStatusId`,NEW.`remark`,NEW.`paymentRemark`,NEW.`totalAmount`,NEW.`paidAmount`,NEW.`discountAmount`,NEW.`tax`,NEW.`taxAmount`,NEW.`pickupRemark`,NEW.`dropOffRemark`,NEW.`netAmount`,NEW.`dueAmount`,NEW.`golfCart`,NEW.`location`,NEW.`createdAtUTC`,NEW.`createdBy`,NEW.`updatedAtUTC`,NEW.`updatedBy`,'UPDATE');
+END$$
+
+DROP TRIGGER IF EXISTS `reservation_after_delete`$$
+CREATE TRIGGER `reservation_after_delete` AFTER DELETE ON `reservation`
+FOR EACH ROW
+BEGIN
+  INSERT INTO `reservation_log` (`id`,`reservationTypeId`,`invoiceStatusId`,`invoiceNumber`,`tourCompany`,`arrivalDateTime`,`arrivalFlight`,`bookingSource`,`departureDateTime`,`departureFlight`,`checkInDate`,`checkOutDate`,`noOfDays`,`depositAmount`,`depositAmountInCurrency`,`depositCurrency`,`depositDateUTC`,`depositPaymentMode`,`roomNo`,`isSingleOccupancy`,`noOfGuests`,`pickUpTypeId`,`pickUpFee`,`pickUpFeeCurrency`,`pickUpFeePaidOnUTC`,`pickUpCarNo`,`pickUpDriver`,`prepaidCode`,`prepaidPackageId`,`promotionPackageId`,`dropOffTypeId`,`dropOffFee`,`dropOffFeeCurrency`,`dropOffFeePaidOnUTC`,`dropOffCarNo`,`dropOffDriver`,`reservationStatusId`,`remark`,`paymentRemark`,`totalAmount`,`paidAmount`,`discountAmount`,`tax`,`taxAmount`,`pickupRemark`,`dropOffRemark`,`netAmount`,`dueAmount`,`golfCart`,`location`,`createdAtUTC`,`createdBy`,`updatedAtUTC`,`updatedBy`,`trigger`)
+  VALUES (OLD.`id`,OLD.`reservationTypeId`,OLD.`invoiceStatusId`,OLD.`invoiceNumber`,OLD.`tourCompany`,OLD.`arrivalDateTime`,OLD.`arrivalFlight`,OLD.`bookingSource`,OLD.`departureDateTime`,OLD.`departureFlight`,OLD.`checkInDate`,OLD.`checkOutDate`,OLD.`noOfDays`,OLD.`depositAmount`,OLD.`depositAmountInCurrency`,OLD.`depositCurrency`,OLD.`depositDateUTC`,OLD.`depositPaymentMode`,OLD.`roomNo`,OLD.`isSingleOccupancy`,OLD.`noOfGuests`,OLD.`pickUpTypeId`,OLD.`pickUpFee`,OLD.`pickUpFeeCurrency`,OLD.`pickUpFeePaidOnUTC`,OLD.`pickUpCarNo`,OLD.`pickUpDriver`,OLD.`prepaidCode`,OLD.`prepaidPackageId`,OLD.`promotionPackageId`,OLD.`dropOffTypeId`,OLD.`dropOffFee`,OLD.`dropOffFeeCurrency`,OLD.`dropOffFeePaidOnUTC`,OLD.`dropOffCarNo`,OLD.`dropOffDriver`,OLD.`reservationStatusId`,OLD.`remark`,OLD.`paymentRemark`,OLD.`totalAmount`,OLD.`paidAmount`,OLD.`discountAmount`,OLD.`tax`,OLD.`taxAmount`,OLD.`pickupRemark`,OLD.`dropOffRemark`,OLD.`netAmount`,OLD.`dueAmount`,OLD.`golfCart`,OLD.`location`,OLD.`createdAtUTC`,OLD.`createdBy`,OLD.`updatedAtUTC`,OLD.`updatedBy`,'DELETE');
+END$$
+
+DELIMITER ;

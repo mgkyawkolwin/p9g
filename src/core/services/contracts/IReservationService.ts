@@ -33,6 +33,6 @@ export default interface IReservationService {
     roomReservationGetListById(reservationId: string, includeChildren: boolean, sessionUser: SessionUser): Promise<[RoomReservation[], number]>;
     roomReservationUpdateList(reservationId: string, roomReservations: RoomReservation[], sessionUser: SessionUser): Promise<void>;
     roomScheduleGetList(searchParam: Record<string, any>, sessionUser: SessionUser): Promise<[Room[], number]>;
-    reservationUpdateDropOffInfo(id: string, carNo: string, driver: string, sessionUser: SessionUser): Promise<void>;
-    reservationUpdatePickUpInfo(id: string, carNo: string, driver: string, sessionUser: SessionUser): Promise<void>;
+    reservationUpdateDropOffInfo(id: string, carNo: string, driver: string, dropOffRemark: string, sessionUser: SessionUser): Promise<void>;
+    reservationUpdatePickUpInfo(id: string, carNo: string, driver: string, pickupRemark: string, sessionUser: SessionUser): Promise<void>;
 }

@@ -309,7 +309,17 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                     const endDate = new Date(searchFormFields.searchArrivalDateTimeTo);
                     conditions.push(lte(reservationTable.arrivalDateTime, endDate));
                 }
-            } 
+            }
+            if (searchFormFields.searchDepartureDateTimeFrom || searchFormFields.searchDepartureDateTimeTo) {
+                if (searchFormFields.searchDepartureDateTimeFrom) {
+                    const startDate = new Date(searchFormFields.searchDepartureDateTimeFrom);
+                    conditions.push(gte(reservationTable.departureDateTime, startDate));
+                }
+                if (searchFormFields.searchDepartureDateTimeTo) {
+                    const endDate = new Date(searchFormFields.searchDepartureDateTimeTo);
+                    conditions.push(lte(reservationTable.departureDateTime, endDate));
+                }
+            }
             if (searchFormFields.searchDepartureDateTime) {
                 const startDate = new Date(getISODateTimeString(searchFormFields.searchDepartureDateTime));
                 const endDate = getUTCDateMidNight(new Date(searchFormFields.searchDepartureDateTime));

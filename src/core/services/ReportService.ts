@@ -12,7 +12,6 @@ import MonthlySummaryReservationStatusReportRow from "../models/dto/reports/Mont
 import c from "@/lib/loggers/console/ConsoleLogger";
 import SessionUser from "../models/dto/SessionUser";
 import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDropoffReportResponse';
-import { PickupDropoffReportNewResponse } from '@/core/models/dto/reports/PickupDropoffReportNewResponse';
 import DailyReservationDetailReportRow from "../models/dto/reports/DailyReservationDetailReportRow";
 
 @injectable()
@@ -67,20 +66,15 @@ export default class ReportService implements IReportService {
         return await this.reportRepository.getDailySummaryZoneGuestsReport(startDate, endDate, sessionUser);
     }
 
-    async getPickupDropoffReport(arrivalDepartureDate: string, sessionUser: SessionUser): Promise<PickupDropoffReportResponse> {
-        c.fs('ReportService > getPickupDropoffReport');
-        return await this.reportRepository.getPickupDropoffReport(arrivalDepartureDate, sessionUser);
-    }
-
-    async getPickupDropoffReportNew(
+    async getPickupDropoffReport(
         arrivalStartDateTime: string,
         arrivalEndDateTime: string,
         departureStartDateTime: string,
         departureEndDateTime: string,
         sessionUser: SessionUser
-    ): Promise<PickupDropoffReportNewResponse> {
-        c.fs('ReportService > getPickupDropoffReportNew');
-        return await this.reportRepository.getPickupDropoffReportNew(
+    ): Promise<PickupDropoffReportResponse> {
+        c.fs('ReportService > getPickupDropoffReport');
+        return await this.reportRepository.getPickupDropoffReport(
             arrivalStartDateTime,
             arrivalEndDateTime,
             departureStartDateTime,

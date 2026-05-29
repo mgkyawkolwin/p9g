@@ -9,6 +9,7 @@ declare global {
     toISOFormatDateString(): string;
     toISODateTimeDisplayString(): string;
     toISOFormatDateTimeString(): string;
+    toISOFormatDateTimeMorningString(): string;
     toISOFormatDateTimeMidNightString(): string;
     toISODateString(): string;
     toISOShortTimeString(): string;

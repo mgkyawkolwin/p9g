@@ -22,10 +22,41 @@ export async function GET(request: NextRequest) {
         c.d(session.user);
 
         const searchParams = Object.fromEntries(request.nextUrl.searchParams);
-        const arrivalDepartureDate = searchParams.arrivalDepartureDate ?? '';
+        const arrivalStartDateTime = (searchParams.arrivalStartDateTime as string) || '';
+        const arrivalEndDateTime = (searchParams.arrivalEndDateTime as string) || '';
+        const departureStartDateTime = (searchParams.departureStartDateTime as string) || '';
+        const departureEndDateTime = (searchParams.departureEndDateTime as string) || '';
+        const arrivalDepartureDate = (searchParams.arrivalDepartureDate as string) || '';
 
         const service = container.get<IReportService>(TYPES.IReportService);
-        const data = await service.getPickupDropoffReport(arrivalDepartureDate, session.user);
+        let data;
+
+        if (arrivalStartDateTime && arrivalEndDateTime && departureStartDateTime && departureEndDateTime) {
+            c.d({ arrivalStartDateTime, arrivalEndDateTime, departureStartDateTime, departureEndDateTime });
+            data = await service.getPickupDropoffReport(
+                arrivalStartDateTime,
+                arrivalEndDateTime,
+                departureStartDateTime,
+                departureEndDateTime,
+                session.user
+            );
+        } else if (arrivalDepartureDate) {
+            c.d({ arrivalDepartureDate });
+            const start = new Date(arrivalDepartureDate);
+            start.setUTCHours(0, 0, 0, 0);
+            const end = new Date(arrivalDepartureDate);
+            end.setUTCHours(23, 59, 59, 999);
+            data = await service.getPickupDropoffReport(
+                start.toISOString(),
+                end.toISOString(),
+                start.toISOString(),
+                end.toISOString(),
+                session.user
+            );
+        } else {
+            throw new CustomError('Missing pickup/dropoff date parameters', HttpStatusCode.BadRequest);
+        }
+
         return NextResponse.json({ data }, { status: HttpStatusCode.Ok });
     } catch (error) {
         c.e(error instanceof Error ? error.message : String(error));

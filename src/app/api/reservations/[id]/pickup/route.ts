@@ -38,7 +38,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
 
     //call service to retrieve data
     const reservationService = container.get<IReservationService>(TYPES.IReservationService);
-    await reservationService.reservationUpdatePickUpInfo(id, body.carNo, body.driver, session.user);
+    await reservationService.reservationUpdatePickUpInfo(id, body.carNo, body.driver, body.pickupRemark, session.user);
 
 
     c.i('Return PATCH /api/reservations/[id]/pickup');

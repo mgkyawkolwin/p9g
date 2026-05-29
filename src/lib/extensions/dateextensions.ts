@@ -18,14 +18,21 @@ Date.prototype.toISOFormatDateString = function (): string {
 }
 
 /**
- * Convert the UTC date into ISO date format string.
+ * Convert the Local date into ISO date format string. (Note: Not a ISO/UTC date, just local date in different format).
  */
 Date.prototype.toISOFormatDateTimeString = function (): string {
+    return this.toLocaleDateString('sv-SE') + 'T' + this.toLocaleTimeString('sv-SE') + '.000Z';
+}
+
+/**
+ * Convert the Local date into ISO date format string with time 00:00:00.000. (Note: Not a ISO/UTC date, just local date in different format).
+ */
+Date.prototype.toISOFormatDateTimeMorningString = function (): string {
     return this.toLocaleDateString('sv-SE').substring(0, 10) + 'T00:00:00.000Z';
 }
 
 /**
- * Convert the UTC date into ISO date format string.
+ * Convert the Local date into ISO date format string with time 23:59:59.999. (Note: Not a ISO/UTC date, just local date in different format).
  */
 Date.prototype.toISOFormatDateTimeMidNightString = function (): string {
     return this.toLocaleDateString('sv-SE').substring(0, 10) + 'T23:59:59.999Z';

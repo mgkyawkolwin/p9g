@@ -22,7 +22,6 @@ import Reservation from "@/core/models/domain/Reservation";
 import SessionUser from "@/core/models/dto/SessionUser";
 import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
 import { PickupDropoffReportResponse, PickupDropoffRow, PickupDropoffSummary } from '@/core/models/dto/reports/PickupDropoffReportResponse';
-import { PickupDropoffReportNewResponse, PickupDropoffReportNewRow, PickupDropoffReportNewSummary } from '@/core/models/dto/reports/PickupDropoffReportNewResponse';
 import RoomCharge from "@/core/models/domain/RoomCharge";
 
 
@@ -147,116 +146,14 @@ export default class ReportRepository implements IReportRepository {
         return reports;
     }
 
-    async getPickupDropoffReport(arrivalDepartureDate: string, sessionUser: SessionUser): Promise<PickupDropoffReportResponse> {
-        c.fs('Repository > getPickupDropoffReport');
-        c.d(arrivalDepartureDate);
-        const locations: Array<'MIDA' | 'KKC'> = ['MIDA', 'KKC'];
-        const result: any = {};
-
-        for (const loc of locations) {
-            // calculate start/end of arrival date (00:00:00.000 - 23:59:59.999)
-            const start = new Date(arrivalDepartureDate);
-            start.setUTCHours(0, 0, 0, 0);
-            const end = new Date(arrivalDepartureDate);
-            end.setUTCHours(23, 59, 59, 999);
-            // check-in reservations for location (exact match on check-in date)
-            const checkInRowsRaw = await this.dbClient.db.select({ ...reservationTable, customer: { ...customerTable }, bill: { ...billTable } })
-                .from(reservationTable)
-                .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
-                .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-                .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
-                .leftJoin(billTable, eq(billTable.reservationId, reservationTable.id))
-                .where(
-                    and(
-                        gte(reservationTable.arrivalDateTime, start),
-                        lte(reservationTable.arrivalDateTime, end),
-                        ne(configTable.value, 'CCL'),
-                        eq(reservationTable.location, loc)
-                    )
-                )
-                .orderBy(reservationTable.arrivalDateTime, 'asc');
-
-            // check-out reservations for location (exact match on check-out date)
-            const checkOutRowsRaw = await this.dbClient.db.select({ ...reservationTable, customer: { ...customerTable }, bill: { ...billTable } })
-                .from(reservationTable)
-                .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
-                .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-                .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
-                .leftJoin(billTable, eq(billTable.reservationId, reservationTable.id))
-                .where(
-                    and(
-                        gte(reservationTable.departureDateTime, start),
-                        lte(reservationTable.departureDateTime, end),
-                        ne(configTable.value, 'CCL'),
-                        eq(reservationTable.location, loc)
-                    )
-                )
-                .orderBy(reservationTable.departureDateTime, 'asc');
-
-            const transform = (rows: any[], isCheckOut = false) => {
-                // reduce rows into reservations with customers and bills
-                const reservations = rows.reduce((acc: any[], current: any) => {
-                    const { customer, bill, ...reservation } = current;
-                    let r = acc.find(x => x.id === current.id);
-                    if (!r) {
-                        r = { ...reservation, customers: [], bills: [] };
-                        r.noOfGuests = Number(r.noOfGuests ?? 0);
-                        acc.push(r);
-                    }
-                    if (customer && !r.customers.find((c: any) => c.id === customer.id)) r.customers.push(customer);
-                    if (bill && !r.bills.find((b: any) => b.id === bill.id)) r.bills.push(bill);
-                    return acc;
-                }, [] as any[]);
-
-                return reservations.map((r: any) => {
-                    const names = (r.customers || []).map((c: any) => c.englishName || c.name).filter(Boolean);
-                    const arrivalDate = r.arrivalDateTime;
-                    const arrivalTime = r.arrivalDateTime;
-                    // sending fee: find bill with paymentType === 'DROPOFF' (one per reservation expected)
-                    const dropOffBill = (r.bills || []).find((b: any) => ((b.paymentType || '').toUpperCase() === 'DROPOFF'));
-                    const sendingFee = dropOffBill ? `${dropOffBill.amount}${dropOffBill.currency}${dropOffBill.isPaid ? '(Paid)' : '(Unpaid)'}` : undefined;
-                    const remark = isCheckOut ? `${r.dropOffDriver ?? ''}(${r.dropOffCarNo ?? ''})`.trim() : `${r.pickUpDriver ?? ''}(${r.pickUpCarNo ?? ''})`.trim();
-                    const row: PickupDropoffRow = {
-                        reservationId: r.id,
-                        names,
-                        pax: Number(r.noOfGuests ?? 0),
-                        arrivalDate,
-                        flightNo: r.arrivalFlight ?? '',
-                        arrivalTime,
-                        room: r.roomNo ?? '',
-                        remark,
-                        sendingFee: isCheckOut ? sendingFee : undefined
-                    };
-                    return row;
-                });
-            };
-
-            const checkIn = transform(checkInRowsRaw || [], false);
-            const checkOut = transform(checkOutRowsRaw || [], true);
-
-            const summary: PickupDropoffSummary = {
-                location: loc,
-                totalCheckIn: checkIn.length,
-                totalCheckInPax: checkIn.reduce((s, r) => s + Number(r.pax ?? 0), 0),
-                totalCheckOut: checkOut.length,
-                totalCheckOutPax: checkOut.reduce((s, r) => s + Number(r.pax ?? 0), 0)
-            };
-
-            result[loc.toLowerCase()] = { summary, checkIn, checkOut };
-        }
-
-        c.fe('Repository > getPickupDropoffReport');
-        return result as PickupDropoffReportResponse;
-    }
-
-    async getPickupDropoffReportNew(
+    async getPickupDropoffReport(
         arrivalStartDateTime: string,
         arrivalEndDateTime: string,
         departureStartDateTime: string,
         departureEndDateTime: string,
         sessionUser: SessionUser
-    ): Promise<PickupDropoffReportNewResponse> {
-        c.fs('Repository > getPickupDropoffReportNew');
+    ): Promise<PickupDropoffReportResponse> {
+        c.fs('Repository > getPickupDropoffReport');
         c.d({ arrivalStartDateTime, arrivalEndDateTime, departureStartDateTime, departureEndDateTime, location: sessionUser.location });
 
         const arrivalStart = new Date(arrivalStartDateTime);
@@ -280,6 +177,9 @@ export default class ReportRepository implements IReportRepository {
             )
             .orderBy(reservationTable.arrivalDateTime, 'asc');
 
+        c.d(`Arrival rows: ${checkInRowsRaw.length}`);
+        c.d(checkInRowsRaw.length > 0 ? checkInRowsRaw[0] : {});
+
         const checkOutRowsRaw = await this.dbClient.db.select({ ...reservationTable, customer: { ...customerTable }, bill: { ...billTable } })
             .from(reservationTable)
             .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
@@ -295,6 +195,8 @@ export default class ReportRepository implements IReportRepository {
                 )
             )
             .orderBy(reservationTable.departureDateTime, 'asc');
+        c.d(`Departure rows: ${checkOutRowsRaw.length}`);
+        c.d(checkOutRowsRaw.length > 0 ? checkOutRowsRaw[0] : {});
 
         const transform = (rows: any[], isCheckOut = false) => {
             const reservations = rows.reduce((acc: any[], current: any) => {
@@ -311,21 +213,24 @@ export default class ReportRepository implements IReportRepository {
             }, [] as any[]);
 
             return reservations.map((r: any) => {
-                const customers = (r.customers || []).map((c: any) => ({ englishName: c.englishName, name: c.name })).filter((c: any) => c.englishName || c.name);
                 const arrivalDate = r.arrivalDateTime;
                 const arrivalTime = r.arrivalDateTime;
                 const dropOffBill = (r.bills || []).find((b: any) => ((b.paymentType || '').toUpperCase() === 'DROPOFF'));
                 const sendingFee = dropOffBill ? `${dropOffBill.amount}${dropOffBill.currency}${dropOffBill.isPaid ? '(Paid)' : '(Unpaid)'}` : undefined;
-                const remark = isCheckOut ? `${r.dropOffDriver ?? ''}(${r.dropOffCarNo ?? ''})`.trim() : `${r.pickUpDriver ?? ''}(${r.pickUpCarNo ?? ''})`.trim();
-                const row: PickupDropoffReportNewRow = {
+                const remark = isCheckOut ? r.dropOffRemark : r.pickupRemark;
+                const driverCar = isCheckOut ? `${r.dropOffDriver ?? ''}(${r.dropOffCarNo ?? ''})`.trim() : `${r.pickUpDriver ?? ''}(${r.pickUpCarNo ?? ''})`.trim();
+                const row: PickupDropoffRow = {
                     reservationId: r.id,
-                    customers,
+                    names: r.customers?.map((c: any) => `${c.englishName} ${c.name}`.trim()),
                     pax: Number(r.noOfGuests ?? 0),
                     arrivalDate,
+                    departureDate: r.departureDateTime,
                     flightNo: r.arrivalFlight ?? '',
                     arrivalTime,
+                    departureTime: r.departureDateTime,
                     room: r.roomNo ?? '',
                     remark,
+                    driverCar,
                     sendingFee: isCheckOut ? sendingFee : undefined
                 };
                 return row;
@@ -335,16 +240,15 @@ export default class ReportRepository implements IReportRepository {
         const checkIn = transform(checkInRowsRaw || [], false);
         const checkOut = transform(checkOutRowsRaw || [], true);
 
-        const summary: PickupDropoffReportNewSummary = {
-            location: sessionUser.location ?? '',
+        const summary: PickupDropoffSummary = {
             totalCheckIn: checkIn.length,
             totalCheckInPax: checkIn.reduce((s, r) => s + Number(r.pax ?? 0), 0),
             totalCheckOut: checkOut.length,
             totalCheckOutPax: checkOut.reduce((s, r) => s + Number(r.pax ?? 0), 0)
         };
 
-        c.fe('Repository > getPickupDropoffReportNew');
-        return { summary, checkIn, checkOut } as PickupDropoffReportNewResponse;
+        c.fe('Repository > getPickupDropoffReport');
+        return { summary, checkIn, checkOut } as PickupDropoffReportResponse;
     }
 
 

@@ -58,6 +58,17 @@ export default function PickUpListTable({
       cell: ({ row }) => <InputCustom variant="table" size="md" id={`driver${row.original.id}`} defaultValue={String(row.original.pickUpDriver ?? '')} />,
     },
     {
+      accessorKey: "pickupRemark",
+      header: "Pickup Remark",
+      cell: ({ row }) => (
+        <textarea
+          id={`pickupRemark${row.original.id}`}
+          defaultValue={String(row.original.pickupRemark ?? '')}
+          className="w-full min-h-[45px] rounded border border-[#bbbbbb] bg-[#f8f8f8] p-2 text-[10pt]"
+        />
+      ),
+    },
+    {
       accessorKey: "customers",
       header: () => {
         return (
@@ -97,14 +108,6 @@ export default function PickUpListTable({
       cell: (row) => row.getValue(),
     },
     {
-      accessorKey: "depositInfo",
-      header: "Deposit",
-      accessorFn: (row) => {
-        return <span>{row.depositAmount > 0 ? row.depositAmount + ' ' + row.depositCurrency : ''} <br /> {row.depositDateUTC ? new Date(row.depositDateUTC).toLocaleDateString('sv-SE') : ""}</span>;
-      },
-      cell: (row) => row.getValue(),
-    },
-    {
       accessorKey: "remark",
       header: 'Remark',
       cell: (row) => {
@@ -116,14 +119,15 @@ export default function PickUpListTable({
       header: "Action",
       cell: ({ row }) => {
         return <div className="flex gap-1">
-          <ButtonCustom type="button" variant={"green"} size={"sm"} onClick={async () => {
+          <ButtonCustom type="button" variant={"green"} size={"md"} onClick={async () => {
             const response = await updatePickUpInfo(row.original.id,
               (document.getElementById(`car${row.original.id}`) as HTMLInputElement)?.value,
               (document.getElementById(`driver${row.original.id}`) as HTMLInputElement)?.value,
+              (document.getElementById(`pickupRemark${row.original.id}`) as HTMLTextAreaElement)?.value,
               location);
             if (response.message)
               toast(response.message);
-          }} >Save Car No</ButtonCustom>
+          }} >Save</ButtonCustom>
         </div>
       }
     },

@@ -38,6 +38,8 @@ export default class Reservation extends DomainBase{
     public paidAmount: number = 0;
     public pickUpCarNo: string = "";
     public pickUpDriver: string = "";
+    public pickupRemark: string = "";
+    public dropOffRemark: string = "";
     public pickUpFee: number = 0;
     public pickUpFeeCurrency: string = 'KWR';
     public pickUpFeePaidOnUTC: Date = null;

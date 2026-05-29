@@ -45,6 +45,8 @@ export type SearchFormFields = {
   searchCreatedDateFrom?: string | undefined,
   searchCreatedDateUntil?: string | undefined,
   searchDepartureDateTime?: string | undefined,
+  searchDepartureDateTimeFrom?: string | undefined,
+  searchDepartureDateTimeTo?: string | undefined,
   date?: string | undefined,
   searchDate?: string | undefined,
   searchDueDateFrom?: string | undefined,

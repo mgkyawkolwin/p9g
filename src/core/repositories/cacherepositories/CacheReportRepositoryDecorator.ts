@@ -13,7 +13,6 @@ import MonthlySummaryReservationStatusReportRow from "@/core/models/dto/reports/
 import type ICacheAdapter from "@/lib/cache/ICacheAdapter";
 import SessionUser from "@/core/models/dto/SessionUser";
 import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
-import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDropoffReportResponse';
 import { PickupDropoffReportNewResponse } from '@/core/models/dto/reports/PickupDropoffReportNewResponse';
 import DailySummaryReservationStatusReportRow from "@/core/models/dto/reports/DailySummaryReservationStatusReportRow";
 
@@ -196,10 +195,16 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
         return object;
     }
 
-    async getPickupDropoffReport(arrivalDepartureDate: string, sessionUser: SessionUser): Promise<PickupDropoffReportResponse> {
+    async getPickupDropoffReport(
+        arrivalStartDateTime: string,
+        arrivalEndDateTime: string,
+        departureStartDateTime: string,
+        departureEndDateTime: string,
+        sessionUser: SessionUser
+    ): Promise<PickupDropoffReportNewResponse> {
         c.fs('Repository > getPickupDropoffReport');
 
-        const cacheTag = `pickupdropoff-${arrivalDepartureDate}-${sessionUser.location}`;
+        const cacheTag = `pickupdropoff-${arrivalStartDateTime}-${arrivalEndDateTime}-${departureStartDateTime}-${departureEndDateTime}-${sessionUser.location}`;
         const startTime = performance.now();
 
         const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
@@ -208,7 +213,13 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
             return cacheObject;
         }
 
-        const object = await this.repository.getPickupDropoffReport(arrivalDepartureDate, sessionUser);
+        const object = await this.repository.getPickupDropoffReport(
+            arrivalStartDateTime,
+            arrivalEndDateTime,
+            departureStartDateTime,
+            departureEndDateTime,
+            sessionUser
+        );
 
         console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
         await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
@@ -234,7 +245,7 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
             return cacheObject;
         }
 
-        const object = await this.repository.getPickupDropoffReportNew(
+        const object = await this.repository.getPickupDropoffReport(
             arrivalStartDateTime,
             arrivalEndDateTime,
             departureStartDateTime,

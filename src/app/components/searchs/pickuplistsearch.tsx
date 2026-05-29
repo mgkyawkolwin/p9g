@@ -41,7 +41,7 @@ export default function PickUpListSearch({
     return (
         <section aria-label="Reservatoin List Search" className="flex w-full flex-col gap-4">
             <div className="flex gap-4 items-center">
-                <div className="grid gap-2">
+                <div className="flex gap-2 items-center">
                     <Label>Arrival Date/Time From</Label>
                     <DatePicker
                         selected={formData.arrivalDateTimeFrom}
@@ -57,7 +57,7 @@ export default function PickUpListSearch({
                     />
                     <input type="hidden" name="searchArrivalDateTimeFrom" value={formData.arrivalDateTimeFrom ? formData.arrivalDateTimeFrom.toISOFormatDateTimeString() : ''} />
                 </div>
-                <div className="grid gap-2">
+                <div className="flex gap-2 items-center">
                     <Label>Arrival Date/Time To</Label>
                     <DatePicker
                         selected={formData.arrivalDateTimeTo}
