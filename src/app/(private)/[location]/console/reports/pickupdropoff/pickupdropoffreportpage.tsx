@@ -107,7 +107,15 @@ export default function PickupDropoffReportPage() {
               </div>
             </section>
 
-            {reportData && <PickupDropoffReport report={reportData} />}
+            {reportData && (
+              <PickupDropoffReport
+                report={reportData}
+                arrivalStartDateTime={arrivalStartDateTime.toISOFormatDateTimeString()}
+                arrivalEndDateTime={arrivalEndDateTime.toISOFormatDateTimeString()}
+                departureStartDateTime={departureStartDateTime.toISOFormatDateTimeString()}
+                departureEndDateTime={departureEndDateTime.toISOFormatDateTimeString()}
+              />
+            )}
           </div>
         </GroupContent>
       </Group>

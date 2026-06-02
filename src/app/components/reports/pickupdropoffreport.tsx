@@ -4,7 +4,15 @@ import { Theme } from '@/core/constants';
 import ExcelJS from 'exceljs';
 import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDropoffReportResponse';
 
-export default function PickupDropoffReport({ report }: { report: PickupDropoffReportResponse }) {
+interface PickupDropoffReportProps {
+    report: PickupDropoffReportResponse;
+    arrivalStartDateTime: string;
+    arrivalEndDateTime: string;
+    departureStartDateTime: string;
+    departureEndDateTime: string;
+}
+
+export default function PickupDropoffReport({ report, arrivalStartDateTime, arrivalEndDateTime, departureStartDateTime, departureEndDateTime }: PickupDropoffReportProps) {
     const reportRef = React.useRef<HTMLDivElement | null>(null);
 
     const formatCustomerName = (customer: any) => {
@@ -16,30 +24,66 @@ export default function PickupDropoffReport({ report }: { report: PickupDropoffR
         return englishName || name || '';
     };
 
-    const downloadExcel = async () => {
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('PickupDropoffReport');
+    const fetchReportByLocation = async (location: string) => {
+        try {
+            const searchParams = new URLSearchParams({
+                arrivalStartDateTime,
+                arrivalEndDateTime,
+                departureStartDateTime,
+                departureEndDateTime,
+            });
+            const url = `/api/reports/pickupdropoffreport?${searchParams.toString()}`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Resort-Location': location,
+                },
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                const body = await response.json().catch(() => null);
+                return { location, error: body?.message || `Failed to fetch report for ${location}` };
+            }
+            const payload = await response.json();
+            return { location, data: payload?.data as PickupDropoffReportResponse };
+        } catch (error) {
+            return { location, error: error instanceof Error ? error.message : String(error) };
+        }
+    };
+
+    const writeLocationSection = (worksheet: ExcelJS.Worksheet, location: string, reportData?: PickupDropoffReportResponse, error?: string, startColumn = 1): void => {
         const borderStyle = { style: 'thin' } as any;
         let rowIndex = 1;
+        const columnCount = 10;
 
         const header = worksheet.getRow(rowIndex);
-        header.getCell(1).value = `Pickup & Dropoff Report`;
-        header.getCell(1).font = { bold: true, size: 14 };
-        worksheet.mergeCells(rowIndex, 1, rowIndex, 10);
+        header.getCell(startColumn).value = `Pickup & Dropoff Report - ${location}`;
+        header.getCell(startColumn).font = { bold: true, size: 14 };
+        worksheet.mergeCells(rowIndex, startColumn, rowIndex, startColumn + columnCount - 1);
         header.commit();
         rowIndex += 2;
 
+        if (error) {
+            const errorRow = worksheet.getRow(rowIndex);
+            errorRow.getCell(startColumn).value = `Error: ${error}`;
+            errorRow.getCell(startColumn).font = { color: { argb: 'FFFF0000' }, bold: true };
+            worksheet.mergeCells(rowIndex, startColumn, rowIndex, startColumn + columnCount - 1);
+            errorRow.commit();
+            return;
+        }
+
         const summaryRow = worksheet.getRow(rowIndex);
-        summaryRow.getCell(1).value = 'Total Check In';
-        summaryRow.getCell(2).value = report.summary.totalCheckIn;
-        summaryRow.getCell(3).value = 'Total Check In Pax';
-        summaryRow.getCell(4).value = report.summary.totalCheckInPax;
-        summaryRow.getCell(5).value = 'Total Check Out';
-        summaryRow.getCell(6).value = report.summary.totalCheckOut;
-        summaryRow.getCell(7).value = 'Total Check Out Pax';
-        summaryRow.getCell(8).value = report.summary.totalCheckOutPax;
-        for (let i = 1; i <= 8; i++) {
-            const cell = summaryRow.getCell(i);
+        summaryRow.getCell(startColumn).value = 'Total Check In';
+        summaryRow.getCell(startColumn + 1).value = reportData?.summary.totalCheckIn;
+        summaryRow.getCell(startColumn + 2).value = 'Total Check In Pax';
+        summaryRow.getCell(startColumn + 3).value = reportData?.summary.totalCheckInPax;
+        summaryRow.getCell(startColumn + 4).value = 'Total Check Out';
+        summaryRow.getCell(startColumn + 5).value = reportData?.summary.totalCheckOut;
+        summaryRow.getCell(startColumn + 6).value = 'Total Check Out Pax';
+        summaryRow.getCell(startColumn + 7).value = reportData?.summary.totalCheckOutPax;
+        for (let i = 0; i < 8; i++) {
+            const cell = summaryRow.getCell(startColumn + i);
             cell.border = { top: borderStyle, left: borderStyle, bottom: borderStyle, right: borderStyle };
             cell.font = { bold: true };
         }
@@ -48,9 +92,9 @@ export default function PickupDropoffReport({ report }: { report: PickupDropoffR
 
         const writeCheckTable = (rows: any[], title: string, startRow: number, includeSendingFee = false): number => {
             const titleRow = worksheet.getRow(startRow);
-            titleRow.getCell(1).value = title;
-            titleRow.getCell(1).font = { bold: true };
-            worksheet.mergeCells(startRow, 1, startRow, includeSendingFee ? 10 : 9);
+            titleRow.getCell(startColumn).value = title;
+            titleRow.getCell(startColumn).font = { bold: true };
+            worksheet.mergeCells(startRow, startColumn, startRow, startColumn + columnCount - 1);
             titleRow.commit();
             let currentRow = startRow + 1;
 
@@ -60,7 +104,7 @@ export default function PickupDropoffReport({ report }: { report: PickupDropoffR
 
             const headerRow = worksheet.getRow(currentRow);
             headers.forEach((text, idx) => {
-                const cell = headerRow.getCell(idx + 1);
+                const cell = headerRow.getCell(startColumn + idx);
                 cell.value = text;
                 cell.font = { bold: true };
                 cell.alignment = { horizontal: 'center', vertical: 'middle' } as any;
@@ -85,7 +129,7 @@ export default function PickupDropoffReport({ report }: { report: PickupDropoffR
                     ...(includeSendingFee ? [row.sendingFee || '', row.driverCar || '', row.remark || ''] : [row.driverCar || '', row.remark || ''])
                 ];
                 values.forEach((value, idx) => {
-                    const c = excelRow.getCell(idx + 1);
+                    const c = excelRow.getCell(startColumn + idx);
                     c.value = value;
                     c.border = { top: borderStyle, left: borderStyle, bottom: borderStyle, right: borderStyle };
                     c.alignment = { vertical: 'top', horizontal: 'left', wrapText: true } as any;
@@ -96,17 +140,33 @@ export default function PickupDropoffReport({ report }: { report: PickupDropoffR
             return currentRow + 1;
         };
 
-        rowIndex = writeCheckTable(report.checkIn, 'Check-In', rowIndex, false);
-        rowIndex = writeCheckTable(report.checkOut, 'Check-Out', rowIndex, true);
+        if (reportData) {
+            rowIndex = writeCheckTable(reportData.checkIn, 'Check-In', rowIndex, false);
+            rowIndex = writeCheckTable(reportData.checkOut, 'Check-Out', rowIndex, true);
+        }
+    };
 
-        for (let i = 1; i <= 10; i++) worksheet.getColumn(i).width = 18;
+    const downloadExcel = async () => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('PickupDropoffReport');
+        const locations = ['MIDA', 'KKC', 'HH'];
+        const results = await Promise.all(locations.map(fetchReportByLocation));
+
+        const blockWidth = 10;
+        const gap = 1;
+        results.forEach((result, index) => {
+            const startColumn = index * (blockWidth + gap) + 1;
+            writeLocationSection(worksheet, result.location, result.data, result.error, startColumn);
+        });
+
+        for (let i = 1; i <= locations.length * (blockWidth + gap); i++) worksheet.getColumn(i).width = 18;
 
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `PickupDropoffReport_${new Date().toISOString().substring(0, 10)}.xlsx`;
+        a.download = `PickupDropoffReport_AllLocations_${new Date().toISOString().substring(0, 10)}.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
