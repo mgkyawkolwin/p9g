@@ -58,7 +58,8 @@ export default function PickupDropoffReport({ report, arrivalStartDateTime, arri
         const columnCount = 10;
 
         const header = worksheet.getRow(rowIndex);
-        header.getCell(startColumn).value = `Pickup & Dropoff Report - ${location}`;
+        const pickupFromDate = arrivalStartDateTime ? new Date(arrivalStartDateTime).toISOFormatDateString() : '';
+        header.getCell(startColumn).value = `Pickup & Dropoff Report - ${location}${pickupFromDate ? ` (${pickupFromDate})` : ''}`;
         header.getCell(startColumn).font = { bold: true, size: 14 };
         worksheet.mergeCells(rowIndex, startColumn, rowIndex, startColumn + columnCount - 1);
         header.commit();
@@ -99,8 +100,8 @@ export default function PickupDropoffReport({ report, arrivalStartDateTime, arri
             let currentRow = startRow + 1;
 
             const headers = includeSendingFee
-                ? ['No', 'Customers', 'Pax', 'Departure Date', 'Flight No', 'Departure Time', 'Room', 'Sending Fee', 'Driver/Car', 'Remark']
-                : ['No', 'Customers', 'Pax', 'Arrival Date', 'Flight No', 'Arrival Time', 'Room', 'Driver/Car', 'Remark'];
+                ? ['No', 'Customers', 'Pax', 'Departure Date', 'Departure Flight No', 'Departure Time', 'Room', 'Sending Fee', 'Driver/Car', 'Remark']
+                : ['No', 'Customers', 'Pax', 'Arrival Date', 'Arrival Flight No', 'Arrival Time', 'Room', 'Driver/Car', 'Remark'];
 
             const headerRow = worksheet.getRow(currentRow);
             headers.forEach((text, idx) => {
@@ -123,7 +124,7 @@ export default function PickupDropoffReport({ report, arrivalStartDateTime, arri
                     nameValue,
                     row.pax,
                     dateValue,
-                    row.flightNo || '',
+                    includeSendingFee ? row.departureFlightNo || '' : row.arrivalFlightNo || '',
                     timeValue,
                     row.room || '',
                     ...(includeSendingFee ? [row.sendingFee || '', row.driverCar || '', row.remark || ''] : [row.driverCar || '', row.remark || ''])
@@ -173,11 +174,11 @@ export default function PickupDropoffReport({ report, arrivalStartDateTime, arri
         window.URL.revokeObjectURL(url);
     };
 
-    const renderRows = (rows: any[], includeSendingFee = false) => {
+    const renderRows = (rows: any[], checkOut = false) => {
         if (!rows?.length) {
             return (
                 <tr>
-                    <td colSpan={includeSendingFee ? 9 : 8} className="p-2">No Data</td>
+                    <td colSpan={checkOut ? 9 : 8} className="p-2">No Data</td>
                 </tr>
             );
         }
@@ -187,11 +188,11 @@ export default function PickupDropoffReport({ report, arrivalStartDateTime, arri
                     <td className="p-2 text-left">{index + 1}</td>
                     <td>{row.names?.map((n: string, i: number) => <div key={i}>{n}</div>)}</td>
                     <td className="p-2">{row.pax}</td>
-                    <td className="p-2">{includeSendingFee ? new Date(row.departureDate).toISODateString() : new Date(row.arrivalDate).toISODateString()}</td>
-                    <td className="p-2">{row.flightNo}</td>
-                    <td className="p-2">{includeSendingFee ? new Date(row.departureTime).toISOShortTimeString() : new Date(row.arrivalTime).toISOShortTimeString()}</td>
+                    <td className="p-2">{checkOut ? new Date(row.departureDate).toISODateString() : new Date(row.arrivalDate).toISODateString()}</td>
+                    <td className="p-2">{checkOut ? row.departureFlightNo || '' : row.arrivalFlightNo || ''}</td>
+                    <td className="p-2">{checkOut ? new Date(row.departureTime).toISOShortTimeString() : new Date(row.arrivalTime).toISOShortTimeString()}</td>
                     <td className="p-2">{row.room}</td>
-                    {includeSendingFee && <td className="p-2">{row.sendingFee || ''}</td>}
+                    {checkOut && <td className="p-2">{row.sendingFee || ''}</td>}
                     <td className="p-2">{row.driverCar || ''}</td>
                     <td className="p-2">{row.remark || ''}</td>
                 </tr>
@@ -242,7 +243,7 @@ export default function PickupDropoffReport({ report, arrivalStartDateTime, arri
                             <th className="p-2 text-left">Name</th>
                             <th className="p-2 max-w-[20px] text-left" style={{maxWidth: '20px'}}>Pax</th>
                             <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Arrival Date</th>
-                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Flight No</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Arrival Flight No</th>
                             <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Arrival Time</th>
                             <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Room</th>
                             <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Driver/Car</th>
@@ -261,7 +262,7 @@ export default function PickupDropoffReport({ report, arrivalStartDateTime, arri
                             <th className="p-2 max-w-[30px] text-left">Name</th>
                             <th className="p-2 max-w-[20px] text-left" style={{maxWidth: '20px'}}>Pax</th>
                             <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Departure Date</th>
-                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Flight No</th>
+                            <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Departure Flight No</th>
                             <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Departure Time</th>
                             <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Room</th>
                             <th className="p-2 max-w-[50px] text-left" style={{maxWidth: '50px'}}>Sending Fee</th>

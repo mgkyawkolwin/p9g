@@ -4,7 +4,8 @@ export interface PickupDropoffRow {
   pax: number;
   arrivalDate: string; // formatted date
   departureDate: string; // formatted date
-  flightNo: string;
+  arrivalFlightNo: string;
+  departureFlightNo: string;
   arrivalTime: string; // formatted time
   departureTime: string; // formatted time
   room: string;
