@@ -3,13 +3,15 @@ import { FormState } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { headers } from 'next/headers';
 
-export async function getDailySummaryGuestsRoomsReport(startDate:string, endDate:string, location: string): Promise<FormState> {
+export async function getDailySummaryGuestsRoomsReport(startDate:string, endDate:string, reservationStatus: string, location: string): Promise<FormState> {
   try{
     c.fs('Actions > getDailySummaryGuestsRoomsReport');
 
     //retrieve users
     c.i("Update successful. Get the updated list based on query string.");
-    const response = await fetch(process.env.API_URL + `reports/dailysummaryguestsroomsreport?startDate=${startDate}&endDate=${endDate}`, {
+    const reservationStatusQuery = reservationStatus ? encodeURIComponent(reservationStatus) : '';
+    const url = process.env.API_URL + `reports/dailysummaryguestsroomsreport?startDate=${startDate}&endDate=${endDate}${reservationStatusQuery ? `&reservationStatus=${reservationStatusQuery}` : ''}`;
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

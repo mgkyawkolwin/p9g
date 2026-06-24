@@ -41,6 +41,10 @@ export default function TimeTable() {
                     if (response.message) {
                         toast(response.message);
                     }
+                    if (!response.error) {
+                        //refresh data to get updated row version
+                        fetchData();
+                    }
                 });
             }} />)
         },
@@ -747,8 +751,10 @@ export default function TimeTable() {
                                                 toast(response.message);
                                             }
                                             if (!response.error) {
-                                                const therest = timeTable.filter(tt => tt.id !== selectedItem.id);
-                                                setTimeTable([...therest, selectedItem]);
+                                                // const therest = timeTable.filter(tt => tt.id !== selectedItem.id);
+                                                // setTimeTable([...therest, selectedItem]);
+                                                // refresh data to get updated row version
+                                                fetchData();
                                                 setIsDialogOpen(false);
                                             }
                                         });

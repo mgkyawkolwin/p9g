@@ -1,0 +1,1 @@
+ALTER TABLE `pookie` ADD `rowVersion` char(36) NOT NULL;

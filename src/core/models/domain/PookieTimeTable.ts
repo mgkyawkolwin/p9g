@@ -8,4 +8,5 @@ export default class PookieTimeTable extends DomainBase{
     public noOfPeople: number = 0;
     public rooms: string = '';
     public time: Date = null;
+    public rowVersion: string = '';
 }

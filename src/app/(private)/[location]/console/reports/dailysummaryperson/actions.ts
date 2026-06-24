@@ -9,7 +9,9 @@ export async function getDailySummaryPersonReport(startDate: string, endDate: st
 
     //retrieve users
     c.i("Get report by calling api.");
-    const response = await fetch(process.env.API_URL + `reports/dailysummarypersonreport?startDate=${startDate}&endDate=${endDate}&reservationStatus=${reservationStatus === 'DEFAULT' ? '' : reservationStatus}`, {
+    const reservationStatusQuery = reservationStatus && reservationStatus !== 'DEFAULT' ? encodeURIComponent(reservationStatus) : '';
+    const url = process.env.API_URL + `reports/dailysummarypersonreport?startDate=${startDate}&endDate=${endDate}&reservationStatus=${reservationStatusQuery}`;
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

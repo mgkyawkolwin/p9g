@@ -201,7 +201,7 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
   }
 
 
-  async update<TIdType, TTransaction extends ITransaction>(id: TIdType, entity: TDomain, transaction?: TTransaction): Promise<void> {
+  async update<TIdType, TTransaction extends ITransaction>(id: TIdType, entity: TDomain, transaction?: TTransaction): Promise<any> {
     c.fs('Reository > update');
     c.d(entity);
     const query = this.dbClient.db.update(this.table)
@@ -209,16 +209,19 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
       .where(eq(this.table.id, id));
     c.d(query.toSQL());
 
+    var result: any = null;
     if (transaction)
-      await transaction.execute(query);
+      result =await transaction.execute(query);
     else
-      await query.execute();
+      result = await query.execute();
+    c.d(result);
 
     c.fe('Reository > update');
+    return result;
   }
 
 
-  async updateWhere<TQuery, TTransaction extends ITransaction>(where: TQuery, entity: TDomain, transaction?: TTransaction): Promise<void> {
+  async updateWhere<TQuery, TTransaction extends ITransaction>(where: TQuery, entity: TDomain, transaction?: TTransaction): Promise<any> {
     c.fs('Reository > updateWhere');
     c.d(entity);
     const whereQuery = await this.transformer.transformAsync<SQL>(where as AnyCondition);
@@ -227,12 +230,15 @@ export class Repository<TDomain extends IDomainModel, TEntity extends IEntity, T
       .where(whereQuery);
     c.d(query.toSQL());
 
+    var result: any = null;
     if (transaction)
-      await transaction.execute(query);
+      result = await transaction.execute(query);
     else
-      await query.execute();
+      result = await query.execute();
+    c.d(result);
 
     c.fe('Reository > updateWhere');
+    return result;
   }
 
 

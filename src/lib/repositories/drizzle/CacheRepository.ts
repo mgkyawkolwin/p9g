@@ -17,7 +17,7 @@ import { AnyCondition } from "@/lib/transformers/types";
 import { buildAnyCondition } from "@/core/helpers";
 import { Repository } from "./Repository";
 import { unstable_cache } from 'next/cache';
-import { revalidateTag} from 'next/cache';
+import { revalidateTag } from 'next/cache';
 
 
 @injectable()
@@ -43,7 +43,7 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
 
     private getCacheKey(tag?: string): string[] {
         console.log('getcachekey');
-        
+
         return tag
             ? [`${this.tableName}:${tag}`, `${this.tableName}`]
             : [`${this.tableName}`];
@@ -59,7 +59,7 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
 
     async create<TTransaction extends ITransaction>(domain: TDomain, transaction?: TTransaction): Promise<TDomain> {
         c.fs("CacheRepository > create");
-        
+
         domain = await super.create(domain, transaction);
 
         await Promise.all([
@@ -72,7 +72,7 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
 
     async createMany<TTransaction extends ITransaction>(domains: TDomain[], transaction?: TTransaction): Promise<void> {
         c.fs("CacheRepository > createMany");
-        
+
         super.createMany(domains, transaction);
 
         await Promise.all([
@@ -132,7 +132,7 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
     async findById<TIdType>(id: TIdType): Promise<TDomain | null> {
         c.fs('CacheRepository > findById');
         const startTime = performance.now();
-        
+
         const cachedData = await unstable_cache(
             async () => {
                 const domain = await super.findById(id);
@@ -185,9 +185,9 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
                 console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
                 return domain;
             },
-            this.getCacheKey(JSON.stringify(query)+JSON.stringify(sort)+offset+limit),
+            this.getCacheKey(JSON.stringify(query) + JSON.stringify(sort) + offset + limit),
             {
-                tags: this.getCacheTags(JSON.stringify(query)+JSON.stringify(sort)+offset+limit),
+                tags: this.getCacheTags(JSON.stringify(query) + JSON.stringify(sort) + offset + limit),
                 revalidate: 3600
             }
         )();
@@ -198,17 +198,17 @@ export class CacheRepository<TDomain extends IDomainModel, TEntity extends IEnti
     }
 
 
-    async update<TIdType, TTransaction extends ITransaction>(id: TIdType, entity: TDomain, transaction?: TTransaction): Promise<void> {
+    async update<TIdType, TTransaction extends ITransaction>(id: TIdType, entity: TDomain, transaction?: TTransaction): Promise<any> {
         c.fs('CacheRepository > update');
         c.d(entity);
-        super.update(id, entity, transaction);
-
+        const result = await super.update(id, entity, transaction);
         await Promise.all([
             revalidateTag(`${this.tableName}`, ''),
             revalidateTag(`${this.tableName}:${id}`, '')
         ]);
 
         c.fe('CacheRepository > update');
+        return result;
     }
 
 

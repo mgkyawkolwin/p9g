@@ -51,30 +51,8 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
     }
 
 
-    async getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]> {
+    async getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]> {
         c.fs("Repository > getDailySummaryGuestsRoomsReport");
-        const cacheTag = `guestsroom-${startDate}-${endDate}-${sessionUser.location}`;
-
-        const startTime = performance.now();
-
-        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
-        if (cacheObject) {
-            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
-            return cacheObject;
-        }
-
-        const object = await this.repository.getDailySummaryGuestsRoomsReport(startDate, endDate, sessionUser);
-
-        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
-        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
-
-        return object;
-    }
-
-
-    async getDailySummaryIncomeReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
-        c.fs("Repository > getDailySummaryIncomeReport");
-
         const cacheTag = `guestsroom-${startDate}-${endDate}-${reservationStatus}-${sessionUser.location}`;
 
         const startTime = performance.now();
@@ -85,7 +63,29 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
             return cacheObject;
         }
 
-        const object = await this.repository.getDailySummaryIncomeReport(startDate, endDate, reservationStatus, sessionUser);
+        const object = await this.repository.getDailySummaryGuestsRoomsReport(startDate, endDate, reservationStatus, sessionUser);
+
+        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
+
+        return object;
+    }
+
+
+    async getDailySummaryIncomeReport(startDate: string, endDate: string, reservationType: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
+        c.fs("Repository > getDailySummaryIncomeReport");
+
+        const cacheTag = `dailysummaryincome-${startDate}-${endDate}-${reservationType}-${reservationStatus}-${sessionUser.location}`;
+
+        const startTime = performance.now();
+
+        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
+        if (cacheObject) {
+            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+            return cacheObject;
+        }
+
+        const object = await this.repository.getDailySummaryIncomeReport(startDate, endDate, reservationType, reservationStatus, sessionUser);
 
         console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
         await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
@@ -97,7 +97,7 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
     async getDailySummaryPersonReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]> {
         c.fs("Repository > getDailySummaryPersonReport");
 
-        const cacheTag = `guestsroom-${startDate}-${endDate}-${sessionUser.location}`;
+        const cacheTag = `guestsroom-${startDate}-${endDate}-${reservationStatus}-${sessionUser.location}`;
 
         const startTime = performance.now();
 
@@ -175,9 +175,9 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
         return object;
     }
 
-    async getDailySummaryZoneGuestsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryZoneGuestsReportRow[]> {
+    async getDailySummaryZoneGuestsReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryZoneGuestsReportRow[]> {
         c.fs("Repository > getDailySummaryZoneGuestsReport");
-        const cacheTag = `guestsroom-${startDate}-${endDate}-${sessionUser.location}`;
+        const cacheTag = `guestsroom-${startDate}-${endDate}-${reservationStatus}-${sessionUser.location}`;
 
         const startTime = performance.now();
 
@@ -187,7 +187,7 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
             return cacheObject;
         }
 
-        const object = await this.repository.getDailySummaryZoneGuestsReport(startDate, endDate, sessionUser);
+        const object = await this.repository.getDailySummaryZoneGuestsReport(startDate, endDate, reservationStatus, sessionUser);
 
         console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
         await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);

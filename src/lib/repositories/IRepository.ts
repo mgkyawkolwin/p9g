@@ -12,6 +12,6 @@ export default interface IRepository<TDomain> {
   findById<TIdType>(id: TIdType): Promise<TDomain | null>;
   findOne<TQuery>(condition: TQuery): Promise<TDomain | null>;
   findMany<TQuery, TOrder>(condition?: TQuery, order?: TOrder, offset?: number, limit?: number): Promise<[TDomain[], number]>
-  update<TIdType, TTransaction extends ITransaction>(id: TIdType, entity: TDomain, transaction?: TTransaction): Promise<void>;
-  updateWhere<TQuery, TTransaction extends ITransaction>(where: TQuery, entity: TDomain, transaction?: TTransaction): Promise<void>;
+  update<TIdType, TTransaction extends ITransaction>(id: TIdType, entity: TDomain, transaction?: TTransaction): Promise<any>;
+  updateWhere<TQuery, TTransaction extends ITransaction>(where: TQuery, entity: TDomain, transaction?: TTransaction): Promise<any>;
 }

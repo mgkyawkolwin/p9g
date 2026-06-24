@@ -13,15 +13,15 @@ import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
 import { getISODateTimeMidNightString, getISODateTimeString } from "@/lib/utils";
 import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
 import DailyReservationDetailReport from "@/app/components/reports/dailyreservationdetailreport";
-import { SelectListSearch } from "@/core/constants";
 import { SelectWithLabel } from "@/lib/components/web/react/uicustom/selectwithlabel";
 import { InputWithLabel } from "@/lib/components/web/react/uicustom/inputwithlabel";
+import { CheckboxCustom } from "@/lib/components/web/react/uicustom/CheckboxCustom";
+import { SelectList, SelectListSearch } from "@/core/constants";
 import { useParams } from 'next/navigation';
 
 export default function DailyReservationDetailReportPage() {
   const params = useParams();
   const location = params.location as string;
-
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [reportRows, setReportRows] = React.useState<DailyReservationDetailReportRow[]>([]);
@@ -32,11 +32,19 @@ export default function DailyReservationDetailReportPage() {
   const [updatedFrom, setUpdatedFrom] = React.useState<Date>(null);
   const [updatedUntil, setUpdatedUntil] = React.useState<Date>(null);
   const [reservationType, setReservationType] = React.useState<string>(null);
-  const [reservationStatus, setReservationStatus] = React.useState<string>(null);
+  const reservationStatusKeys = React.useMemo(() => Array.from(SelectList.RESERVATION_STATUS.keys()), []);
+  const [reservationStatusSelections, setReservationStatusSelections] = React.useState<Record<string, boolean>>(() =>
+    reservationStatusKeys.reduce((acc, status) => {
+      acc[status] = status !== 'CCL' && status !== 'WTG';
+      return acc;
+    }, {} as Record<string, boolean>)
+  );
   const [bookingSource, setBookingSource] = React.useState<string>(null);
 
-  useEffect(() => {
-  }, []);
+  const allReservationStatusesSelected = Object.values(reservationStatusSelections).every(Boolean);
+  const selectedReservationStatuses = Object.entries(reservationStatusSelections)
+    .filter(([, checked]) => checked)
+    .map(([status]) => status);
 
   return (
     <div className="flex flex-1 w-auto">
@@ -143,10 +151,10 @@ export default function DailyReservationDetailReportPage() {
                 </div>
                 <div className="flex gap-4 items-end">
                   <SelectWithLabel variant="form" label="Reservation Type" labelPosition="top" items={SelectListSearch.RESERVATION_TYPE} defaultValue={reservationType} onValueChange={(value) => setReservationType(value)} />
-                  <SelectWithLabel variant="form" label="Reservation Status" labelPosition="top" items={SelectListSearch.RESERVATION_STATUS.set("NOCCL", "No CCL")} defaultValue={reservationStatus} onValueChange={(value) => setReservationStatus(value)} />
                   <InputWithLabel variant="form" labelPosition="top" size="md" name="searchBookingSource" label="Booking Source" defaultValue={bookingSource} onChange={(e) => setBookingSource(e.target.value)} />
                   <ButtonCustom onClick={async () => {
                     setIsLoading(true);
+                    const reservationStatusPayload = selectedReservationStatuses.join(',');
                     const response = await getDailyReservationDetailReport(
                       checkInFrom ? getISODateTimeString(checkInFrom.toLocaleDateString('sv-SE')) : '',
                       checkInUntil ? getISODateTimeMidNightString(checkInUntil.toLocaleDateString('sv-SE')) : '',
@@ -155,7 +163,7 @@ export default function DailyReservationDetailReportPage() {
                       updatedFrom ? getISODateTimeString(updatedFrom.toLocaleDateString('sv-SE')) : '',
                       updatedUntil ? getISODateTimeMidNightString(updatedUntil.toLocaleDateString('sv-SE')) : '',
                       reservationType ? (reservationType === "DEFAULT" ? "" : reservationType) : "",
-                      reservationStatus ? (reservationStatus === "DEFAULT" ? "" : reservationStatus) : "",
+                      reservationStatusPayload,
                       bookingSource ?? "",
                       location
                     );
@@ -167,9 +175,42 @@ export default function DailyReservationDetailReportPage() {
                   }}>Search</ButtonCustom>
                 </div>
               </div>
-            </section>
+              <div className="mt-4 flex flex-col gap-2">
+                <Label className="text-[10pt]">Reservation Status</Label>
+                <div className="flex flex-wrap gap-4">
+                  <div className="flex items-center gap-2">
+                    <CheckboxCustom
+                      id="reservation-status-show-all"
+                      checked={allReservationStatusesSelected}
+                      onCheckedChange={(checked: boolean) => {
+                        setReservationStatusSelections(reservationStatusKeys.reduce((acc, status) => {
+                          acc[status] = checked;
+                          return acc;
+                        }, {} as Record<string, boolean>));
+                      }}
+                    />
+                    <Label htmlFor="reservation-status-show-all">Show All</Label>
+                  </div>
+                  {reservationStatusKeys.map((status) => (
+                    <div className="flex items-center gap-2" key={status}>
+                      <CheckboxCustom
+                        id={`reservation-status-${status}`}
+                        checked={reservationStatusSelections[status]}
+                        onCheckedChange={(checked: boolean) => {
+                          setReservationStatusSelections((prev) => ({
+                            ...prev,
+                            [status]: checked
+                          }));
+                        }}
+                      />
+                      <Label htmlFor={`reservation-status-${status}`}>{SelectList.RESERVATION_STATUS.get(status) ?? status}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section> {/* ← FIX 1: Added missing closing section tag */}
             <DailyReservationDetailReport reportRows={reportRows} />
-          </div>
+          </div> {/* ← FIX 2: This was incorrectly placed - moved it here */}
         </GroupContent>
       </Group>
     </div>

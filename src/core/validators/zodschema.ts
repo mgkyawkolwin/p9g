@@ -360,6 +360,7 @@ export const pookieValidator = z.object({
   noOfPeople: z.coerce.number(),
   rooms: z.coerce.string(),
   time: z.coerce.date(),
+  rowVersion: z.coerce.string(),
   modelState: z.coerce.string(),
   createdAtUTC: z.coerce.date(),
   createdBy: z.coerce.string(),

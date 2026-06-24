@@ -144,23 +144,25 @@ export class CacheRepositoryDecorator<TDomain> implements IRepository<TDomain> {
     }
 
 
-    async update<TIdType, TTransaction extends ITransaction>(id: TIdType, entity: TDomain, transaction?: TTransaction): Promise<void> {
+    async update<TIdType, TTransaction extends ITransaction>(id: TIdType, entity: TDomain, transaction?: TTransaction): Promise<any> {
         c.fs('CacheRepositoryDecorator > update');
 
-        await this.repository.update(id, entity, transaction);
+        const result = await this.repository.update(id, entity, transaction);
 
         await this.cache.deleteBase(getCacheKey(this.baseCacheKey));
 
+        return result;
     }
 
 
-    async updateWhere<TQuery, TTransaction extends ITransaction>(where: TQuery, entity: TDomain, transaction?: TTransaction): Promise<void> {
+    async updateWhere<TQuery, TTransaction extends ITransaction>(where: TQuery, entity: TDomain, transaction?: TTransaction): Promise<any> {
         c.fs('CacheRepositoryDecorator > updateWhere');
 
-        await this.repository.updateWhere(where, entity, transaction);
+        const result = await this.repository.updateWhere(where, entity, transaction);
 
         await this.cache.deleteBase(getCacheKey(this.baseCacheKey));
 
+        return result;
     }
 
 

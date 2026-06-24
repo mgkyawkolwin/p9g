@@ -172,6 +172,7 @@ export const pookieTable = mysqlTable("pookie", {
   noOfPeople: tinyint("noOfPeople").notNull(),
   rooms: varchar("rooms", { length: 50 }).notNull(),
   time: datetime("time", { mode: 'date', fsp: 3 }).notNull(),
+  rowVersion: char("rowVersion", { length: 36 }).notNull(),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", { length: 36 }).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),

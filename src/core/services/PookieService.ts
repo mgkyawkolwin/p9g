@@ -20,6 +20,7 @@ import PookieTimeTableEntity from "../models/entity/PookieTimeTableEntity";
 import { pookieTable } from "../orms/drizzle/mysql/schema";
 import type IReservationRepository from "../repositories/contracts/IReservationRepository";
 import IPookieService from "./contracts/IPookieService";
+import {v4 as uuidv4} from 'uuid';
 
 @injectable()
 export default class PookieService implements IPookieService {
@@ -327,9 +328,26 @@ export default class PookieService implements IPookieService {
 
     async updatePookie(pookie: PookieTimeTable, sessionUser: SessionUser): Promise<void> {
         c.fs('PookieService > updatePookie');
+        // keep the original rowVersion for optimistic concurrency control
+        const originalRowVersion = pookie.rowVersion;
         pookie.updatedAtUTC = new Date();
         pookie.updatedBy = sessionUser.id;
-        await this.pookieRepository.update(pookie.id, pookie);
+        pookie.rowVersion = uuidv4();
+        const result = await this.pookieRepository.updateWhere(
+            and(
+                eq('id', pookie.id),
+                eq('rowVersion', originalRowVersion)
+            ),
+            pookie);
+        if (!result || result?.length === 0 || result[0].affectedRows == 0 || result[0].changedRows == 0) {
+            c.d(result);
+            c.d(`Original Row Version: ${originalRowVersion}`);
+            c.d(`Current Row Version: ${pookie.rowVersion}`);
+            c.d(`Pookie ID: ${pookie.id}`);
+            c.d(`Affected Rows: ${result[0].affectedRows}`);
+            c.d(`Changed Rows: ${result[0].changedRows}`);
+            throw new CustomError('Optimistic concurrency conflict detected. Please refresh and try again.');
+        }
         c.fe('PookieService > updatePookie');
     }
 

@@ -12,12 +12,12 @@ import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDro
 export default interface IReportService {
 
     getDailyReservationDetailReport(checkInFrom: string, checkInUntil: string, createdFrom: string, createdUntil: string, updatedFrom: string, updatedUntil: string, reservationType: string, reservationStatus: string, bookingSource: string, sessionUser: SessionUser): Promise<DailyReservationDetailReportRow[]>;
-    getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]>;
-    getDailySummaryIncomeReport(startDate: string, endDate: string, reservtionType: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]>;
+    getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]>;
+    getDailySummaryIncomeReport(startDate: string, endDate: string, reservationType: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]>;
     getDailySummaryPersonReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]>;
     getDailySummaryReservationStatusReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryReservationStatusReportRow[]>;
     getDailySummaryRoomOccupancyReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryRoomOccupancyReportRow[]>;
     getMonthlySummaryReservationStatusReport(year: string, sessionUser: SessionUser): Promise<MonthlySummaryReservationStatusReportRow[]>;
-    getDailySummaryZoneGuestsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryZoneGuestsReportRow[]>;
+    getDailySummaryZoneGuestsReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryZoneGuestsReportRow[]>;
     getPickupDropoffReport(arrivalStartDateTime: string, arrivalEndDateTime: string, departureStartDateTime: string, departureEndDateTime: string, sessionUser: SessionUser): Promise<PickupDropoffReportResponse>;
 }

@@ -127,6 +127,13 @@
       "when": 1780045794134,
       "tag": "0017_youthful_jimmy_woo",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1782278218287,
+      "tag": "0018_solid_thundra",
+      "breakpoints": true
     }
   ]
 }

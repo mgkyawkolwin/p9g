@@ -28,16 +28,16 @@ export default class ReportService implements IReportService {
     }
 
 
-    async getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]> {
+    async getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]> {
         c.fs('ReportService > getDailySummaryGuestsRoomsReport');
-        return await this.reportRepository.getDailySummaryGuestsRoomsReport(startDate, endDate, sessionUser);
+        return await this.reportRepository.getDailySummaryGuestsRoomsReport(startDate, endDate, reservationStatus, sessionUser);
     }
 
 
-    async getDailySummaryIncomeReport(startDate: string, endDate: string, reservationType: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
+    async getDailySummaryIncomeReport(startDate: string, endDate: string, reservationType: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
         c.fs('ReportService > getDailySummaryIncomeReport');
-        c.d({startDate, endDate, reservationType, sessionUser});
-        return await this.reportRepository.getDailySummaryIncomeReport(startDate, endDate, reservationType, sessionUser);
+        c.d({startDate, endDate, reservationType, reservationStatus, sessionUser});
+        return await this.reportRepository.getDailySummaryIncomeReport(startDate, endDate, reservationType, reservationStatus, sessionUser);
     }
 
 
@@ -61,9 +61,9 @@ export default class ReportService implements IReportService {
         return await this.reportRepository.getMonthlySummaryReservationStatusReport(year, sessionUser);
     }
 
-    async getDailySummaryZoneGuestsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryZoneGuestsReportRow[]> {
+    async getDailySummaryZoneGuestsReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryZoneGuestsReportRow[]> {
         c.fs('ReportService > getDailySummaryZoneGuestsReport');
-        return await this.reportRepository.getDailySummaryZoneGuestsReport(startDate, endDate, sessionUser);
+        return await this.reportRepository.getDailySummaryZoneGuestsReport(startDate, endDate, reservationStatus, sessionUser);
     }
 
     async getPickupDropoffReport(
