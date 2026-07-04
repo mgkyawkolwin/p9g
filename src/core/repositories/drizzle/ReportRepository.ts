@@ -1101,6 +1101,7 @@ export default class ReportRepository implements IReportRepository {
                 rep.arrivalFlight = r.arrivalFlight;
                 rep.departureDateTime = r.departureDateTime;
                 rep.departureFlight = r.departureFlight;
+                rep.remark = r.remark ?? '';
 
                 c.d(`Total bills: ${r.bills?.length ?? 0}`);
                 r.bills?.forEach((b: Bill) => {
