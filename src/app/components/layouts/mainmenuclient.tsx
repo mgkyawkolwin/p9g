@@ -208,7 +208,7 @@ export default function MainMenuClient({ role }) {
                       Daily Summary (Guests & Rooms)
                     </Link>
                   </li>)}
-                {role === 'ADMIN' && (
+                {(role === 'ADMIN' || role === 'RECEPTION') && (
                   <li>
                     <Link
                       href={`/${location}/console/reports/dailysummaryzoneguests`}
