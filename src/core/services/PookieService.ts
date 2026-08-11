@@ -4,7 +4,7 @@ import { CustomError } from "@/lib/errors";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import type IRepository from "@/lib/repositories/IRepository";
 import { and, asc, eq, like } from "@/lib/transformers/types";
-import { and as dand, eq as deq, lte as dlte } from "drizzle-orm";
+import { and as dand, eq as deq, lte as dlte, like as dlike, ne as dne } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import QRCode from "qrcode";
 import { HttpStatusCode } from "../constants";
@@ -75,13 +75,41 @@ export default class PookieService implements IPookieService {
         c.d(rooms);
 
         const result: PookieTimeTable = await this.dbClient.db.transaction(async (tx: TransactionType) => {
+            
+            const mainRoom = rooms.split(",")[0];
+            c.d(`Main Room: ${mainRoom}`);
+            const yesterday = new Date(date);
+            yesterday.setDate(yesterday.getDate() - 1);
+            c.d(`Yesterday: ${yesterday.toISOString()}`);
+            const previousResult: PookieTimeTableEntity[] = await tx.select().from(pookieTable)
+                .where(
+                    dand(
+                        deq(pookieTable.date, yesterday),
+                        dlike(pookieTable.rooms, `%${mainRoom}%`),
+                        deq(pookieTable.location, sessionUser.location)
+                    )
+                );
+            c.d(`Previous Result: ${previousResult}`);
+
+            var conditions = [
+                deq(pookieTable.date, date),
+                deq(pookieTable.isBusy, false),
+                dlte(pookieTable.noOfPeople, (4 - noOfPeople)),
+                deq(pookieTable.location, sessionUser.location)
+            ];
+            
+            if (previousResult && previousResult.length > 0) {
+                conditions = [
+                    ...conditions,
+                    dne(pookieTable.hole, previousResult[0].hole),
+                    dne(pookieTable.time, previousResult[0].time)
+                ];
+            }
+
             const timeTable: PookieTimeTableEntity[] = await tx.select().from(pookieTable)
                 .where(
                     dand(
-                        deq(pookieTable.date, date),
-                        deq(pookieTable.isBusy, false),
-                        dlte(pookieTable.noOfPeople, (4 - noOfPeople)),
-                        deq(pookieTable.location, sessionUser.location)
+                        ...conditions
                     )
                 ).for('update');
             c.d(timeTable?.length);
