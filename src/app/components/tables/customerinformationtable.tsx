@@ -11,6 +11,8 @@ import SimpleDataTable from "../../../lib/components/web/react/uicustom/simpleda
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import Customer from "@/core/models/domain/Customer";
 import CustomerEditForm from "../forms/customereditform";
+import { SelectListForm } from "@/core/constants";
+import { SelectCustom } from "@/lib/components/web/react/uicustom/selectcustom";
 
 
 interface DataTableProps {
@@ -22,6 +24,7 @@ export default function CustomerInformationTable({
   data,
   setData
 }: DataTableProps) {
+  console.log(data);
 
   const columns: ColumnDef<Customer>[] = [
     {
@@ -156,6 +159,24 @@ export default function CustomerInformationTable({
       cell: ({ row }) => {
         const val = row.getValue('isBlackListed');
         return <div>{val ? <div style={{color: "red"}}>Blacklist</div> : ''}</div>
+      }
+    },
+    {
+      accessorKey: "tdacStatus",
+      header: "TDAC Status",
+      cell: ({ row }) => {
+        return (
+          <SelectCustom
+            name="tdacStatus"
+            size="md"
+            items={SelectListForm.TDAC_STATUS}
+            value={String(row.getValue('tdacStatus'))}
+            onValueChange={(e) => {
+              const value = e;
+              setData(prev => prev.map((customer, index) => index === row.index ? { ...customer, tdacStatus: value } : customer));
+            }}
+          />
+        );
       }
     },
     {

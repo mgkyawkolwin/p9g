@@ -9,7 +9,16 @@ import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcus
 
 
 const initialData = {
-    departureDate: new Date(new Date().toDateString()),
+    departureDateTimeFrom: (() => {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        return d;
+    })(),
+    departureDateTimeTo: (() => {
+        const d = new Date();
+        d.setHours(23, 59, 59, 999);
+        return d;
+    })(),
     id: "",
     name: "",
     nationalId: "",
@@ -32,19 +41,38 @@ export default function DropOffListSearch({
     return (
         <section aria-label="Reservatoin List Search" className="flex w-full flex-col gap-4">
             <div className="flex gap-4 items-center">
-                <Label>Departure Date</Label>
-                <DatePicker
-                    selected={formData.departureDate}
-                    onChange={(date: Date | null) => {
-                        setFormData(prev => ({ ...prev, departureDate: date }))
-                    }}
-                    dateFormat="yyyy-MM-dd"
-                    customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
-                    placeholderText="yyyy-mm-dd"
-                    isClearable={true}
-                    showIcon
-                />
-                <input type="hidden" name="searchDepartureDateTime" defaultValue={formData.departureDate ? formData.departureDate.toLocaleDateString('sv-SE') : ''} />
+                <div className="flex gap-2 items-center">
+                    <Label>Departure Date/Time From</Label>
+                    <DatePicker
+                        selected={formData.departureDateTimeFrom}
+                        onChange={(date: Date | null) => {
+                            setFormData(prev => ({ ...prev, departureDateTimeFrom: date }))
+                        }}
+                        showTimeSelect
+                        timeFormat="HH:mm"
+                        timeIntervals={15}
+                        dateFormat="yyyy-MM-dd HH:mm"
+                        customInput={<InputCustom size="md" />}
+                        placeholderText="yyyy-mm-dd HH:mm"
+                    />
+                    <input type="hidden" name="searchDepartureDateTimeFrom" value={formData.departureDateTimeFrom ? formData.departureDateTimeFrom.toISOFormatDateTimeString() : ''} />
+                </div>
+                <div className="flex gap-2 items-center">
+                    <Label>Departure Date/Time To</Label>
+                    <DatePicker
+                        selected={formData.departureDateTimeTo}
+                        onChange={(date: Date | null) => {
+                            setFormData(prev => ({ ...prev, departureDateTimeTo: date }))
+                        }}
+                        showTimeSelect
+                        timeFormat="HH:mm"
+                        timeIntervals={15}
+                        dateFormat="yyyy-MM-dd HH:mm"
+                        customInput={<InputCustom size="md" />}
+                        placeholderText="yyyy-mm-dd HH:mm"
+                    />
+                    <input type="hidden" name="searchDepartureDateTimeTo" value={formData.departureDateTimeTo ? formData.departureDateTimeTo.toISOFormatDateTimeString() : ''} />
+                </div>
                 <InputWithLabel size="md" name="searchId" label="Reservation ID" defaultValue={formData.id} onChange={(e) => setFormData({ ...formData, id: e.target.value })} />
                 <InputWithLabel size="md" name="searchRemark" label="Remark" defaultValue={formData.remark} onChange={(e) => setFormData({ ...formData, remark: e.target.value })} />
             </div>

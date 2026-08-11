@@ -4,7 +4,7 @@ import * as React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
-import { invoiceGetById, invoiceUpdate, invoiceCreate } from "@/app/(private)/console/invoices/actions";
+import { invoiceGetById, invoiceUpdate, invoiceCreate } from "@/app/(private)/[location]/console/invoices/actions";
 import { toast } from "sonner";
 import Invoice from "@/core/models/domain/Invoice";
 import BookingInvoiceItem from "@/core/models/domain/BookingInvoiceItem";
@@ -20,6 +20,7 @@ import { Trash } from "lucide-react";
 import { calculateDayDifference } from "@/lib/utils";
 import { v4 as uuidv4 } from 'uuid';
 import { start } from "node:repl";
+import { useParams } from "next/navigation";
 
 interface InvoiceDialogProps {
     invoiceId?: string;
@@ -36,6 +37,8 @@ export default function InvoiceDialog({
     formRef,
     onOpenChanged
 }: InvoiceDialogProps) {
+    const params = useParams();
+    const location = params.location as string;
 
     const [open, setOpen] = React.useState(isOpen);
     const [invoice, setInvoice] = React.useState<Invoice | null>(null);
@@ -316,7 +319,7 @@ export default function InvoiceDialog({
     const loadInvoice = async () => {
         if (!invoiceId) return;
         setLoading(true);
-        const result = await invoiceGetById(invoiceId);
+        const result = await invoiceGetById(invoiceId, location);
         if (!result.error && result.data) {
             // Ensure all numeric fields are properly initialized
             const invoiceData = {
@@ -414,9 +417,9 @@ export default function InvoiceDialog({
 
         let result;
         if (isNew) {
-            result = await invoiceCreate(pocoInvoice as Invoice);
+            result = await invoiceCreate(pocoInvoice as Invoice, location);
         } else {
-            result = await invoiceUpdate(invoiceId!, pocoInvoice as Invoice);
+            result = await invoiceUpdate(invoiceId!, pocoInvoice as Invoice, location);
         }
 
         setIsSaving(false);
@@ -763,7 +766,8 @@ export default function InvoiceDialog({
 
     const locationItems = new Map<string, string>([
         ["마이다", "마이다"],
-        ["캥카찬", "캥카찬"]
+        ["캥카찬", "캥카찬"],
+        ["힐링힐스CC", "힐링힐스CC"]
     ]);
 
     const bookingItemsColumns = React.useMemo<ColumnDef<BookingInvoiceItem>[]>(() => [
@@ -813,7 +817,7 @@ export default function InvoiceDialog({
             accessorKey: "location",
             header: 'Gof Course',
             cell: (row) => <SelectCustom
-                size="xs"
+                size="sm"
                 key={`booking-loc-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 items={locationItems}
                 value={row.row.original.location || ""}

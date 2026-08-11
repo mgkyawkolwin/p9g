@@ -32,6 +32,8 @@ export default class ReservationEntity extends EntityBase{
     public paidAmount: number = 0;
     public pickUpCarNo: string = "";
     public pickUpDriver: string = "";
+    public pickupRemark: string = "";
+    public dropOffRemark: string = "";
     public pickUpFee: number = 0;
     public pickUpFeeCurrency: string = '';
     public pickUpFeePaidOnUTC: Date = null;
@@ -44,6 +46,8 @@ export default class ReservationEntity extends EntityBase{
     public roomNo: string = "";
     public reservationStatusId: string  = '';
     public reservationTypeId: string  = '';
+    public invoiceStatusId: string = '';
+    public invoiceNumber: string = '';
     public tax: number = 0;
     public taxAmount: number = 0;
     public tourCompany: string  = '';

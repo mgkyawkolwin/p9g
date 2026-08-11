@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import Customer from "@/core/models/domain/Customer";
 import CustomerDetailForm from "../basicforms/customerdetailform";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
-import { customerCreate } from "@/app/(private)/console/customers/new/actions";
+import { customerCreate } from "@/app/(private)/[location]/console/customers/new/actions";
+import { useParams } from "next/navigation";
 
 interface CustomerNewFormProps {
     onSaved?: (customer: Customer) => void;
@@ -16,6 +17,8 @@ interface CustomerNewFormProps {
 }
 
 export default function CustomerNewForm({ onSaved, openCallback }: CustomerNewFormProps) {
+    const params = useParams();
+    const location = params.location as string;
     
     const [resetDataToggle, setResetDataToggle] = React.useState(false);
     const [customer, setCustomer] = React.useState<Customer>({...new Customer(), modelState: "inserted"});
@@ -50,7 +53,7 @@ export default function CustomerNewForm({ onSaved, openCallback }: CustomerNewFo
                     <CustomerDetailForm onDataChanged={handleDataChanged} resetDataToggle={resetDataToggle} customer={customer} />
                     <div className="flex gap-4">
                         <ButtonCustom type="button" variant={"green"} onClick={async () => {
-                            const result = await customerCreate(customer);
+                            const result = await customerCreate(customer, location);
                             if(result.error){
                                 toast(result.message);
                             }else{

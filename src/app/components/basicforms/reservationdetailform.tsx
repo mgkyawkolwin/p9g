@@ -33,21 +33,19 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
         const [date, setDate] = React.useState(new Date());
         const [reservation, setReservation] = React.useState(props.initialReservation);
 
-
         React.useImperativeHandle(ref, () => ({
             resetForm: () => {
-                setReservation(new Reservation());
+                setReservation({ ...new Reservation() });
             },
             getReservation: () => {
                 return reservation;
             },
-
         }));
 
 
         React.useEffect(() => {
             if (props.initialReservation){
-                setReservation(props.initialReservation);
+                setReservation({ ...props.initialReservation });
             }
         }, [props.initialReservation]);
 
@@ -122,6 +120,8 @@ export default React.forwardRef<ReservationDetailFormInterface, { initialReserva
                                 setReservation(prev => ({ ...prev, promotionPackage: value === 'DEFAULT' ? '' : value }));
                                 calculateDiscount({promotionPackage:value});
                                 }} />
+                        <SelectWithLabel name="invoiceStatus" label="Invoice Status" variant="form" size="sm" labelPosition="top" items={SelectList.INVOICE_STATUS} value={reservation?.invoiceStatus}
+                            onValueChange={value => setReservation(prev => ({ ...prev, invoiceStatus: value }))} />
                     </div>
                     
                     <div className="flex gap-2 items-end">

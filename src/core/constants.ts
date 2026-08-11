@@ -6,7 +6,10 @@ export const AppUrl = {
 export const ConfigGroup = {
     RESERVATION_STATUS: "RESERVATION_STATUS",
     RESERVATION_TYPE: "RESERVATION_TYPE",
-    RIDE_TYPE: "RIDE_TYPE"
+    RIDE_TYPE: "RIDE_TYPE",
+    INVOICE_STATUS: "INVOICE_STATUS",
+    MEDIA_GROUP: "MEDIA_GROUP",
+    TDAC_STATUS: "TDAC_STATUS"
 }
 
 export const CurrencyList = ['KWR', 'MMK', 'THB', 'USD'] as const;
@@ -37,6 +40,7 @@ export const SelectList = {
     BILL_PAYMENT_TYPE: new Map<string, string>([
         ["DROPOFF","DROPOFF"],
         ["PICKUP","PICKUP"],
+        ["NINETYDAYS","NINETY DAYS"],
         ["OTHER","OTHER"]
     ]),
 
@@ -110,6 +114,18 @@ export const SelectList = {
         ["NOT_REQUIRED", "Not Required"],
         ["SHARED", "Shared"],
         ["PRIVATE", "Private"]
+    ]),
+
+    INVOICE_STATUS: new Map<string, string>([
+        ["NOT_REQUIRED", "Not Required"],
+        ["REQUIRED", "Required"],
+        ["SENT", "Sent"]
+    ]),
+
+    TDAC_STATUS: new Map<string, string>([
+        ["NOT_REQUIRED", "Not Required"],
+        ["REQUIRED", "Required"],
+        ["SENT", "Sent"]
     ])
 } as const;
 
@@ -157,7 +173,11 @@ export const SelectListForm = {
     TRANSPORTATION: new Map<string, string>([
         ["DEFAULT", "Choose"], 
         ...SelectList.TRANSPORTATION.entries()
-    ])
+    ]),
+
+    TDAC_STATUS: new Map<string, string>([
+        ...SelectList.TDAC_STATUS.entries()
+    ]),
 } as const;
 
 export const SelectListSearch = {
@@ -200,6 +220,16 @@ export const SelectListSearch = {
     TRANSPORTATION: new Map<string, string>([
         ["DEFAULT", "Show All"], 
         ...SelectList.TRANSPORTATION.entries()
+    ]),
+
+    INVOICE_STATUS: new Map<string, string>([
+        ["DEFAULT", "Show All"],
+        ...SelectList.INVOICE_STATUS.entries()
+    ]),
+
+    TDAC_STATUS: new Map<string, string>([
+        ["DEFAULT", "Show All"],
+        ...SelectList.TDAC_STATUS.entries()
     ])
 } as const;
 

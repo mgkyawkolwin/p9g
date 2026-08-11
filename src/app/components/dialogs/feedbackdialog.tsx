@@ -10,6 +10,7 @@ import {
 } from '@/lib/components/web/react/ui/dialog';
 import { Button } from '@/lib/components/web/react/ui/button';
 import { Textarea } from '@/lib/components/web/react/ui/textarea';
+import { useParams } from 'next/navigation';
 
 interface FeedbackDialogProps {
   isOpen: boolean;
@@ -30,6 +31,8 @@ export default function FeedbackDialog({
   title = 'Feedback',
   description = 'Please provide your feedback below',
 } : FeedbackDialogProps) {
+  const params = useParams();
+  const location = params.location as string;
   const [feedback, setFeedback] = useState(initialFeedback);
   const [isSubmitting, setIsSubmitting] = useState(false);
 

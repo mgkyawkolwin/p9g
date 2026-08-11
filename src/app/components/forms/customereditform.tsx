@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import Customer from "@/core/models/domain/Customer";
 import CustomerDetailForm from "../basicforms/customerdetailform";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
-import { customerUpdate } from "@/app/(private)/console/customers/[id]/edit/actions";
+import { customerUpdate } from "@/app/(private)/[location]/console/customers/[id]/edit/actions";
+import { useParams } from "next/navigation";
 
 interface CustomerEditFormProps {
     onSaved?: (customer: Customer) => void;
@@ -17,6 +18,8 @@ interface CustomerEditFormProps {
 }
 
 export default function CustomerEditForm({ onSaved, openCallback }: CustomerEditFormProps) {
+    const params = useParams();
+    const location = params.location as string;
     
     const [resetDataToggle, setResetDataToggle] = React.useState(false);
     const [customer, setCustomer] = React.useState(new Customer());
@@ -54,7 +57,7 @@ export default function CustomerEditForm({ onSaved, openCallback }: CustomerEdit
                     <CustomerDetailForm onDataChanged={handleDataChanged} resetDataToggle={resetDataToggle} customer={customer} />
                     <div className="flex gap-4">
                         <ButtonCustom type="button" variant={"green"} onClick={async () => {
-                            const result = await customerUpdate(customer);
+                            const result = await customerUpdate(customer, location);
                             if(result.error){
                                 toast(result.message);
                             }else{

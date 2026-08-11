@@ -37,5 +37,5 @@ export async function signInAction(state : FormState, formData:FormData){
         return {error: true,  message: "Unknown error.", formData: formData};
     }
     //if we come this far, we are ok with sign in process, safely redirect now
-    redirect(AppUrl.main);
+    redirect(`/MIDA${AppUrl.main}`);
 }

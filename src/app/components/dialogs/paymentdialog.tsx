@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-table";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
-import { paymentsDelete, paymentsGet, paymentsSave, getReservation, reservationPatch } from "@/app/(private)/console/reservations/actions";
+import { paymentsDelete, paymentsGet, paymentsSave, getReservation, reservationPatch } from "@/app/(private)/[location]/console/reservations/actions";
 import { Textarea } from "../../../lib/components/web/react/ui/textarea";
 import { toast } from "sonner";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
@@ -17,7 +17,7 @@ import BillDataTable from "../../../lib/components/web/react/uicustom/billdatata
 import Payment from "@/core/models/domain/Payment";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
+import { useParams } from "next/navigation";
 
 interface DataTableProps {
   reservationId: string;
@@ -30,7 +30,8 @@ export default function PaymentDialog({
   reservationId,
   callbackFunctions
 }: DataTableProps) {
-
+  const params = useParams();
+  const location = params.location as string;
 
   const [open, setOpen] = React.useState(false);
   const [payments, setPayments] = React.useState<Payment[]>([]);
@@ -165,7 +166,7 @@ export default function PaymentDialog({
     setPayments([]);
     const fetchPayments = async () => {
       // setId(reservationId);
-      const response = await paymentsGet(reservationId);
+      const response = await paymentsGet(reservationId, location);
       if (response.message)
         toast(response.message);
       if (response.data) {
@@ -177,7 +178,7 @@ export default function PaymentDialog({
         ));
         setPayments(b);
         // load reservation details to get paymentRemark
-        const r = await getReservation(reservationId);
+        const r = await getReservation(reservationId, location);
         if (r && r.data && r.data.reservation) {
           setPaymentRemark(r.data.reservation.paymentRemark ?? '');
         }
@@ -193,7 +194,7 @@ export default function PaymentDialog({
     if (payment && payment?.modelState !== 'inserted') {
       return <ButtonCustom type="button" variant={"red"} size={"sm"}
         onClick={async () => {
-          const result = await paymentsDelete(reservationId, id);
+          const result = await paymentsDelete(reservationId, id, location);
           if (result.message) toast(result.message);
           if (!result.error) setPayments(prev => prev.filter((bill, index) => index !== rowIndex));
         }}>Delete</ButtonCustom>;
@@ -224,11 +225,11 @@ export default function PaymentDialog({
         </div>
         <DialogFooter>
           <ButtonCustom type="button" variant="green" onClick={async () => {
-            const response = await paymentsSave(reservationId, payments);
+            const response = await paymentsSave(reservationId, payments, location);
             let message = response.message;
             if (!response.error) {
               // save paymentRemark via reservation patch
-              const rp = await reservationPatch(reservationId, { id: reservationId, paymentRemark });
+              const rp = await reservationPatch(reservationId, { id: reservationId, paymentRemark }, location);
               if (rp.error && rp.message) message = rp.message;
               if (!rp.error) setOpen(false);
             }

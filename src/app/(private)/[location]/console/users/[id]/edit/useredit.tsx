@@ -1,0 +1,75 @@
+"use client";
+import { useActionState, useEffect, useState } from "react";
+//Local Imports
+import { FormState } from "@/core/types";
+import { Loader } from "@/lib/components/web/react/uicustom/loader";
+import { Group, GroupContent, GroupTitle } from "@/lib/components/web/react/uicustom/group";
+import { InputWithLabel } from "@/lib/components/web/react/uicustom/inputwithlabel";
+import { Button } from "@/lib/components/web/react/ui/button";
+import { toast } from "sonner";
+import User from "@/core/models/domain/User";
+import { useParams } from 'next/navigation';
+
+export default function UserEdit({ params }: { params: { id: number, getFunc: (id: number, location: string) => Promise<FormState>, updateFunc: (formState: FormState, formData: FormData) => Promise<FormState> } }) {
+  const urlParams = useParams();
+  const location = urlParams.location as string;
+
+  const [user, setUser] = useState<User | null>(null);
+
+  const [state, formAction, isPending] = useActionState(params.updateFunc, {
+    error: false,
+    message: "",
+    data: null,
+    formData: null
+  });
+
+  const fetchData = async () => {
+    const result = await params.getFunc(params.id, location);
+    if (!result.error) {
+      setUser(result.data);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [isPending]);
+
+  useEffect(() => {
+    if (state.error) {
+      toast(state.message);
+    } else {
+      toast(state.message);
+    }
+  }, [state]);
+
+
+  return (
+    <div className="flex flex-1">
+      <Loader isLoading={isPending} />
+      <Group className="w-[500px] m-auto">
+        <GroupTitle>
+          User Detail
+        </GroupTitle>
+        <GroupContent>
+          <form action={formAction}>
+            <div className="flex flex-col gap-4">
+              <InputWithLabel label="User ID" type="number" name="id" readOnly />
+              <InputWithLabel label="User Name" name="userName" defaultValue={user?.userName ?? ""} />
+              <InputWithLabel label="Email" type="email" name="email" defaultValue={user?.email} />
+              <div className="flex flex-1 gap-x-4">
+                <Button name="action" value={"delete"} type="submit">Delete</Button>
+                <Button name="action" value={"delete"} type="submit">Save</Button>
+              </div>
+            </div>
+            <input type="hidden" name="location" value={location} />
+          </form>
+        </GroupContent>
+      </Group>
+    </div>
+  );
+
+}

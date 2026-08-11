@@ -26,7 +26,7 @@ import RoomType from "../models/domain/RoomType";
 import ReservationCustomer from "../models/domain/ReservationCustomer";
 import PrepaidEntity from "@/core/models/entity/PrepaidEntity";
 import PromotionEntity from "@/core/models/entity/PromotionEntity";
-import { and, asc, desc, eq, ne } from "@/lib/transformers/types";
+import { and, asc, desc, eq, ne, or } from "@/lib/transformers/types";
 import RoomReservationDto from "../models/dto/RoomReservationDto";
 import { timeStamp } from "console";
 
@@ -286,7 +286,7 @@ export default class ReservationService implements IReservationService {
         c.fs('ReservationService > reservationGetList');
         c.d(searchFormFields);
         c.d(pagerParams);
-        c.d(pagerParams);
+        c.d(list);
         pagerParams.orderBy = "checkInDate";
         pagerParams.orderDirection = "desc";
         if (list === 'checkin') {
@@ -326,6 +326,7 @@ export default class ReservationService implements IReservationService {
 
     async reservationCreate(reservation: Reservation, sessionUser: SessionUser): Promise<Reservation> {
         c.fs('ReservationService > reservationCreate');
+        c.d(reservation);
 
         c.i('Preparing reservation to insert');
         reservation.createdAtUTC = new Date();
@@ -356,6 +357,16 @@ export default class ReservationService implements IReservationService {
             const prromotionPackage = await this.promotionRepository.findOne(eq("value", reservation.promotionPackage));
             if (!prromotionPackage) throw new CustomError('Reservation service cannot find promotion package');
             reservation.promotionPackageId = prromotionPackage.id;
+        }
+
+        if (reservation.invoiceStatus) {
+            c.i('Retrieveing invoice status id');
+            const invoiceStatus = await this.configRepository.findOne(or(
+                and(eq("group", "INVOICE_STATUS"), eq("value", reservation.invoiceStatus)),
+                and(eq("group", "INVOICE_STATUS"), eq("text", reservation.invoiceStatus))
+            ));
+            if (!invoiceStatus) throw new CustomError('Reservation service cannot find invoice status');
+            reservation.invoiceStatusId = invoiceStatus.id;
         }
 
         if (reservation.pickUpType) {
@@ -389,16 +400,20 @@ export default class ReservationService implements IReservationService {
 
             if (reservation.customers && reservation.customers.length > 0) {
                 c.i('Customers exist. Prepare to insert.');
-                const newReservationCustomers = reservation.customers.map((c) => {
+                const newReservationCustomers = await Promise.all(reservation.customers.map(async (customer) => {
+                    c.i('Retrieve TDAC status for customers');
+                    const tdacStatusConfig = await this.configRepository.findOne(and(eq("group", ConfigGroup.TDAC_STATUS), eq("value", customer.tdacStatus)));
+                    if (!tdacStatusConfig) throw new CustomError('Cannot find TDAC status config for customer.');
                     const rc = new ReservationCustomer();
                     rc.reservationId = createdReservation.id;
-                    rc.customerId = c.id;
+                    rc.customerId = customer.id;
+                    rc.tdacStatusId = tdacStatusConfig.id;
                     rc.createdAtUTC = new Date();
                     rc.createdBy = sessionUser.id;
                     rc.updatedAtUTC = new Date();
                     rc.updatedBy = sessionUser.id
                     return rc;
-                });
+                }));
                 c.d(newReservationCustomers?.length);
 
                 await this.reservationCustomerRepository.createMany(newReservationCustomers, tx);
@@ -549,21 +564,53 @@ export default class ReservationService implements IReservationService {
     }
 
 
-    async reservationUpdateDropOffInfo(id: string, carNo: string, driver: string, sessionUser: SessionUser): Promise<void> {
+    async reservationUpdateDropOffInfo(id: string, carNo: string, driver: string, dropOffRemark: string, sessionUser: SessionUser): Promise<void> {
         c.fs('ReservationService > reservationUpdateDropOffInfo');
         if (!id || id === 'undefined')
             throw new Error('Car number update failed. Id is required.');
 
-        return await this.reservationRepository.update(id, { dropOffCarNo: carNo, dropOffDriver: driver } as Reservation);
+        return await this.reservationRepository.update(id, { dropOffCarNo: carNo, dropOffDriver: driver, dropOffRemark } as Reservation);
     }
 
 
-    async reservationUpdatePickUpInfo(id: string, carNo: string, driver: string, sessionUser: SessionUser): Promise<void> {
+    async reservationUpdatePickUpInfo(id: string, carNo: string, driver: string, pickupRemark: string, sessionUser: SessionUser): Promise<void> {
         c.i('ReservationService > reservationUpdatePickUpInfo');
         if (!id || id === 'undefined')
             throw new Error('Car number update failed. Id is required.');
 
-        return await this.reservationRepository.update(id, { pickUpCarNo: carNo, pickUpDriver: driver } as Reservation);
+        return await this.reservationRepository.update(id, { pickUpCarNo: carNo, pickUpDriver: driver, pickupRemark } as Reservation);
+    }
+
+
+    async reservationUpdateInvoiceStatus(id: string, invoiceStatus: string, invoiceNumber: string | undefined, sessionUser: SessionUser): Promise<void> {
+        c.fs('ReservationService > reservationUpdateInvoiceStatus');
+
+        if (!id || id === 'undefined') {
+            throw new Error('Reservation update failed. Id is required.');
+        }
+
+        if (!sessionUser) {
+            throw new Error('Reservation update failed. Invalid session.');
+        }
+
+        c.i('Retrieving invoice status id');
+        const invoiceStatusConfig = await this.configRepository.findOne(or(
+            and(eq("group", "INVOICE_STATUS"), eq("value", invoiceStatus)),
+            and(eq("group", "INVOICE_STATUS"), eq("text", invoiceStatus))
+        ));
+        if (!invoiceStatusConfig) throw new CustomError('Reservation service cannot find invoice status');
+
+        c.i('Preparing reservation invoice status update');
+        const reservation = {
+            updatedBy: sessionUser.id,
+            updatedAtUTC: new Date(),
+            invoiceNumber: invoiceNumber || '',
+            invoiceStatus: invoiceStatus,
+            invoiceStatusId: invoiceStatusConfig.id
+        };
+
+        c.i('Updating reservation invoice status');
+        await this.reservationRepository.update(id, reservation as any as Reservation);
     }
 
 
@@ -612,6 +659,16 @@ export default class ReservationService implements IReservationService {
             reservation.promotionPackageId = null;
         }
 
+        if (reservation.invoiceStatus) {
+            c.i('Retrieveing invoice status id');
+            const invoiceStatus = await this.configRepository.findOne(or(
+                and(eq("group", "INVOICE_STATUS"), eq("value", reservation.invoiceStatus)),
+                and(eq("group", "INVOICE_STATUS"), eq("text", reservation.invoiceStatus))
+            ));
+            if (!invoiceStatus) throw new CustomError('Reservation service cannot find invoice status');
+            reservation.invoiceStatusId = invoiceStatus.id;
+        }
+
         if (reservation.pickUpType) {
             c.i('Retrieveing pickup type id');
             const pickupType = await this.configRepository.findOne(and(eq("group", ConfigGroup.RIDE_TYPE), eq("value", reservation.pickUpType)));
@@ -648,19 +705,31 @@ export default class ReservationService implements IReservationService {
             if (existingCustomers) {
                 c.i('Existing customers for the reservation.');
                 if (reservation.customers?.length > 0) {
-                    c.i('There are new customers for the reservation. Compare customers.');
-                    for(const nc of reservation.customers){
-                        const foundCustomer = existingCustomers.find(ec => nc.id === ec.customerId);
+                    c.i('There are customers for the reservation. Compare customers.');
+                    for(const incomingCustomer of reservation.customers){
+                        const foundCustomer = existingCustomers.find(ec => incomingCustomer.id === ec.customerId);
                         if(!foundCustomer){
                             c.i('New customer not found in existing, insert new');
+                            c.i(`Find tdac status for new customer with value: ${incomingCustomer.tdacStatus}`);
+                            const tdacStatusConfig = await this.configRepository.findOne(and(eq("group", ConfigGroup.TDAC_STATUS), eq("value", incomingCustomer.tdacStatus)));
+                            if (!tdacStatusConfig) throw new CustomError('Cannot find TDAC status config for customer.');
                             const rc = new ReservationCustomer();
                             rc.reservationId = reservation.id;
-                            rc.customerId = nc.id;
+                            rc.tdacStatusId = tdacStatusConfig.id;
+                            rc.customerId = incomingCustomer.id;
                             rc.createdAtUTC = new Date();
                             rc.createdBy = sessionUser.id;
                             rc.updatedAtUTC = new Date();
                             rc.updatedBy = sessionUser.id;
                             await this.reservationCustomerRepository.create(rc, tx as any);
+                        }else{
+                            c.i('Existing customer found in new list. Compare TDAC status.');
+                            const tdacStatusConfig = await this.configRepository.findOne(and(eq("group", ConfigGroup.TDAC_STATUS), eq("value", incomingCustomer.tdacStatus)));
+                            if (!tdacStatusConfig) throw new CustomError('Cannot find TDAC status config for customer.');
+                            if(foundCustomer.tdacStatusId !== tdacStatusConfig.id){
+                                c.i('TDAC status changed. Update.');
+                                await this.reservationCustomerRepository.update(foundCustomer.id, { tdacStatusId: tdacStatusConfig.id, updatedAtUTC: new Date(), updatedBy: sessionUser.id } as ReservationCustomer, tx as any);
+                            }
                         }
                     }
                     c.i('Removing existing customers if not exit in new customer list.');
@@ -672,23 +741,27 @@ export default class ReservationService implements IReservationService {
                         }
                     }
                 } else {
-                    c.i('There are no new customers for the reservation. Deleting existing');
+                    c.i('There are no customers for the reservation. Deleting existing');
                     await this.reservationCustomerRepository.deleteWhere(eq("reservationId", id));
                 }
             } else {
                 c.i('No existing customers for the reservation.');
                 if (reservation.customers?.length > 0) {
                     c.i('There are new customers for the reservation');
-                    const newReservationCustomers = reservation.customers.map((c) => {
+                    const newReservationCustomers = await Promise.all(reservation.customers.map(async (customer) => {
+                        c.i(`Find tdac status for new customer with value: ${customer.tdacStatus}`);
+                        const tdacStatusConfig = await this.configRepository.findOne(and(eq("group", ConfigGroup.TDAC_STATUS), eq("value", customer.tdacStatus)));
+                        if (!tdacStatusConfig) throw new CustomError('Cannot find TDAC status config for customer.');
                         const rc = new ReservationCustomer();
                         rc.reservationId = reservation.id;
-                        rc.customerId = c.id;
+                        rc.customerId = customer.id;
+                        rc.tdacStatusId = tdacStatusConfig.id;
                         rc.createdAtUTC = new Date();
                         rc.createdBy = sessionUser.id;
                         rc.updatedAtUTC = new Date();
                         rc.updatedBy = sessionUser.id;
                         return rc;
-                    });
+                    }));
                     await this.reservationCustomerRepository.createMany(newReservationCustomers, tx as any);
                 } else {
                     c.i('There are no new customers for the reservation. Do nothing.');

@@ -14,6 +14,7 @@ export type FormState = {
   formData?: FormData | null,
   pager?: PagerParams,
   reload?: boolean
+  location?: string
 };
 
 export type PagerParams = {
@@ -34,6 +35,8 @@ export type SearchFormFields = {
   searchAgentName?: string | undefined,
   searchCustomerName?: string | undefined,
   searchArrivalDateTime?: string | undefined,
+  searchArrivalDateTimeFrom?: string | undefined,
+  searchArrivalDateTimeTo?: string | undefined,
   searchBookingSource?: string | undefined,
   searchCheckInDate?: string | undefined,
   searchCheckInDateFrom?: string | undefined,
@@ -42,6 +45,8 @@ export type SearchFormFields = {
   searchCreatedDateFrom?: string | undefined,
   searchCreatedDateUntil?: string | undefined,
   searchDepartureDateTime?: string | undefined,
+  searchDepartureDateTimeFrom?: string | undefined,
+  searchDepartureDateTimeTo?: string | undefined,
   date?: string | undefined,
   searchDate?: string | undefined,
   searchDueDateFrom?: string | undefined,
@@ -68,6 +73,7 @@ export type SearchFormFields = {
   searchInvoiceStatus?: string | undefined,
   searchStartDateFrom?: string | undefined,
   searchStartDateUntil?: string | undefined,
+  searchTdacStatus?: string | undefined,
   searchUserName?: string | undefined,
 };
 

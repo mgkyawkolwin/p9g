@@ -20,6 +20,11 @@ export async function GET(request: NextRequest) {
     if (!session?.user)
       throw new CustomError('Invalid session');
 
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
+
     //retrieve search params from request
     const searchParams = Object.fromEntries(request.nextUrl.searchParams);
     c.d(JSON.stringify(searchParams));
@@ -68,6 +73,11 @@ export async function POST(request: Request) {
     const session = await auth();
     if (!session?.user)
       throw new CustomError('Invalid session');
+
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
 
     const body = await request.json();
     const userService = container.get<IUserService>(TYPES.IUserService);

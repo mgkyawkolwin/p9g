@@ -28,6 +28,11 @@ export async function PATCH(request: NextRequest) {
             );
         }
 
+        if (!request.headers.get('X-Resort-Location'))
+            throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+        session.user.location = request.headers.get('X-Resort-Location') || undefined;
+        c.d(session.user);
+
         if (!file) {
             return NextResponse.json(
                 { message: "No file uploaded" },
@@ -102,6 +107,11 @@ export async function DELETE(request: NextRequest) {
     const session = await auth();
     if (!session?.user)
       throw new CustomError('Invalid session');
+
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
 
     if (!reservationId) {
       c.d("Invalid ID param. Return result.");

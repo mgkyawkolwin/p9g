@@ -4,6 +4,7 @@ import { clearCache } from '@/app/actions';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 // import { getUserMenuPermissions } from './actions';
+import { useParams } from 'next/navigation';
 
 interface MenuPermissions {
   canAccessReservations: boolean;
@@ -23,12 +24,17 @@ interface MainMenuClientProps {
 }
 
 export default function MainMenuClient({ role }) {
+  const params = useParams();
+  const location = params.location as string;
+
   const [pookieOpen, setPookieOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [logsOpen, setLogsOpen] = useState(false);
   const pookieRef = useRef<HTMLLIElement>(null);
   const reportsRef = useRef<HTMLLIElement>(null);
   const settingsRef = useRef<HTMLLIElement>(null);
+  const logsRef = useRef<HTMLLIElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -42,6 +48,9 @@ export default function MainMenuClient({ role }) {
       }
       if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
         setSettingsOpen(false);
+      }
+      if (logsRef.current && !logsRef.current.contains(event.target as Node)) {
+        setLogsOpen(false);
       }
     }
 
@@ -61,12 +70,21 @@ export default function MainMenuClient({ role }) {
     setReportsOpen(!reportsOpen);
     setPookieOpen(false);
     setSettingsOpen(false);
+    setLogsOpen(false);
   };
 
   const toggleSettings = () => {
     setSettingsOpen(!settingsOpen);
     setPookieOpen(false);
     setReportsOpen(false);
+    setLogsOpen(false);
+  };
+
+  const toggleLogs = () => {
+    setLogsOpen(!logsOpen);
+    setPookieOpen(false);
+    setReportsOpen(false);
+    setSettingsOpen(false);
   };
 
   return (
@@ -75,7 +93,7 @@ export default function MainMenuClient({ role }) {
       {role === "ADMIN" && (
         <>
           <Link
-            href="/console/reservations/new"
+            href={`/${location}/console/reservations/new`}
             className="text-sm font-medium text-white hover:text-blue-600"
           >
             New Reservation
@@ -85,7 +103,7 @@ export default function MainMenuClient({ role }) {
 
       {role === "ADMIN" && (
         <Link
-          href="/console/reservations"
+          href={`/${location}/console/reservations`}
           className="text-sm font-medium text-white hover:text-blue-600"
         >
           Reservation List
@@ -93,35 +111,35 @@ export default function MainMenuClient({ role }) {
       )}
 
       <Link
-        href="/console/checkin"
+        href={`/${location}/console/checkin`}
         className="text-sm font-medium text-white hover:text-blue-600"
       >
         Check In
       </Link>
 
       <Link
-        href="/console/checkout"
+        href={`/${location}/console/checkout`}
         className="text-sm font-medium text-white hover:text-blue-600"
       >
         Check Out
       </Link>
 
       <Link
-        href="/console/pickup"
+        href={`/${location}/console/pickup`}
         className="text-sm font-medium text-white hover:text-blue-600"
       >
         Pick Up
       </Link>
 
       <Link
-        href="/console/dropoff"
+        href={`/${location}/console/dropoff`}
         className="text-sm font-medium text-white hover:text-blue-600"
       >
         Drop Off
       </Link>
 
       <Link
-        href="/console/roomchange"
+        href={`/${location}/console/roomchange`}
         className="text-sm font-medium text-white hover:text-blue-600"
       >
         Room Change
@@ -129,7 +147,7 @@ export default function MainMenuClient({ role }) {
 
       {role === "ADMIN" && (
         <Link
-          href="/console/roomschedule"
+          href={`/${location}/console/roomschedule`}
           className="text-sm font-medium text-white hover:text-blue-600"
         >
           Room Schedule
@@ -138,7 +156,7 @@ export default function MainMenuClient({ role }) {
 
       {role === "ADMIN" && (
         <Link
-          href="/console/customers"
+          href={`/${location}/console/customers`}
           className="text-sm font-medium text-white hover:text-blue-600"
         >
           Customers
@@ -147,7 +165,7 @@ export default function MainMenuClient({ role }) {
 
       {role === "ADMIN" && (
         <Link
-          href="/console/invoices"
+          href={`/${location}/console/invoices`}
           className="text-sm font-medium text-white hover:text-blue-600"
         >
           Invoices
@@ -166,13 +184,13 @@ export default function MainMenuClient({ role }) {
                 Reports
               </button>
               <ul
-                className={`absolute left-0 mt-1 w-48 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${reportsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                className={`absolute left-0 mt-1 w-68 text-white bg-[#333333] shadow-lg py-1 transition-all duration-200 z-50 ${reportsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
                   }`}
               >
-                {role === 'ADMIN' && (
+                {(role === 'ADMIN' || role === 'RECEPTION') && (
                   <li>
                     <Link
-                      href="/console/reports/dailysummaryperson"
+                      href={`/${location}/console/reports/dailysummaryperson`}
                       className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
                       onClick={() => setReportsOpen(false)}
                     >
@@ -183,17 +201,27 @@ export default function MainMenuClient({ role }) {
                 {role === 'ADMIN' && (
                   <li>
                     <Link
-                      href="/console/reports/dailysummaryguestsrooms"
+                      href={`/${location}/console/reports/dailysummaryguestsrooms`}
                       className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
                       onClick={() => setReportsOpen(false)}
                     >
                       Daily Summary (Guests & Rooms)
                     </Link>
                   </li>)}
+                {(role === 'ADMIN' || role === 'RECEPTION') && (
+                  <li>
+                    <Link
+                      href={`/${location}/console/reports/dailysummaryzoneguests`}
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setReportsOpen(false)}
+                    >
+                      Daily Summary (Zone Guests)
+                    </Link>
+                  </li>)}
                 {role === 'ADMIN' && (
                   <li>
                     <Link
-                      href="/console/reports/dailysummaryincome"
+                      href={`/${location}/console/reports/dailysummaryincome`}
                       className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
                       onClick={() => setReportsOpen(false)}
                     >
@@ -203,7 +231,37 @@ export default function MainMenuClient({ role }) {
                 {role === 'ADMIN' && (
                   <li>
                     <Link
-                      href="/console/reports/dailyreservationdetail"
+                      href={`/${location}/console/reports/dailysummaryreservationstatus`}
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setReportsOpen(false)}
+                    >
+                      Daily Summary (Reservation Status)
+                    </Link>
+                  </li>)}
+                {role === 'ADMIN' && (
+                  <li>
+                    <Link
+                      href={`/${location}/console/reports/dailysummaryroomoccupancy`}
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setReportsOpen(false)}
+                    >
+                      Daily Summary (Room Occupancy)
+                    </Link>
+                  </li>)}
+                {role === 'ADMIN' && (
+                  <li>
+                    <Link
+                      href={`/${location}/console/reports/monthlysummaryreservationstatus`}
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setReportsOpen(false)}
+                    >
+                      Monthly Summary (Reservation Status)
+                    </Link>
+                  </li>)}
+                {role === 'ADMIN' && (
+                  <li>
+                    <Link
+                      href={`/${location}/console/reports/dailyreservationdetail`}
                       className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
                       onClick={() => setReportsOpen(false)}
                     >
@@ -214,7 +272,7 @@ export default function MainMenuClient({ role }) {
                 {(role === 'ADMIN' || role === 'RECEPTION') && (
                   <li>
                     <Link
-                      href="/console/reports/pickupdropoff"
+                      href={`/${location}/console/reports/pickupdropoff`}
                       className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
                       onClick={() => setReportsOpen(false)}
                     >
@@ -277,7 +335,7 @@ export default function MainMenuClient({ role }) {
               >
                 <li>
                   <Link
-                    href="/pookie/draw" target='new'
+                    href={`/${location}/pookie/draw`} target='new'
                     className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
                     onClick={() => setPookieOpen(false)}
                   >
@@ -286,7 +344,7 @@ export default function MainMenuClient({ role }) {
                 </li>
                 <li>
                   <Link
-                    href="/console/pookie/timetable"
+                    href={`/${location}/console/pookie/timetable`}
                     className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
                     onClick={() => setPookieOpen(false)}
                   >
@@ -298,6 +356,46 @@ export default function MainMenuClient({ role }) {
           </li>
         </ul>
       </nav>
+
+      {role === 'ADMIN' && (
+        <nav>
+          <ul className="flex space-x-4">
+            <li className="relative" ref={logsRef}>
+              <div className="inline-block">
+                <button
+                  onClick={toggleLogs}
+                  className="text-sm font-medium text-white hover:text-blue-600 focus:outline-none"
+                >
+                  Logs
+                </button>
+                <ul
+                  className={`absolute left-0 mt-1 w-56 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${logsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                    }`}
+                >
+                  <li>
+                    <Link
+                      href={`/${location}/console/logs/reservations`}
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setLogsOpen(false)}
+                    >
+                      Reservation Logs
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={`/${location}/console/logs/roomcharges`}
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setLogsOpen(false)}
+                    >
+                      Room Charge Logs
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </nav>
+      )}
     </div>
   );
 }

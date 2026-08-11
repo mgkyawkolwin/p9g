@@ -113,6 +113,27 @@
       "when": 1774180190936,
       "tag": "0015_careful_quasar",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1779954109991,
+      "tag": "0016_rich_dorian_gray",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1780045794134,
+      "tag": "0017_youthful_jimmy_woo",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1782278218287,
+      "tag": "0018_solid_thundra",
+      "breakpoints": true
     }
   ]
 }

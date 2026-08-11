@@ -18,7 +18,15 @@ export default function DailySummaryGuestsRoomsReport({ reportRows }: { reportRo
     let totalRoomTotal = 0;
     let totalRoomExisting = 0;
     let totalRoomAvailable = 0;
+    const [highlightedRows, setHighlightedRows] = React.useState<Record<number, boolean>>({});
     const reportRef = React.useRef(null);
+
+    const toggleRowHighlight = (index: number) => {
+        setHighlightedRows(prev => ({
+            ...prev,
+            [index]: !prev[index],
+        }));
+    };
 
     const downloadExcel = async () => {
         if (!reportRef.current) return;
@@ -225,19 +233,25 @@ export default function DailySummaryGuestsRoomsReport({ reportRows }: { reportRo
                             totalRoomTotal = totalRoomTotal + Number(rp.roomsTotal);
                             totalRoomAvailable = totalRoomAvailable + Number(rp.roomsAvailable);
 
+                            const rowStyle = highlightedRows[index] ? { backgroundColor: '#8888aa', color: 'black' } : undefined;
 
-                            return <tr key={index} className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}>
-                                <td className="p-2">{index + 1}</td>
-                                <td className="">{new Date(rp.date).toLocaleDateString('sv-SE')}</td>
-                                <td className="text-right">{rp.guestsCheckIn}</td>
-                                <td className="text-right">{rp.guestsCheckOut}</td>
-                                <td className="text-right">{rp.guestsExisting}</td>
-                                <td className="text-right">{rp.guestsTotal}</td>
-                                <td className="text-right">{rp.roomsCheckIn}</td>
-                                <td className="text-right">{rp.roomsCheckOut}</td>
-                                <td className="text-right">{rp.roomsExisting}</td>
-                                <td className="text-right">{rp.roomsTotal}</td>
-                                <td className="p-2 text-right">{rp.roomsAvailable}</td>
+                            return <tr
+                                key={index}
+                                style={rowStyle}
+                                className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} cursor-pointer`}
+                                onClick={() => toggleRowHighlight(index)}
+                            >
+                                <td style={rowStyle} className="p-2">{index + 1}</td>
+                                <td style={rowStyle} className="">{new Date(rp.date).toLocaleDateString('sv-SE')}</td>
+                                <td style={rowStyle} className="text-right">{rp.guestsCheckIn}</td>
+                                <td style={rowStyle} className="text-right">{rp.guestsCheckOut}</td>
+                                <td style={rowStyle} className="text-right">{rp.guestsExisting}</td>
+                                <td style={rowStyle} className="text-right">{rp.guestsTotal}</td>
+                                <td style={rowStyle} className="text-right">{rp.roomsCheckIn}</td>
+                                <td style={rowStyle} className="text-right">{rp.roomsCheckOut}</td>
+                                <td style={rowStyle} className="text-right">{rp.roomsExisting}</td>
+                                <td style={rowStyle} className="text-right">{rp.roomsTotal}</td>
+                                <td style={rowStyle} className="p-2 text-right">{rp.roomsAvailable}</td>
                             </tr>;
                         })}
                     </tbody>

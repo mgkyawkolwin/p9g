@@ -59,6 +59,15 @@ export const feedbackValidator = z.object({
   feedback: z.coerce.string().optional(),
 });
 
+export const invoiceStatusUpdateValidator = z.object({
+  invoiceStatus: z.string().min(1, 'Invoice status is required'),
+  invoiceNumber: z.string().optional()
+});
+
+export const tdacStatusUpdateValidator = z.object({
+  tdacStatusValue: z.string().min(1, 'TDAC status value is required')
+});
+
 export const userInsertSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   password: z.string().min(1, 'Password is required'),
@@ -86,6 +95,11 @@ export const userUpdateSchema = z.object({
   modelState: z.string()
 });
 
+export const userPasswordChangeSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(1, 'New password is required'),
+  confirmPassword: z.string().min(1, 'Confirm password is required')
+});
 
 export const pagerValidator = z.object({
   orderBy: z.string().regex(RegExp('[a-zA-Z]'),'Invalid orderBy column.').optional(),
@@ -113,6 +127,8 @@ export const reservationPatchValidator = z.object({
   id: z.coerce.string().length(36),
   golfCart: z.coerce.string().optional(),
   paymentRemark: z.coerce.string().nullish().optional(),
+  invoiceStatus: z.string().optional(),
+  invoiceNumber: z.string().optional(),
 });
 
 
@@ -136,7 +152,8 @@ export const reservationValidator = z.object({
     },
     z.array(
       z.object({
-      id: z.string().min(1, "Customer ID is required")
+      id: z.string().min(1, "Customer ID is required"),
+      tdacStatus: z.string().min(1, "TDAC status is required")
     })
   ).optional()
   ),
@@ -161,6 +178,8 @@ export const reservationValidator = z.object({
   remark: z.coerce.string().nullish().catch(undefined),
   reservationStatus: z.string().nullish(),
   reservationType: z.string().nullish(),
+  invoiceStatus: z.string().nullish(),
+  invoiceNumber: z.string().nullish(),
   roomNo: z.coerce.string().nullish(),
   tax: z.coerce.number(),
   tourCompany: z.coerce.string().nullish(),
@@ -212,6 +231,8 @@ export const searchValidator = z.object({
   searchId: z.string().optional(),
   searchRoomNo: z.string().optional(),
   searchArrivalDateTime: z.coerce.string().optional(),
+  searchArrivalDateTimeFrom: z.coerce.string().optional(),
+  searchArrivalDateTimeTo: z.coerce.string().optional(),
   searchCreatedDateFrom: z.coerce.string().optional(),
   searchCreatedDateUntil: z.coerce.string().optional(),
   searchCheckInDate: z.coerce.string().optional(),
@@ -220,6 +241,8 @@ export const searchValidator = z.object({
   searchCheckOutDate: z.coerce.string().optional(),
   searchDate: z.coerce.string().optional(),
   searchDepartureDateTime: z.coerce.string().optional(),
+  searchDepartureDateTimeFrom: z.coerce.string().optional(),
+  searchDepartureDateTimeTo: z.coerce.string().optional(),
   searchDueDateFrom: z.coerce.string().optional(),
   searchDueDateUntil: z.coerce.string().optional(),
   searchEmail: z.string().optional(),
@@ -238,6 +261,7 @@ export const searchValidator = z.object({
   searchReservationStatus: z.string().optional(),
   searchReservationType: z.string().optional(),
   searchInvoiceStatus: z.string().optional(),
+  searchTdacStatus: z.string().optional(),
   searchUserName: z.string().optional(),
   startDate: z.coerce.date().optional()
 });
@@ -336,6 +360,7 @@ export const pookieValidator = z.object({
   noOfPeople: z.coerce.number(),
   rooms: z.coerce.string(),
   time: z.coerce.date(),
+  rowVersion: z.coerce.string(),
   modelState: z.coerce.string(),
   createdAtUTC: z.coerce.date(),
   createdBy: z.coerce.string(),

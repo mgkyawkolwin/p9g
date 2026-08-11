@@ -13,5 +13,6 @@ export default interface IUserService {
     userFindById(id: string, sessionUser: SessionUser): Promise<User | null>;
     userFindMany(searchParams: Record<string, any>, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[User[], number]>;
     userUpdate(id: string, user: User, sessionUser: SessionUser): Promise<void>;
+    userUpdatePassword(id: string, currentPassword: string, newPassword: string, sessionUser: SessionUser): Promise<void>;
 
 }

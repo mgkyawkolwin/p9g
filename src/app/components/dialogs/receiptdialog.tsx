@@ -3,13 +3,13 @@
 import * as React from "react";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog"
-import { roomChargeGetListById } from "@/app/(private)/console/reservations/actions"
+import { roomChargeGetListById } from "@/app/(private)/[location]/console/reservations/actions"
 import { toast } from "sonner";
 import ReceiptTable from "../tables/receipttable";
 import RoomCharge from "@/core/models/domain/RoomCharge";
 import Reservation from "@/core/models/domain/Reservation";
-import { getReservation } from "@/app/(private)/console/reservations/[id]/edit/actions";
-
+import { getReservation } from "@/app/(private)/[location]/console/reservations/[id]/edit/actions";
+import { useParams } from "next/navigation";
 
 interface DataTableProps {
   reservationId: string;
@@ -22,6 +22,8 @@ export default function ReceiptDialog({
   reservationId,
   callbackFunctions
 }: DataTableProps) {
+  const params = useParams();
+  const location = params.location as string;
 
   const formatter = new Intl.NumberFormat('en-US', {
     style: "decimal"
@@ -49,7 +51,7 @@ export default function ReceiptDialog({
 
     setRoomCharges([]);
     const fetchData = async () => {
-      const response = await roomChargeGetListById(reservationId);
+      const response = await roomChargeGetListById(reservationId, location);
 
       if (response.message)
         toast(response.message);
@@ -63,7 +65,7 @@ export default function ReceiptDialog({
         ));
         setRoomCharges(b);
       }
-      const r = await getReservation(reservationId);
+      const r = await getReservation(reservationId, location);
       if (r.message)
         toast(r.message);
       if (r.data) {

@@ -9,7 +9,32 @@ export default function DailyReservationDetailReport({ reportRows }: { reportRow
         style: "decimal"
     });
 
+    const totalReservation = reportRows?.length ?? 0;
+    const totalPax = reportRows?.reduce((sum, row) => sum + (row.noOfGuests ?? 0), 0) ?? 0;
+    const totalDiscount = reportRows?.reduce((sum, row) => sum + (row.discountAmount ?? 0), 0) ?? 0;
+    const totalDeposit = reportRows?.reduce((sum, row) => sum + (row.depositAmount ?? 0), 0) ?? 0;
+    const totalClubAmount = reportRows?.reduce((sum, row) => sum + (row.totalAmount ?? 0), 0) ?? 0;
+    const totalClubNetAmount = reportRows?.reduce((sum, row) => sum + (row.netAmount ?? 0), 0) ?? 0;
+    const totalSingleCharge = reportRows?.reduce((sum, row) => sum + (row.singleChargeAmount ?? 0), 0) ?? 0;
+    const totalExtraCharge = reportRows?.reduce((sum, row) => sum + (row.extraChargeAmount ?? 0), 0) ?? 0;
+    const totalPickUpFeeKWR = reportRows?.reduce((sum, row) => sum + (row.pickUpFeeKWR ?? 0), 0) ?? 0;
+    const totalPickUpFeeMMK = reportRows?.reduce((sum, row) => sum + (row.pickUpFeeMMK ?? 0), 0) ?? 0;
+    const totalPickUpFeeTHB = reportRows?.reduce((sum, row) => sum + (row.pickUpFeeTHB ?? 0), 0) ?? 0;
+    const totalPickUpFeeUSD = reportRows?.reduce((sum, row) => sum + (row.pickUpFeeUSD ?? 0), 0) ?? 0;
+    const totalDropOffFeeKWR = reportRows?.reduce((sum, row) => sum + (row.dropOffFeeKWR ?? 0), 0) ?? 0;
+    const totalDropOffFeeMMK = reportRows?.reduce((sum, row) => sum + (row.dropOffFeeMMK ?? 0), 0) ?? 0;
+    const totalDropOffFeeTHB = reportRows?.reduce((sum, row) => sum + (row.dropOffFeeTHB ?? 0), 0) ?? 0;
+    const totalDropOffFeeUSD = reportRows?.reduce((sum, row) => sum + (row.dropOffFeeUSD ?? 0), 0) ?? 0;
+
+    const [highlightedRows, setHighlightedRows] = React.useState<Record<string, boolean>>({});
     const reportRef = React.useRef(null);
+
+    const toggleRowHighlight = (reservationId: string) => {
+        setHighlightedRows(prev => ({
+            ...prev,
+            [reservationId]: !prev[reservationId],
+        }));
+    };
 
     const downloadExcel = async () => {
         if (!reportRef.current) return;
@@ -281,59 +306,113 @@ export default function DailyReservationDetailReport({ reportRows }: { reportRow
                     <tbody>
                         {reportRows?.length === 0 && <tr className={`border p-8 ${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText}`}><td className={`p-2 ${Theme.Style.tableCellText}`} colSpan={6}>No Data</td></tr>}
                         {reportRows.map((rp, index) => {
+                            const isHighlighted = highlightedRows[rp.reservationId];
+                            const rowStyle = isHighlighted ? { backgroundColor: '#8888aa', color: 'black' } : undefined;
 
                             return [
-                                <tr key={`${rp.reservationId}-row1`} className={`${Theme.Style.tableCellBg}`}>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.reservationId}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.bookingSource}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.reservationType}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.reservationStatus}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} min-w-[150px] max-w-[150px] p-2 text-left`}>{rp.customerNames}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.noOfGuests}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.reservationType}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.arrivalDateTime.substring(0, 10)}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.arrivalDateTime.substring(11, 16)}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.arrivalFlight}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.checkInDate.toString().substring(0, 10)}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.noOfDays}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.depositAmount}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.roomNo}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.totalAmount}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.discountAmount}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.netAmount}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.singleChargeAmount}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.extraChargeAmount}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.pickUpFeeKWR}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.pickUpFeeMMK}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.pickUpFeeTHB}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.pickUpFeeUSD}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.dropOffFeeKWR}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.dropOffFeeMMK}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.dropOffFeeTHB}</td>
-                                    <td rowSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.dropOffFeeUSD}</td>
+                                <tr
+                                    key={`${rp.reservationId}-row1`}
+                                    style={rowStyle}
+                                    className="cursor-pointer"
+                                    onClick={() => toggleRowHighlight(rp.reservationId)}
+                                >
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.reservationId}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.bookingSource}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.reservationType}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} max-w-[150px] p-2 text-left`}>{rp.reservationStatus}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} min-w-[150px] max-w-[150px] p-2 text-left`}>{rp.customerNames}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.noOfGuests}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.reservationType}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.arrivalDateTime.substring(0, 10)}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.arrivalDateTime.substring(11, 16)}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.arrivalFlight}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.checkInDate.toString().substring(0, 10)}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.noOfDays}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.depositAmount}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.roomNo}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.totalAmount}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.discountAmount}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.netAmount}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.singleChargeAmount}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.extraChargeAmount}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.pickUpFeeKWR}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.pickUpFeeMMK}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.pickUpFeeTHB}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.pickUpFeeUSD}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.dropOffFeeKWR}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.dropOffFeeMMK}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.dropOffFeeTHB}</td>
+                                    <td rowSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.dropOffFeeUSD}</td>
                                 </tr>,
-                                <tr key={`${rp.reservationId}-row2`} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellBg}`}>
-                                    <td colSpan={2} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.customerPhones}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.departureDateTime.toString().substring(0, 10)}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.departureDateTime.toString().substring(11, 16)}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.departureFlight}</td>
-                                    <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.checkOutDate.toString().substring(0, 10)}</td>
-                                    <td colSpan={3} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.remark}</td>
+                                <tr
+                                    key={`${rp.reservationId}-row2`}
+                                    style={rowStyle}
+                                    className="cursor-pointer"
+                                    onClick={() => toggleRowHighlight(rp.reservationId)}
+                                >
+                                    <td colSpan={2} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.customerPhones}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.departureDateTime.toString().substring(0, 10)}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.departureDateTime.toString().substring(11, 16)}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.departureFlight}</td>
+                                    <td style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.checkOutDate.toString().substring(0, 10)}</td>
+                                    <td colSpan={3} style={rowStyle} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>{rp.remark}</td>
                                 </tr>
                             ];
                         })}
                     </tbody>
-                    {/* <tfoot>
+                    <tfoot>
                         <tr className={`border ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder}`}>
-                            <th className="p-4 text-right"></th>
-                            <th>Total</th>
-                            <th className="text-right">{totalGuestCheckIn}</th>
-                            <th className="text-right">{totalGuestCheckOut}</th>
-                            <th className=""></th>
-                            <th className=""></th>
-                            <th className=""></th>
+                            <td colSpan={5} className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-left`}>
+                                Total Reservation: {totalReservation}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalPax)}
+                            </td>
+                            <td colSpan={7} />
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalDeposit)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalClubAmount)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalDiscount)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalClubNetAmount)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalSingleCharge)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalExtraCharge)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalPickUpFeeKWR)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalPickUpFeeMMK)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalPickUpFeeTHB)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalPickUpFeeUSD)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalDropOffFeeKWR)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalDropOffFeeMMK)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalDropOffFeeTHB)}
+                            </td>
+                            <td className={`${Theme.Style.tableCellBorder} ${Theme.Style.tableCellText} p-2 text-right`}>
+                                {formatter.format(totalDropOffFeeUSD)}
+                            </td>
                         </tr>
-                    </tfoot> */}
+                    </tfoot>
                 </table>
             </div>
         </div>

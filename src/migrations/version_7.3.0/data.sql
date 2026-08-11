@@ -1,0 +1,1 @@
+UPDATE `bill` SET `paymentType` = 'NINETYDAYS' WHERE `paymentType` = 'OTHERS' AND `unitPrice` > 4000000;

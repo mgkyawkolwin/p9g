@@ -22,7 +22,7 @@ import c from "@/lib/loggers/console/ConsoleLogger";
 import type IMapper from "@/lib/mappers/IMapper";
 import type IQueryTranformer from "@/lib/transformers/IQueryTransformer";
 import { getISODateTimeString, getUTCDateMidNight } from "@/lib/utils";
-import { and, asc, between, count, desc, eq, gt, gte, like, lt, lte, ne, or } from "drizzle-orm";
+import { and, asc, between, count, countDistinct, desc, eq, gt, gte, inArray, like, lt, lte, ne, or } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { inject, injectable } from "inversify";
 import { Repository } from "../../../lib/repositories/drizzle/Repository";
@@ -55,12 +55,12 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                 and(
                     and(
                         lte(reservationTable.checkInDate, drawDate),
-                        gt(reservationTable.checkOutDate, drawDate)
+                        gte(reservationTable.checkOutDate, drawDate)
                     ),
                     ne(configTable.value, "CCL"),
                     eq(reservationTable.location, sessionUser.location)
                 )
-            );
+            ).orderBy(asc(reservationTable.roomNo));
         c.d(reservations?.length);
         if (!reservations || reservations.length == 0) return [];
 
@@ -80,8 +80,8 @@ export default class ReservationRepository extends Repository<Reservation, Reser
 
         if (!roomsAndPax || roomsAndPax.length === 0) return [];
 
-        const sortedRoomsAndPax = roomsAndPax.sort((a, b) => a.roomNo > b.roomNo ? 1 : -1);
-        return sortedRoomsAndPax;
+        // const sortedRoomsAndPax = roomsAndPax.sort((a, b) => a.roomNo > b.roomNo ? 1 : -1);
+        return roomsAndPax;
     }
 
 
@@ -93,10 +93,16 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         const reservationStatusAlias = alias(configTable, 'reservation_status');
         const pickUpAlias = alias(configTable, 'pickUpAlias');
         const dropOffAlias = alias(configTable, 'dropOffAlias');
+        const invoiceStatusAlias = alias(configTable, 'invoice_status');
+        const tdacStatusAlias = alias(configTable, 'tdac_status');
 
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
-            customer: { ...customerTable },
+            customer: { 
+                ...customerTable,
+                tdacStatus: tdacStatusAlias.value,
+                tdacStatusText: tdacStatusAlias.text
+            },
             bill: { ...billTable },
             reservationStatus: reservationStatusAlias.value,
             reservationStatusText: reservationStatusAlias.text,
@@ -109,7 +115,9 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             promotionPackage: promotionTable.value,
             promotionPackageText: promotionTable.text,
             prepaidPackage: prepaidTable.value,
-            prepardPackageText: prepaidTable.text
+            prepardPackageText: prepaidTable.text,
+            invoiceStatus: invoiceStatusAlias.value,
+            invoiceStatusText: invoiceStatusAlias.text,
         })
             .from(reservationTable)
             .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
@@ -118,9 +126,11 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
+            .leftJoin(invoiceStatusAlias, eq(reservationTable.invoiceStatusId, invoiceStatusAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
             .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
             .leftJoin(billTable, eq(billTable.reservationId, reservationTable.id))
+            .leftJoin(tdacStatusAlias, eq(reservationCustomerTable.tdacStatusId, tdacStatusAlias.id))
             .where(eq(reservationTable.id, id));
 
         const dataqueryresult = await dataQuery;
@@ -186,30 +196,72 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         const reservationStatusAlias = alias(configTable, 'reservation_status');
         const pickUpAlias = alias(configTable, 'pickUpAlias');
         const dropOffAlias = alias(configTable, 'dropOffAlias');
+        const invoiceStatusAlias = alias(configTable, 'invoice_status');
+        const tdacStatusAlias = alias(configTable, 'tdac_status');
+        const mediaGroupAlias = alias(configTable, 'media_group');
 
-        let countQuery = this.dbClient.db.select({ count: count() })
+        let countQuery = this.dbClient.db.select({ count: countDistinct(reservationTable.id) })
             .from(reservationTable)
             .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
             .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+            .leftJoin(invoiceStatusAlias, eq(reservationTable.invoiceStatusId, invoiceStatusAlias.id))
             .leftJoin(promotionTable, eq(promotionTable.id, reservationTable.promotionPackageId))
             .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
-            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id));
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
+            .leftJoin(tdacStatusAlias, eq(reservationCustomerTable.tdacStatusId, tdacStatusAlias.id))
+            .leftJoin(mediaTable, eq(mediaTable.reservationId, reservationTable.id))
+            .leftJoin(mediaGroupAlias, and(
+                eq(mediaTable.mediaGroupId, mediaGroupAlias.id),
+                eq(mediaGroupAlias.group, ConfigGroup.MEDIA_GROUP),
+                eq(mediaGroupAlias.value, 'TDAC')
+            ));
+
+        let distinctReservationsQuery = this.dbClient.db.selectDistinct({id: reservationTable.id})
+            .from(reservationTable)
+            .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
+            .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+            .leftJoin(invoiceStatusAlias, eq(reservationTable.invoiceStatusId, invoiceStatusAlias.id))
+            .leftJoin(promotionTable, eq(promotionTable.id, reservationTable.promotionPackageId))
+            .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
+            .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
+            .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
+            .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
+            .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
+            .leftJoin(tdacStatusAlias, eq(reservationCustomerTable.tdacStatusId, tdacStatusAlias.id))
+            .leftJoin(mediaTable, eq(mediaTable.reservationId, reservationTable.id))
+            .leftJoin(mediaGroupAlias, and(
+                eq(mediaTable.mediaGroupId, mediaGroupAlias.id),
+                eq(mediaGroupAlias.group, ConfigGroup.MEDIA_GROUP),
+                eq(mediaGroupAlias.value, 'TDAC')
+            )).offset(offset)
+            .limit(pagerParams.pageSize);
 
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
             customer: { ...customerTable },
-            reservationCustomer: { ...reservationCustomerTable },
+            reservationCustomer: { 
+                ...reservationCustomerTable, 
+                tdacStatusId: reservationCustomerTable.tdacStatusId, 
+                tdacStatusValue: tdacStatusAlias.value,
+                tdacStatusText: tdacStatusAlias.text 
+            },
             reservationStatus: reservationStatusAlias.value,
             reservationStatusText: reservationStatusAlias.text,
             reservationType: reservationTypeAlias.value,
             reservationTypeText: reservationTypeAlias.text,
+            invoiceStatus: invoiceStatusAlias.value,
+            invoiceStatusText: invoiceStatusAlias.text,
             pickUpType: pickUpAlias.value,
             pickUpTypeText: pickUpAlias.text,
             dropOffType: dropOffAlias.value,
             dropOffTypeText: dropOffAlias.text,
+            tdacStatus: tdacStatusAlias.value,
+            tdacStatusText: tdacStatusAlias.text,
+            tdacMediaGroupId: mediaGroupAlias.id,
+            media: mediaTable,
             promotionPackage: promotionTable.value,
             promotionPackageText: promotionTable.text,
             prepaidPackage: prepaidTable.value,
@@ -218,14 +270,20 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .from(reservationTable)
             .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
             .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+            .leftJoin(invoiceStatusAlias, eq(reservationTable.invoiceStatusId, invoiceStatusAlias.id))
             .leftJoin(promotionTable, eq(promotionTable.id, reservationTable.promotionPackageId))
             .leftJoin(prepaidTable, eq(prepaidTable.id, reservationTable.prepaidPackageId))
             .leftJoin(pickUpAlias, eq(reservationTable.pickUpTypeId, pickUpAlias.id))
             .leftJoin(dropOffAlias, eq(reservationTable.dropOffTypeId, dropOffAlias.id))
             .leftJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
             .leftJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
-            .offset(offset)
-            .limit(pagerParams.pageSize);
+            .leftJoin(tdacStatusAlias, eq(reservationCustomerTable.tdacStatusId, tdacStatusAlias.id))
+            .leftJoin(mediaTable, eq(mediaTable.reservationId, reservationTable.id))
+            .leftJoin(mediaGroupAlias, and(
+                eq(mediaTable.mediaGroupId, mediaGroupAlias.id),
+                eq(mediaGroupAlias.group, ConfigGroup.MEDIA_GROUP),
+                eq(mediaGroupAlias.value, 'TDAC')
+            ));
 
         const conditions = [];
 
@@ -242,13 +300,25 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         if (searchFormFields && Object.entries(searchFormFields).length > 0) {
             c.i('Building condtions');
 
-            if (searchFormFields.searchArrivalDateTime) {
-                const startDate = new Date(getISODateTimeString(searchFormFields.searchArrivalDateTime));
-                const endDate = getUTCDateMidNight(new Date(searchFormFields.searchArrivalDateTime));
-                conditions.push(and(
-                    gte(reservationTable.arrivalDateTime, startDate),
-                    lte(reservationTable.arrivalDateTime, endDate)
-                ));
+            if (searchFormFields.searchArrivalDateTimeFrom || searchFormFields.searchArrivalDateTimeTo) {
+                if (searchFormFields.searchArrivalDateTimeFrom) {
+                    const startDate = new Date(searchFormFields.searchArrivalDateTimeFrom);
+                    conditions.push(gte(reservationTable.arrivalDateTime, startDate));
+                }
+                if (searchFormFields.searchArrivalDateTimeTo) {
+                    const endDate = new Date(searchFormFields.searchArrivalDateTimeTo);
+                    conditions.push(lte(reservationTable.arrivalDateTime, endDate));
+                }
+            }
+            if (searchFormFields.searchDepartureDateTimeFrom || searchFormFields.searchDepartureDateTimeTo) {
+                if (searchFormFields.searchDepartureDateTimeFrom) {
+                    const startDate = new Date(searchFormFields.searchDepartureDateTimeFrom);
+                    conditions.push(gte(reservationTable.departureDateTime, startDate));
+                }
+                if (searchFormFields.searchDepartureDateTimeTo) {
+                    const endDate = new Date(searchFormFields.searchDepartureDateTimeTo);
+                    conditions.push(lte(reservationTable.departureDateTime, endDate));
+                }
             }
             if (searchFormFields.searchDepartureDateTime) {
                 const startDate = new Date(getISODateTimeString(searchFormFields.searchDepartureDateTime));
@@ -281,6 +351,9 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             if (searchFormFields.searchReservationType) {
                 conditions.push(eq(reservationTypeAlias.value, searchFormFields.searchReservationType));
             }
+            if (searchFormFields.searchInvoiceStatus) {
+                conditions.push(eq(invoiceStatusAlias.value, searchFormFields.searchInvoiceStatus));
+            }
             if (searchFormFields.searchCheckInDate) {
                 let d: Date = new Date(getISODateTimeString(searchFormFields.searchCheckInDate));
                 conditions.push(eq(reservationTable.checkInDate, d));
@@ -302,6 +375,9 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                     like(customerTable.name, `%${searchFormFields.searchName}%`),
                     like(customerTable.englishName, `%${searchFormFields.searchName}%`)
                 ));
+            }
+            if (searchFormFields.searchTdacStatus) {
+                conditions.push(eq(tdacStatusAlias.value, searchFormFields.searchTdacStatus));
             }
             if (searchFormFields.searchId) {
                 conditions.push(like(reservationTable.id, `%${searchFormFields.searchId}%`));
@@ -338,20 +414,41 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                         ne(reservationTable.reservationStatusId, config.id)
                     ));
             }
+            c.d(`Conditions length: ${conditions.length}`);
         }
 
         if (conditions) {
+            c.d('Applying conditions');
             countQuery.where(and(...conditions, eq(reservationTable.location, sessionUser.location)));
-            dataQuery.where(and(...conditions, eq(reservationTable.location, sessionUser.location)));
+            distinctReservationsQuery.where(and(...conditions, eq(reservationTable.location, sessionUser.location)));
+            c.d(`Count Query with conditions: ${JSON.stringify(countQuery.toSQL())}`);
         } else {
+            c.d('Applying location condition only');
             countQuery.where(eq(reservationTable.location, sessionUser.location));
-            dataQuery.where(eq(reservationTable.location, sessionUser.location));
+            distinctReservationsQuery.where(eq(reservationTable.location, sessionUser.location));
         }
 
+        const [countResult, uniqueIdsResult] = await Promise.all([
+            countQuery.execute(),
+            distinctReservationsQuery.execute()
+        ]);
+
+        c.i('COUNT QUERY RESULT');
+        c.d(countResult[0]?.count);
+
         //order
-        dataQuery.orderBy(pagerParams.orderDirection === 'desc' ? desc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]) : asc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]));
-        c.d(dataQuery.toSQL());
-        const dataqueryresult = await dataQuery;
+        c.d(uniqueIdsResult);
+        const reservationIds = uniqueIdsResult.map(r => r.id);
+        c.d(reservationIds);
+
+        // Then conditionally get full data
+        let dataqueryresult = [];
+        if (reservationIds.length > 0) {
+            dataQuery.where(inArray(reservationTable.id, reservationIds));
+            dataQuery.orderBy(pagerParams.orderDirection === 'desc' ? desc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]) : asc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]));
+            c.d(dataQuery.toSQL());
+            dataqueryresult = await dataQuery.execute();
+        }
         c.d('dataqueryresult');
         c.d(dataqueryresult.length);
         c.d(dataQuery.toSQL());
@@ -382,13 +479,28 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             if (customer) {
                 const [existingCustomer] = rsvn?.customers?.filter(c => c.id === customer.id);
                 if (!existingCustomer) {
+                    customer.medias = [];
                     rsvn?.customers?.push(customer);
                 }
             }
             if (reservationCustomer) {
                 rsvn?.customers?.forEach(c => {
-                    if (c.id === reservationCustomer.customerId && reservationCustomer.tdacFileUrl) {
-                        c.tdacFileUrl = reservationCustomer.tdacFileUrl;
+                    if (c.id === reservationCustomer.customerId) {
+                        c.reservationCustomerId = reservationCustomer.id;
+                        c.tdacStatusId = reservationCustomer.tdacStatusId;
+                        c.tdacStatus = reservationCustomer.tdacStatusValue;
+                        c.tdacStatusText = reservationCustomer.tdacStatusText;
+                    }
+                });
+            }
+
+            if (current.media && current.tdacMediaGroupId) {
+                rsvn?.customers?.forEach(c => {
+                    if (c.id === current.media.customerId) {
+                        let existingMedia = c.medias.find(m => m.id === current.media.id);
+                        if (!existingMedia) {
+                            c.medias.push(current.media);
+                        }
                     }
                 });
             }
@@ -396,19 +508,15 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             return acc;
         }, [] as Reservation[]);
 
-        const [countResult] = await countQuery;
-        c.i('COUNT QUERY RESULT');
-        c.d(countResult);
-
         //update number of pages
-        pagerParams = { ...pagerParams, records: countResult.count, pages: Math.ceil((countResult.count) / pagerParams.pageSize) };
+        pagerParams = { ...pagerParams, records: countResult[0]?.count ?? 0, pages: Math.ceil((countResult[0]?.count ?? 0) / pagerParams.pageSize) };
         c.d(pagerParams);
 
         c.d(reservations.length);
         c.d(reservations.length > 0 ? reservations[0] : []);
 
         c.fe('ReservationRepository > reservationGetList');
-        return [reservations, countResult.count];
+        return [reservations, countResult[0]?.count ?? 0];
     }
 
 
@@ -420,8 +528,8 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .select({
                 roomId: roomReservationTable.roomId,
                 reservationId: reservationTable.id,
-                checkInDate: roomReservationTable.checkInDate,
-                checkOutDate: roomReservationTable.checkOutDate,
+                checkInDate: reservationTable.checkInDate,
+                checkOutDate: reservationTable.checkOutDate,
                 noOfDays: reservationTable.noOfDays,
                 noOfGuests: reservationTable.noOfGuests,
                 golfCart: reservationTable.golfCart
@@ -444,10 +552,14 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             ).as('asRsv');
         c.i('Subquery constructed.');
 
+        const mediaGroupAlias = alias(configTable, 'media_group');
+
         const dataQuery = this.dbClient.db
             .select({
                 roomNo: roomTable.roomNo,
+                zone: roomTable.zone,
                 roomTypeText: roomTypeTable.roomTypeText,
+                bedType: roomTable.bedType,
                 reservationId: asRsv.reservationId,
                 checkInDate: asRsv.checkInDate,
                 checkOutDate: asRsv.checkOutDate,
@@ -465,6 +577,11 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .leftJoin(customerTable, eq(customerTable.id, reservationCustomerTable.customerId))
             .leftJoin(feedbackTable, eq(feedbackTable.reservationId, asRsv.reservationId))
             .leftJoin(mediaTable, eq(mediaTable.reservationId, asRsv.reservationId))
+            .leftJoin(mediaGroupAlias, and(
+                eq(mediaTable.mediaGroupId, mediaGroupAlias.id),
+                eq(mediaGroupAlias.group, 'MEDIA_GROUP'),
+                eq(mediaGroupAlias.value, 'GENERAL')
+            ))
             .where(
                 eq(roomTable.location, sessionUser.location)
             ).orderBy(asc(roomTypeTable.roomTypeText), asc(roomTable.roomNo));

@@ -8,4 +8,5 @@ export default class PookieTimeTableEntity extends EntityBase{
     public noOfPeople: number = 0;
     public rooms: string = '';
     public time: Date = null;
+    public rowVersion: string = '';
 }

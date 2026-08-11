@@ -14,6 +14,7 @@ import { Button } from '@/lib/components/web/react/ui/button';
 import { X, File, Image, Video, FileText, Upload, Loader2, Check, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Media from '@/core/models/domain/Media';
+import { useParams } from 'next/navigation';
 
 interface UploadFile {
   id: string;
@@ -49,6 +50,8 @@ export default function MediaDialog({
   maxFileSize = 10 * 1024 * 1024,
   allowedFileTypes = ['image/*', 'video/*', 'application/pdf', 'text/plain'],
 }: MediaDialogProps) {
+  const params = useParams();
+  const location = params.location as string;
   const [existingMedia, setExistingMedia] = useState<Media[]>(initialMedia);
   const [uploadQueue, setUploadQueue] = useState<UploadFile[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -154,6 +157,7 @@ export default function MediaDialog({
 
       xhr.open('POST', '/api/medias');
       xhr.setRequestHeader('Accept', 'application/json');
+      xhr.setRequestHeader('X-Resort-Location', location);
       xhr.send(formData);
 
       const result = await promise;
@@ -224,6 +228,7 @@ export default function MediaDialog({
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'X-Resort-Location': location
         }
       });
 

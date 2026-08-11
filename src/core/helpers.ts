@@ -260,7 +260,7 @@ export function getUTCCheckInDate(arrivalDate: Date) {
 export function getUTCCheckOutDate(departureDate: Date) {
     const checkOutDate = new Date(departureDate);
     checkOutDate.setUTCHours(0, 0, 0, 0);
-    if (departureDate.getUTCHours() >= 0 && departureDate.getUTCHours() <= 11) {
+    if (departureDate.getUTCHours() >= 0 && departureDate.getUTCHours() <= 12) { // will allow till 12:59
         checkOutDate.setUTCDate(checkOutDate.getUTCDate() - 1);
         return checkOutDate;
     } else {

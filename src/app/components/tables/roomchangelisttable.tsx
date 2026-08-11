@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
-import { moveRoom, updateFeedback, updateGolfCart } from "@/app/(private)/console/roomchange/actions";
+import { moveRoom, updateFeedback, updateGolfCart } from "@/app/(private)/[location]/console/roomchange/actions";
 import { toast } from "sonner";
 import SimpleDataTable from "../../../lib/components/web/react/uicustom/simpledatatable";
 import { CopyIcon, NotepadText, Image } from "lucide-react";
@@ -21,7 +21,7 @@ import Media from "@/core/models/domain/Media";
 import { Label } from "@/lib/components/web/react/ui/label";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
+import { useParams } from "next/navigation";
 
 interface DataTableProps {
   formState: FormState
@@ -35,6 +35,9 @@ export default function RoomChangeListTable({
   formAction,
   formRef
 }: DataTableProps) {
+  const params = useParams();
+  const location = params.location as string;
+
 
   const columns: ColumnDef<RoomReservationDto>[] = [
     {
@@ -42,8 +45,16 @@ export default function RoomChangeListTable({
       header: "Room",
     },
     {
+      accessorKey: "zone",
+      header: "Zone",
+    },
+    {
       accessorKey: "roomTypeText",
       header: "Room Type",
+    },
+    {
+      accessorKey: "bedType",
+      header: "Bed Type",
     },
     {
       accessorKey: "reservationId",
@@ -120,7 +131,7 @@ export default function RoomChangeListTable({
   const [date, setDate] = React.useState<Date | null>(new Date());
 
   async function updateGolfCartLocal(reservationId: string, golfCart: string) {
-    const response = await updateGolfCart(reservationId, golfCart);
+    const response = await updateGolfCart(reservationId, golfCart, location);
     if (response.message)
       toast(response.message);
     if (response.error) return;
@@ -179,11 +190,11 @@ export default function RoomChangeListTable({
             <DialogFooter>
               <ButtonCustom variant={"red"} type="button" onClick={async () => {
                 setOpenMoveRoomDialog(false);
-                const response = await moveRoom(reservationId, roomNo, new Date().getLocalDateAsUTCDate());
+                const response = await moveRoom(reservationId, roomNo, new Date().getLocalDateAsUTCDate(), location);
                 if (response.error)
                   toast(response.message);
                 else
-                  window.location.href = '/console/roomchange';
+                  window.location.href = `/${location}/console/roomchange`;
               }}>Move</ButtonCustom>
               <DialogClose asChild>
                 <ButtonCustom variant="black" onClick={() => {
@@ -197,7 +208,7 @@ export default function RoomChangeListTable({
       <FeedbackDialog isOpen={feedbackDialogOpen} reservationId={reservationId} initialFeedback={feedback}
         onOpenChanged={() => setFeedbackDialogOpen(false)}
         onFeedbackSaved={async (reservationId: string, feedback: string) => {
-          const response = await updateFeedback(reservationId, customerId, feedback);
+          const response = await updateFeedback(reservationId, customerId, feedback, location);
           if (response.message)
             toast(response.message);
           if (response.error) return;

@@ -7,10 +7,14 @@ import { getCacheKey } from "@/lib/utils";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import DailySummaryIncomeReportRow from "@/core/models/dto/reports/DailySummaryIncomeReportRow";
 import DailySummaryPersonReportRow from "@/core/models/dto/reports/DailySummaryPersonReportRow";
+import DailySummaryZoneGuestsReportRow from "@/core/models/dto/reports/DailySummaryZoneGuestsReportRow";
+import DailySummaryRoomOccupancyReportRow from "@/core/models/dto/reports/DailySummaryRoomOccupancyReportRow";
+import MonthlySummaryReservationStatusReportRow from "@/core/models/dto/reports/MonthlySummaryReservationStatusReportRow";
 import type ICacheAdapter from "@/lib/cache/ICacheAdapter";
 import SessionUser from "@/core/models/dto/SessionUser";
 import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
-import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDropoffReportResponse';
+import DailySummaryReservationStatusReportRow from "@/core/models/dto/reports/DailySummaryReservationStatusReportRow";
+import { PickupDropoffReportResponse } from "@/core/models/dto/reports/PickupDropoffReportResponse";
 
 
 @injectable()
@@ -47,30 +51,8 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
     }
 
 
-    async getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]> {
+    async getDailySummaryGuestsRoomsReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryGuestsRoomsReportRow[]> {
         c.fs("Repository > getDailySummaryGuestsRoomsReport");
-        const cacheTag = `guestsroom-${startDate}-${endDate}-${sessionUser.location}`;
-
-        const startTime = performance.now();
-
-        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
-        if (cacheObject) {
-            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
-            return cacheObject;
-        }
-
-        const object = await this.repository.getDailySummaryGuestsRoomsReport(startDate, endDate, sessionUser);
-
-        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
-        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
-
-        return object;
-    }
-
-
-    async getDailySummaryIncomeReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
-        c.fs("Repository > getDailySummaryIncomeReport");
-
         const cacheTag = `guestsroom-${startDate}-${endDate}-${reservationStatus}-${sessionUser.location}`;
 
         const startTime = performance.now();
@@ -81,7 +63,29 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
             return cacheObject;
         }
 
-        const object = await this.repository.getDailySummaryIncomeReport(startDate, endDate, reservationStatus, sessionUser);
+        const object = await this.repository.getDailySummaryGuestsRoomsReport(startDate, endDate, reservationStatus, sessionUser);
+
+        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
+
+        return object;
+    }
+
+
+    async getDailySummaryIncomeReport(startDate: string, endDate: string, reservationType: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryIncomeReportRow[]> {
+        c.fs("Repository > getDailySummaryIncomeReport");
+
+        const cacheTag = `dailysummaryincome-${startDate}-${endDate}-${reservationType}-${reservationStatus}-${sessionUser.location}`;
+
+        const startTime = performance.now();
+
+        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
+        if (cacheObject) {
+            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+            return cacheObject;
+        }
+
+        const object = await this.repository.getDailySummaryIncomeReport(startDate, endDate, reservationType, reservationStatus, sessionUser);
 
         console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
         await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
@@ -93,7 +97,7 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
     async getDailySummaryPersonReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryPersonReportRow[]> {
         c.fs("Repository > getDailySummaryPersonReport");
 
-        const cacheTag = `guestsroom-${startDate}-${endDate}-${sessionUser.location}`;
+        const cacheTag = `guestsroom-${startDate}-${endDate}-${reservationStatus}-${sessionUser.location}`;
 
         const startTime = performance.now();
 
@@ -112,10 +116,10 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
 
     }
 
-    async getPickupDropoffReport(arrivalDepartureDate: string, sessionUser: SessionUser): Promise<PickupDropoffReportResponse> {
-        c.fs('Repository > getPickupDropoffReport');
+    async getDailySummaryReservationStatusReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryReservationStatusReportRow[]> {
+        c.fs("Repository > getDailySummaryReservationStatusReport");
+        const cacheTag = `guestsroom-${startDate}-${endDate}-${sessionUser.location}`;
 
-        const cacheTag = `pickupdropoff-${arrivalDepartureDate}-${sessionUser.location}`;
         const startTime = performance.now();
 
         const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
@@ -124,7 +128,98 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
             return cacheObject;
         }
 
-        const object = await this.repository.getPickupDropoffReport(arrivalDepartureDate, sessionUser);
+        const object = await this.repository.getDailySummaryReservationStatusReport(startDate, endDate, sessionUser);
+
+        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
+
+        return object;
+    }
+
+    async getDailySummaryRoomOccupancyReport(startDate: string, endDate: string, sessionUser: SessionUser): Promise<DailySummaryRoomOccupancyReportRow[]> {
+        c.fs("Repository > getDailySummaryRoomOccupancyReport");
+        const cacheTag = `roomoccupancy-${startDate}-${endDate}-${sessionUser.location}`;
+
+        const startTime = performance.now();
+        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
+        if (cacheObject) {
+            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+            return cacheObject;
+        }
+
+        const object = await this.repository.getDailySummaryRoomOccupancyReport(startDate, endDate, sessionUser);
+
+        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
+
+        return object;
+    }
+
+    async getMonthlySummaryReservationStatusReport(year: string, sessionUser: SessionUser): Promise<MonthlySummaryReservationStatusReportRow[]> {
+        c.fs("Repository > getMonthlySummaryReservationStatusReport");
+        const cacheTag = `monthlyreservationstatus-${year}-${sessionUser.location}`;
+
+        const startTime = performance.now();
+
+        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
+        if (cacheObject) {
+            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+            return cacheObject;
+        }
+
+        const object = await this.repository.getMonthlySummaryReservationStatusReport(year, sessionUser);
+
+        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
+
+        return object;
+    }
+
+    async getDailySummaryZoneGuestsReport(startDate: string, endDate: string, reservationStatus: string, sessionUser: SessionUser): Promise<DailySummaryZoneGuestsReportRow[]> {
+        c.fs("Repository > getDailySummaryZoneGuestsReport");
+        const cacheTag = `guestsroom-${startDate}-${endDate}-${reservationStatus}-${sessionUser.location}`;
+
+        const startTime = performance.now();
+
+        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
+        if (cacheObject) {
+            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+            return cacheObject;
+        }
+
+        const object = await this.repository.getDailySummaryZoneGuestsReport(startDate, endDate, reservationStatus, sessionUser);
+
+        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);
+
+        return object;
+    }
+
+    async getPickupDropoffReport(
+        arrivalStartDateTime: string,
+        arrivalEndDateTime: string,
+        departureStartDateTime: string,
+        departureEndDateTime: string,
+        sessionUser: SessionUser
+    ): Promise<PickupDropoffReportResponse> {
+        c.fs('Repository > getPickupDropoffReport');
+
+        const cacheTag = `pickupdropoff-${arrivalStartDateTime}-${arrivalEndDateTime}-${departureStartDateTime}-${departureEndDateTime}-${sessionUser.location}`;
+        const startTime = performance.now();
+
+        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
+        if (cacheObject) {
+            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+            return cacheObject;
+        }
+
+        const object = await this.repository.getPickupDropoffReport(
+            arrivalStartDateTime,
+            arrivalEndDateTime,
+            departureStartDateTime,
+            departureEndDateTime,
+            sessionUser
+        );
 
         console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
         await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), object);

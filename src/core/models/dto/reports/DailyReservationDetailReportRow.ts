@@ -18,6 +18,7 @@ export default class DailyReservationDetailReportRow{
     public dropOffFeeUSD: number = 0;
     public extraChargeAmount: number = 0;
     public netAmount: number = 0;
+    public ninetyDaysAmount: number = 0;
     public noOfDays: number = 0;
     public noOfGuests: number = 0;
     public paidAmount: number = 0;
@@ -29,6 +30,7 @@ export default class DailyReservationDetailReportRow{
     public reservationId: string = '';
     public reservationStatus: string = '';
     public reservationType: string = '';
+    public roomChargeAmount: number = 0;
     public roomNo: string = '';
     public singleChargeAmount: number = 0;
     public taxAmount: number = 0;

@@ -38,6 +38,8 @@ export default class Reservation extends DomainBase{
     public paidAmount: number = 0;
     public pickUpCarNo: string = "";
     public pickUpDriver: string = "";
+    public pickupRemark: string = "";
+    public dropOffRemark: string = "";
     public pickUpFee: number = 0;
     public pickUpFeeCurrency: string = 'KWR';
     public pickUpFeePaidOnUTC: Date = null;
@@ -60,6 +62,10 @@ export default class Reservation extends DomainBase{
     public reservationType: string = 'GENERAL';
     public reservationTypeId: string  = '';
     public reservationTypeText: string  = '';
+    public invoiceStatusId: string = '';
+    public invoiceStatus: string = 'NOT_REQUIRED';
+    public invoiceStatusText: string = '';
+    public invoiceNumber: string = '';
     public tax: number = 0;
     public taxAmount: number = 0;
     public tourCompany: string  = '';

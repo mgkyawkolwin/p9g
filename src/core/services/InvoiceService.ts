@@ -44,7 +44,7 @@ export default class InvoiceService implements IInvoiceService {
             for (const item of invoice.simpleItems) {
                 if (!item.description) throw new CustomError('Description is required for simple invoice items.');
                 if (item.description.trim() === '') throw new CustomError('Description cannot be empty for simple invoice items.');
-                if (item.amountKWR <= 0 && item.amountTHB <= 0) throw new CustomError('At least one of amountKWR or amountTHB must be greater than 0 for simple invoice items.');
+                // if (item.amountKWR <= 0 && item.amountTHB <= 0) throw new CustomError('At least one of amountKWR or amountTHB must be greater than 0 for simple invoice items.');
             }
         }
 
@@ -56,7 +56,7 @@ export default class InvoiceService implements IInvoiceService {
                 if(!item.startDate) throw new CustomError('Start date is required for booking invoice items.');
                 if(!item.endDate) throw new CustomError('End date is required for booking invoice items.');
                 if(item.startDate > item.endDate) throw new CustomError('Start date cannot be after end date for booking invoice items.');
-                if (item.amountKWR <= 0 && item.amountTHB <= 0) throw new CustomError('At least one of amountKWR or amountTHB must be greater than 0 for booking invoice items.');
+                // if (item.amountKWR <= 0 && item.amountTHB <= 0) throw new CustomError('At least one of amountKWR or amountTHB must be greater than 0 for booking invoice items.');
             }
         }
 

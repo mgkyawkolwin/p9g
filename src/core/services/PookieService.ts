@@ -4,7 +4,7 @@ import { CustomError } from "@/lib/errors";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import type IRepository from "@/lib/repositories/IRepository";
 import { and, asc, eq, like } from "@/lib/transformers/types";
-import { and as dand, eq as deq, lte as dlte } from "drizzle-orm";
+import { and as dand, eq as deq, lte as dlte, like as dlike, ne as dne } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 import QRCode from "qrcode";
 import { HttpStatusCode } from "../constants";
@@ -20,6 +20,7 @@ import PookieTimeTableEntity from "../models/entity/PookieTimeTableEntity";
 import { pookieTable } from "../orms/drizzle/mysql/schema";
 import type IReservationRepository from "../repositories/contracts/IReservationRepository";
 import IPookieService from "./contracts/IPookieService";
+import {v4 as uuidv4} from 'uuid';
 
 @injectable()
 export default class PookieService implements IPookieService {
@@ -74,13 +75,41 @@ export default class PookieService implements IPookieService {
         c.d(rooms);
 
         const result: PookieTimeTable = await this.dbClient.db.transaction(async (tx: TransactionType) => {
+            
+            const mainRoom = rooms.split(",")[0];
+            c.d(`Main Room: ${mainRoom}`);
+            const yesterday = new Date(date);
+            yesterday.setDate(yesterday.getDate() - 1);
+            c.d(`Yesterday: ${yesterday.toISOString()}`);
+            const previousResult: PookieTimeTableEntity[] = await tx.select().from(pookieTable)
+                .where(
+                    dand(
+                        deq(pookieTable.date, yesterday),
+                        dlike(pookieTable.rooms, `%${mainRoom}%`),
+                        deq(pookieTable.location, sessionUser.location)
+                    )
+                );
+            c.d(`Previous Result: ${previousResult}`);
+
+            var conditions = [
+                deq(pookieTable.date, date),
+                deq(pookieTable.isBusy, false),
+                dlte(pookieTable.noOfPeople, (4 - noOfPeople)),
+                deq(pookieTable.location, sessionUser.location)
+            ];
+            
+            if (previousResult && previousResult.length > 0) {
+                conditions = [
+                    ...conditions,
+                    dne(pookieTable.hole, previousResult[0].hole),
+                    dne(pookieTable.time, previousResult[0].time)
+                ];
+            }
+
             const timeTable: PookieTimeTableEntity[] = await tx.select().from(pookieTable)
                 .where(
                     dand(
-                        deq(pookieTable.date, date),
-                        deq(pookieTable.isBusy, false),
-                        dlte(pookieTable.noOfPeople, (4 - noOfPeople)),
-                        deq(pookieTable.location, sessionUser.location)
+                        ...conditions
                     )
                 ).for('update');
             c.d(timeTable?.length);
@@ -194,9 +223,22 @@ export default class PookieService implements IPookieService {
 
     async getResult(date: Date, roomName: string, sessionUser: SessionUser): Promise<PookieTimeTable> {
         c.fs('PookieService > getResult');
+        const drawDate = new Date();
+        drawDate.setUTCHours(0, 0, 0, 0);
+
+        const todayCutoff = new Date();
+        todayCutoff.setHours(9, 0, 0, 0);
+
+        const now = new Date();
+        now.setHours(now.getHours() + 7, 0, 0, 0);
+
+        if( now > todayCutoff) {
+            drawDate.setUTCDate(drawDate.getUTCDate() + 1);
+        }
+
         const result = await this.pookieRepository.findOne(
             and(
-                eq("date", date.toISOString()),
+                eq("date", drawDate.toISOString()),
                 eq("location", sessionUser.location),
                 like("rooms", roomName)
             ));
@@ -207,7 +249,9 @@ export default class PookieService implements IPookieService {
 
     async getRoomNames(date: Date, list: string, sessionUser: SessionUser): Promise<string[]> {
         c.fs('PookieService > getRoomNames');
-        const [rooms, count] = await this.roomRepository.findMany(eq("location", sessionUser.location));
+        const [rooms, count] = await this.roomRepository.findMany(
+            eq("location", sessionUser.location), asc("roomNo")
+        );
 
         const [drewResults, _] = await this.pookieRepository.findMany(
             and(
@@ -312,9 +356,26 @@ export default class PookieService implements IPookieService {
 
     async updatePookie(pookie: PookieTimeTable, sessionUser: SessionUser): Promise<void> {
         c.fs('PookieService > updatePookie');
+        // keep the original rowVersion for optimistic concurrency control
+        const originalRowVersion = pookie.rowVersion;
         pookie.updatedAtUTC = new Date();
         pookie.updatedBy = sessionUser.id;
-        await this.pookieRepository.update(pookie.id, pookie);
+        pookie.rowVersion = uuidv4();
+        const result = await this.pookieRepository.updateWhere(
+            and(
+                eq('id', pookie.id),
+                eq('rowVersion', originalRowVersion)
+            ),
+            pookie);
+        if (!result || result?.length === 0 || result[0].affectedRows == 0 || result[0].changedRows == 0) {
+            c.d(result);
+            c.d(`Original Row Version: ${originalRowVersion}`);
+            c.d(`Current Row Version: ${pookie.rowVersion}`);
+            c.d(`Pookie ID: ${pookie.id}`);
+            c.d(`Affected Rows: ${result[0].affectedRows}`);
+            c.d(`Changed Rows: ${result[0].changedRows}`);
+            throw new CustomError('Optimistic concurrency conflict detected. Please refresh and try again.');
+        }
         c.fe('PookieService > updatePookie');
     }
 

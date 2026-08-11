@@ -11,12 +11,14 @@ import { buildAnyCondition } from '@/core/helpers';
 import { and, asc, eq } from '@/lib/transformers/types';
 import ReservationCustomer from '../models/domain/ReservationCustomer';
 import { sql } from 'drizzle-orm/sql';
+import Config from '../models/domain/Config';
 
 
 @injectable()
 export default class CustomerService implements ICustomerService {
 
   constructor(
+    @inject(TYPES.IConfigRepository) private configRepository: IRepository<Config>,
     @inject(TYPES.ICustomerRepository) private customerRepository: IRepository<Customer>,
     @inject(TYPES.IReservationCustomerRepository) private reservationCustomerRepository: IRepository<ReservationCustomer>
   ) {
@@ -87,6 +89,21 @@ export default class CustomerService implements ICustomerService {
     await this.reservationCustomerRepository.updateWhere(
       and(eq("reservationId", reservationId), eq("customerId", customerId)), 
       { tdacFileUrl } as unknown as ReservationCustomer);
+  }
+
+  async customerUpdateTdacStatus(reservationCustomerId: string, tdacStatusValue: string, sessionUser: SessionUser): Promise<void> {
+    if (!reservationCustomerId) throw new CustomError('Invalid reservation customer id');
+    if (!tdacStatusValue) throw new CustomError('Invalid TDAC status value');
+    
+    // retrieve tdacStatusId based on tdacStatusValue
+    const tdacStatusRecord = await this.configRepository.findOne(and(eq("group", "TDAC_STATUS"), eq("value", tdacStatusValue)));
+    if (!tdacStatusRecord) throw new CustomError('TDAC status not found for the provided value');
+
+    await this.reservationCustomerRepository.update(reservationCustomerId, {
+      tdacStatusId: tdacStatusRecord.id,
+      updatedAtUTC: new Date(),
+      updatedBy: sessionUser.id
+    } as unknown as ReservationCustomer);
   }
 
 }

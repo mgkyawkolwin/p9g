@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-table";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog"
-import { roomReservationGetListById, roomReservationUpdateList } from "@/app/(private)/console/reservations/actions"
+import { roomReservationGetListById, roomReservationUpdateList } from "@/app/(private)/[location]/console/reservations/actions"
 import { toast } from "sonner";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
 import { Checkbox } from "../../../lib/components/web/react/ui/checkbox";
@@ -18,7 +18,7 @@ import RoomCharge from "@/core/models/domain/RoomCharge";
 import SimpleDataTable from "../../../lib/components/web/react/uicustom/simpledatatable";
 import { calculateDayDifference } from "@/lib/utils";
 import { CheckboxCustom } from "@/lib/components/web/react/uicustom/CheckboxCustom";
-
+import { useParams } from "next/navigation";
 
 interface DataTableProps {
     reservationId: string;
@@ -31,6 +31,8 @@ export default function RoomChargeDialog({
     reservationId,
     callbackFunctions
 }: DataTableProps) {
+    const params = useParams();
+    const location = params.location as string;
 
     const [open, setOpen] = React.useState(false);
     const [roomReservations, setRoomReservations] = React.useState<RoomReservation[]>([]);
@@ -446,7 +448,7 @@ export default function RoomChargeDialog({
     const fetchData = async () => {
         try {
             //retrieve room reservation list
-            const rrResponse = await roomReservationGetListById(reservationId);
+            const rrResponse = await roomReservationGetListById(reservationId, location);
             if (rrResponse.message)
                 toast(rrResponse.message);
             if (rrResponse.data) {
@@ -499,7 +501,7 @@ export default function RoomChargeDialog({
                     <ButtonCustom onClick={addCharge}>Add Charge</ButtonCustom>
                     <ButtonCustom type="button" variant="green"
                         onClick={async () => {
-                            const response = await roomReservationUpdateList(reservationId, roomReservations);
+                            const response = await roomReservationUpdateList(reservationId, roomReservations, location);
                             toast(response.message);
                             if (!response.error)
                                 setOpen(false);

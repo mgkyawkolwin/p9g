@@ -19,6 +19,11 @@ export async function GET(request: NextRequest) {
     if (!session?.user)
       throw new CustomError('Invalid session');
 
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
+
     let searchParams: SearchParam[];
 
     c.i('Converting url search params into form object.')
@@ -66,6 +71,11 @@ export async function PATCH(request: NextRequest) {
     if (!session?.user)
       throw new CustomError('Invalid session');
     //const searchParams : SearchParam[] = [];
+
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+    session.user.location = request.headers.get('X-Resort-Location') || undefined;
+    c.d(session.user);
 
     c.i('Converting url search params into form object.');
     const queryStringObject = Object.fromEntries(request.nextUrl.searchParams);
