@@ -11,6 +11,8 @@ import IAuthService from '../../core/services/contracts/IAuthService';
 import AuthService from '../../core/services/AuthService';
 import ICustomerService from '../../core/services/contracts/ICustomerService';
 import CustomerService from '../../core/services/CustomerService';
+import IPrepaidPackageService from '../services/contracts/IPrepaidPackageService';
+import PrepaidPackageService from '../services/PrepaidPackageService';
 import IReservationRepository from '@/core/repositories/contracts/IReservationRepository';
 import ReservationRepository from '@/core/repositories/drizzle/ReservationRepository';
 import ReservationService from '@/core/services/ReservationService';
@@ -21,7 +23,7 @@ import IReportService from '@/core/services/contracts/IReportService';
 import ReportService from '@/core/services/ReportService';
 import ILogService from '@/core/services/contracts/ILogService';
 import LogService from '@/core/services/LogService';
-import { billTable, configTable, customerTable, feedbackTable, invoiceTable, simpleInvoiceItemTable, bookingInvoiceItemTable, logErrorTable, mediaTable, paymentTable, pookieConfigTable, pookieDeviceTable, pookieTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
+import { billTable, configTable, customerTable, feedbackTable, invoiceTable, simpleInvoiceItemTable, bookingInvoiceItemTable, logErrorTable, mediaTable, paymentTable, pookieConfigTable, pookieDeviceTable, pookieTable, prepaidPackageTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
 import { Repository } from '@/lib/repositories/drizzle/Repository';
 import IRepository from '@/lib/repositories/IRepository';
 import CustomMapper from '@/lib/mappers/custommapper/CustomMapper';
@@ -39,6 +41,8 @@ import BillEntity from '@/core/models/entity/BillEntity';
 import RoomEntity from '@/core/models/entity/RoomEntity';
 import RoomReservationEntity from '@/core/models/entity/RoomReservationEntity';
 import UserEntity from '@/core/models/entity/UserEntity';
+import PrepaidPackage from '@/core/models/domain/PrepaidPackage';
+import PrepaidPackageEntity from '@/core/models/entity/PrepaidPackageEntity';
 import LogError from '@/core/models/domain/LogError';
 import LogErrorEntity from '@/core/models/entity/LogErrorEntity';
 import Config from '@/core/models/domain/Config';
@@ -104,6 +108,7 @@ container.bind<IInvoiceService>(TYPES.IInvoiceService).to(InvoiceService).inRequ
 container.bind<ILogService>(TYPES.ILogService).to(LogService).inRequestScope();
 container.bind<IMediaService>(TYPES.IMediaService).to(MediaService).inRequestScope();
 container.bind<IPookieService>(TYPES.IPookieService).to(PookieService).inRequestScope();
+container.bind<IPrepaidPackageService>(TYPES.IPrepaidPackageService).to(PrepaidPackageService).inRequestScope();
 container.bind<IReportService>(TYPES.IReportService).to(ReportService).inRequestScope();
 container.bind<IReservationService>(TYPES.IReservationService).to(ReservationService).inRequestScope();
 container.bind<IUserService>(TYPES.IUserService).to(UserService).inRequestScope();
@@ -334,6 +339,29 @@ container.bind<IRepository<PrepaidEntity>>(TYPES.IPrepaidRepository).toDynamicVa
             context.get<IQueryTranformer>(TYPES.IQueryTransformer)
         ),
         "prepaid",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
+    )
+}).inRequestScope();
+
+container.bind<IRepository<PrepaidPackage>>(TYPES.IPrepaidPackageRepository).toDynamicValue(context => {
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            prepaidPackageTable,
+            {
+                ...prepaidPackageTable,
+                customerEnglishName: customerTable.englishName,
+                customerName: customerTable.name,
+                prepaidPackageTypeText: configTable.text
+            },
+            (q) => q
+                .innerJoin(customerTable, eq(customerTable.id, prepaidPackageTable.customerId))
+                .innerJoin(configTable, eq(configTable.id, prepaidPackageTable.prepaidPackageTypeId)),
+            context.get<IMapper>(TYPES.IMapper),
+            PrepaidPackage,
+            PrepaidPackageEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "prepaidPackage",
         context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
 }).inRequestScope();

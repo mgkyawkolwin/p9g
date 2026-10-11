@@ -17,13 +17,15 @@ interface DataTableProps {
   selectedCustomers: Customer[];
   setSelectedCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onCustomerChosen?: (customer: Customer) => void;
 }
 
 export default function CustomerChooseTable({
   data,
   selectedCustomers,
   setSelectedCustomers,
-  setOpen
+  setOpen,
+  onCustomerChosen
 }: DataTableProps) {
 
   const columns: ColumnDef<Customer>[] = [
@@ -96,7 +98,11 @@ export default function CustomerChooseTable({
         return <div>
           <ButtonCustom variant={"green"} size={"sm"}
           onClick={() => {
-            setSelectedCustomers([...selectedCustomers, row.original]);
+            if (onCustomerChosen) {
+              onCustomerChosen(row.original);
+            } else {
+              setSelectedCustomers([...selectedCustomers, row.original]);
+            }
             setOpen(false);
           }}>Choose</ButtonCustom>
         </div>

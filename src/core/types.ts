@@ -103,6 +103,8 @@ export const TYPES = {
   IPookieDeviceRepository: Symbol.for('IPookieDeviceRepository'),
   IPookieRepository: Symbol.for('IPookieRepository'),
   IPookieService: Symbol.for('IPookieService'),
+  IPrepaidPackageRepository: Symbol.for('IPrepaidPackageRepository'),
+  IPrepaidPackageService: Symbol.for('IPrepaidPackageService'),
   IPrepaidRepository: Symbol.for('IPrepaidRepository'),
   IPromotionRepository: Symbol.for('IPromotionRepository'),
   IReportRepository: Symbol.for('IReportRepository'),

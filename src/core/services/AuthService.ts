@@ -14,6 +14,11 @@ export default class AuthService implements IAuthService {
 
     }
 
+    async generateHash(password: string): Promise<string> {
+        c.fs('AuthService > generateHash');
+        return await argon2.hash(password);
+    }
+
     async signMeIn(userName: string, password: string): Promise<User | null> {
         c.fs('AuthService > signMeIn');
         c.d(userName);

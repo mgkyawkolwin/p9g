@@ -165,6 +165,15 @@ export default function MainMenuClient({ role }) {
 
       {role === "ADMIN" && (
         <Link
+          href={`/${location}/console/packages`}
+          className="text-sm font-medium text-white hover:text-blue-600"
+        >
+          Packages
+        </Link>
+      )}
+
+      {role === "ADMIN" && (
+        <Link
           href={`/${location}/console/invoices`}
           className="text-sm font-medium text-white hover:text-blue-600"
         >

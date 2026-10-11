@@ -258,6 +258,25 @@ export const prepaidTable = mysqlTable("prepaid", {
   updatedBy: char("updatedBy", { length: 36 }).notNull()
 });
 
+export const prepaidPackageTable = mysqlTable("prepaidPackage", {
+  id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  customerId: char("customerId", { length: 36 }).notNull().references(() => customerTable.id, { onDelete: 'restrict' }),
+  effectiveStartDate: datetime("effectiveStartDate", { mode: 'date', fsp: 3 }).notNull(),
+  effectiveEndDate: datetime("effectiveEndDate", { mode: 'date', fsp: 3 }).notNull(),
+  noOfDays: smallint("noOfDays").notNull(),
+  price: decimal("price").notNull().default("0"),
+  deposit: decimal("deposit").notNull().default("0"),
+  balance: decimal("balance").notNull().default("0"),
+  depositDateTimeUTC: datetime("depositDateTimeUTC", { mode: 'date', fsp: 3 }),
+  location: varchar("location", { length: 10 }).notNull(),
+  remark: varchar("remark", { length: 500 }),
+  prepaidPackageTypeId: char("prepaidPackageTypeId", { length: 36 }).notNull().references(() => configTable.id),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
 export const promotionTable = mysqlTable("promotion", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
   value: varchar("value", { length: 50 }).notNull(),

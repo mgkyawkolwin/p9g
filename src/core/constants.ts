@@ -9,7 +9,8 @@ export const ConfigGroup = {
     RIDE_TYPE: "RIDE_TYPE",
     INVOICE_STATUS: "INVOICE_STATUS",
     MEDIA_GROUP: "MEDIA_GROUP",
-    TDAC_STATUS: "TDAC_STATUS"
+    TDAC_STATUS: "TDAC_STATUS",
+    PREPAID_PACKAGE_TYPE: "PREPAID_PACKAGE_TYPE"
 }
 
 export const CurrencyList = ['KWR', 'MMK', 'THB', 'USD'] as const;

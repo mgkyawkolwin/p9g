@@ -134,6 +134,13 @@
       "when": 1782278218287,
       "tag": "0018_solid_thundra",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1790660044817,
+      "tag": "0019_next_leper_queen",
+      "breakpoints": true
     }
   ]
 }

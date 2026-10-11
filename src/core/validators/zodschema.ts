@@ -52,6 +52,23 @@ export const customerValidator = z.object({
 });
 
 
+export const prepaidPackageValidator = z.object({
+  id: z.coerce.string().length(36),
+  customerId: z.coerce.string().length(36),
+  effectiveStartDate: z.coerce.date(),
+  effectiveEndDate: z.coerce.date(),
+  noOfDays: z.coerce.number().gt(0),
+  price: z.coerce.number(),
+  deposit: z.coerce.number(),
+  balance: z.coerce.number().optional(),
+  depositDateTimeUTC: z.coerce.date().nullish().catch(undefined).optional(),
+  location: z.coerce.string().optional(),
+  remark: z.coerce.string().nullish().optional(),
+  prepaidPackageTypeId: z.coerce.string().length(36),
+  modelState: z.coerce.string().optional()
+});
+
+
 export const feedbackValidator = z.object({
   id: z.coerce.string().length(36).optional(),
   reservationId: z.coerce.string().optional(),
