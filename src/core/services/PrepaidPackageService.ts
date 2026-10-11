@@ -10,7 +10,7 @@ import { and, asc, desc, eq, inList } from '@/lib/transformers/types';
 import { CustomError } from '@/lib/errors';
 import Customer from '../models/domain/Customer';
 import Config from '../models/domain/Config';
-import { ConfigGroup } from '@/core/constants';
+import { ConfigGroup, HttpStatusCode } from '@/core/constants';
 
 
 @injectable()
@@ -52,6 +52,41 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
         const created = await this.prepaidPackageRepository.create(prepaidPackage);
         c.fe('PrepaidPackageService > prepaidPackageCreate');
         return created;
+    }
+
+
+    async prepaidPackageUpdate(id: string, prepaidPackage: PrepaidPackage, sessionUser: SessionUser): Promise<PrepaidPackage> {
+        c.fs('PrepaidPackageService > prepaidPackageUpdate');
+        c.d(prepaidPackage);
+
+        if (!sessionUser?.id) throw new CustomError('Invalid session user.');
+        if (!sessionUser?.location) throw new CustomError('Location is required.');
+
+        const existingPackage = await this.prepaidPackageRepository.findById(id);
+        if (!existingPackage || existingPackage.location !== sessionUser.location) {
+            throw new CustomError('Prepaid package not found.', HttpStatusCode.NotFound);
+        }
+
+        if (!prepaidPackage?.customerId) throw new CustomError('Customer is required.');
+        if (!prepaidPackage?.prepaidPackageTypeId) throw new CustomError('Prepaid package type is required.');
+
+        const customer = await this.customerRepository.findById(prepaidPackage.customerId);
+        if (!customer) throw new CustomError('Customer not found.');
+
+        const packageType = await this.configRepository.findOne(
+            and(eq('group', ConfigGroup.PREPAID_PACKAGE_TYPE), eq('id', prepaidPackage.prepaidPackageTypeId))
+        );
+        if (!packageType) throw new CustomError('Prepaid package type not found.');
+
+        prepaidPackage.id = id;
+        prepaidPackage.location = sessionUser.location;
+        prepaidPackage.balance = Number(prepaidPackage.price ?? 0) - Number(prepaidPackage.deposit ?? 0);
+        prepaidPackage.updatedAtUTC = new Date();
+        prepaidPackage.updatedBy = sessionUser.id;
+
+        await this.prepaidPackageRepository.update(id, prepaidPackage);
+        c.fe('PrepaidPackageService > prepaidPackageUpdate');
+        return prepaidPackage;
     }
 
 

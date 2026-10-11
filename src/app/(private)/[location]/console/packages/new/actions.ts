@@ -44,6 +44,42 @@ export async function prepaidPackageCreate(prepaidPackage: PrepaidPackage, locat
 }
 
 
+export async function prepaidPackageUpdate(prepaidPackage: PrepaidPackage, location: string): Promise<FormState> {
+  try {
+    c.fs('Actions > prepaidPackageUpdate');
+    c.d(prepaidPackage);
+
+    const validatedFields = await prepaidPackageValidator.safeParseAsync(prepaidPackage);
+    if (!validatedFields.success) {
+      c.d(validatedFields.error.flatten().fieldErrors);
+      return { error: true, message: 'Invalid inputs.', data: null, formData: null };
+    }
+
+    const response = await fetch(process.env.API_URL + `packages/${prepaidPackage.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'cookie': (await headers()).get('cookie') ?? '',
+        'X-Resort-Location': location
+      },
+      body: JSON.stringify(validatedFields.data),
+    });
+
+    const responseData = await response.json();
+    if (!response.ok) {
+      c.e(responseData.message);
+      return { error: true, message: `Failed to update package. ${responseData.message}` };
+    }
+
+    c.fe('Actions > prepaidPackageUpdate');
+    return { error: false, message: 'Package update successful', data: responseData.data, formData: null };
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    return { error: true, message: 'Failed to update package.', data: null, formData: null };
+  }
+}
+
+
 export async function searchCustomer(search: string, location: string): Promise<FormState> {
   try {
     c.fs('Actions > searchCustomer (packages)');

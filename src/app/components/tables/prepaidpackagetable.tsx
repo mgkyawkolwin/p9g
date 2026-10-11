@@ -6,6 +6,8 @@ import DataTable from "@/lib/components/web/react/uicustom/datatable";
 import { FormState } from "@/core/types";
 import PrepaidPackage from "@/core/models/domain/PrepaidPackage";
 import { CopyIcon } from "lucide-react";
+import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
+import PrepaidPackageEditForm from "@/app/components/forms/prepaidpackageeditform";
 
 
 interface DataTableProps {
@@ -20,6 +22,10 @@ export default function PrepaidPackageTable({
   formAction,
   formRef,
 }: DataTableProps) {
+  const editDialogRef = React.useRef<{
+    openDialog: (open: boolean) => void;
+    setEditPrepaidPackage: (prepaidPackage: PrepaidPackage) => void;
+  } | undefined>(undefined);
 
   const formatter = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
@@ -98,10 +104,34 @@ export default function PrepaidPackageTable({
       accessorKey: "remark",
       header: "Remark",
       cell: ({ row }) => <div className="flex max-w-[220px] whitespace-normal">{String(row.getValue('remark') ?? '')}</div>
+    },
+    {
+      accessorKey: "action",
+      header: "Action",
+      enableHiding: false,
+      cell: ({ row }) => (
+        <ButtonCustom
+          variant="black"
+          size="sm"
+          type="button"
+          onClick={() => {
+            editDialogRef.current?.setEditPrepaidPackage(row.original);
+            editDialogRef.current?.openDialog(true);
+          }}
+        >
+          Edit
+        </ButtonCustom>
+      )
     }
   ];
 
   return (
-    <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
+    <>
+      <DataTable columns={columns} formState={formState} formAction={formAction} formRef={formRef} />
+      <PrepaidPackageEditForm
+        openCallback={(callbacks) => { editDialogRef.current = callbacks; }}
+        onSaved={() => formRef.current?.requestSubmit()}
+      />
+    </>
   );
 }

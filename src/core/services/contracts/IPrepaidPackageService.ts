@@ -6,6 +6,7 @@ import Config from "@/core/models/domain/Config";
 
 export default interface IPrepaidPackageService {
     prepaidPackageCreate(prepaidPackage: PrepaidPackage, sessionUser: SessionUser): Promise<PrepaidPackage>;
+    prepaidPackageUpdate(id: string, prepaidPackage: PrepaidPackage, sessionUser: SessionUser): Promise<PrepaidPackage>;
     prepaidPackageFindMany(pagerParams: PagerParams, sessionUser: SessionUser): Promise<[PrepaidPackage[], number]>;
     prepaidPackageTypeFindMany(sessionUser: SessionUser): Promise<Config[]>;
 }
