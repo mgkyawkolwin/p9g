@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "38258169-a0d4-44ef-b026-a23547923e63",
+  "id": "c470a934-7bf2-45c3-9e0b-ae1d7b39cd23",
   "prevId": "31971dda-a325-4cd1-b32d-0b22e252e198",
   "tables": {
     "bill": {
@@ -1467,10 +1467,10 @@
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
-        "prepaidPackage_prepaidPackageTypeId_config_id_fk": {
-          "name": "prepaidPackage_prepaidPackageTypeId_config_id_fk",
+        "prepaidPackage_prepaidPackageTypeId_prepaid_id_fk": {
+          "name": "prepaidPackage_prepaidPackageTypeId_prepaid_id_fk",
           "tableFrom": "prepaidPackage",
-          "tableTo": "config",
+          "tableTo": "prepaid",
           "columnsFrom": [
             "prepaidPackageTypeId"
           ],
@@ -2447,7 +2447,7 @@
         },
         "prepaidCode": {
           "name": "prepaidCode",
-          "type": "char(8)",
+          "type": "char(36)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

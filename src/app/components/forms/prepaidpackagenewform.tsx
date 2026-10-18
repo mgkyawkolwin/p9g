@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import Customer from "@/core/models/domain/Customer";
 import PrepaidPackage from "@/core/models/domain/PrepaidPackage";
-import Config from "@/core/models/domain/Config";
+import PrepaidEntity from "@/core/models/entity/PrepaidEntity";
 
 import { ButtonCustom } from "@/lib/components/web/react/uicustom/buttoncustom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/lib/components/web/react/ui/dialog";
@@ -71,7 +71,7 @@ export default function PrepaidPackageNewForm({ onSaved, openCallback }: Prepaid
       }
 
       const items = new Map<string, string>([['DEFAULT', 'Choose']]);
-      const packageTypes = (result.data ?? []) as Config[];
+      const packageTypes = (result.data ?? []) as PrepaidEntity[];
       packageTypes.forEach((x) => items.set(x.id, x.text));
       setPackageTypeItems(items);
     }
@@ -94,7 +94,7 @@ export default function PrepaidPackageNewForm({ onSaved, openCallback }: Prepaid
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="h-auto w-auto min-w-[900px]">
+        <DialogContent className="h-auto w-[95vw] max-w-[1000px]">
           <DialogHeader>
             <DialogTitle>New Package</DialogTitle>
             <DialogDescription />

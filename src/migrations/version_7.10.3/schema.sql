@@ -18,5 +18,7 @@ CREATE TABLE `prepaidPackage` (
 	CONSTRAINT `prepaidPackage_id` PRIMARY KEY(`id`)
 );
 
+ALTER TABLE `reservation` MODIFY COLUMN `prepaidCode` char(36);
+ALTER TABLE `prepaid` MODIFY COLUMN `days` smallint NOT NULL;
 ALTER TABLE `prepaidPackage` ADD CONSTRAINT `prepaidPackage_customerId_customer_id_fk` FOREIGN KEY (`customerId`) REFERENCES `customer`(`id`) ON DELETE restrict ON UPDATE no action;
-ALTER TABLE `prepaidPackage` ADD CONSTRAINT `prepaidPackage_prepaidPackageTypeId_config_id_fk` FOREIGN KEY (`prepaidPackageTypeId`) REFERENCES `config`(`id`) ON DELETE no action ON UPDATE no action;
+ALTER TABLE `prepaidPackage` ADD CONSTRAINT `prepaidPackage_prepaidPackageTypeId_prepaid_id_fk` FOREIGN KEY (`prepaidPackageTypeId`) REFERENCES `prepaid`(`id`) ON DELETE no action ON UPDATE no action;

@@ -5,6 +5,7 @@ import RoomRate from "@/core/models/domain/RoomRate";
 import RoomType from "@/core/models/domain/RoomType";
 import { CustomError } from "@/lib/errors";
 import c from "@/lib/loggers/console/ConsoleLogger";
+import { PrepaidPackageType } from "../constants";
 
 export interface MonthDetail {
     month: number;          // 0-11 (0 = January)
@@ -17,7 +18,7 @@ export interface MonthDetail {
 
 export default class RoomRateEngine {
 
-    public static calculate(reservation: Reservation, roomReservations: RoomReservation[], roomTypes: RoomType[], roomRates: RoomRate[]): RoomCharge[] {
+    public static calculate(reservation: Reservation, roomReservations: RoomReservation[], roomTypes: RoomType[], roomRates: RoomRate[], prepaidPackageType: string = ''): RoomCharge[] {
         c.i('Room rate calculation engine.');
         if (!reservation)
             throw new CustomError('Reservation in required to calculate room charge.');
@@ -54,29 +55,18 @@ export default class RoomRateEngine {
                 roomCharge.startDate = md.periodStart;
                 roomCharge.endDate = md.periodEnd;
                 roomCharge.noOfDays = Number(md.noOfDays);
-                if (reservation.prepaidPackage && reservation.prepaidPackage.trim() !== '') {
+                if (prepaidPackageType ==  PrepaidPackageType.NINETY_DAYS) {
                     roomCharge.roomRate = 0;
                     roomCharge.roomSurcharge = Number(rate.roomSurcharge);
                     roomCharge.seasonSurcharge = Number(rate.seasonSurcharge);
-                } else if (reservation.prepaidPackageId && reservation.prepaidPackageId.trim() !== '') {
+                } else if (prepaidPackageType == PrepaidPackageType.THIRTY_THREE) {
                     roomCharge.roomRate = 0;
                     roomCharge.roomSurcharge = Number(rate.roomSurcharge);
-                    roomCharge.seasonSurcharge = Number(rate.seasonSurcharge);
                 } else {
                     roomCharge.roomRate = Number(rate.roomRate);
                 }
                 if (rrsv.isSingleOccupancy === true) {
                     roomCharge.singleRate = Number(rate.singleRate);
-                }
-
-                //do not charge base room rate for prepaid packages
-                if (reservation.prepaidPackageId && reservation.prepaidPackageId.trim() !== '') {
-                    // roomCharge.roomRate = 0;
-                    // roomCharge.roomSurcharge = Number(rate.roomSurcharge);
-                    //roomCharge.totalRate = Number(roomCharge.roomSurcharge) + Number(roomCharge.seasonSurcharge )+ Number(roomCharge.singleRate);
-                } else {
-                    // roomCharge.roomRate = Number(rate.roomRate);
-                    //roomCharge.totalRate = Number(roomCharge.roomRate) + Number(roomCharge.singleRate);
                 }
 
                 roomCharge.totalRate = Number(roomCharge.roomRate) + Number(roomCharge.roomSurcharge) + Number(roomCharge.seasonSurcharge) + Number(roomCharge.singleRate);

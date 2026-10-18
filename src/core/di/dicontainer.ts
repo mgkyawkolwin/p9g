@@ -351,11 +351,11 @@ container.bind<IRepository<PrepaidPackage>>(TYPES.IPrepaidPackageRepository).toD
                 ...prepaidPackageTable,
                 customerEnglishName: customerTable.englishName,
                 customerName: customerTable.name,
-                prepaidPackageTypeText: configTable.text
+                prepaidPackageTypeText: prepaidTable.text
             },
             (q) => q
                 .innerJoin(customerTable, eq(customerTable.id, prepaidPackageTable.customerId))
-                .innerJoin(configTable, eq(configTable.id, prepaidPackageTable.prepaidPackageTypeId)),
+                .innerJoin(prepaidTable, eq(prepaidTable.id, prepaidPackageTable.prepaidPackageTypeId)),
             context.get<IMapper>(TYPES.IMapper),
             PrepaidPackage,
             PrepaidPackageEntity,

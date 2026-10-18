@@ -54,6 +54,15 @@ export default class ReservationService implements IReservationService {
     }
 
 
+    private async getPrepaidPackageTypeValue(reservation: Reservation): Promise<string> {
+        if (!reservation.prepaidPackageId?.trim()) return '';
+
+        const prepaidPackageType = await this.prepaidRepository.findById(reservation.prepaidPackageId);
+        if (!prepaidPackageType) throw new CustomError('Reservation service cannot find prepaid package type.');
+        return prepaidPackageType.value;
+    }
+
+
     async billDeleteById(reservationId: string, billId: string, sessionUser: SessionUser): Promise<void> {
         c.fs('ReservationService > billDeleteById');
         if (!reservationId) throw new CustomError('Service: Reservation id is required.');
@@ -428,7 +437,8 @@ export default class ReservationService implements IReservationService {
                 c.i('Calculating room charges');
                 const [roomTypes, trc] = await this.roomTypeRepository.findMany(eq('location', reservation.location));
                 const [roomRates, rrc] = await this.roomRateRepository.findMany(eq('location', reservation.location));
-                const roomCharges = await RoomRateEngine.calculate(reservation, [rrResult], roomTypes, roomRates);
+                const prepaidPackageTypeValue = await this.getPrepaidPackageTypeValue(reservation);
+                const roomCharges = await RoomRateEngine.calculate(reservation, [rrResult], roomTypes, roomRates, prepaidPackageTypeValue);
                 if (!roomCharges || roomCharges.length === 0)
                     throw new Error('Invalid room charge calculation.');
 
@@ -514,7 +524,8 @@ export default class ReservationService implements IReservationService {
             const [roomRates, rrc] = await this.roomRateRepository.findMany(eq("location", reservation.location));
             if (!roomRates) throw new CustomError('Service cannot find room rates.');
 
-            const roomCharges = await RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates);
+            const prepaidPackageTypeValue = await this.getPrepaidPackageTypeValue(reservation);
+            const roomCharges = await RoomRateEngine.calculate(reservation, roomReservations, roomTypes, roomRates, prepaidPackageTypeValue);
             if (!roomCharges || roomCharges.length === 0)
                 throw new Error('Invalid room charge calculation.');
             console.log(`Room Charges: ${roomCharges.length}`);
@@ -818,7 +829,8 @@ export default class ReservationService implements IReservationService {
                 const [roomRates, rrc] = await this.roomRateRepository.findMany(eq("location", reservation.location));
                 if (!roomRates) throw new CustomError('Service cannot find room rates.');
 
-                const roomCharges = await RoomRateEngine.calculate(reservation, [roomReservation], roomTypes, roomRates);
+                const prepaidPackageTypeValue = await this.getPrepaidPackageTypeValue(reservation);
+                const roomCharges = await RoomRateEngine.calculate(reservation, [roomReservation], roomTypes, roomRates, prepaidPackageTypeValue);
                 if (!roomCharges || roomCharges.length === 0)
                     throw new Error('Invalid room charge calculation.');
 

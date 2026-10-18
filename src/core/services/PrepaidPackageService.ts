@@ -6,19 +6,19 @@ import SessionUser from '../models/dto/SessionUser';
 import type IRepository from '@/lib/repositories/IRepository';
 import PrepaidPackage from '../models/domain/PrepaidPackage';
 import type IPrepaidPackageService from './contracts/IPrepaidPackageService';
-import { and, asc, desc, eq, inList } from '@/lib/transformers/types';
+import { asc, desc, eq, inList } from '@/lib/transformers/types';
 import { CustomError } from '@/lib/errors';
 import Customer from '../models/domain/Customer';
-import Config from '../models/domain/Config';
-import { ConfigGroup, HttpStatusCode } from '@/core/constants';
+import PrepaidEntity from '../models/entity/PrepaidEntity';
+import { HttpStatusCode } from '@/core/constants';
 
 
 @injectable()
 export default class PrepaidPackageService implements IPrepaidPackageService {
 
     constructor(
-        @inject(TYPES.IConfigRepository) private configRepository: IRepository<Config>,
         @inject(TYPES.ICustomerRepository) private customerRepository: IRepository<Customer>,
+        @inject(TYPES.IPrepaidRepository) private prepaidRepository: IRepository<PrepaidEntity>,
         @inject(TYPES.IPrepaidPackageRepository) private prepaidPackageRepository: IRepository<PrepaidPackage>
     ) {
 
@@ -37,9 +37,7 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
         const customer = await this.customerRepository.findById(prepaidPackage.customerId);
         if (!customer) throw new CustomError('Customer not found.');
 
-        const packageType = await this.configRepository.findOne(
-            and(eq('group', ConfigGroup.PREPAID_PACKAGE_TYPE), eq('id', prepaidPackage.prepaidPackageTypeId))
-        );
+        const packageType = await this.prepaidRepository.findById(prepaidPackage.prepaidPackageTypeId);
         if (!packageType) throw new CustomError('Prepaid package type not found.');
 
         prepaidPackage.location = sessionUser.location;
@@ -73,9 +71,7 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
         const customer = await this.customerRepository.findById(prepaidPackage.customerId);
         if (!customer) throw new CustomError('Customer not found.');
 
-        const packageType = await this.configRepository.findOne(
-            and(eq('group', ConfigGroup.PREPAID_PACKAGE_TYPE), eq('id', prepaidPackage.prepaidPackageTypeId))
-        );
+        const packageType = await this.prepaidRepository.findById(prepaidPackage.prepaidPackageTypeId);
         if (!packageType) throw new CustomError('Prepaid package type not found.');
 
         prepaidPackage.id = id;
@@ -117,7 +113,7 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
                 : [[], 0];
 
             const [packageTypes] = packageTypeIds.length > 0
-                ? await this.configRepository.findMany(and(eq('group', ConfigGroup.PREPAID_PACKAGE_TYPE), inList('id', packageTypeIds)))
+                ? await this.prepaidRepository.findMany(inList('id', packageTypeIds))
                 : [[], 0];
 
             const customerMap = new Map(customers.map(x => [x.id, x]));
@@ -138,13 +134,13 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
     }
 
 
-    async prepaidPackageTypeFindMany(sessionUser: SessionUser): Promise<Config[]> {
+    async prepaidPackageTypeFindMany(sessionUser: SessionUser): Promise<PrepaidEntity[]> {
         c.fs('PrepaidPackageService > prepaidPackageTypeFindMany');
 
         if (!sessionUser?.location) throw new CustomError('Location is required.');
 
-        const [packageTypes] = await this.configRepository.findMany(
-            eq('group', ConfigGroup.PREPAID_PACKAGE_TYPE),
+        const [packageTypes] = await this.prepaidRepository.findMany(
+            undefined,
             asc('text')
         );
 

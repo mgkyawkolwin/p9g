@@ -5,7 +5,7 @@ import { FormState } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { headers } from 'next/headers';
 import PrepaidPackage from '@/core/models/domain/PrepaidPackage';
-import Config from '@/core/models/domain/Config';
+import PrepaidEntity from '@/core/models/entity/PrepaidEntity';
 
 
 export async function prepaidPackageCreate(prepaidPackage: PrepaidPackage, location: string): Promise<FormState> {
@@ -127,7 +127,7 @@ export async function prepaidPackageTypeGetList(location: string): Promise<FormS
       return { error: true, message: `Failed to retrieve package types. ${responseData.message}`, data: null, formData: null };
     }
 
-    const packageTypes: Config[] = (responseData.data ?? []) as Config[];
+    const packageTypes: PrepaidEntity[] = (responseData.data ?? []) as PrepaidEntity[];
     c.fe('Actions > prepaidPackageTypeGetList');
     return { error: false, message: '', data: packageTypes };
   } catch (error) {

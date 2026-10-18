@@ -30,14 +30,30 @@ export default function PrepaidPackageDetailForm({
 
   return (
     <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto p-1">
-      <div className="flex gap-2 items-end">
+      <SelectWithLabel
+        name="prepaidPackageTypeId"
+        label="Package Type"
+        size="full"
+        labelPosition="top"
+        items={packageTypeItems}
+        value={localData.prepaidPackageTypeId || 'DEFAULT'}
+        onValueChange={(value) => {
+          onDataChanged({ ...localData, prepaidPackageTypeId: value === 'DEFAULT' ? '' : value });
+        }}
+      />
+
+      <div>
+        <button type="button" className="px-3 py-2 text-sm rounded-md border" onClick={onCustomerChooseRequested}>Search and Choose Customer</button>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
         <InputWithLabel
-          name="customerEnglishName"
-          label="Customer English Name"
+          name="customerId"
+          label="Customer Id"
           variant="default"
           size="full"
           labelPosition="top"
-          value={localData.customerEnglishName ?? ''}
+          value={localData.customerId ?? ''}
           readOnly
           disabled
         />
@@ -51,36 +67,20 @@ export default function PrepaidPackageDetailForm({
           readOnly
           disabled
         />
-      </div>
-
-      <div className="flex gap-2 items-end">
-        <button type="button" className="px-3 py-2 text-sm rounded-md border" onClick={onCustomerChooseRequested}>Search and Choose Customer</button>
         <InputWithLabel
-          name="customerId"
-          label="Customer Id"
+          name="customerEnglishName"
+          label="Customer English Name"
           variant="default"
           size="full"
           labelPosition="top"
-          value={localData.customerId ?? ''}
+          value={localData.customerEnglishName ?? ''}
           readOnly
           disabled
         />
       </div>
 
-      <SelectWithLabel
-        name="prepaidPackageTypeId"
-        label="Package Type"
-        size="full"
-        labelPosition="top"
-        items={packageTypeItems}
-        value={localData.prepaidPackageTypeId || 'DEFAULT'}
-        onValueChange={(value) => {
-          onDataChanged({ ...localData, prepaidPackageTypeId: value === 'DEFAULT' ? '' : value });
-        }}
-      />
-
-      <div className="flex gap-2">
-        <div className="flex flex-col gap-2 w-full">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="flex min-w-0 flex-col gap-2 w-full">
           <Label className="text-[10pt]">Effective Start Date</Label>
           <DatePicker
             selected={localData.effectiveStartDate ? new Date(localData.effectiveStartDate) : null}
@@ -95,7 +95,7 @@ export default function PrepaidPackageDetailForm({
           />
         </div>
 
-        <div className="flex flex-col gap-2 w-full">
+        <div className="flex min-w-0 flex-col gap-2 w-full">
           <Label className="text-[10pt]">Effective End Date</Label>
           <DatePicker
             selected={localData.effectiveEndDate ? new Date(localData.effectiveEndDate) : null}
@@ -109,9 +109,6 @@ export default function PrepaidPackageDetailForm({
             showIcon
           />
         </div>
-      </div>
-
-      <div className="flex gap-2">
         <InputWithLabel
           name="noOfDays"
           label="No of Days"
@@ -121,6 +118,41 @@ export default function PrepaidPackageDetailForm({
           value={localData.noOfDays ?? 0}
           onChange={(e) => onDataChanged({ ...localData, noOfDays: Number(e.target.value || 0) })}
         />
+      </div>
+
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <InputWithLabel
+          name="deposit"
+          label="Deposit"
+          variant="default"
+          size="full"
+          labelPosition="top"
+          value={localData.deposit ?? 0}
+          onChange={(e) => {
+            const deposit = Number(e.target.value || 0);
+            onDataChanged({ ...localData, deposit, balance: Number(localData.price || 0) - deposit });
+          }}
+        />
+        <div className="flex flex-col gap-2 w-full">
+          <Label className="text-[10pt]">Deposit Date</Label>
+          <DatePicker
+            selected={localData.depositDateTimeUTC ? new Date(localData.depositDateTimeUTC) : null}
+            onChange={(date: Date | null) => {
+              onDataChanged({ ...localData, depositDateTimeUTC: date ?? null });
+            }}
+            dateFormat="yyyy-MM-dd HH:mm"
+            customInput={<InputCustom size="md" />}
+            placeholderText="yyyy-mm-dd hh:mm"
+            isClearable
+            showIcon
+            showTimeSelect
+            timeIntervals={5}
+            timeFormat="HH:mm"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <InputWithLabel
           name="price"
           label="Price"
@@ -134,43 +166,13 @@ export default function PrepaidPackageDetailForm({
           }}
         />
         <InputWithLabel
-          name="deposit"
-          label="Deposit"
-          variant="default"
-          size="full"
-          labelPosition="top"
-          value={localData.deposit ?? 0}
-          onChange={(e) => {
-            const deposit = Number(e.target.value || 0);
-            onDataChanged({ ...localData, deposit, balance: Number(localData.price || 0) - deposit });
-          }}
-        />
-        <InputWithLabel
           name="balance"
-          label="Balance"
+          label="Balance Amount"
           variant="default"
           size="full"
           labelPosition="top"
           value={localData.balance ?? 0}
           readOnly
-        />
-      </div>
-
-      <div className="flex flex-col gap-2 w-full">
-        <Label className="text-[10pt]">Deposit Date/Time</Label>
-        <DatePicker
-          selected={localData.depositDateTimeUTC ? new Date(localData.depositDateTimeUTC) : null}
-          onChange={(date: Date | null) => {
-            onDataChanged({ ...localData, depositDateTimeUTC: date ?? null });
-          }}
-          dateFormat="yyyy-MM-dd HH:mm"
-          customInput={<InputCustom size="md" />}
-          placeholderText="yyyy-mm-dd hh:mm"
-          isClearable
-          showIcon
-          showTimeSelect
-          timeIntervals={5}
-          timeFormat="HH:mm"
         />
       </div>
 
