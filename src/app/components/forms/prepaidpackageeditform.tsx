@@ -17,6 +17,7 @@ import PrepaidPackageDetailForm from "@/app/components/basicforms/prepaidpackage
 import CustomerChooseTable from "@/app/components/tables/customerchoosetable";
 import { prepaidPackageTypeGetList, prepaidPackageUpdate, searchCustomer } from "@/app/(private)/[location]/console/packages/new/actions";
 
+import "react-datepicker/dist/react-datepicker.css";
 
 interface PrepaidPackageEditFormProps {
   onSaved?: (prepaidPackage: PrepaidPackage) => void;
@@ -88,9 +89,9 @@ export default function PrepaidPackageEditForm({ onSaved, openCallback }: Prepai
   return (
     <>
       <Dialog open={open} onOpenChange={openDialog}>
-        <DialogContent className="h-auto w-auto min-w-[900px]">
+        <DialogContent className="h-auto max-h-[95vh] min-w-[60vw] max-w-[70vw]">
           <DialogHeader>
-            <DialogTitle>Edit Package</DialogTitle>
+            <DialogTitle>Edit Prepaid Package</DialogTitle>
             <DialogDescription />
           </DialogHeader>
 

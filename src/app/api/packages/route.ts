@@ -4,7 +4,7 @@ import { TYPES } from "@/core/types";
 import c from "@/lib/loggers/console/ConsoleLogger";
 import { HttpStatusCode } from "@/core/constants";
 import { getPagerWithDefaults } from "@/core/helpers";
-import { pagerValidator, prepaidPackageValidator } from "@/core/validators/zodschema";
+import { pagerValidator, prepaidPackageValidator, searchValidator } from "@/core/validators/zodschema";
 import { CustomError } from "@/lib/errors";
 import ILogService from "@/core/services/contracts/ILogService";
 import { auth } from "@/app/auth";
@@ -25,10 +25,11 @@ export async function GET(request: NextRequest) {
 
     const searchParams = Object.fromEntries(request.nextUrl.searchParams);
     const pagerValidatedFields = await pagerValidator.safeParseAsync(searchParams);
+    const searchValidatedFields = await searchValidator.safeParseAsync(searchParams);
     const pager = getPagerWithDefaults(pagerValidatedFields.data);
 
     const service = container.get<IPrepaidPackageService>(TYPES.IPrepaidPackageService);
-    const result = await service.prepaidPackageFindMany(pager, session.user);
+    const result = await service.prepaidPackageFindMany(pager, session.user, searchValidatedFields.data);
 
     pager.records = result[1];
     pager.pages = Math.ceil(pager.records / pager.pageSize);

@@ -94,7 +94,7 @@ export default function PrepaidPackageNewForm({ onSaved, openCallback }: Prepaid
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="h-auto w-[95vw] max-w-[1000px]">
+        <DialogContent className="h-auto max-h-[95vh] min-w-[60vw] max-w-[70vw]">
           <DialogHeader>
             <DialogTitle>New Package</DialogTitle>
             <DialogDescription />
@@ -126,7 +126,6 @@ export default function PrepaidPackageNewForm({ onSaved, openCallback }: Prepaid
                 Create Package
               </ButtonCustom>
 
-              <ButtonCustom type="button" variant="red" onClick={resetData}>Clear Form</ButtonCustom>
               <ButtonCustom type="button" variant="black" onClick={() => setOpen(false)}>Close</ButtonCustom>
             </div>
           </div>

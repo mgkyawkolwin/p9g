@@ -7,7 +7,6 @@ import { Textarea } from "@/lib/components/web/react/ui/textarea";
 import { Label } from "@/lib/components/web/react/ui/label";
 import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
 import { SelectWithLabel } from "@/lib/components/web/react/uicustom/selectwithlabel";
-
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -27,29 +26,37 @@ export default function PrepaidPackageDetailForm({
 }: PrepaidPackageDetailFormProps) {
 
   const localData = prepaidPackage;
+  const calculatedBalance = Number(localData.price ?? 0) - Number(localData.paidAmount ?? 0);
 
   return (
-    <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto p-1">
-      <SelectWithLabel
-        name="prepaidPackageTypeId"
-        label="Package Type"
-        size="full"
-        labelPosition="top"
-        items={packageTypeItems}
-        value={localData.prepaidPackageTypeId || 'DEFAULT'}
-        onValueChange={(value) => {
-          onDataChanged({ ...localData, prepaidPackageTypeId: value === 'DEFAULT' ? '' : value });
-        }}
-      />
-
-      <div>
-        <button type="button" className="px-3 py-2 text-sm rounded-md border" onClick={onCustomerChooseRequested}>Search and Choose Customer</button>
+    <div className="flex flex-col gap-6 w-full">
+      {/* Row 1: Package Type */}
+      <div className="grid grid-cols-2 gap-4 w-full">
+        <SelectWithLabel
+          name="prepaidPackageTypeId"
+          label="Package Type"
+          size="full"
+          labelPosition="top"
+          items={packageTypeItems}
+          value={localData.prepaidPackageTypeId || 'DEFAULT'}
+          onValueChange={(value) => {
+            onDataChanged({ ...localData, prepaidPackageTypeId: value === 'DEFAULT' ? '' : value });
+          }}
+        />
       </div>
 
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+      {/* Customer Selection */}
+      <div>
+        <button type="button" className="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50" onClick={onCustomerChooseRequested}>
+          Search and Choose Customer
+        </button>
+      </div>
+
+      {/* Row 2: Customer Information */}
+      <div className="grid grid-cols-3 gap-4">
         <InputWithLabel
           name="customerId"
-          label="Customer Id"
+          label="Customer ID"
           variant="default"
           size="full"
           labelPosition="top"
@@ -69,7 +76,7 @@ export default function PrepaidPackageDetailForm({
         />
         <InputWithLabel
           name="customerEnglishName"
-          label="Customer English Name"
+          label="English Name"
           variant="default"
           size="full"
           labelPosition="top"
@@ -79,14 +86,19 @@ export default function PrepaidPackageDetailForm({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+      {/* Row 3: Effective Dates and Days */}
+      <div className="grid grid-cols-4 gap-4">
         <div className="flex min-w-0 flex-col gap-2 w-full">
-          <Label className="text-[10pt]">Effective Start Date</Label>
+          <Label className="text-sm font-medium">Effective Start Date</Label>
           <DatePicker
-            selected={localData.effectiveStartDate ? new Date(localData.effectiveStartDate) : null}
+            selected={localData.effectiveStartDate ? localData.effectiveStartDate.getUTCDateTimeAsLocalDateTime() : null}
             onChange={(date: Date | null) => {
-              onDataChanged({ ...localData, effectiveStartDate: date ?? null });
+              onDataChanged({
+                ...localData,
+                effectiveStartDate: date ? date.getLocalDateAsUTCDate() : null
+              });
             }}
+            maxDate={localData.effectiveEndDate ? new Date(localData.effectiveEndDate) : undefined}
             dateFormat="yyyy-MM-dd"
             customInput={<InputCustom size="md" />}
             placeholderText="yyyy-mm-dd"
@@ -96,12 +108,16 @@ export default function PrepaidPackageDetailForm({
         </div>
 
         <div className="flex min-w-0 flex-col gap-2 w-full">
-          <Label className="text-[10pt]">Effective End Date</Label>
+          <Label className="text-sm font-medium">Effective End Date</Label>
           <DatePicker
-            selected={localData.effectiveEndDate ? new Date(localData.effectiveEndDate) : null}
+            selected={localData.effectiveEndDate ? localData.effectiveEndDate.getUTCDateTimeAsLocalDateTime() : null}
             onChange={(date: Date | null) => {
-              onDataChanged({ ...localData, effectiveEndDate: date ?? null });
+              onDataChanged({
+                ...localData,
+                effectiveEndDate: date ? date.getLocalDateAsUTCDate() : null
+              });
             }}
+            minDate={localData.effectiveStartDate ? localData.effectiveStartDate.getUTCDateTimeAsLocalDateTime() : undefined}
             dateFormat="yyyy-MM-dd"
             customInput={<InputCustom size="md" />}
             placeholderText="yyyy-mm-dd"
@@ -111,59 +127,57 @@ export default function PrepaidPackageDetailForm({
         </div>
         <InputWithLabel
           name="noOfDays"
-          label="No of Days"
+          label="Total Days"
           variant="default"
           size="full"
           labelPosition="top"
+          type="number"
+          min={0}
+          step={1}
           value={localData.noOfDays ?? 0}
-          onChange={(e) => onDataChanged({ ...localData, noOfDays: Number(e.target.value || 0) })}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <InputWithLabel
-          name="deposit"
-          label="Deposit"
-          variant="default"
-          size="full"
-          labelPosition="top"
-          value={localData.deposit ?? 0}
           onChange={(e) => {
-            const deposit = Number(e.target.value || 0);
-            onDataChanged({ ...localData, deposit, balance: Number(localData.price || 0) - deposit });
+            const noOfDays = Math.max(0, Math.floor(Number(e.target.value || 0)));
+            onDataChanged({ ...localData, noOfDays });
           }}
         />
-        <div className="flex flex-col gap-2 w-full">
-          <Label className="text-[10pt]">Deposit Date</Label>
-          <DatePicker
-            selected={localData.depositDateTimeUTC ? new Date(localData.depositDateTimeUTC) : null}
-            onChange={(date: Date | null) => {
-              onDataChanged({ ...localData, depositDateTimeUTC: date ?? null });
-            }}
-            dateFormat="yyyy-MM-dd HH:mm"
-            customInput={<InputCustom size="md" />}
-            placeholderText="yyyy-mm-dd hh:mm"
-            isClearable
-            showIcon
-            showTimeSelect
-            timeIntervals={5}
-            timeFormat="HH:mm"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <InputWithLabel
-          name="price"
-          label="Price"
+          name="daysUsed"
+          label="Days Used"
           variant="default"
           size="full"
           labelPosition="top"
+          type="number"
+          value={localData.daysUsed ?? 0}
+          readOnly
+          disabled
+        />
+      </div>
+
+      {/* Row 4: Total Price, Paid Amount, and Balance */}
+      <div className="grid grid-cols-3 gap-4">
+        <InputWithLabel
+          name="price"
+          label="Total Price"
+          variant="default"
+          size="full"
+          labelPosition="top"
+          type="number"
           value={localData.price ?? 0}
           onChange={(e) => {
             const price = Number(e.target.value || 0);
-            onDataChanged({ ...localData, price, balance: price - Number(localData.deposit || 0) });
+            onDataChanged({ ...localData, price, balance: price - Number(localData.paidAmount ?? 0) });
           }}
+        />
+        <InputWithLabel
+          name="paidAmount"
+          label="Paid Amount"
+          variant="default"
+          size="full"
+          labelPosition="top"
+          type="number"
+          value={localData.paidAmount ?? 0}
+          readOnly
+          disabled
         />
         <InputWithLabel
           name="balance"
@@ -171,19 +185,25 @@ export default function PrepaidPackageDetailForm({
           variant="default"
           size="full"
           labelPosition="top"
-          value={localData.balance ?? 0}
+          type="number"
+          value={calculatedBalance}
           readOnly
+          disabled
         />
       </div>
 
-      <Label htmlFor="remark">Remark</Label>
-      <Textarea
-        id="remark"
-        name="remark"
-        placeholder=" ..."
-        value={localData.remark ?? ''}
-        onChange={(e) => onDataChanged({ ...localData, remark: e.target.value })}
-      />
+      {/* Remark - Full Width */}
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="remark" className="text-sm font-medium">Remark</Label>
+        <Textarea
+          id="remark"
+          name="remark"
+          placeholder="Enter any additional notes..."
+          value={localData.remark ?? ''}
+          onChange={(e) => onDataChanged({ ...localData, remark: e.target.value })}
+          className="min-h-[80px]"
+        />
+      </div>
     </div>
   );
 }

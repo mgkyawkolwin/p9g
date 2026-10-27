@@ -86,13 +86,19 @@ export const SelectList = {
         ["OTHER","Other"]
     ]),
 
+    PACKAGE_PAYMENT_MODE: new Map<string, string>([
+        ["CASH", "Cash"],
+        ["BANK", "Bank"]
+    ]),
+
     ROOM_PAYMENT_TYPE: new Map<string, string>([
         ["NORMAL","NORMAL"],
         ["DEPOSIT","DEPOSIT"]
     ]),
 
     PREPAID_PACKAGES: new Map<string,string>([
-        ["NINETY_DAYS", "90 Days"]
+        ["NINETY_DAYS", "90 Days"],
+        ["THIRTY_THREE", "330 Days"]
     ]),
 
     PROMOTION_PACKAGES: new Map<string, string>([
@@ -235,6 +241,19 @@ export const SelectListSearch = {
     TDAC_STATUS: new Map<string, string>([
         ["DEFAULT", "Show All"],
         ...SelectList.TDAC_STATUS.entries()
+    ]),
+
+    PACKAGE_PAYMENT_STATUS: new Map<string, string>([
+        ["DEFAULT", "Show All"],
+        ["Paid", "Paid"],
+        ["Unpaid", "Unpaid"]
+    ]),
+
+    PACKAGE_STATUS: new Map<string, string>([
+        ["DEFAULT", "Show All"],
+        ["New", "New"],
+        ["In Use", "In Use"],
+        ["Finished", "Finished"]
     ])
 } as const;
 

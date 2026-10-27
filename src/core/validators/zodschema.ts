@@ -59,13 +59,19 @@ export const prepaidPackageValidator = z.object({
   effectiveEndDate: z.coerce.date(),
   noOfDays: z.coerce.number().gt(0),
   price: z.coerce.number(),
-  deposit: z.coerce.number(),
   balance: z.coerce.number().optional(),
-  depositDateTimeUTC: z.coerce.date().nullish().catch(undefined).optional(),
   location: z.coerce.string().optional(),
   remark: z.coerce.string().nullish().optional(),
   prepaidPackageTypeId: z.coerce.string().length(36),
   modelState: z.coerce.string().optional()
+});
+
+export const prepaidPackagePaymentValidator = z.object({
+  amount: z.coerce.number().positive(),
+  paymentDateTimeUTC: z.coerce.date(),
+  currency: z.string().length(3),
+  paymentMode: z.enum(['CASH', 'BANK']).default('CASH'),
+  remark: z.string().max(500).nullish().optional()
 });
 
 
@@ -271,14 +277,19 @@ export const searchValidator = z.object({
   searchName: z.string().optional(),
   searchNationalId: z.string().optional(),
   searchPassport: z.string().optional(),
+  searchPackageStatus: z.string().optional(),
+  searchPaymentStatus: z.string().optional(),
   searchPhone: z.string().optional(),
   searchPrepaidPackage: z.string().optional(),
+  searchPrepaidPackageTypeId: z.string().optional(),
   searchPromotionPackage: z.string().optional(),
   searchRemark: z.string().optional(),
   searchReservationStatus: z.string().optional(),
   searchReservationType: z.string().optional(),
   searchInvoiceStatus: z.string().optional(),
   searchTdacStatus: z.string().optional(),
+  searchEffectiveFrom: z.coerce.string().optional(),
+  searchEffectiveUntil: z.coerce.string().optional(),
   searchUserName: z.string().optional(),
   startDate: z.coerce.date().optional()
 });

@@ -6,12 +6,14 @@ export default class PrepaidPackage extends DomainBase {
     public customerEnglishName: string = '';
     public customerId: string = '';
     public customerName: string = '';
-    public deposit: number = 0;
-    public depositDateTimeUTC: Date = null;
+    public daysUsed: number = 0;
     public effectiveEndDate: Date = null;
     public effectiveStartDate: Date = null;
     public location: string = '';
     public noOfDays: number = 0;
+    public paidAmount: number = 0;
+    public packageStatus: 'New' | 'In Use' | 'Finished' = 'New';
+    public paymentStatus: 'Paid' | 'Unpaid' = 'Unpaid';
     public prepaidPackageTypeId: string = '';
     public prepaidPackageTypeText: string = '';
     public price: number = 0;

@@ -264,13 +264,28 @@ export const prepaidPackageTable = mysqlTable("prepaidPackage", {
   effectiveStartDate: datetime("effectiveStartDate", { mode: 'date', fsp: 3 }).notNull(),
   effectiveEndDate: datetime("effectiveEndDate", { mode: 'date', fsp: 3 }).notNull(),
   noOfDays: smallint("noOfDays").notNull(),
+  daysUsed: smallint("daysUsed").notNull().default(0),
+  packageStatus: varchar("packageStatus", { length: 10 }).notNull().default("New"),
   price: decimal("price").notNull().default("0"),
-  deposit: decimal("deposit").notNull().default("0"),
   balance: decimal("balance").notNull().default("0"),
-  depositDateTimeUTC: datetime("depositDateTimeUTC", { mode: 'date', fsp: 3 }),
+  paymentStatus: varchar("paymentStatus", { length: 10 }).notNull().default("Unpaid"),
   location: varchar("location", { length: 10 }).notNull(),
   remark: varchar("remark", { length: 500 }),
   prepaidPackageTypeId: char("prepaidPackageTypeId", { length: 36 }).notNull().references(() => prepaidTable.id),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
+export const packagePaymentTable = mysqlTable("packagepayment", {
+  id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  prepaidPackageId: char("prepaidPackageId", { length: 36 }).notNull().references(() => prepaidPackageTable.id, { onDelete: 'cascade' }),
+  amount: decimal("amount").notNull(),
+  paymentDateTimeUTC: datetime("paymentDateTimeUTC", { mode: 'date', fsp: 3 }).notNull(),
+  currency: char("currency", { length: 3 }).notNull(),
+  paymentMode: varchar("paymentMode", { length: 10 }).notNull().default("CASH"),
+  remark: varchar("remark", { length: 500 }),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", { length: 36 }).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
@@ -412,6 +427,20 @@ export const reservationCustomerTable = mysqlTable("reservationCustomer", {
   customerId: char("customerId", { length: 36 }).notNull().references(() => customerTable.id, { onDelete: 'set null' }),
   tdacStatusId: char("tdacStatusId", { length: 36 }).notNull().references(() => configTable.id, { onDelete: 'set null' }),
   // tdacFileUrl: varchar("tdacFileUrl", {length: 50}),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
+export const packageUsageTable = mysqlTable("packageusage", {
+  id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'cascade' }),
+  customerId: char("customerId", { length: 36 }).notNull().references(() => customerTable.id, { onDelete: 'restrict' }),
+  prepaidPackageId: char("prepaidPackageId", { length: 36 }).notNull().references(() => prepaidPackageTable.id, { onDelete: 'restrict' }),
+  startDate: datetime("startDate", { mode: 'date', fsp: 3 }).notNull(),
+  endDate: datetime("endDate", { mode: 'date', fsp: 3 }).notNull(),
+  days: smallint("days").notNull(),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", { length: 36 }).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),

@@ -64,8 +64,11 @@ export type SearchFormFields = {
   searchName?: string | undefined,
   searchNationalId?: string | undefined,
   searchPassport?: string | undefined,
+  searchPackageStatus?: string | undefined,
+  searchPaymentStatus?: string | undefined,
   searchPhone?: string | undefined,
   searchPrepaidPackage?: string | undefined,
+  searchPrepaidPackageTypeId?: string | undefined,
   searchPromotionPackage?: string | undefined,
   searchRemark?: string | undefined,
   searchReservationStatus?: string | undefined,
@@ -74,6 +77,8 @@ export type SearchFormFields = {
   searchStartDateFrom?: string | undefined,
   searchStartDateUntil?: string | undefined,
   searchTdacStatus?: string | undefined,
+  searchEffectiveFrom?: string | undefined,
+  searchEffectiveUntil?: string | undefined,
   searchUserName?: string | undefined,
 };
 

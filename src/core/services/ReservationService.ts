@@ -29,6 +29,8 @@ import PromotionEntity from "@/core/models/entity/PromotionEntity";
 import { and, asc, desc, eq, ne, or } from "@/lib/transformers/types";
 import RoomReservationDto from "../models/dto/RoomReservationDto";
 import { timeStamp } from "console";
+import { and as drizzleAnd, asc as drizzleAsc, eq as drizzleEq, gte as drizzleGte, sql } from "drizzle-orm";
+import { packageUsageTable, prepaidPackageTable, reservationCustomerTable } from "@/core/orms/drizzle/mysql/schema";
 
 @injectable()
 export default class ReservationService implements IReservationService {
@@ -129,6 +131,190 @@ export default class ReservationService implements IReservationService {
         reservation.netAmount = Number(reservation.totalAmount ?? 0) + Number(reservation.taxAmount ?? 0) - Number(reservation.discountAmount ?? 0) - Number(reservation.depositAmount ?? 0);
         reservation.dueAmount = Number(reservation.netAmount ?? 0) - Number(reservation.paidAmount ?? 0);
         return reservation;
+    }
+
+    private async reconcilePackageUsage(reservation: Reservation, sessionUser: SessionUser, tx: TransactionType): Promise<void> {
+        c.fs('ReservationService > reconcilePackageUsage');
+
+        // Restore and delete any existing usages
+        const existingUsages = await tx.select().from(packageUsageTable)
+            .where(drizzleEq(packageUsageTable.reservationId, reservation.id));
+
+        for (const usage of existingUsages) {
+            await tx.update(prepaidPackageTable)
+                .set({
+                    daysUsed: sql`${prepaidPackageTable.daysUsed} - ${usage.days}`,
+                    packageStatus: sql<string>`CASE
+                        WHEN ${prepaidPackageTable.daysUsed} - ${usage.days} <= 0 THEN 'New'
+                        WHEN ${prepaidPackageTable.daysUsed} - ${usage.days} >= ${prepaidPackageTable.noOfDays} THEN 'Finished'
+                        ELSE 'In Use'
+                    END`,
+                    updatedAtUTC: new Date(),
+                    updatedBy: sessionUser.id
+                })
+                .where(drizzleEq(prepaidPackageTable.id, usage.prepaidPackageId));
+
+            c.d(`Restored ${usage.days} days for usage ${usage.id}`);
+        }
+
+        if (existingUsages.length > 0) {
+            await tx.delete(packageUsageTable)
+                .where(drizzleEq(packageUsageTable.reservationId, reservation.id));
+        }
+
+        // Exit if no prepaid package assigned
+        if (!reservation.prepaidPackageId) {
+            c.fe('ReservationService > reconcilePackageUsage');
+            return;
+        }
+
+        // The reservation stores the prepaid package type id. Any package of that
+        // type can be used, regardless of which customer owns it.
+        await this.getPrepaidPackageTypeValue(reservation);
+
+        // Validate dates
+        const checkInDate = reservation.checkInDate;
+        const checkOutDate = reservation.checkOutDate;
+        if (!(checkInDate instanceof Date) || Number.isNaN(checkInDate.getTime()) ||
+            !(checkOutDate instanceof Date) || Number.isNaN(checkOutDate.getTime()) ||
+            checkOutDate < checkInDate) {
+            throw new CustomError('Valid reservation dates are required to use a prepaid package.');
+        }
+
+        // Calculate total usage: pax x days
+        const days = Number(reservation.noOfDays);
+        const pax = Number(reservation.noOfGuests);
+        if (!Number.isInteger(days) || days <= 0 || !Number.isInteger(pax) || pax <= 0) {
+            throw new CustomError('Positive reservation days and guest count are required to use a prepaid package.');
+        }
+        const totalDaysToDeduct = days * pax;
+        c.d(`Total days to deduct: ${totalDaysToDeduct} (days: ${days}, pax: ${pax})`);
+
+        // Get unique customers for this reservation
+        const customers = await tx.select({ customerId: reservationCustomerTable.customerId })
+            .from(reservationCustomerTable)
+            .where(drizzleEq(reservationCustomerTable.reservationId, reservation.id));
+        const customerIds = [...new Set(customers.map(({ customerId }) => customerId))].sort();
+
+        if (customerIds.length === 0) {
+            throw new CustomError('At least one reservation customer is required to use a prepaid package.');
+        }
+
+        c.d(`Processing ${customerIds.length} customer(s)`);
+
+        // Distribute total days equally among all customers for usage records
+        const daysPerCustomer = Math.floor(totalDaysToDeduct / customerIds.length);
+        let remainingDays = totalDaysToDeduct % customerIds.length;
+
+        // Calculate each customer's share
+        const customerUsageShare = new Map<string, number>();
+        for (const customerId of customerIds) {
+            let daysForThisCustomer = daysPerCustomer;
+            if (remainingDays > 0) {
+                daysForThisCustomer += 1;
+                remainingDays -= 1;
+            }
+            customerUsageShare.set(customerId, daysForThisCustomer);
+            c.d(`Customer ${customerId} usage share: ${daysForThisCustomer} days`);
+        }
+
+        // Collect all prepaid packages of this type. Package ownership is not
+        // relevant when the package type and effective period are valid.
+        interface PackageForDeduction {
+            packageId: string;
+            noOfDays: number;
+            daysUsed: number;
+        }
+        const packagePool: PackageForDeduction[] = [];
+
+        const packages = await tx.select().from(prepaidPackageTable)
+            .where(drizzleAnd(
+                drizzleEq(prepaidPackageTable.prepaidPackageTypeId, reservation.prepaidPackageId),
+                drizzleGte(prepaidPackageTable.effectiveEndDate, checkInDate)
+            ))
+            .orderBy(drizzleAsc(prepaidPackageTable.effectiveEndDate))
+            .for('update');
+
+        for (const pkg of packages) {
+            const availableDays = Number(pkg.noOfDays) - Number(pkg.daysUsed ?? 0);
+            if (availableDays > 0) {
+                packagePool.push({
+                    packageId: pkg.id,
+                    noOfDays: Number(pkg.noOfDays),
+                    daysUsed: Number(pkg.daysUsed ?? 0)
+                });
+                c.d(`Package ${pkg.id}: ${availableDays} days available (${pkg.daysUsed}/${pkg.noOfDays})`);
+            }
+        }
+
+        c.d(`Total prepaid packages in pool: ${packagePool.length}`);
+
+        // Deduct total from the shared package pool
+        let remainingToDeduct = totalDaysToDeduct;
+
+        const packageAllocations: Array<{ packageId: string; days: number }> = [];
+        for (const pkg of packagePool) {
+            if (remainingToDeduct === 0) break;
+
+            const availableDays = pkg.noOfDays - pkg.daysUsed;
+            const usageDays = Math.min(availableDays, remainingToDeduct);
+
+            c.d(`Deducting ${usageDays} days from package ${pkg.packageId}`);
+
+            // Increment daysUsed in prepaid package
+            await tx.update(prepaidPackageTable)
+                .set({
+                    daysUsed: sql`${prepaidPackageTable.daysUsed} + ${usageDays}`,
+                    packageStatus: sql<string>`CASE
+                        WHEN ${prepaidPackageTable.daysUsed} + ${usageDays} <= 0 THEN 'New'
+                        WHEN ${prepaidPackageTable.daysUsed} + ${usageDays} >= ${prepaidPackageTable.noOfDays} THEN 'Finished'
+                        ELSE 'In Use'
+                    END`,
+                    updatedAtUTC: new Date(),
+                    updatedBy: sessionUser.id
+                })
+                .where(drizzleEq(prepaidPackageTable.id, pkg.packageId));
+
+            pkg.daysUsed += usageDays;
+            remainingToDeduct -= usageDays;
+            packageAllocations.push({ packageId: pkg.packageId, days: usageDays });
+        }
+
+        // Verify sufficient funds were deducted
+        if (remainingToDeduct > 0) {
+            throw new CustomError(`Insufficient total prepaid package days. Required: ${totalDaysToDeduct}, Deducted: ${totalDaysToDeduct - remainingToDeduct}.`);
+        }
+
+        c.d(`Total deducted: ${totalDaysToDeduct - remainingToDeduct} days from shared pool`);
+
+        // Keep each usage row tied to the package from which its days were
+        // deducted so restoring a reservation reverses the exact allocations.
+        for (const customerId of customerIds) {
+            let remainingCustomerDays = customerUsageShare.get(customerId)!;
+
+            for (const allocation of packageAllocations) {
+                if (remainingCustomerDays === 0) break;
+
+                const usageDays = Math.min(allocation.days, remainingCustomerDays);
+                if (usageDays === 0) continue;
+                c.d(`Inserting usage record for customer ${customerId}: ${usageDays} days from package ${allocation.packageId}`);
+
+                await tx.insert(packageUsageTable).values({
+                    reservationId: reservation.id,
+                    customerId,
+                    prepaidPackageId: allocation.packageId,
+                    startDate: checkInDate,
+                    endDate: checkOutDate,
+                    days: usageDays,
+                    createdBy: sessionUser.id,
+                    updatedBy: sessionUser.id
+                });
+                remainingCustomerDays -= usageDays;
+                allocation.days -= usageDays;
+            }
+        }
+
+        c.fe('ReservationService > reconcilePackageUsage');
     }
 
 
@@ -275,8 +461,17 @@ export default class ReservationService implements IReservationService {
         const config = await this.configRepository.findOne(and(eq("group", ConfigGroup.RESERVATION_STATUS), eq("value", "CCL")));
         if (!config) throw new CustomError('Cannot find config in reservation service.');
 
-        await this.reservationRepository.update(id, { reservationStatusId: config.id, updatedBy: sessionUser.id } as Reservation);
+        const reservation = await this.reservationRepository.findById(id);
+        if (!reservation) throw new CustomError('Cannot find reservation to cancel.');
 
+        await this.dbClient.db.transaction(async (tx: TransactionType) => {
+            await this.reconcilePackageUsage({ ...reservation, prepaidPackageId: null }, sessionUser, tx);
+            await this.reservationRepository.update(id, {
+                reservationStatusId: config.id,
+                updatedAtUTC: new Date(),
+                updatedBy: sessionUser.id
+            } as Reservation, tx as any);
+        });
     }
 
 
@@ -427,6 +622,8 @@ export default class ReservationService implements IReservationService {
 
                 await this.reservationCustomerRepository.createMany(newReservationCustomers, tx);
             }
+
+            await this.reconcilePackageUsage(createdReservation, sessionUser, tx);
 
             if (reservation.roomNo && room) {
                 c.i('Creating room reservation');
@@ -778,6 +975,8 @@ export default class ReservationService implements IReservationService {
                     c.i('There are no new customers for the reservation. Do nothing.');
                 }
             }
+
+            await this.reconcilePackageUsage(reservation, sessionUser, tx);
 
             const room = await this.roomRepository.findOne(eq("roomNo", reservation.roomNo));
             if (room && reservation.roomNo && originalReservation.roomNo !== reservation.roomNo) {
