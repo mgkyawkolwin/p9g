@@ -75,7 +75,7 @@ export class DrizzleQueryTransformer implements IQueryTranformer{
   private transformColumnRef(column: ColumnRef): SQL {
     if (typeof column === 'string') {
       // Use sql.raw for column names to ensure they're properly formatted
-      return sql.raw(`\`${column}\``);
+      return sql.raw(column.split('.').map(part => `\`${part}\``).join('.'));
     }
     return column;
   }

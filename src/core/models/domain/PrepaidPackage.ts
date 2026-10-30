@@ -9,7 +9,6 @@ export default class PrepaidPackage extends DomainBase {
     public daysUsed: number = 0;
     public effectiveEndDate: Date = null;
     public effectiveStartDate: Date = null;
-    public location: string = '';
     public noOfDays: number = 0;
     public paidAmount: number = 0;
     public packageStatus: 'New' | 'In Use' | 'Finished' = 'New';

@@ -176,6 +176,13 @@
       "when": 1793113739818,
       "tag": "0024_packagepayment_payment_mode",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1793200000000,
+      "tag": "0025_prepaid_package_remove_location",
+      "breakpoints": true
     }
   ]
 }

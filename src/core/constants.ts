@@ -98,7 +98,7 @@ export const SelectList = {
 
     PREPAID_PACKAGES: new Map<string,string>([
         ["NINETY_DAYS", "90 Days"],
-        ["THIRTY_THREE", "330 Days"]
+        ["FOUNDER_PASS", "Founder Pass"]
     ]),
 
     PROMOTION_PACKAGES: new Map<string, string>([
@@ -270,7 +270,7 @@ export const Theme = {
         tableHeadBorder: "border border-[#aaaaaa] dark:border-[#666666]",
         tableCellBg: "bg-[#e6e6e6] dark:bg-black",
         tableCellText: "text-[#555555] dark:text-[#aaaaaa]",
-        tableCellBorder: "border border-[#d0d0d0] border-b-[#c6c6c6] dark:border dark:border-[#444444] dark:border-b-[#555555]",
+        tableCellBorder: "border-0 border-b-1 border-[#d0d0d0] border-b-[#c6c6c6] dark:border-0 dark:border-[#444444] dark:border-b-[#555555]",
         tableFooterBg: "",
         tableFooterText: ""
     },

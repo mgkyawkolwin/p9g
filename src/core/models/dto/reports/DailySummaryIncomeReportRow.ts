@@ -67,4 +67,12 @@ export default class DailySummaryIncomeReportRow{
     public totalBillCashKWR : number = 0;
     public totalBillCashMMK : number = 0;
     public totalBillCashUSD : number = 0;
+    public totalFounderPassBankKWR : number = 0;
+    public totalFounderPassBankMMK : number = 0;
+    public totalFounderPassBankTHB : number = 0;
+    public totalFounderPassBankUSD : number = 0;
+    public totalFounderPassCashKWR : number = 0;
+    public totalFounderPassCashMMK : number = 0;
+    public totalFounderPassCashTHB : number = 0;
+    public totalFounderPassCashUSD : number = 0;
 }

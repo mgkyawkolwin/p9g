@@ -42,7 +42,6 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
         c.d(prepaidPackage);
 
         if (!sessionUser?.id) throw new CustomError('Invalid session user.');
-        if (!sessionUser?.location) throw new CustomError('Location is required.');
         if (!prepaidPackage?.customerId) throw new CustomError('Customer is required.');
         if (!prepaidPackage?.prepaidPackageTypeId) throw new CustomError('Prepaid package type is required.');
 
@@ -52,7 +51,6 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
         const packageType = await this.prepaidRepository.findById(prepaidPackage.prepaidPackageTypeId);
         if (!packageType) throw new CustomError('Prepaid package type not found.');
 
-        prepaidPackage.location = sessionUser.location;
         prepaidPackage.paidAmount = 0;
         prepaidPackage.balance = Number(prepaidPackage.price ?? 0) - prepaidPackage.paidAmount;
         prepaidPackage.paymentStatus = getPaymentStatus(prepaidPackage.balance);
@@ -73,10 +71,8 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
         c.d(prepaidPackage);
 
         if (!sessionUser?.id) throw new CustomError('Invalid session user.');
-        if (!sessionUser?.location) throw new CustomError('Location is required.');
-
         const existingPackage = await this.prepaidPackageRepository.findById(id);
-        if (!existingPackage || existingPackage.location !== sessionUser.location) {
+        if (!existingPackage) {
             throw new CustomError('Prepaid package not found.', HttpStatusCode.NotFound);
         }
 
@@ -90,7 +86,6 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
         if (!packageType) throw new CustomError('Prepaid package type not found.');
 
         prepaidPackage.id = id;
-        prepaidPackage.location = sessionUser.location;
         const [paymentTotal] = await this.dbClient.db.select({ total: drizzleSum(packagePaymentTable.amount) })
             .from(packagePaymentTable)
             .where(drizzleEq(packagePaymentTable.prepaidPackageId, id));
@@ -113,39 +108,37 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
         c.d(pagerParams);
         c.d(sessionUser);
 
-        if (!sessionUser?.location) throw new CustomError('Location is required.');
-
         const pageIndex = pagerParams.pageIndex ?? 1;
         const pageSize = pagerParams.pageSize ?? 10;
         const offset = (pageIndex - 1) * pageSize;
 
-        const conditions: AnyCondition[] = [eq('location', sessionUser.location)];
+        const conditions: AnyCondition[] = [];
 
         if (searchFormFields.searchId) {
-            conditions.push(like('id', searchFormFields.searchId));
+            conditions.push(like('prepaidPackage.id', `%${searchFormFields.searchId}%`));
         }
         if (searchFormFields.searchPrepaidPackageTypeId) {
-            conditions.push(eq('prepaidPackageTypeId', searchFormFields.searchPrepaidPackageTypeId));
+            conditions.push(eq('prepaidPackage.prepaidPackageTypeId', searchFormFields.searchPrepaidPackageTypeId));
         }
         if (searchFormFields.searchPaymentStatus) {
-            conditions.push(eq('paymentStatus', searchFormFields.searchPaymentStatus));
+            conditions.push(eq('prepaidPackage.paymentStatus', searchFormFields.searchPaymentStatus));
         }
         if (searchFormFields.searchPackageStatus) {
-            conditions.push(eq('packageStatus', searchFormFields.searchPackageStatus));
+            conditions.push(eq('prepaidPackage.packageStatus', searchFormFields.searchPackageStatus));
         }
         if (searchFormFields.searchRemark) {
-            conditions.push(like('remark', searchFormFields.searchRemark));
+            conditions.push(like('prepaidPackage.remark', `%${searchFormFields.searchRemark}%`));
         }
         if (searchFormFields.searchEffectiveFrom) {
-            conditions.push(gte('effectiveStartDate', new Date(`${searchFormFields.searchEffectiveFrom}T00:00:00.000Z`)));
+            conditions.push(gte('prepaidPackage.effectiveStartDate', new Date(`${searchFormFields.searchEffectiveFrom} 00:00:00.000`)));
         }
         if (searchFormFields.searchEffectiveUntil) {
-            conditions.push(lte('effectiveStartDate', new Date(`${searchFormFields.searchEffectiveUntil}T23:59:59.999Z`)));
+            conditions.push(lte('prepaidPackage.effectiveEndDate', new Date(`${searchFormFields.searchEffectiveUntil} 00:00:00.000`)));
         }
 
         const [packages, total] = await this.prepaidPackageRepository.findMany(
             and(...conditions),
-            desc('createdAtUTC'),
+            desc('prepaidPackage.createdAtUTC'),
             offset,
             pageSize
         );
@@ -194,8 +187,6 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
     async prepaidPackageTypeFindMany(sessionUser: SessionUser): Promise<PrepaidEntity[]> {
         c.fs('PrepaidPackageService > prepaidPackageTypeFindMany');
 
-        if (!sessionUser?.location) throw new CustomError('Location is required.');
-
         const [packageTypes] = await this.prepaidRepository.findMany(
             undefined,
             asc('text')
@@ -209,10 +200,8 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
     async prepaidPackageUsageFindMany(id: string, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[PrepaidPackageUsageHistory[], number]> {
         c.fs('PrepaidPackageService > prepaidPackageUsageFindMany');
 
-        if (!sessionUser?.location) throw new CustomError('Location is required.');
-
         const prepaidPackage = await this.prepaidPackageRepository.findById(id);
-        if (!prepaidPackage || prepaidPackage.location !== sessionUser.location) {
+        if (!prepaidPackage) {
             throw new CustomError('Prepaid package not found.', HttpStatusCode.NotFound);
         }
 
@@ -246,10 +235,8 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
 
 
     async prepaidPackageCustomerSummaryFindMany(id: string, sessionUser: SessionUser): Promise<PrepaidPackageCustomerSummary[]> {
-        if (!sessionUser?.location) throw new CustomError('Location is required.');
-
         const prepaidPackage = await this.prepaidPackageRepository.findById(id);
-        if (!prepaidPackage || prepaidPackage.location !== sessionUser.location) {
+        if (!prepaidPackage) {
             throw new CustomError('Prepaid package not found.', HttpStatusCode.NotFound);
         }
 
@@ -274,10 +261,8 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
 
 
     async prepaidPackagePaymentFindMany(id: string, sessionUser: SessionUser): Promise<PrepaidPackagePayment[]> {
-        if (!sessionUser?.location) throw new CustomError('Location is required.');
-
         const prepaidPackage = await this.prepaidPackageRepository.findById(id);
-        if (!prepaidPackage || prepaidPackage.location !== sessionUser.location) {
+        if (!prepaidPackage) {
             throw new CustomError('Prepaid package not found.', HttpStatusCode.NotFound);
         }
 
@@ -289,8 +274,6 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
 
     async prepaidPackagePaymentCreate(id: string, payment: PrepaidPackagePayment, sessionUser: SessionUser): Promise<PrepaidPackagePayment> {
         if (!sessionUser?.id) throw new CustomError('Invalid session user.');
-        if (!sessionUser?.location) throw new CustomError('Location is required.');
-
         const paymentRecord = Object.assign(new PrepaidPackagePayment(), payment, {
             prepaidPackageId: id,
             createdAtUTC: new Date(),
@@ -307,10 +290,7 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
                 noOfDays: prepaidPackageTable.noOfDays
             })
                 .from(prepaidPackageTable)
-                .where(drizzleAnd(
-                    drizzleEq(prepaidPackageTable.id, id),
-                    drizzleEq(prepaidPackageTable.location, sessionUser.location!)
-                ))
+                .where(drizzleEq(prepaidPackageTable.id, id))
                 .for('update');
 
             if (!prepaidPackage) throw new CustomError('Prepaid package not found.', HttpStatusCode.NotFound);
@@ -351,7 +331,6 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
 
     async prepaidPackagePaymentUpdate(id: string, paymentId: string, payment: PrepaidPackagePayment, sessionUser: SessionUser): Promise<PrepaidPackagePayment> {
         if (!sessionUser?.id) throw new CustomError('Invalid session user.');
-        if (!sessionUser?.location) throw new CustomError('Location is required.');
 
         const paymentRecord = Object.assign(new PrepaidPackagePayment(), payment, {
             id: paymentId,
@@ -368,10 +347,7 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
                 noOfDays: prepaidPackageTable.noOfDays
             })
                 .from(prepaidPackageTable)
-                .where(drizzleAnd(
-                    drizzleEq(prepaidPackageTable.id, id),
-                    drizzleEq(prepaidPackageTable.location, sessionUser.location!)
-                ))
+                .where(drizzleEq(prepaidPackageTable.id, id))
                 .for('update');
 
             if (!prepaidPackage) throw new CustomError('Prepaid package not found.', HttpStatusCode.NotFound);
@@ -419,7 +395,6 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
 
     async prepaidPackagePaymentDelete(id: string, paymentId: string, sessionUser: SessionUser): Promise<void> {
         if (!sessionUser?.id) throw new CustomError('Invalid session user.');
-        if (!sessionUser?.location) throw new CustomError('Location is required.');
 
         await this.dbClient.db.transaction(async (tx) => {
             const [prepaidPackage] = await tx.select({
@@ -429,10 +404,7 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
                 noOfDays: prepaidPackageTable.noOfDays
             })
                 .from(prepaidPackageTable)
-                .where(drizzleAnd(
-                    drizzleEq(prepaidPackageTable.id, id),
-                    drizzleEq(prepaidPackageTable.location, sessionUser.location!)
-                ))
+                .where(drizzleEq(prepaidPackageTable.id, id))
                 .for('update');
 
             if (!prepaidPackage) throw new CustomError('Prepaid package not found.', HttpStatusCode.NotFound);

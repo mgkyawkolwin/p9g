@@ -24,6 +24,8 @@ export default function PrepaidPackageListSearch({ formRef }: PackageListSearchP
   const [packageTypeId, setPackageTypeId] = React.useState("DEFAULT");
   const [paymentStatus, setPaymentStatus] = React.useState("DEFAULT");
   const [packageStatus, setPackageStatus] = React.useState("DEFAULT");
+  const [searchId, setSearchId] = React.useState("");
+  const [searchRemark, setSearchRemark] = React.useState("");
   const [effectiveFrom, setEffectiveFrom] = React.useState<Date | null>(null);
   const [effectiveUntil, setEffectiveUntil] = React.useState<Date | null>(null);
   const [packageTypeItems, setPackageTypeItems] = React.useState<Map<string, string>>(
@@ -67,8 +69,8 @@ export default function PrepaidPackageListSearch({ formRef }: PackageListSearchP
           value={packageStatus}
           onValueChange={setPackageStatus}
         />
-        <InputWithLabel labelPosition="top" size="md" name="searchId" label="Package ID" />
-        <InputWithLabel labelPosition="top" size="md" name="searchRemark" label="Remark" />
+        <InputWithLabel labelPosition="top" size="md" name="searchId" label="Package ID" value={searchId} onChange={(e) => setSearchId(e.target.value)} />
+        <InputWithLabel labelPosition="top" size="md" name="searchRemark" label="Remark" value={searchRemark} onChange={(e) => setSearchRemark(e.target.value)} />
         <div className="flex flex-col gap-1">
           <Label>Effective From</Label>
           <DatePicker

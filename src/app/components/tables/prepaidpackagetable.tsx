@@ -114,10 +114,6 @@ export default function PrepaidPackageTable({
       header: "Package Type",
     },
     {
-      accessorKey: "location",
-      header: "Location",
-    },
-    {
       accessorKey: "effectiveStartDate",
       header: "Effective Start",
       cell: ({ row }) => (

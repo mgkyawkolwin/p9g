@@ -269,7 +269,6 @@ export const prepaidPackageTable = mysqlTable("prepaidPackage", {
   price: decimal("price").notNull().default("0"),
   balance: decimal("balance").notNull().default("0"),
   paymentStatus: varchar("paymentStatus", { length: 10 }).notNull().default("Unpaid"),
-  location: varchar("location", { length: 10 }).notNull(),
   remark: varchar("remark", { length: 500 }),
   prepaidPackageTypeId: char("prepaidPackageTypeId", { length: 36 }).notNull().references(() => prepaidTable.id),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
