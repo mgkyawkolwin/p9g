@@ -1,1 +1,0 @@
-ALTER TABLE `packagepayment` ADD `paymentMode` varchar(10) DEFAULT 'CASH' NOT NULL AFTER `currency`;

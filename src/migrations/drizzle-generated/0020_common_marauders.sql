@@ -1,1 +1,0 @@
-ALTER TABLE `prepaid` MODIFY COLUMN `days` smallint NOT NULL;

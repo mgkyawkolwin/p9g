@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "c470a934-7bf2-45c3-9e0b-ae1d7b39cd23",
+  "id": "2b631e46-cec3-4ae6-a22b-69b1d0e982d5",
   "prevId": "31971dda-a325-4cd1-b32d-0b22e252e198",
   "tables": {
     "bill": {
@@ -964,6 +964,249 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "packagePayment": {
+      "name": "packagePayment",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prepaidPackageId": {
+          "name": "prepaidPackageId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "decimal",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paymentDateTimeUTC": {
+          "name": "paymentDateTimeUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paymentMode": {
+          "name": "paymentMode",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'CASH'"
+        },
+        "remark": {
+          "name": "remark",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "packagePayment_prepaidPackageId_prepaidPackage_id_fk": {
+          "name": "packagePayment_prepaidPackageId_prepaidPackage_id_fk",
+          "tableFrom": "packagePayment",
+          "tableTo": "prepaidPackage",
+          "columnsFrom": [
+            "prepaidPackageId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "packagePayment_id": {
+          "name": "packagePayment_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "packageUsage": {
+      "name": "packageUsage",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reservationId": {
+          "name": "reservationId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "customerId": {
+          "name": "customerId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prepaidPackageId": {
+          "name": "prepaidPackageId",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "startDate": {
+          "name": "startDate",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "endDate": {
+          "name": "endDate",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "days": {
+          "name": "days",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAtUTC": {
+          "name": "createdAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedAtUTC": {
+          "name": "updatedAtUTC",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "packageUsage_reservationId_reservation_id_fk": {
+          "name": "packageUsage_reservationId_reservation_id_fk",
+          "tableFrom": "packageUsage",
+          "tableTo": "reservation",
+          "columnsFrom": [
+            "reservationId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "packageUsage_customerId_customer_id_fk": {
+          "name": "packageUsage_customerId_customer_id_fk",
+          "tableFrom": "packageUsage",
+          "tableTo": "customer",
+          "columnsFrom": [
+            "customerId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "packageUsage_prepaidPackageId_prepaidPackage_id_fk": {
+          "name": "packageUsage_prepaidPackageId_prepaidPackage_id_fk",
+          "tableFrom": "packageUsage",
+          "tableTo": "prepaidPackage",
+          "columnsFrom": [
+            "prepaidPackageId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "packageUsage_id": {
+          "name": "packageUsage_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "payment": {
       "name": "payment",
       "columns": {
@@ -1371,6 +1614,22 @@
           "notNull": true,
           "autoincrement": false
         },
+        "daysUsed": {
+          "name": "daysUsed",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "packageStatus": {
+          "name": "packageStatus",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'New'"
+        },
         "price": {
           "name": "price",
           "type": "decimal",
@@ -1379,35 +1638,21 @@
           "autoincrement": false,
           "default": "'0'"
         },
-        "deposit": {
-          "name": "deposit",
+        "paidAmount": {
+          "name": "paidAmount",
           "type": "decimal",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
           "default": "'0'"
         },
-        "balance": {
-          "name": "balance",
-          "type": "decimal",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'0'"
-        },
-        "depositDateTimeUTC": {
-          "name": "depositDateTimeUTC",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "location": {
-          "name": "location",
+        "paymentStatus": {
+          "name": "paymentStatus",
           "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "'Unpaid'"
         },
         "remark": {
           "name": "remark",
@@ -1518,7 +1763,7 @@
         },
         "days": {
           "name": "days",
-          "type": "tinyint",
+          "type": "smallint",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false

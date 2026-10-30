@@ -267,7 +267,7 @@ export const prepaidPackageTable = mysqlTable("prepaidPackage", {
   daysUsed: smallint("daysUsed").notNull().default(0),
   packageStatus: varchar("packageStatus", { length: 10 }).notNull().default("New"),
   price: decimal("price").notNull().default("0"),
-  balance: decimal("balance").notNull().default("0"),
+  paidAmount: decimal("paidAmount").notNull().default("0"),
   paymentStatus: varchar("paymentStatus", { length: 10 }).notNull().default("Unpaid"),
   remark: varchar("remark", { length: 500 }),
   prepaidPackageTypeId: char("prepaidPackageTypeId", { length: 36 }).notNull().references(() => prepaidTable.id),
@@ -277,7 +277,7 @@ export const prepaidPackageTable = mysqlTable("prepaidPackage", {
   updatedBy: char("updatedBy", { length: 36 }).notNull()
 });
 
-export const packagePaymentTable = mysqlTable("packagepayment", {
+export const packagePaymentTable = mysqlTable("packagePayment", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
   prepaidPackageId: char("prepaidPackageId", { length: 36 }).notNull().references(() => prepaidPackageTable.id, { onDelete: 'cascade' }),
   amount: decimal("amount").notNull(),
@@ -432,7 +432,7 @@ export const reservationCustomerTable = mysqlTable("reservationCustomer", {
   updatedBy: char("updatedBy", { length: 36 }).notNull()
 });
 
-export const packageUsageTable = mysqlTable("packageusage", {
+export const packageUsageTable = mysqlTable("packageUsage", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
   reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'cascade' }),
   customerId: char("customerId", { length: 36 }).notNull().references(() => customerTable.id, { onDelete: 'restrict' }),
