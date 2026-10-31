@@ -42,6 +42,13 @@ export default function CustomerSearch({
     const [isShowBlackListOnly, setIsShowBlackListOnly] = React.useState(initialData.showBlackListOnly);
     const [isShowDeleted, setIsShowDeleted] = React.useState(initialData.showDeleted);
 
+    React.useEffect(() => {
+      if (formState?.searchFilters) {
+        setIsShowBlackListOnly(formState.searchFilters.searchIsBlackListed);
+        setIsShowDeleted(formState.searchFilters.searchIsDeleted);
+      }
+    }, [formState?.searchFilters]);
+
     const handleSave = (customer: Customer) => {
           window.location.reload();
     };

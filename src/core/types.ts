@@ -13,6 +13,10 @@ export type FormState = {
   data?: any,
   formData?: FormData | null,
   pager?: PagerParams,
+  searchFilters?: {
+    searchIsBlackListed: boolean,
+    searchIsDeleted: boolean
+  },
   reload?: boolean
   location?: string
 };

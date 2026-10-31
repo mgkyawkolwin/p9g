@@ -39,6 +39,12 @@ export async function customerGetList(formState : FormState, formData: FormData)
     c.i("Parsing search fields from from entries.");
     const searchFields = customerSearchValidator.safeParse(formObject);
     c.d(searchFields);
+    const searchFilters = searchFields.success
+      ? {
+          searchIsBlackListed: searchFields.data.searchIsBlackListed,
+          searchIsDeleted: searchFields.data.searchIsDeleted
+        }
+      : { searchIsBlackListed: false, searchIsDeleted: false };
 
     //table pager field validatd, build query string
     if(searchFields.success){
@@ -62,7 +68,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
     //fail
     if(!response.ok){
       c.i("Updated list retrieval failed. Return response.");
-      return {error:true, message : `Customer list retrieval failed. ${responseData.message}`};
+      return {error:true, message : `Customer list retrieval failed. ${responseData.message}`, searchFilters};
     }
 
     //success
@@ -73,7 +79,7 @@ export async function customerGetList(formState : FormState, formData: FormData)
     //retrieve data from tuple
     c.fe('Actions > customerGetList');
     // const [users, pager] = responseData.data;
-    return {error:false, message : message, data: responseData.data.customers, pager: responseData.data.pager};
+    return {error:false, message : message, data: responseData.data.customers, pager: responseData.data.pager, searchFilters};
   }catch(error){
     c.e(error instanceof Error ? error.message : String(error));
     return {error:true, message : "Customer list retrieval failed."};

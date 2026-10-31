@@ -38,7 +38,7 @@ export default function CustomerList() {
         <GroupContent>
           <div className="flex flex-col gap-4">
             <form ref={formRef} action={formAction} className="flex flex-col gap-4">
-              <CustomerSearch formAction={formAction} formRef={formRef} />
+              <CustomerSearch formAction={formAction} formRef={formRef} formState={state} />
               <CustomerTable formState={state} formAction={formAction} formRef={formRef} />
               <input type="hidden" name="location" value={params.location} />
             </form>

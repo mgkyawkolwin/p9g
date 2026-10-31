@@ -9,7 +9,8 @@ import { FormState } from "@/core/types";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import Customer from "@/core/models/domain/Customer"
 import CustomerEditForm from "../forms/customereditform";
-import { CopyIcon } from "lucide-react";
+import CustomerViewDialog from "../dialogs/customerviewdialog";
+import { CopyIcon, Eye } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { toast } from "sonner";
 import { customerUpdate } from "@/app/(private)/[location]/console/customers/[id]/edit/actions";
@@ -32,6 +33,8 @@ export default function CustomerTable({
   const openCallbackFunc = React.useRef<{ openDialog: (open: boolean) => void, setEditCustomer: (customer: Customer) => void } | undefined>(undefined);
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
+  const [viewCustomer, setViewCustomer] = React.useState<Customer | null>(null);
+  const [isViewOpen, setIsViewOpen] = React.useState(false);
 
   const [clientState, setClientState] = React.useState(formState);
   const nameRefs = React.useRef<Record<string, HTMLInputElement>>({});
@@ -166,6 +169,13 @@ export default function CustomerTable({
             openCallbackFunc.current?.setEditCustomer(row.original);
             openCallbackFunc.current?.openDialog(true);
           }}>Edit</ButtonCustom>
+          <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={() => {
+            setViewCustomer(row.original);
+            setIsViewOpen(true);
+          }}>
+            <Eye aria-hidden="true" className="mr-1 size-4" />
+            View
+          </ButtonCustom>
           {!row.original.isDeleted && <ButtonCustom variant={"red"} size={"sm"} type="button" onClick={() => {
             setSelectedCustomer(row.original);
             setOpenDeleteDialog(true);
@@ -186,6 +196,7 @@ export default function CustomerTable({
       <section className="flex">
         <CustomerEditForm openCallback={(func) => openCallbackFunc.current = func} onSaved={handleSave} />
       </section>
+      <CustomerViewDialog customer={viewCustomer} open={isViewOpen} onOpenChange={setIsViewOpen} location={location} />
       <section className="flex">
         <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
           <DialogContent className="">

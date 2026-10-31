@@ -36,45 +36,68 @@ export default function CustomerDetailForm({ customer, resetDataToggle, onDataCh
 
 
     return (
-        <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto p-1">
-            <InputWithLabel name="name" label="Name" variant="default" size={"full"} labelPosition="top" onBlur={() => onDataChanged(localCustomer)}
-                value={localCustomer?.name ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, name: e.target.value }))} />
-            <InputWithLabel name="englishName" label="English Name" variant="default" size={"full"} labelPosition="top" onBlur={() => onDataChanged(localCustomer)}
-                value={localCustomer?.englishName ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, englishName: e.target.value }))} />
-            <div className="flex gap-6 items-end">
+        <div className="flex flex-col gap-4 p-1">
+            <div className="flex items-center gap-4">
+                <Label>Black List</Label>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                        <input id="isBlackListedYes" name="isBlackListed" type="radio" value="yes" checked={!!localCustomer?.isBlackListed}
+                            onChange={() => {
+                                setLocalCustomer(prev => ({ ...prev, isBlackListed: true }));
+                                onDataChanged({ ...localCustomer, isBlackListed: true });
+                            }} />
+                        <Label htmlFor="isBlackListedYes">Yes</Label>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <input id="isBlackListedNo" name="isBlackListed" type="radio" value="no" checked={!localCustomer?.isBlackListed}
+                            onChange={() => {
+                                setLocalCustomer(prev => ({ ...prev, isBlackListed: false }));
+                                onDataChanged({ ...localCustomer, isBlackListed: false });
+                            }} />
+                        <Label htmlFor="isBlackListedNo">No</Label>
+                    </div>
+                </div>
+            </div>
+            <div className="grid grid-cols-2 items-end gap-3">
+                <InputWithLabel name="name" label="Name" variant="default" size={"full"} labelPosition="top" onBlur={() => onDataChanged(localCustomer)}
+                    value={localCustomer?.name ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, name: e.target.value }))} />
+                <InputWithLabel name="englishName" label="English Name" variant="default" size={"full"} labelPosition="top" onBlur={() => onDataChanged(localCustomer)}
+                    value={localCustomer?.englishName ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, englishName: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 items-end gap-3">
                 <div className="flex flex-col gap-2">
-                <Label className="text-[10pt]">DOB</Label>
-                <DatePicker className="flex"
-                    selected={localCustomer?.dob ? new Date(localCustomer?.dob) : null}
-                    onChange={(date: Date | null) => {
-                        setLocalCustomer(prev => ({
-                            ...prev,
-                            dob: date ? date.toLocaleDateString() : ''
-                        }));
+                    <Label className="text-[10pt]">DOB</Label>
+                    <DatePicker className="flex"
+                        selected={localCustomer?.dob ? new Date(localCustomer?.dob) : null}
+                        onChange={(date: Date | null) => {
+                            setLocalCustomer(prev => ({
+                                ...prev,
+                                dob: date ? date.toLocaleDateString() : ''
+                            }));
 
+                        }}
+                        onBlur={() => onDataChanged(localCustomer)}
+                        dateFormat="yyyy-MM-dd"
+                        customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
+                        placeholderText="yyyy-mm-dd"
+                        isClearable={true}
+                        showIcon
+                    />
+                </div>
+                <SelectWithLabel name="gender" label="Gender" size="full" labelPosition="top" items={SelectListForm.GENDER}
+                    value={localCustomer?.gender} onValueChange={value => {
+                        setLocalCustomer(prev => ({ ...prev, gender: value }));
+                        onDataChanged({...localCustomer, gender: value});
                     }}
-                    onBlur={() => onDataChanged(localCustomer)}
-                    dateFormat="yyyy-MM-dd"
-                    customInput={<InputCustom size="md" />} // Uses shadcn/ui Input
-                    placeholderText="yyyy-mm-dd"
-                    isClearable={true}
-                    showIcon
                 />
             </div>
-            <SelectWithLabel name="gender" label="Gender" size="sm" labelPosition="top" items={SelectListForm.GENDER}
-                value={localCustomer?.gender} onValueChange={value => {
-                    setLocalCustomer(prev => ({ ...prev, gender: value }));
-                    onDataChanged({...localCustomer, gender: value});
-            }}
-            />
-            </div>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 items-end gap-3">
                 <InputWithLabel name="nationalId" label="National ID" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
                     value={localCustomer?.nationalId ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, nationalId: e.target.value }))} />
                 <InputWithLabel name="passport" label="Passport" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
                     value={localCustomer?.passport ?? ''} onChange={(e) => {setLocalCustomer(prev => ({ ...prev, passport: e.target.value }))}} />
             </div>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 items-end gap-3">
                 <InputWithLabel name="phone" label="Phone" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
                     value={localCustomer?.phone ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, phone: e.target.value }))} />
                 <InputWithLabel name="email" label="Email" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
@@ -82,20 +105,15 @@ export default function CustomerDetailForm({ customer, resetDataToggle, onDataCh
             </div>
             <InputWithLabel name="country" label="Country" labelPosition="top" size={"full"} onBlur={() => onDataChanged(localCustomer)}
                 value={localCustomer?.country ?? ''} onChange={(e) => setLocalCustomer(prev => ({ ...prev, country: e.target.value }))} />
-            <Label htmlFor="address">Address</Label>
-            <Textarea id="address" name="address" placeholder=" ..." value={localCustomer?.address ?? ''} onBlur={() => onDataChanged(localCustomer)}
-                onChange={(e) => setLocalCustomer(prev => ({ ...prev, address: e.target.value }))} />
-            <Label htmlFor="remarks">Remarks</Label>
-            <Textarea id="remarks" name="remarks" placeholder=" ..." value={localCustomer?.remarks ?? ''} onBlur={() => onDataChanged(localCustomer)}
-                onChange={(e) => setLocalCustomer(prev => ({ ...prev, remarks: e.target.value }))} />
-
-            <div className="flex items-center gap-2">
-                <input id="isBlackListed" name="isBlackListed" type="checkbox" checked={!!localCustomer?.isBlackListed}
-                    onChange={(e) => {
-                        setLocalCustomer(prev => ({ ...prev, isBlackListed: e.target.checked }));
-                        onDataChanged({ ...localCustomer, isBlackListed: e.target.checked });
-                    }} />
-                <Label htmlFor="isBlackListed">Black List</Label>
+            <div className="flex flex-col gap-2">
+                <Label htmlFor="address">Address</Label>
+                <Textarea id="address" name="address" placeholder=" ..." value={localCustomer?.address ?? ''} onBlur={() => onDataChanged(localCustomer)}
+                    onChange={(e) => setLocalCustomer(prev => ({ ...prev, address: e.target.value }))} />
+            </div>
+            <div className="flex flex-col gap-2">
+                <Label htmlFor="remarks">Remarks</Label>
+                <Textarea id="remarks" name="remarks" placeholder=" ..." value={localCustomer?.remarks ?? ''} onBlur={() => onDataChanged(localCustomer)}
+                    onChange={(e) => setLocalCustomer(prev => ({ ...prev, remarks: e.target.value }))} />
             </div>
 
         </div>
