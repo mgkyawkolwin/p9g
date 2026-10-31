@@ -13,4 +13,6 @@ export default interface ICustomerService {
     customerUpdate(id: string, user: Customer, sessionUser: SessionUser): Promise<void>;
     customerUpdateTdac(reservationId: string, customerId: string, tdacFileUrl: string, sessionUser: SessionUser): Promise<void>;
     customerUpdateTdacStatus(reservationCustomerId: string, tdacStatusId: string, sessionUser: SessionUser): Promise<void>;
+    customerUpdateBaggageTransfer(reservationCustomerId: string, baggageTransfer: string, sessionUser: SessionUser): Promise<void>;
+    customerUpdateVisaRequired(reservationCustomerId: string, visaRequired: boolean, sessionUser: SessionUser): Promise<void>;
 }

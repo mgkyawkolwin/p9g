@@ -22,7 +22,7 @@ import c from "@/lib/loggers/console/ConsoleLogger";
 import type IMapper from "@/lib/mappers/IMapper";
 import type IQueryTranformer from "@/lib/transformers/IQueryTransformer";
 import { getISODateTimeString, getUTCDateMidNight } from "@/lib/utils";
-import { and, asc, between, count, countDistinct, desc, eq, gt, gte, inArray, like, lt, lte, ne, or } from "drizzle-orm";
+import { and, asc, between, count, countDistinct, desc, eq, gt, gte, inArray, isNull, like, lt, lte, ne, or } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { inject, injectable } from "inversify";
 import { Repository } from "../../../lib/repositories/drizzle/Repository";
@@ -239,6 +239,11 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             )).offset(offset)
             .limit(pagerParams.pageSize);
 
+        // for top 10 query just retrieve the top 10 reservation id
+        if (list === 'top') {
+            distinctReservationsQuery = this.dbClient.db.select({id: reservationTable.id}).from(reservationTable).orderBy(desc(reservationTable.createdAtUTC)).limit(10);
+        }
+
         let dataQuery = this.dbClient.db.select({
             ...reservationTable,
             customer: { ...customerTable },
@@ -379,6 +384,14 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             if (searchFormFields.searchTdacStatus) {
                 conditions.push(eq(tdacStatusAlias.value, searchFormFields.searchTdacStatus));
             }
+            if (searchFormFields.searchBaggageTransfer) {
+                conditions.push(searchFormFields.searchBaggageTransfer === 'NONE'
+                    ? isNull(reservationCustomerTable.baggageTransfer)
+                    : eq(reservationCustomerTable.baggageTransfer, searchFormFields.searchBaggageTransfer));
+            }
+            if (searchFormFields.searchVisaRequirement) {
+                conditions.push(eq(reservationCustomerTable.visaRequired, searchFormFields.searchVisaRequirement === 'REQUIRED'));
+            }
             if (searchFormFields.searchId) {
                 conditions.push(like(reservationTable.id, `%${searchFormFields.searchId}%`));
             }
@@ -439,11 +452,13 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         //order
         c.d(uniqueIdsResult);
         const reservationIds = uniqueIdsResult.map(r => r.id);
+        c.d('Reservation IDs:');
         c.d(reservationIds);
 
         // Then conditionally get full data
         let dataqueryresult = [];
         if (reservationIds.length > 0) {
+            c.d('Fetching full reservation data for IDs, Applying Order By');
             dataQuery.where(inArray(reservationTable.id, reservationIds));
             dataQuery.orderBy(pagerParams.orderDirection === 'desc' ? desc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]) : asc(reservationTable[pagerParams.orderBy as keyof ReservationEntity]));
             c.d(dataQuery.toSQL());
@@ -490,6 +505,8 @@ export default class ReservationRepository extends Repository<Reservation, Reser
                         c.tdacStatusId = reservationCustomer.tdacStatusId;
                         c.tdacStatus = reservationCustomer.tdacStatusValue;
                         c.tdacStatusText = reservationCustomer.tdacStatusText;
+                        c.baggageTransfer = reservationCustomer.baggageTransfer ?? null;
+                        c.visaRequired = Boolean(reservationCustomer.visaRequired);
                     }
                 });
             }

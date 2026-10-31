@@ -77,6 +77,8 @@ export type SearchFormFields = {
   searchStartDateFrom?: string | undefined,
   searchStartDateUntil?: string | undefined,
   searchTdacStatus?: string | undefined,
+  searchBaggageTransfer?: string | undefined,
+  searchVisaRequirement?: string | undefined,
   searchEffectiveFrom?: string | undefined,
   searchEffectiveUntil?: string | undefined,
   searchUserName?: string | undefined,

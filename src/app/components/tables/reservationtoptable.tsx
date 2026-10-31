@@ -75,6 +75,16 @@ export default function ReservationTopTable({
         return row.getValue();
       }
     },
+    {
+      id: "createdAtUTC",
+      accessorFn: (row) => {
+        return <span>{new Date(String(row.createdAtUTC)).toISOFormatDateString()}</span>;
+      },
+      header: 'Created At',
+      cell: (row) => {
+        return row.getValue();
+      }
+    },
   ];
 
   return (

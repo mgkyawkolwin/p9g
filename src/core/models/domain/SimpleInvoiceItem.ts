@@ -5,6 +5,7 @@ export default class SimpleInvoiceItem extends DomainBase {
     public description: string = '';
     public amountKWR: number = 0;
     public amountTHB: number = 0;
+    public amountUSD: number = 0;
     public createdAtUTC: Date;
     public updatedAtUTC: Date;
 }

@@ -1,0 +1,1 @@
+ALTER TABLE `reservation_log` MODIFY COLUMN `prepaidCode` char(36);

@@ -91,6 +91,14 @@ export const tdacStatusUpdateValidator = z.object({
   tdacStatusValue: z.string().min(1, 'TDAC status value is required')
 });
 
+export const baggageTransferUpdateValidator = z.object({
+  baggageTransfer: z.enum(['NOT_REQUIRED', 'MIDA', 'KKC', 'HH'])
+});
+
+export const visaRequiredUpdateValidator = z.object({
+  visaRequired: z.boolean()
+});
+
 export const userInsertSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   password: z.string().min(1, 'Password is required'),
@@ -197,6 +205,7 @@ export const reservationValidator = z.object({
   pickUpType: z.coerce.string().nullish(),
   prepaidCode: z.coerce.string().nullish(),
   prepaidPackage: z.coerce.string().nullish(),
+  prepaidPackageId: z.coerce.string().nullish(),
   promotionPackage: z.coerce.string().nullish(),
   remark: z.coerce.string().nullish().catch(undefined),
   reservationStatus: z.string().nullish(),
@@ -288,6 +297,8 @@ export const searchValidator = z.object({
   searchReservationType: z.string().optional(),
   searchInvoiceStatus: z.string().optional(),
   searchTdacStatus: z.string().optional(),
+  searchBaggageTransfer: z.string().optional(),
+  searchVisaRequirement: z.string().optional(),
   searchEffectiveFrom: z.coerce.string().optional(),
   searchEffectiveUntil: z.coerce.string().optional(),
   searchUserName: z.string().optional(),
@@ -331,6 +342,7 @@ export const simpleInvoiceItemValidator = z.object({
   description: z.coerce.string().optional(),
   amountKWR: z.coerce.number().default(0),
   amountTHB: z.coerce.number().default(0),
+  amountUSD: z.coerce.number().default(0),
   modelState: z.coerce.string().optional(),
   createdAtUTC: z.coerce.date().optional(),
   updatedAtUTC: z.coerce.date().optional()
@@ -345,8 +357,10 @@ export const bookingInvoiceItemValidator = z.object({
   pax: z.coerce.number().default(0),
   rateKWR: z.coerce.number().default(0),
   rateTHB: z.coerce.number().default(0),
+  rateUSD: z.coerce.number().default(0),
   amountKWR: z.coerce.number().default(0),
   amountTHB: z.coerce.number().default(0),
+  amountUSD: z.coerce.number().default(0),
   noOfRooms: z.coerce.number().default(0),
   noOfDays: z.coerce.number().default(0),
   modelState: z.string().optional(),
@@ -363,10 +377,13 @@ export const invoiceValidator = z.object({
   pax: z.coerce.string().min(1, 'Pax is required'),
   depositKWR: z.coerce.number().default(0),
   depositTHB: z.coerce.number().default(0),
+  depositUSD: z.coerce.number().default(0),
   totalAmountKWR: z.coerce.number().default(0),
   totalAmountTHB: z.coerce.number().default(0),
+  totalAmountUSD: z.coerce.number().default(0),
   dueAmountKWR: z.coerce.number().default(0),
   dueAmountTHB: z.coerce.number().default(0),
+  dueAmountUSD: z.coerce.number().default(0),
   status: z.coerce.string().min(1, 'Status is required'),
   bookingSource: z.coerce.string().optional(),
   bookingPerson: z.coerce.string().optional(),

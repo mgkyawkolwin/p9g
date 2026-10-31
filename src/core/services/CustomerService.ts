@@ -106,4 +106,24 @@ export default class CustomerService implements ICustomerService {
     } as unknown as ReservationCustomer);
   }
 
+  async customerUpdateBaggageTransfer(reservationCustomerId: string, baggageTransfer: string, sessionUser: SessionUser): Promise<void> {
+    if (!reservationCustomerId) throw new CustomError('Invalid reservation customer id');
+
+    await this.reservationCustomerRepository.update(reservationCustomerId, {
+      baggageTransfer: baggageTransfer === 'NOT_REQUIRED' ? null : baggageTransfer,
+      updatedAtUTC: new Date(),
+      updatedBy: sessionUser.id
+    } as unknown as ReservationCustomer);
+  }
+
+  async customerUpdateVisaRequired(reservationCustomerId: string, visaRequired: boolean, sessionUser: SessionUser): Promise<void> {
+    if (!reservationCustomerId) throw new CustomError('Invalid reservation customer id');
+
+    await this.reservationCustomerRepository.update(reservationCustomerId, {
+      visaRequired,
+      updatedAtUTC: new Date(),
+      updatedBy: sessionUser.id
+    } as unknown as ReservationCustomer);
+  }
+
 }

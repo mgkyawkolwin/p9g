@@ -28,6 +28,8 @@ const initialData = {
     reservationType: "DEFAULT",
     invoiceStatus: "DEFAULT",
     tdacStatus: "DEFAULT",
+    baggageTransfer: "DEFAULT",
+    visaRequirement: "DEFAULT",
     remark: ""
 };
 
@@ -149,8 +151,24 @@ export default function ReservationListSearch({
                     defaultValue={formData.tdacStatus}
                     onValueChange={(value) => setFormData({ ...formData, tdacStatus: value })}
                 />
+                <SelectWithLabel
+                    label="Baggage Transfer"
+                    labelPosition="top"
+                    items={SelectListSearch.BAGGAGE_TRANSFER}
+                    defaultValue={formData.baggageTransfer}
+                    onValueChange={(value) => setFormData({ ...formData, baggageTransfer: value })}
+                />
+                <SelectWithLabel
+                    label="Visa Requirement"
+                    labelPosition="top"
+                    items={SelectListSearch.VISA_REQUIREMENT}
+                    defaultValue={formData.visaRequirement}
+                    onValueChange={(value) => setFormData({ ...formData, visaRequirement: value })}
+                />
                 <input type="hidden" name="searchInvoiceStatus" value={formData.invoiceStatus} />
                 <input type="hidden" name="searchTdacStatus" value={formData.tdacStatus} />
+                <input type="hidden" name="searchBaggageTransfer" value={formData.baggageTransfer} />
+                <input type="hidden" name="searchVisaRequirement" value={formData.visaRequirement} />
                 <ButtonCustom onClick={() => formRef?.current?.requestSubmit()}>Search</ButtonCustom>
             </div>
         </section>

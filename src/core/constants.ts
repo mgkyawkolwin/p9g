@@ -243,6 +243,20 @@ export const SelectListSearch = {
         ...SelectList.TDAC_STATUS.entries()
     ]),
 
+    BAGGAGE_TRANSFER: new Map<string, string>([
+        ["DEFAULT", "Show All"],
+        ["NONE", "No Baggage Transfer"],
+        ["MIDA", "MIDA"],
+        ["KKC", "KKC"],
+        ["HH", "HH"]
+    ]),
+
+    VISA_REQUIREMENT: new Map<string, string>([
+        ["DEFAULT", "Show All"],
+        ["REQUIRED", "Required"],
+        ["NOT_REQUIRED", "Not Required"]
+    ]),
+
     PACKAGE_PAYMENT_STATUS: new Map<string, string>([
         ["DEFAULT", "Show All"],
         ["Paid", "Paid"],

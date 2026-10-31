@@ -131,12 +131,11 @@ export default function PrepaidPackageDetailForm({
           variant="default"
           size="full"
           labelPosition="top"
-          type="number"
-          min={0}
-          step={1}
+          type="text"
+          inputMode="numeric"
           value={localData.noOfDays ?? 0}
           onChange={(e) => {
-            const noOfDays = Math.max(0, Math.floor(Number(e.target.value || 0)));
+            const noOfDays = Number(e.target.value.replace(/\D/g, '')) || 0;
             onDataChanged({ ...localData, noOfDays });
           }}
         />
@@ -161,10 +160,11 @@ export default function PrepaidPackageDetailForm({
           variant="default"
           size="full"
           labelPosition="top"
-          type="number"
+          type="text"
+          inputMode="numeric"
           value={localData.price ?? 0}
           onChange={(e) => {
-            const price = Number(e.target.value || 0);
+            const price = Number(e.target.value.replace(/\D/g, '')) || 0;
             onDataChanged({ ...localData, price, balance: price - Number(localData.paidAmount ?? 0) });
           }}
         />

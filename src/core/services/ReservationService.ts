@@ -135,6 +135,7 @@ export default class ReservationService implements IReservationService {
 
     private async reconcilePackageUsage(reservation: Reservation, sessionUser: SessionUser, tx: TransactionType): Promise<void> {
         c.fs('ReservationService > reconcilePackageUsage');
+        c.d(reservation);
 
         // Restore and delete any existing usages
         const existingUsages = await tx.select().from(packageUsageTable)
@@ -168,10 +169,7 @@ export default class ReservationService implements IReservationService {
             return;
         }
 
-        // The reservation stores the prepaid package type id. Any package of that
-        // type can be used, regardless of which customer owns it.
-        await this.getPrepaidPackageTypeValue(reservation);
-
+        // The reservation references one specific prepaid package; only that package is charged.
         // Validate dates
         const checkInDate = reservation.checkInDate;
         const checkOutDate = reservation.checkOutDate;
@@ -218,8 +216,7 @@ export default class ReservationService implements IReservationService {
             c.d(`Customer ${customerId} usage share: ${daysForThisCustomer} days`);
         }
 
-        // Collect all prepaid packages of this type. Package ownership is not
-        // relevant when the package type and effective period are valid.
+        // Only the package referenced by the reservation may be used.
         interface PackageForDeduction {
             packageId: string;
             noOfDays: number;
@@ -228,23 +225,25 @@ export default class ReservationService implements IReservationService {
         const packagePool: PackageForDeduction[] = [];
 
         const packages = await tx.select().from(prepaidPackageTable)
-            .where(drizzleAnd(
-                drizzleEq(prepaidPackageTable.prepaidPackageTypeId, reservation.prepaidPackageId),
-                drizzleGte(prepaidPackageTable.effectiveEndDate, checkInDate)
-            ))
-            .orderBy(drizzleAsc(prepaidPackageTable.effectiveEndDate))
+            .where(drizzleEq(prepaidPackageTable.id, reservation.prepaidCode))
             .for('update');
+        c.d(reservation.prepaidPackageId);
+        c.d(packages);
 
-        for (const pkg of packages) {
-            const availableDays = Number(pkg.noOfDays) - Number(pkg.daysUsed ?? 0);
-            if (availableDays > 0) {
-                packagePool.push({
-                    packageId: pkg.id,
-                    noOfDays: Number(pkg.noOfDays),
-                    daysUsed: Number(pkg.daysUsed ?? 0)
-                });
-                c.d(`Package ${pkg.id}: ${availableDays} days available (${pkg.daysUsed}/${pkg.noOfDays})`);
-            }
+        const reservedPackage = packages[0];
+        if (!reservedPackage) throw new CustomError('Prepaid package not found.');
+        if (new Date(reservedPackage.effectiveEndDate) < checkOutDate) {
+            throw new CustomError('Prepaid package expires before the reservation check-out date.');
+        }
+
+        const availableDays = Number(reservedPackage.noOfDays) - Number(reservedPackage.daysUsed ?? 0);
+        if (availableDays > 0) {
+            packagePool.push({
+                packageId: reservedPackage.id,
+                noOfDays: Number(reservedPackage.noOfDays),
+                daysUsed: Number(reservedPackage.daysUsed ?? 0)
+            });
+            c.d(`Package ${reservedPackage.id}: ${availableDays} days available (${reservedPackage.daysUsed}/${reservedPackage.noOfDays})`);
         }
 
         c.d(`Total prepaid packages in pool: ${packagePool.length}`);
@@ -285,7 +284,7 @@ export default class ReservationService implements IReservationService {
             throw new CustomError(`Insufficient total prepaid package days. Required: ${totalDaysToDeduct}, Deducted: ${totalDaysToDeduct - remainingToDeduct}.`);
         }
 
-        c.d(`Total deducted: ${totalDaysToDeduct - remainingToDeduct} days from shared pool`);
+        c.d(`Total deducted: ${totalDaysToDeduct - remainingToDeduct} days from prepaid package`);
 
         // Keep each usage row tied to the package from which its days were
         // deducted so restoring a reservation reverses the exact allocations.
@@ -510,7 +509,7 @@ export default class ReservationService implements IReservationService {
             pagerParams.orderDirection = 'desc';
             pagerParams.pageIndex = 1;
             pagerParams.pageSize = 10;
-            return await this.reservationRepository.reservationGetList(searchFormFields, pagerParams, null, sessionUser);
+            return await this.reservationRepository.reservationGetList(searchFormFields, pagerParams, list, sessionUser);
         }
         else {
             return await this.reservationRepository.reservationGetList(searchFormFields, pagerParams, null, sessionUser);

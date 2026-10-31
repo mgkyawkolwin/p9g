@@ -132,17 +132,23 @@ export default function InvoiceDialog({
             const bookingTHB = bookingList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountTHB), 0);
             const simpleKWR = simpleList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountKWR), 0);
             const simpleTHB = simpleList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountTHB), 0);
+            const bookingUSD = bookingList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountUSD), 0);
+            const simpleUSD = simpleList.reduce((sum, item) => convertToNumber(sum) + convertToNumber(item.amountUSD), 0);
 
             const totalKWR = convertToNumber(bookingKWR) + convertToNumber(simpleKWR);
             const totalTHB = convertToNumber(bookingTHB) + convertToNumber(simpleTHB);
+            const totalUSD = convertToNumber(bookingUSD) + convertToNumber(simpleUSD);
             const depositKWR = convertToNumber(prev.depositKWR);
             const depositTHB = convertToNumber(prev.depositTHB);
+            const depositUSD = convertToNumber(prev.depositUSD);
             return {
                 ...prev,
                 totalAmountKWR: totalKWR,
                 totalAmountTHB: totalTHB,
+                totalAmountUSD: totalUSD,
                 dueAmountKWR: totalKWR - depositKWR,
                 dueAmountTHB: totalTHB - depositTHB,
+                dueAmountUSD: totalUSD - depositUSD,
                 modelState: prev.modelState === "inserted" ? "inserted" : "updated"
             }
         });
@@ -326,10 +332,13 @@ export default function InvoiceDialog({
                 ...result.data,
                 totalAmountKWR: result.data.totalAmountKWR || 0,
                 totalAmountTHB: result.data.totalAmountTHB || 0,
+                totalAmountUSD: result.data.totalAmountUSD || 0,
                 depositKWR: result.data.depositKWR || 0,
                 depositTHB: result.data.depositTHB || 0,
+                depositUSD: result.data.depositUSD || 0,
                 dueAmountKWR: result.data.dueAmountKWR || 0,
-                dueAmountTHB: result.data.dueAmountTHB || 0
+                dueAmountTHB: result.data.dueAmountTHB || 0,
+                dueAmountUSD: result.data.dueAmountUSD || 0
             };
 
             setInvoice(invoiceData);
@@ -339,11 +348,13 @@ export default function InvoiceDialog({
                 ...item,
                 rateKWR: item.rateKWR || 0,
                 rateTHB: item.rateTHB || 0,
+                rateUSD: item.rateUSD || 0,
                 noOfDays: item.noOfDays || 0,
                 pax: item.pax || 0,
                 noOfRooms: item.noOfRooms || 0,
                 amountKWR: item.amountKWR || 0,
                 amountTHB: item.amountTHB || 0,
+                amountUSD: item.amountUSD || 0,
                 startDate: item.startDate ? new Date(item.startDate) : null,
                 endDate: item.endDate ? new Date(item.endDate) : null
             }));
@@ -352,7 +363,8 @@ export default function InvoiceDialog({
             const simpleItemsWithDefaults = (result.data.simpleItems || []).map(item => ({
                 ...item,
                 amountKWR: item.amountKWR || 0,
-                amountTHB: item.amountTHB || 0
+                amountTHB: item.amountTHB || 0,
+                amountUSD: item.amountUSD || 0
             }));
 
             // setBookingItems(bookingItemsWithDefaults);
@@ -372,7 +384,7 @@ export default function InvoiceDialog({
             let updatedValue: any = value;
 
             // Handle number fields with same conversion as BillEditDialog
-            if (field === 'depositKWR' || field === 'depositTHB') {
+            if (field === 'depositKWR' || field === 'depositTHB' || field === 'depositUSD') {
                 updatedValue = convertToNumber(value as string | number);
             }
 
@@ -387,6 +399,8 @@ export default function InvoiceDialog({
                 updatedInvoice.dueAmountKWR = (updatedInvoice.totalAmountKWR || 0) - updatedValue;
             } else if (field === 'depositTHB') {
                 updatedInvoice.dueAmountTHB = (updatedInvoice.totalAmountTHB || 0) - updatedValue;
+            } else if (field === 'depositUSD') {
+                updatedInvoice.dueAmountUSD = (updatedInvoice.totalAmountUSD || 0) - updatedValue;
             }
             return updatedInvoice;
         });
@@ -460,10 +474,11 @@ export default function InvoiceDialog({
                     // Auto-calculate amounts when days are calculated
                     updatedItem.amountKWR = calculateBookingAmount(updatedItem.rateKWR, updatedItem.noOfDays, updatedItem.pax);
                     updatedItem.amountTHB = calculateBookingAmount(updatedItem.rateTHB, updatedItem.noOfDays, updatedItem.pax);
+                    updatedItem.amountUSD = calculateBookingAmount(updatedItem.rateUSD, updatedItem.noOfDays, updatedItem.pax);
                 }
 
                 // Handle number conversions for numeric fields - FIXED
-                if (field === 'rateKWR' || field === 'rateTHB' || field === 'pax' ||
+                if (field === 'rateKWR' || field === 'rateTHB' || field === 'rateUSD' || field === 'pax' ||
                     field === 'noOfDays' || field === 'noOfRooms') {
                     const numValue = convertToNumber(value);
                     updatedItem[field] = numValue;
@@ -479,6 +494,13 @@ export default function InvoiceDialog({
                     if (field === 'rateTHB' || field === 'noOfDays' || field === 'pax') {
                         updatedItem.amountTHB = calculateBookingAmount(
                             field === 'rateTHB' ? numValue : updatedItem.rateTHB,
+                            field === 'noOfDays' ? numValue : updatedItem.noOfDays,
+                            field === 'pax' ? numValue : updatedItem.pax
+                        );
+                    }
+                    if (field === 'rateUSD' || field === 'noOfDays' || field === 'pax') {
+                        updatedItem.amountUSD = calculateBookingAmount(
+                            field === 'rateUSD' ? numValue : updatedItem.rateUSD,
                             field === 'noOfDays' ? numValue : updatedItem.noOfDays,
                             field === 'pax' ? numValue : updatedItem.pax
                         );
@@ -519,11 +541,13 @@ export default function InvoiceDialog({
         newItem.modelState = "inserted";
         newItem.rateKWR = 0;
         newItem.rateTHB = 0;
+        newItem.rateUSD = 0;
         newItem.noOfDays = 0;
         newItem.pax = 0;
         newItem.noOfRooms = 0;
         newItem.amountKWR = 0;
         newItem.amountTHB = 0;
+        newItem.amountUSD = 0;
         newItem.createdAtUTC = new Date();
         newItem.updatedAtUTC = new Date();
         setInvoice(prev => ({ ...prev, bookingItems: [...(prev.bookingItems || []), newItem], modelState: prev?.modelState === "inserted" ? "inserted" : "updated" }));
@@ -560,7 +584,7 @@ export default function InvoiceDialog({
                 };
 
                 // Handle number fields with same conversion logic
-                if (field === 'amountKWR' || field === 'amountTHB') {
+                if (field === 'amountKWR' || field === 'amountTHB' || field === 'amountUSD') {
                     updatedItem[field] = convertToNumber(value);
                 } else {
                     updatedItem[field] = value;
@@ -579,6 +603,7 @@ export default function InvoiceDialog({
         newItem.modelState = "inserted";
         newItem.amountKWR = 0;
         newItem.amountTHB = 0;
+        newItem.amountUSD = 0;
         newItem.createdAtUTC = new Date();
         newItem.updatedAtUTC = new Date();
         // setSimpleItems(prev => {
@@ -642,6 +667,8 @@ export default function InvoiceDialog({
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Amount KWR</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Rate THB</th>` +
             `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Amount THB</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Rate USD</th>` +
+            `<th style="border:1px solid #666;padding:6px;text-align:right;background:#eee;">Amount USD</th>` +
             `</tr></thead><tbody>`;
 
 
@@ -650,6 +677,7 @@ export default function InvoiceDialog({
             const desc = it.description || '';
             const amtK = it.amountKWR != null ? it.amountKWR : 0;
             const amtT = it.amountTHB != null ? it.amountTHB : 0;
+            const amtU = it.amountUSD != null ? it.amountUSD : 0;
 
             table += `<tr>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${i + 1}</td>` +
@@ -663,6 +691,8 @@ export default function InvoiceDialog({
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtK}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtT}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">` + `</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtU}</td>` +
                 `</tr>`;
         });
 
@@ -676,6 +706,8 @@ export default function InvoiceDialog({
             const amtK = it.amountKWR != null ? it.amountKWR : 0;
             const rateT = it.rateTHB != null ? it.rateTHB : '';
             const amtT = it.amountTHB != null ? it.amountTHB : 0;
+            const rateU = it.rateUSD != null ? it.rateUSD : '';
+            const amtU = it.amountUSD != null ? it.amountUSD : 0;
 
             table += `<tr>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${idx + 1}</td>` +
@@ -689,6 +721,8 @@ export default function InvoiceDialog({
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtK}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${rateT}</td>` +
                 `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtT}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${rateU}</td>` +
+                `<td style="border:1px solid #666;padding:6px;text-align:right;">${amtU}</td>` +
                 `</tr>`;
         });
 
@@ -698,16 +732,22 @@ export default function InvoiceDialog({
             `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.totalAmountKWR || 0}</td>` +
             `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>` +
             `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.totalAmountTHB || 0}</td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.totalAmountUSD || 0}</td>` +
             `</tr>` +
             `<tr><td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Deposit</td>` +
             `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.depositKWR || 0}</td>` +
             `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>` +
             `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.depositTHB || 0}</td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.depositUSD || 0}</td>` +
             `</tr>` +
             `<tr><td colspan="8" style="padding:6px;text-align:right;font-weight:bold;">Due Amount</td>` +
             `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.dueAmountKWR || 0}</td>` +
             `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>` +
             `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.dueAmountTHB || 0}</td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;"></td>` +
+            `<td style="border:1px solid #666;padding:6px;text-align:right;font-weight:bold;">${invoice.dueAmountUSD || 0}</td>` +
             `</tr>` +
             `</tfoot>`;
         table += `</table>`;
@@ -723,6 +763,9 @@ export default function InvoiceDialog({
             `<div style="font-weight:bold;">Kaeng Krachan (KKC) Club</div>` +
             `<div>19 M 2 Tayang-Kaengkrachan Rd Kaeng Krachan District, Phetchaburi 76130</div>` +
             `<div>Tel: 01081862127, 01081852127</div>` +
+            `<div style="font-weight:bold;">Healing Hills Golf & Country Club</div>` +
+            `<div>Zaungdu, Bago Division, Myanmar (Burma) 11087</div>` +
+            `<div>Tel: +959427036999</div>` +
             `</div>` +
             `</div>`;
 
@@ -895,6 +938,26 @@ export default function InvoiceDialog({
             />
         },
         {
+            accessorKey: "rateUSD",
+            header: 'Rate USD',
+            cell: (row) => <InputCustom
+                size="xs"
+                key={`booking-rateUSD-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
+                value={row.row.original.rateUSD || 0}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "rateUSD", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+            />
+        },
+        {
+            accessorKey: "amountUSD",
+            header: 'Amount USD',
+            cell: (row) => <InputCustom
+                size="sm"
+                key={`booking-amountUSD-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
+                value={row.row.original.amountUSD || 0}
+                onChange={e => handleBookingItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountUSD", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+            />
+        },
+        {
             accessorKey: "action",
             header: "Action",
             cell: (row) => (
@@ -944,6 +1007,16 @@ export default function InvoiceDialog({
                 key={`simple-amountTHB-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
                 value={row.row.original.amountTHB || 0}
                 onChange={e => handleSimpleItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountTHB", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
+            />
+        },
+        {
+            accessorKey: "amountUSD",
+            header: 'Amount USD',
+            cell: (row) => <InputCustom
+                size="sm"
+                key={`simple-amountUSD-${row.row.original.id}-${(row.row.original as any).__originalIndex ?? row.row.index}`}
+                value={row.row.original.amountUSD || 0}
+                onChange={e => handleSimpleItemChange((row.row.original as any).__originalIndex ?? row.row.index, "amountUSD", isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))}
             />
         },
         {
@@ -1158,6 +1231,34 @@ export default function InvoiceDialog({
                                             size="md"
                                             value={invoice.dueAmountTHB || 0}
                                             onChange={e => handleInputChange("dueAmountTHB", e.target.value)}
+                                        />
+                                    </div>
+
+                                    {/* USD Section */}
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Total Amount (USD)</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.totalAmountUSD || 0}
+                                            onChange={e => handleInputChange("totalAmountUSD", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Deposit (USD)</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.depositUSD || 0}
+                                            onChange={e => handleInputChange("depositUSD", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm font-medium">Due Amount (USD)</label>
+                                        <InputCustom
+                                            size="md"
+                                            value={invoice.dueAmountUSD || 0}
+                                            onChange={e => handleInputChange("dueAmountUSD", e.target.value)}
                                         />
                                     </div>
                                 </div>

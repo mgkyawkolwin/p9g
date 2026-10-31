@@ -13,6 +13,9 @@ export default class InvoiceEntity extends EntityBase {
     public depositTHB: number = 0;
     public totalAmountTHB: number = 0
     public dueAmountTHB: number = 0;
+    public depositUSD: number = 0;
+    public totalAmountUSD: number = 0;
+    public dueAmountUSD: number = 0;
     public status: string = 'DRAFT';
     public paymentDueDate: Date = null;
     public included: string = '';

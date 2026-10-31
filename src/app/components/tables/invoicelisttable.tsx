@@ -105,8 +105,10 @@ export default function InvoiceListTable({
         return <span>
           Total KWR: {row.totalAmountKWR || 0}<br />
           Total THB: {row.totalAmountTHB || 0}<br />
+          Total USD: {row.totalAmountUSD || 0}<br />
           Due KWR: <span className={(row.dueAmountKWR || 0) > 0 ? 'text-[#ff0000] font-bold' : 'text-[#00aa00]'}>{row.dueAmountKWR || 0}</span><br />
-          Due THB: <span className={(row.dueAmountTHB || 0) > 0 ? 'text-[#ff0000] font-bold' : 'text-[#00aa00]'}>{row.dueAmountTHB || 0}</span>
+          Due THB: <span className={(row.dueAmountTHB || 0) > 0 ? 'text-[#ff0000] font-bold' : 'text-[#00aa00]'}>{row.dueAmountTHB || 0}</span><br />
+          Due USD: <span className={(row.dueAmountUSD || 0) > 0 ? 'text-[#ff0000] font-bold' : 'text-[#00aa00]'}>{row.dueAmountUSD || 0}</span>
         </span>;
       },
       cell: (row) => row.getValue(),

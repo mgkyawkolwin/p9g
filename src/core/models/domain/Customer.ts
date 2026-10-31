@@ -22,5 +22,7 @@ export default class Customer extends DomainBase {
     public tdacStatus: string = '';
     public tdacStatusText: string = '';
     public reservationCustomerId: string = '';
+    public baggageTransfer: string | null = null;
+    public visaRequired: boolean = false;
     public tdacFileUrl: string = '';
 }

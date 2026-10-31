@@ -24,6 +24,7 @@ import RoomChargeDialog from "../dialogs/roomschargedialog";
 import { CopyIcon, Trash, FileText, FileImage, FileVideo, FileAudio, File, X, FileSpreadsheet } from "lucide-react";
 import { Loader } from "@/lib/components/web/react/uicustom/loader";
 import { useParams } from "next/navigation";
+import { RadioGroup, RadioGroupItem } from "@/lib/components/web/react/ui/radio-group";
 
 interface TdacUploadState {
   id: string;
@@ -100,6 +101,13 @@ export default function ReservationListTable({
                   Files {customer.medias?.length ? `(${customer.medias.length})` : ''}
                 </button>
               </div>
+              <button type="button" className="cursor-pointer text-sm text-[#0055cc] underline dark:text-[#66aaff]" onClick={() => openBaggageDialog(customer)}>
+                {customer.baggageTransfer ? `Baggage transfer to ${customer.baggageTransfer}` : 'No baggage transfer'}
+              </button>
+              &nbsp;&nbsp;|&nbsp;&nbsp;
+              <button type="button" className={`cursor-pointer text-sm underline ${customer.visaRequired ? 'font-bold text-[#ff0000]' : 'text-[#0055cc] dark:text-[#66aaff]'}`} onClick={() => openVisaDialog(customer)}>
+                {customer.visaRequired ? 'VISA REQUIRED' : 'Visa Not Required'}
+              </button>
             </React.Fragment>
           ))}
         </div>
@@ -212,6 +220,80 @@ export default function ReservationListTable({
   const [tdacUploadFiles, setTdacUploadFiles] = React.useState<TdacUploadState[]>([]);
   const [tdacMediaList, setTdacMediaList] = React.useState<Array<{ id: string; url: string; fileName: string }>>([]);
   const [loading, setLoading] = React.useState(false);
+  const [baggageDialogOpen, setBaggageDialogOpen] = React.useState(false);
+  const [baggageReservationCustomerId, setBaggageReservationCustomerId] = React.useState('');
+  const [baggageTransferValue, setBaggageTransferValue] = React.useState('NOT_REQUIRED');
+
+  const baggageTransferOptions: [string, string][] = [
+    ['NOT_REQUIRED', 'Not Required'],
+    ['MIDA', 'MIDA'],
+    ['KKC', 'KKC'],
+    ['HH', 'HH']
+  ];
+
+  const [visaDialogOpen, setVisaDialogOpen] = React.useState(false);
+  const [visaReservationCustomerId, setVisaReservationCustomerId] = React.useState('');
+  const [visaRequiredValue, setVisaRequiredValue] = React.useState('false');
+
+  const openVisaDialog = (customer: any) => {
+    setVisaReservationCustomerId(customer.reservationCustomerId || '');
+    setVisaRequiredValue(customer.visaRequired ? 'true' : 'false');
+    setVisaDialogOpen(true);
+  };
+
+  const saveVisaRequired = async () => {
+    if (!visaReservationCustomerId) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/reservationcustomers/${visaReservationCustomerId}/visarequired`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Resort-Location': location
+        },
+        body: JSON.stringify({ visaRequired: visaRequiredValue === 'true' })
+      });
+      const responseData = await response.json();
+      if (responseData.message) toast(responseData.message);
+      if (!response.ok) throw new Error(responseData.message || 'Visa requirement update failed');
+      setVisaDialogOpen(false);
+      formRef?.current?.requestSubmit();
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'Unknown error saving visa requirement.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openBaggageDialog = (customer: any) => {
+    setBaggageReservationCustomerId(customer.reservationCustomerId || '');
+    setBaggageTransferValue(customer.baggageTransfer || 'NOT_REQUIRED');
+    setBaggageDialogOpen(true);
+  };
+
+  const saveBaggageTransfer = async () => {
+    if (!baggageReservationCustomerId) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/reservationcustomers/${baggageReservationCustomerId}/baggagetransfer`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Resort-Location': location
+        },
+        body: JSON.stringify({ baggageTransfer: baggageTransferValue })
+      });
+      const responseData = await response.json();
+      if (responseData.message) toast(responseData.message);
+      if (!response.ok) throw new Error(responseData.message || 'Baggage transfer update failed');
+      setBaggageDialogOpen(false);
+      formRef?.current?.requestSubmit();
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'Unknown error saving baggage transfer.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const invoiceStatusOptions = SelectList.INVOICE_STATUS;
   const tdacStatusOptions = new Map<string, string>([
@@ -594,6 +676,56 @@ export default function ReservationListTable({
                 Close
               </ButtonCustom>
             </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={visaDialogOpen} onOpenChange={setVisaDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Visa</DialogTitle>
+            <DialogDescription>Select whether a visa is required.</DialogDescription>
+          </DialogHeader>
+          <RadioGroup value={visaRequiredValue} onValueChange={setVisaRequiredValue} className="py-2">
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <RadioGroupItem value="true" />
+              Required
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <RadioGroupItem value="false" />
+              Not Required
+            </label>
+          </RadioGroup>
+          <DialogFooter>
+            <ButtonCustom variant="green" type="button" onClick={saveVisaRequired} disabled={loading}>
+              Save
+            </ButtonCustom>
+            <ButtonCustom type="button" onClick={() => setVisaDialogOpen(false)}>
+              Cancel
+            </ButtonCustom>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={baggageDialogOpen} onOpenChange={setBaggageDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Baggage Transfer</DialogTitle>
+            <DialogDescription>Select the baggage transfer destination.</DialogDescription>
+          </DialogHeader>
+          <RadioGroup value={baggageTransferValue} onValueChange={setBaggageTransferValue} className="py-2">
+            {baggageTransferOptions.map(([value, label]) => (
+              <label key={value} className="flex cursor-pointer items-center gap-2 text-sm">
+                <RadioGroupItem value={value} />
+                {label}
+              </label>
+            ))}
+          </RadioGroup>
+          <DialogFooter>
+            <ButtonCustom variant="green" type="button" onClick={saveBaggageTransfer} disabled={loading}>
+              Save
+            </ButtonCustom>
+            <ButtonCustom type="button" onClick={() => setBaggageDialogOpen(false)}>
+              Cancel
+            </ButtonCustom>
           </DialogFooter>
         </DialogContent>
       </Dialog>
