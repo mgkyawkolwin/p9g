@@ -10,7 +10,8 @@ import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttonc
 import Customer from "@/core/models/domain/Customer"
 import CustomerEditForm from "../forms/customereditform";
 import CustomerViewDialog from "../dialogs/customerviewdialog";
-import { CopyIcon, Eye } from "lucide-react";
+import CustomerHistoryDialog from "../dialogs/customerhistorydialog";
+import { CopyIcon, Eye, History as HistoryIcon } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { toast } from "sonner";
 import { customerUpdate } from "@/app/(private)/[location]/console/customers/[id]/edit/actions";
@@ -35,6 +36,7 @@ export default function CustomerTable({
   const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
   const [viewCustomer, setViewCustomer] = React.useState<Customer | null>(null);
   const [isViewOpen, setIsViewOpen] = React.useState(false);
+  const [historyCustomer, setHistoryCustomer] = React.useState<Customer | null>(null);
 
   const [clientState, setClientState] = React.useState(formState);
   const nameRefs = React.useRef<Record<string, HTMLInputElement>>({});
@@ -176,6 +178,10 @@ export default function CustomerTable({
             <Eye aria-hidden="true" className="mr-1 size-4" />
             View
           </ButtonCustom>
+          <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={() => setHistoryCustomer(row.original)}>
+            <HistoryIcon aria-hidden="true" className="mr-1 size-4" />
+            History
+          </ButtonCustom>
           {!row.original.isDeleted && <ButtonCustom variant={"red"} size={"sm"} type="button" onClick={() => {
             setSelectedCustomer(row.original);
             setOpenDeleteDialog(true);
@@ -197,6 +203,7 @@ export default function CustomerTable({
         <CustomerEditForm openCallback={(func) => openCallbackFunc.current = func} onSaved={handleSave} />
       </section>
       <CustomerViewDialog customer={viewCustomer} open={isViewOpen} onOpenChange={setIsViewOpen} location={location} />
+      <CustomerHistoryDialog customer={historyCustomer} open={historyCustomer !== null} onOpenChange={(open) => { if (!open) setHistoryCustomer(null); }} location={location} />
       <section className="flex">
         <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
           <DialogContent className="">

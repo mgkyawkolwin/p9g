@@ -23,6 +23,7 @@ export default interface IReservationService {
     reservationCheckOut(id: string, sessionUser: SessionUser): Promise<void>;
     reservationCreate(reservation: Reservation, sessionUser: SessionUser): Promise<Reservation>;
     reservationGetById(id: string, sessionUser: SessionUser): Promise<Reservation | null>;
+    reservationGetListByCustomerId(customerId: string, sessionUser: SessionUser): Promise<Reservation[]>;
     reservationGetList(searchParams: Record<string, any>, pagerParams: PagerParams, list: string, sessionUser: SessionUser): Promise<[Reservation[], number]>;
     reservationMoveRoom(id: string, roomNo: string, date: string, sessionUser: SessionUser): Promise<void>;
     reservationPatch(id: string, reservation: Reservation, sessionUser: SessionUser): Promise<void>;

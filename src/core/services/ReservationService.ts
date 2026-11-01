@@ -517,6 +517,13 @@ export default class ReservationService implements IReservationService {
     }
 
 
+    async reservationGetListByCustomerId(customerId: string, sessionUser: SessionUser): Promise<Reservation[]> {
+        c.fs('ReservationService > reservationGetListByCustomerId');
+        if (!customerId) throw new CustomError('Customer id is required.');
+        return await this.reservationRepository.reservationGetListByCustomerId(customerId, sessionUser);
+    }
+
+
     async reservationCheckOut(id: string, sessionUser: SessionUser): Promise<void> {
         c.fs('ReservationService > reservationCheckOut');
         c.d(id);

@@ -159,50 +159,8 @@
     {
       "idx": 22,
       "version": "5",
-      "when": 1793432591105,
-      "tag": "0022_quiet_hulk",
-      "breakpoints": true
-    },
-    {
-      "idx": 23,
-      "version": "5",
-      "when": 1793433251733,
-      "tag": "0023_icy_violations",
-      "breakpoints": true
-    },
-    {
-      "idx": 24,
-      "version": "5",
-      "when": 1793433839574,
-      "tag": "0024_jazzy_swordsman",
-      "breakpoints": true
-    },
-    {
-      "idx": 25,
-      "version": "5",
-      "when": 1793435291503,
-      "tag": "0025_bored_monster_badoon",
-      "breakpoints": true
-    },
-    {
-      "idx": 26,
-      "version": "5",
-      "when": 1793445733184,
-      "tag": "0026_abnormal_blizzard",
-      "breakpoints": true
-    },
-    {
-      "idx": 27,
-      "version": "5",
-      "when": 1793446953520,
-      "tag": "0027_worthless_misty_knight",
-      "breakpoints": true
-    },
-    {
-      "idx": 28,
-      "version": "5",
-      "when": 1793447423275,
-      "tag": "0028_youthful_wolfsbane",
+      "when": 1793457067997,
+      "tag": "0022_easy_vance_astro",
       "breakpoints": true
     }
   ]

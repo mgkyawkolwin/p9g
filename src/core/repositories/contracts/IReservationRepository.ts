@@ -12,6 +12,7 @@ export default interface IReservationRepository extends IRepository<Reservation>
 
     getRoomsAndPax(drawDate: Date, sessionUser: SessionUser): Promise<RoomAndPax[]>;
     reservationGetById(id: string): Promise<Reservation | null>;
+    reservationGetListByCustomerId(customerId: string, sessionUser: SessionUser): Promise<Reservation[]>;
     reservationGetList(searchFormFields: SearchFormFields, pagerParams: PagerParams, list: string, sessionUser: SessionUser): Promise<[Reservation[], number]>;
     roomAndReservationGetList(searchFormFields: SearchFormFields, sessionUser: SessionUser): Promise<RoomReservationDto[]>;
     roomReservationGetListById(reservationId: string, includeChildren: boolean, sessionUser: SessionUser): Promise<[RoomReservation[], number]>;

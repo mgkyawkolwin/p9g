@@ -89,6 +89,24 @@ export default class CacheReservationRepositoryDecorator extends CacheRepository
     }
 
 
+    async reservationGetListByCustomerId(customerId: string, sessionUser: SessionUser): Promise<Reservation[]> {
+        c.fs('CacheReservationRepositoryDecorator > reservationGetListByCustomerId');
+        const cacheTag = `customer-history-${customerId}-${sessionUser.location}`;
+        const startTime = performance.now();
+
+        const cacheObject = await this.cache.get(getCacheKey(this.baseCacheKey, cacheTag));
+        if (cacheObject) {
+            console.log(`CACHE HIT: ${(performance.now() - startTime).toFixed(2)}ms`);
+            return cacheObject;
+        }
+
+        const reservations = await this.repository.reservationGetListByCustomerId(customerId, sessionUser);
+        console.log(`CACHE MISS: ${(performance.now() - startTime).toFixed(2)}ms`);
+        await this.cache.add(getCacheKey(this.baseCacheKey, cacheTag), getCacheKey(this.baseCacheKey), reservations);
+        return reservations;
+    }
+
+
     async roomAndReservationGetList(searchFormFields: SearchFormFields, sessionUser: SessionUser): Promise<RoomReservationDto[]> {
         c.fs('CacheReservationRepositoryDecorator > roomAndReservationGetList');
         

@@ -2,6 +2,7 @@ import { auth } from "@/app/auth";
 import { ConfigGroup } from "@/core/constants";
 import { TransactionType } from "@/core/db/mysql/MySqlDatabase";
 import Reservation from "@/core/models/domain/Reservation";
+import Customer from "@/core/models/domain/Customer";
 import Room from "@/core/models/domain/Room";
 import RoomCharge from "@/core/models/domain/RoomCharge";
 import RoomReservation from "@/core/models/domain/RoomReservation";
@@ -176,6 +177,71 @@ export default class ReservationRepository extends Repository<Reservation, Reser
         c.d(reservation);
         c.fe('ReservationRepository > reservationGetById');
         return reservation;
+    }
+
+
+    async reservationGetListByCustomerId(customerId: string, sessionUser: SessionUser): Promise<Reservation[]> {
+        c.fs('ReservationRepository > reservationGetListByCustomerId');
+
+        const distinctReservationRows = await this.dbClient.db.selectDistinct({ id: reservationTable.id })
+            .from(reservationTable)
+            .innerJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
+            .where(and(
+                eq(reservationCustomerTable.customerId, customerId),
+                eq(reservationTable.location, sessionUser.location)
+            ));
+
+        const reservationIds = distinctReservationRows.map(row => row.id);
+        if (reservationIds.length === 0) {
+            c.fe('ReservationRepository > reservationGetListByCustomerId');
+            return [];
+        }
+
+        const reservationTypeAlias = alias(configTable, 'history_reservation_type');
+        const reservationStatusAlias = alias(configTable, 'history_reservation_status');
+        const historyPrepaidAlias = alias(prepaidTable, 'history_prepaid_package');
+
+        const rows = await this.dbClient.db.select({
+            ...reservationTable,
+            customer: { ...customerTable },
+            reservationStatus: reservationStatusAlias.value,
+            reservationStatusText: reservationStatusAlias.text,
+            reservationType: reservationTypeAlias.value,
+            reservationTypeText: reservationTypeAlias.text,
+            prepaidPackage: historyPrepaidAlias.value,
+            prepaidPackageText: historyPrepaidAlias.text,
+        })
+            .from(reservationTable)
+            .innerJoin(reservationCustomerTable, eq(reservationCustomerTable.reservationId, reservationTable.id))
+            .innerJoin(customerTable, eq(customerTable.id, reservationCustomerTable.customerId))
+            .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
+            .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
+            .leftJoin(historyPrepaidAlias, eq(historyPrepaidAlias.id, reservationTable.prepaidPackageId))
+            .where(and(
+                inArray(reservationTable.id, reservationIds),
+                eq(reservationTable.location, sessionUser.location)
+            ))
+            .orderBy(desc(reservationTable.checkInDate));
+
+        const reservations = new Map<string, Reservation>();
+        for (const row of rows) {
+            const { customer, ...reservationData } = row;
+            let reservation = reservations.get(row.id);
+            if (!reservation) {
+                reservation = Object.assign(new Reservation(), reservationData, { customers: [] });
+                reservation.noOfDays = Number(row.noOfDays);
+                reservation.noOfGuests = Number(row.noOfGuests);
+                reservations.set(row.id, reservation);
+            }
+
+            if (row.customer && !reservation.customers.some(customer => customer.id === row.customer.id)) {
+                const customer = Object.assign(new Customer(), row.customer);
+                reservation.customers.push(customer);
+            }
+        }
+
+        c.fe('ReservationRepository > reservationGetListByCustomerId');
+        return Array.from(reservations.values());
     }
 
 
