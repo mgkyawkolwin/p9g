@@ -43,4 +43,9 @@ export default class Customer extends EntityBase {
     public walkingTheCourse: string = '';
     public dizzyShortOfBreathWhenWalking: string = '';
     public doctorNamePhone: string = '';
+    public visitedMyanmarBefore: string = '';
+    public myanmarVisitNo: string = '';
+    public previousMyanmarVisit: string = '';
+    public myanmarInterest: string = '';
+    public myanmarPlacesToVisit: string = '';
 }

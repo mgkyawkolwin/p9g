@@ -14,7 +14,7 @@ import { HttpStatusCode } from '@/core/constants';
 import type { IDatabaseClient } from '@/lib/db/IDatabase';
 import PrepaidPackagePayment from '../models/domain/PrepaidPackagePayment';
 import { customerTable, packagePaymentTable, packageUsageTable, prepaidPackageTable } from '@/core/orms/drizzle/mysql/schema';
-import { and as drizzleAnd, count as drizzleCount, desc as drizzleDesc, eq as drizzleEq, inArray as drizzleInArray, sum as drizzleSum } from 'drizzle-orm';
+import { and as drizzleAnd, count as drizzleCount, desc as drizzleDesc, eq as drizzleEq, inArray as drizzleInArray, like as drizzleLike, or as drizzleOr, sum as drizzleSum } from 'drizzle-orm';
 import type { PrepaidPackageCustomerSummary, PrepaidPackageUsageHistory } from './contracts/IPrepaidPackageService';
 
 const getPackageStatus = (daysUsed: number, noOfDays: number): PrepaidPackage['packageStatus'] =>
@@ -116,6 +116,18 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
 
         if (searchFormFields.searchId) {
             conditions.push(like('prepaidPackage.id', `%${searchFormFields.searchId}%`));
+        }
+        if (searchFormFields.searchCustomerName) {
+            const customerPattern = `%${searchFormFields.searchCustomerName}%`;
+            const matchedCustomers = await this.dbClient.db.select({ id: customerTable.id })
+                .from(customerTable)
+                .where(drizzleOr(drizzleLike(customerTable.name, customerPattern), drizzleLike(customerTable.englishName, customerPattern)));
+
+            if (matchedCustomers.length === 0) {
+                c.fe('PrepaidPackageService > prepaidPackageFindMany');
+                return [[], 0];
+            }
+            conditions.push(inList('prepaidPackage.customerId', matchedCustomers.map(x => x.id)));
         }
         if (searchFormFields.searchPrepaidPackageTypeId) {
             conditions.push(eq('prepaidPackage.prepaidPackageTypeId', searchFormFields.searchPrepaidPackageTypeId));

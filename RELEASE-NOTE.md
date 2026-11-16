@@ -1,2 +1,4 @@
-# Version 7.10.0 Release Note
-- Exclude previus day hole and time from drawing in pookie
+# Version 9.0.0 Release Note
+- Add/Remove fields in customer edit/view pages
+- Add customer name search field in customer list
+- Add birthday report

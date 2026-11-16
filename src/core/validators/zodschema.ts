@@ -75,6 +75,11 @@ export const customerValidator = z.object({
   walkingTheCourse: z.string().nullish().optional(),
   dizzyShortOfBreathWhenWalking: z.string().nullish().optional(),
   doctorNamePhone: z.string().nullish().optional(),
+  visitedMyanmarBefore: z.string().nullish().optional(),
+  myanmarVisitNo: z.string().nullish().optional(),
+  previousMyanmarVisit: z.string().nullish().optional(),
+  myanmarInterest: z.string().nullish().optional(),
+  myanmarPlacesToVisit: z.string().nullish().optional(),
   isBlackListed: z.coerce.boolean().optional(),
   isDeleted: z.coerce.boolean().optional(),
   modelState: z.string().optional()

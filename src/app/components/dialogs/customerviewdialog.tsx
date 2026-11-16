@@ -115,7 +115,6 @@ export default function CustomerViewDialog({ customer, open, onOpenChange, locat
             title: "Membership",
             fields: [
                 ["Status", displayCustomer.membershipStatus],
-                ["Membership No", displayCustomer.membershipNo],
                 ["Introduced By", displayCustomer.introducedBy],
                 ["Interested in Membership", displayCustomer.interestedInMembership],
             ],
@@ -156,6 +155,16 @@ export default function CustomerViewDialog({ customer, open, onOpenChange, locat
                 ["Walking the Course", displayCustomer.walkingTheCourse],
                 ["Dizzy/Short of Breath When Walking", displayCustomer.dizzyShortOfBreathWhenWalking],
                 ["Doctor Name / Phone", displayCustomer.doctorNamePhone],
+            ],
+        },
+        {
+            title: "Myanmar Visit",
+            fields: [
+                ["Visited Myanmar Before", displayCustomer.visitedMyanmarBefore],
+                ["Which Visit Is This", displayCustomer.myanmarVisitNo],
+                ["Previous Myanmar Visit", displayCustomer.previousMyanmarVisit],
+                ["Interest in Myanmar", displayCustomer.myanmarInterest],
+                ["Places to Visit in Myanmar", displayCustomer.myanmarPlacesToVisit],
             ],
         },
     ] : [];

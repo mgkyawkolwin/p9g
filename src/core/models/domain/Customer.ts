@@ -47,6 +47,11 @@ export default class Customer extends DomainBase {
     public walkingTheCourse: string = '';
     public dizzyShortOfBreathWhenWalking: string = '';
     public doctorNamePhone: string = '';
+    public visitedMyanmarBefore: string = '';
+    public myanmarVisitNo: string = '';
+    public previousMyanmarVisit: string = '';
+    public myanmarInterest: string = '';
+    public myanmarPlacesToVisit: string = '';
     public tdacStatusId: string = '';
     public tdacStatus: string = '';
     public tdacStatusText: string = '';

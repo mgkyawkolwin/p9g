@@ -5,7 +5,7 @@ import { TYPES } from "@/core/types";
 import { type IDatabaseClient } from "@/lib/db/IDatabase";
 import IReportRepository from "../contracts/IReportRepository";
 import DailySummaryGuestsRoomsReportRow from "@/core/models/dto/reports/DailySummaryGuestsRoomsReportrow";
-import { getUTCDateRange, getUTCFirstDate } from "@/lib/utils";
+import { getISODateTimeMidNightString, getISODateTimeString, getUTCDateRange, getUTCFirstDate } from "@/lib/utils";
 import { and, count, countDistinct, eq, gt, gte, lt, lte, ne, or, sql, sum, inArray } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { CustomError } from "@/lib/errors";
@@ -23,7 +23,50 @@ import SessionUser from "@/core/models/dto/SessionUser";
 import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
 import { PickupDropoffReportResponse, PickupDropoffRow, PickupDropoffSummary } from '@/core/models/dto/reports/PickupDropoffReportResponse';
 import RoomCharge from "@/core/models/domain/RoomCharge";
+import BirthdayReportRow from "@/core/models/dto/reports/BirthdayReportRow";
 
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const BIRTHDAY_WINDOW_DAYS = 7;
+
+type CalendarDate = { year: number; month: number; day: number };
+
+/**
+ * Parse a date of birth into calendar parts. Accepts yyyy-MM-dd first, then falls back to Date parsing.
+ * Returns null when the value cannot be parsed into a valid calendar date.
+ */
+function parseCalendarDate(value: string | null | undefined): CalendarDate | null {
+    if (!value) return null;
+    const text = value.trim();
+    let parts: CalendarDate | null = null;
+
+    const iso = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(text);
+    if (iso) {
+        parts = { year: Number(iso[1]), month: Number(iso[2]), day: Number(iso[3]) };
+    } else {
+        const parsed = new Date(text);
+        if (isNaN(parsed.getTime())) return null;
+        parts = { year: parsed.getFullYear(), month: parsed.getMonth() + 1, day: parsed.getDate() };
+    }
+
+    const check = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
+    if (check.getUTCFullYear() !== parts.year || check.getUTCMonth() !== parts.month - 1 || check.getUTCDate() !== parts.day) return null;
+    return parts;
+}
+
+function formatCalendarDate(date: CalendarDate): string {
+    return `${String(date.year).padStart(4, '0')}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+}
+
+/**
+ * Number of days from today until the next occurrence of the birthday (0 = today).
+ */
+function getDaysUntilBirthday(dob: CalendarDate, today: CalendarDate): number {
+    const todayUtc = Date.UTC(today.year, today.month - 1, today.day);
+    let birthdayUtc = Date.UTC(today.year, dob.month - 1, dob.day);
+    if (birthdayUtc < todayUtc) birthdayUtc = Date.UTC(today.year + 1, dob.month - 1, dob.day);
+    return Math.round((birthdayUtc - todayUtc) / DAY_MS);
+}
 
 @injectable()
 export default class ReportRepository implements IReportRepository {
@@ -259,6 +302,64 @@ export default class ReportRepository implements IReportRepository {
 
         c.fe('Repository > getPickupDropoffReport');
         return { summary, checkIn, checkOut } as PickupDropoffReportResponse;
+    }
+
+    async getBirthdayReport(todayDate: string, sessionUser: SessionUser): Promise<BirthdayReportRow[]> {
+        c.fs('Repository > getBirthdayReport');
+        c.d({ todayDate, location: sessionUser.location });
+
+        const today = parseCalendarDate(todayDate);
+        if (!today) throw new CustomError('Invalid date. Expected format yyyy-MM-dd.');
+
+        const todayStart = new Date(getISODateTimeString(todayDate));
+        const todayEnd = new Date(getISODateTimeMidNightString(todayDate));
+
+        //reservations overlapping today (not cancelled) with their customers
+        const rows = await this.dbClient.db.select({
+            reservationId: reservationTable.id,
+            roomNo: reservationTable.roomNo,
+            customerName: customerTable.name,
+            englishName: customerTable.englishName,
+            dob: customerTable.dob,
+        })
+            .from(reservationTable)
+            .innerJoin(configTable, eq(configTable.id, reservationTable.reservationStatusId))
+            .innerJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
+            .innerJoin(customerTable, eq(reservationCustomerTable.customerId, customerTable.id))
+            .where(
+                and(
+                    eq(reservationTable.location, sessionUser.location),
+                    lte(reservationTable.checkInDate, todayEnd),
+                    gte(reservationTable.checkOutDate, todayStart),
+                    ne(configTable.value, 'CCL'),
+                    eq(customerTable.isDeleted, false)
+                )
+            );
+        c.d(`Overlapping reservation customer rows: ${rows.length}`);
+
+        //keep customers whose birthday falls within the next window (today ... +7 days)
+        const birthdays: { days: number; row: BirthdayReportRow }[] = [];
+        for (const r of rows) {
+            const dob = parseCalendarDate(r.dob);
+            if (!dob) continue;
+
+            const days = getDaysUntilBirthday(dob, today);
+            if (days > BIRTHDAY_WINDOW_DAYS) continue;
+
+            const row = new BirthdayReportRow();
+            row.reservationId = r.reservationId;
+            row.customerName = r.customerName ?? '';
+            row.englishName = r.englishName ?? '';
+            row.dob = formatCalendarDate(dob);
+            row.roomNo = r.roomNo ?? '';
+            row.birthdayStatus = days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : 'Up Coming';
+            birthdays.push({ days, row });
+        }
+
+        birthdays.sort((a, b) => a.days - b.days || a.row.customerName.localeCompare(b.row.customerName));
+
+        c.fe('Repository > getBirthdayReport');
+        return birthdays.map(b => b.row);
     }
 
 

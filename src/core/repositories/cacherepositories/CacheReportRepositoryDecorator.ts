@@ -15,6 +15,7 @@ import SessionUser from "@/core/models/dto/SessionUser";
 import DailyReservationDetailReportRow from "@/core/models/dto/reports/DailyReservationDetailReportRow";
 import DailySummaryReservationStatusReportRow from "@/core/models/dto/reports/DailySummaryReservationStatusReportRow";
 import { PickupDropoffReportResponse } from "@/core/models/dto/reports/PickupDropoffReportResponse";
+import BirthdayReportRow from "@/core/models/dto/reports/BirthdayReportRow";
 
 
 @injectable()
@@ -28,6 +29,12 @@ export default class CacheReportRepositoryDecorator implements IReportRepository
         
     }
 
+
+    //birthdays depend on today's date and live reservations, so this report is not cached
+    async getBirthdayReport(todayDate: string, sessionUser: SessionUser): Promise<BirthdayReportRow[]> {
+        c.fs("Repository > getBirthdayReport");
+        return await this.repository.getBirthdayReport(todayDate, sessionUser);
+    }
 
     async getDailyReservationDetailReport(checkInFrom: string, checkInUntil: string, createdFrom: string, createdUntil: string, updatedFrom: string, updatedUntil: string, reservationType: string, reservationStatus: string, bookingSource: string, sessionUser: SessionUser): Promise<DailyReservationDetailReportRow[]> {
         c.fs("Repository > getDailyReservationDetailReport");

@@ -137,6 +137,22 @@ export default class ReservationService implements IReservationService {
         c.fs('ReservationService > reconcilePackageUsage');
         c.d(reservation);
 
+        if (!reservation.prepaidCode?.trim()) {
+            c.fe('ReservationService > reconcilePackageUsage');
+            return;
+        }
+
+        // Cancellation passes prepaidPackageId as null to release usage; skip the type check then.
+        if (reservation.prepaidPackageId) {
+            const [prepaidPackage] = await tx.select({ prepaidPackageTypeId: prepaidPackageTable.prepaidPackageTypeId })
+                .from(prepaidPackageTable)
+                .where(drizzleEq(prepaidPackageTable.id, reservation.prepaidCode));
+            if (!prepaidPackage) throw new CustomError('Prepaid package not found.');
+            if (prepaidPackage.prepaidPackageTypeId !== reservation.prepaidPackageId) {
+                throw new CustomError('Prepaid code and prepaid package type mismatched.');
+            }
+        }
+
         // Restore and delete any existing usages
         const existingUsages = await tx.select().from(packageUsageTable)
             .where(drizzleEq(packageUsageTable.reservationId, reservation.id));

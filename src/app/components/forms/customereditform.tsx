@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../lib/component
 import { InputWithLabel } from "../../../lib/components/web/react/uicustom/inputwithlabel";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
 import { Label } from "../../../lib/components/web/react/ui/label";
+import { Textarea } from "../../../lib/components/web/react/ui/textarea";
 
 interface CustomerEditFormProps {
     onSaved?: (customer: Customer) => void;
@@ -23,7 +24,7 @@ interface CustomerEditFormProps {
 
 const bookingChannelOptions = ["Phone", "Agent", "Walk-in", "Corporate"] as const;
 const visitPurposeOptions = ["Leisure", "Business", "Tournament", "Birthday/Event"] as const;
-const membershipStatusOptions = ["Non-Member", "Guest", "Member", "VIP", "Corporate"] as const;
+const membershipStatusOptions = ["90 Days", "Founder Pass"] as const;
 const membershipInterestOptions = ["Yes", "No", "May Be"] as const;
 const drinkOptions = ["Tea", "Coffee", "Beer"] as const;
 const preferredTeeTimeOptions = ["Morning", "Afternoon", "Twilight"] as const;
@@ -294,9 +295,6 @@ export default function CustomerEditForm({ onSaved, openCallback }: CustomerEdit
                                         ))}
                                     </div>
                                 </div>
-                                <InputWithLabel name="membershipNo" label="Membership No" variant="default" size="full" labelPosition="top"
-                                    value={customer.membershipNo ?? ''}
-                                    onChange={(e) => setCustomer(prev => ({ ...prev, membershipNo: e.target.value }))} />
                                 <InputWithLabel name="introducedBy" label="Introduced By" variant="default" size="full" labelPosition="top"
                                     value={customer.introducedBy ?? ''}
                                     onChange={(e) => setCustomer(prev => ({ ...prev, introducedBy: e.target.value }))} />
@@ -586,6 +584,50 @@ export default function CustomerEditForm({ onSaved, openCallback }: CustomerEdit
                                 <InputWithLabel name="doctorNamePhone" label="Doctor Name / Phone" variant="default" size="full" labelPosition="top"
                                     value={customer.doctorNamePhone ?? ''}
                                     onChange={(e) => setCustomer(prev => ({ ...prev, doctorNamePhone: e.target.value }))} />
+                            </CardContent>
+                        </Card>
+                        <Card className="flex">
+                            <CardHeader>
+                                <CardTitle>Myanmar Visit</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex w-full flex-col gap-3">
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-[10pt]">Have you visited Myanmar before?</Label>
+                                    <div className="flex items-center gap-4">
+                                        {["Yes", "No"].map((option) => (
+                                            <div key={option} className="flex items-center gap-1">
+                                                <input id={`visitedMyanmarBefore-${option}`} name="visitedMyanmarBefore" type="radio" value={option}
+                                                    checked={customer.visitedMyanmarBefore === option}
+                                                    onChange={() => setCustomer(prev => ({ ...prev, visitedMyanmarBefore: option }))} />
+                                                <Label htmlFor={`visitedMyanmarBefore-${option}`}>{option}</Label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label className="text-[10pt]">Which visit is this?</Label>
+                                    <div className="flex items-center gap-2">
+                                        <InputCustom size="full" className="min-w-0 flex-1" aria-label="Which visit is this"
+                                            value={customer.myanmarVisitNo ?? ''}
+                                            onChange={(e) => setCustomer(prev => ({ ...prev, myanmarVisitNo: e.target.value }))} />
+                                        <span className="shrink-0 text-[10pt]">(time)</span>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="previousMyanmarVisit">If yes, please tell us about your previous visit</Label>
+                                    <Textarea id="previousMyanmarVisit" name="previousMyanmarVisit" value={customer.previousMyanmarVisit ?? ''}
+                                        onChange={(e) => setCustomer(prev => ({ ...prev, previousMyanmarVisit: e.target.value }))} />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="myanmarInterest">Why are you interested in Myanmar?</Label>
+                                    <Textarea id="myanmarInterest" name="myanmarInterest" value={customer.myanmarInterest ?? ''}
+                                        onChange={(e) => setCustomer(prev => ({ ...prev, myanmarInterest: e.target.value }))} />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="myanmarPlacesToVisit">Which places would you like to visit in Myanmar?</Label>
+                                    <Textarea id="myanmarPlacesToVisit" name="myanmarPlacesToVisit" value={customer.myanmarPlacesToVisit ?? ''}
+                                        onChange={(e) => setCustomer(prev => ({ ...prev, myanmarPlacesToVisit: e.target.value }))} />
+                                </div>
                             </CardContent>
                         </Card>
                         </div>

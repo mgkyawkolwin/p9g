@@ -13,6 +13,7 @@ import c from "@/lib/loggers/console/ConsoleLogger";
 import SessionUser from "../models/dto/SessionUser";
 import { PickupDropoffReportResponse } from '@/core/models/dto/reports/PickupDropoffReportResponse';
 import DailyReservationDetailReportRow from "../models/dto/reports/DailyReservationDetailReportRow";
+import BirthdayReportResponse from "../models/dto/reports/BirthdayReportResponse";
 
 @injectable()
 export default class ReportService implements IReportService {
@@ -81,6 +82,22 @@ export default class ReportService implements IReportService {
             departureEndDateTime,
             sessionUser
         );
+    }
+
+    async getBirthdayReport(todayDate: string, pageIndex: number, pageSize: number, sessionUser: SessionUser): Promise<BirthdayReportResponse> {
+        c.fs('ReportService > getBirthdayReport');
+        const rows = await this.reportRepository.getBirthdayReport(todayDate, sessionUser);
+
+        //in-memory paging of the birthday list
+        const safePageSize = pageSize > 0 ? pageSize : 10;
+        const pages = Math.max(1, Math.ceil(rows.length / safePageSize));
+        const currentPage = Math.min(Math.max(pageIndex || 1, 1), pages);
+        const birthdays = rows.slice((currentPage - 1) * safePageSize, currentPage * safePageSize);
+
+        return {
+            birthdays,
+            pager: { pageIndex: currentPage, pageSize: safePageSize, pages, records: rows.length }
+        };
     }
 
 }
