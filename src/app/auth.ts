@@ -1,29 +1,23 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-//import { hash } from "bcryptjs";
+import { readSignInTicket } from "@/core/auth/SignInTicket";
 
+// Only a server-issued, signed and short-lived ticket is accepted.
+// Identity fields are never taken from the client.
 const formCredentials = Credentials({
     credentials: {
-      id:{},
-      name:{},
-      role:{},
-      location:{},sex:{}
+      ticket:{}
     },
     authorize: async (credentials) => {
-      // console.log('Authorize callback');
-      // console.log(JSON.stringify(credentials));
-      if(!credentials) return null;
-      let user = null;
-      user = {name:credentials.name, id:credentials.id, role: credentials.role, location: credentials.location};
-      // return user object with their profile data
-      return user;
+      if(!credentials || typeof credentials.ticket !== "string") return null;
+      const payload = await readSignInTicket(credentials.ticket);
+      if (!payload) return null;
+      return { id: payload.id, name: payload.name, role: payload.role, location: payload.location };
     },
-    
-  
   });
  
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  debug : true,
+  debug : process.env.NODE_ENV !== "production",
   providers: [
     formCredentials
   ],

@@ -8,16 +8,19 @@ import { TYPES } from "@/core/types";
 import IAuthorizer from "./core/authorization/IAuthorizer";
 import ConfigAuthorizer from "./core/authorization/ConfigAuthorizer";
 
+// console pages are served under /{location}/console/... (and may also be requested as /console/...)
+const consolePathPattern = /^(\/[^/]+)?\/console(\/|$)/;
+const privateApiPathPattern = /^\/api(?!\/auth(\/|$)|\/public(\/|$))/;
+
 export async function middleware(request : NextRequest) {
+  const { pathname } = request.nextUrl;
   try {
     //check session
     const session = await auth();
     if(session && session.user && session.user.id){
       const authorizer = new ConfigAuthorizer();
-      //check access to authenticated area
-      const { pathname, origin } = request.nextUrl;
+      //check permission for the top-level console area
       if (pathname.startsWith("/console")) {
-        //check permission
         const isAuthorized = authorizer.isAuthorized(session.user, pathname, null);
         if(!isAuthorized){
           //redirect to forbidden page
@@ -27,19 +30,24 @@ export async function middleware(request : NextRequest) {
     }
     else{
       //no session, if accessing authenticated area, redirect to login page
-      const { pathname, origin } = request.nextUrl;
-      //admin urls
-      if (pathname.startsWith("/console")) {
+      if (consolePathPattern.test(pathname)) {
         return NextResponse.redirect(new URL('/auth/signin', request.url))
       }
 
       //private api
-      if (pathname.startsWith("/api") && !pathname.startsWith("/api/auth") && !pathname.startsWith("/api/public")) {
+      if (privateApiPathPattern.test(pathname)) {
         return NextResponse.json({message : 'Unauthorized request.'}, {status: HttpStatusCode.Unauthorized});
       }
     }
     return NextResponse.next();
   } catch (error) {
     c.e(error instanceof Error ? error.message : String(error));
+    //fail closed for protected areas
+    if (consolePathPattern.test(pathname))
+      return NextResponse.redirect(new URL('/auth/signin', request.url));
+    if (privateApiPathPattern.test(pathname))
+      return NextResponse.json({message : 'Unauthorized request.'}, {status: HttpStatusCode.Unauthorized});
+    return NextResponse.next();
   }
 }
+

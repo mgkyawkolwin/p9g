@@ -9,9 +9,12 @@ import { CustomError } from '@/lib/errors';
 import ILogService from '@/core/services/contracts/ILogService';
 
 export async function GET(request: NextRequest, context: { params: Promise<{ password: string }> }) {
+  //developer utility only, never expose password hashing endpoint in production
+  if (process.env.NODE_ENV === 'production')
+    return new NextResponse(null, { status: HttpStatusCode.NotFound });
+
   try {
     c.fs('GET /api/auth/generate/[password]');
-    c.d(JSON.stringify(request));
 
     const { password } = await context.params;
     const plainPassword = decodeURIComponent(password || '');

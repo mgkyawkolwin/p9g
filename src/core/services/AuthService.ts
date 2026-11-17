@@ -19,20 +19,28 @@ export default class AuthService implements IAuthService {
         return await argon2.hash(password);
     }
 
+    private dummyHash: Promise<string> | null = null;
+
+    //hash used to keep response timing equal when the user does not exist
+    private getDummyHash(): Promise<string> {
+        if (!this.dummyHash) this.dummyHash = argon2.hash('p9g-timing-dummy-password');
+        return this.dummyHash;
+    }
+
     async signMeIn(userName: string, password: string): Promise<User | null> {
         c.fs('AuthService > signMeIn');
-        c.d(userName);
         //retrieve user based on userName
         const user = await this.userService.userFindByUserName(userName, null);
 
-        //user not found
+        //user not found, still run a hash verification to avoid user enumeration by timing
         if (!user) {
+            await argon2.verify(await this.getDummyHash(), password).catch(() => false);
             c.i('User not found.');
             return null;
         }
 
-        //compare password
-        const isValid = await argon2.verify(user.password, password);
+        //compare password (a malformed stored hash is treated as invalid)
+        const isValid = await argon2.verify(user.password, password).catch(() => false);
 
         //not valid password
         if (!isValid)

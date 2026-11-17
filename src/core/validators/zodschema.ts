@@ -141,9 +141,9 @@ export const userInsertSchema = z.object({
 });
 
 export const userSignInSchema = z.object({
-  userName: z.string().min(1, 'Username is required'),
-  password: z.string().min(1, 'Password is required'),
-  modelState: z.string().optional()
+  userName: z.string().trim().min(1, 'Username is required').max(20, 'Username is too long'),
+  password: z.string().min(1, 'Password is required').max(20, 'Password is too long'),
+  modelState: z.string().max(255).optional()
 });
 
 export const userCreateSchema = z.object({

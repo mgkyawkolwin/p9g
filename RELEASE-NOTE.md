@@ -1,4 +1,2 @@
-# Version 9.0.0 Release Note
-- Add/Remove fields in customer edit/view pages
-- Add customer name search field in customer list
-- Add birthday report
+# Version 9.1.0 Release Note
+- Implement sign in ticket for extra security

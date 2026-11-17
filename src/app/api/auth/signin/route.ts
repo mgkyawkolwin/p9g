@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { userSignInSchema } from '@/core/validators/zodschema';
 
 import c from '@/lib/loggers/console/ConsoleLogger';
-import { auth, signIn } from '@/app/auth';
+import { createSignInTicket } from '@/core/auth/SignInTicket';
 import { CustomError } from '@/lib/errors';
 import LogError from '@/core/models/domain/LogError';
 import ILogService from '@/core/services/contracts/ILogService';
@@ -14,10 +14,9 @@ import ILogService from '@/core/services/contracts/ILogService';
 export async function POST(request: NextRequest) {
   try{
     c.fs('POST /api/auth/signin');
-    c.d(JSON.stringify(request));
 
     //parse and validate data;
-    const data = await request.json();
+    const data = await request.json().catch(() => null);
     const parsedData = await userSignInSchema.safeParseAsync(data);
     
     //validation failed, return response
@@ -34,10 +33,23 @@ export async function POST(request: NextRequest) {
     if(!user)
       return NextResponse.json({ message: "Invalid credentials."}, { status: HttpStatusCode.NotFound });
     
-    await signIn('credentials',  {redirect : false, name:user.userName, id: user.id, role: user.role});
-    //everything is right
+    //everything is right, issue a short-lived signed ticket for the auth provider.
+    //Never return the user entity itself (it contains the password hash).
+    const ticket = await createSignInTicket({
+      id: String(user.id),
+      name: user.userName,
+      role: user.role,
+      location: user.location,
+    });
+
     c.fe('POST /api/auth/signin');
-    return NextResponse.json(user, { status: HttpStatusCode.Ok });
+    return NextResponse.json({
+      id: user.id,
+      userName: user.userName,
+      role: user.role,
+      location: user.location,
+      ticket,
+    }, { status: HttpStatusCode.Ok });
   }catch(error){
     c.e(error instanceof Error ? error.message : JSON.stringify(error));
     const logService = container.get<ILogService>(TYPES.ILogService);
