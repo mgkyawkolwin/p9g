@@ -33,6 +33,15 @@ export const customerSearchValidator = z.object({
 });
 
 
+export const taskSearchValidator = z.object({
+  searchReservationId: z.string().optional(),
+  searchCustomerName: z.string().optional(),
+  searchDepartment: z.string().optional(),
+  searchStatus: z.string().optional(),
+  searchOverdue: z.string().optional(),
+});
+
+
 export const customerValidator = z.object({
   id: z.string().length(36),
   name: z.string().nullish().optional(),

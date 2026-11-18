@@ -8,8 +8,8 @@ import type { IDatabaseClient } from '@/lib/db/IDatabase';
 import type { PagerParams, SearchFormFields } from '@/core/types';
 import ILogService from './contracts/ILogService';
 import LogError from '../models/domain/LogError';
-import { configTable, reservationLogTable, reservationTable, roomChargeLogTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
-import { count, desc, eq, gte, like, lte, or } from 'drizzle-orm';
+import { configTable, logErrorTable, reservationLogTable, reservationTable, roomChargeLogTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
+import { and, count, desc, eq, gte, like, lte, or } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/mysql-core';
 
 @injectable()
@@ -35,6 +35,34 @@ export default class LogService implements ILogService {
         }
         this.logRepository.create(logError);
         c.fe('LogService > logError');
+    }
+
+    async errorLogGetList(searchData: SearchFormFields, pager: PagerParams): Promise<{ logs: any[]; pager: PagerParams }> {
+        const pageIndex = pager.pageIndex ?? 1;
+        const pageSize = pager.pageSize ?? 10;
+        const conditions = and(
+            searchData.searchId ? like(logErrorTable.id, `%${searchData.searchId}%`) : undefined,
+            searchData.searchUserName ? or(
+                like(userTable.userName, `%${searchData.searchUserName}%`),
+                like(userTable.name, `%${searchData.searchUserName}%`)
+            ) : undefined
+        );
+
+        const [countResult, logs] = await Promise.all([
+            this.dbClient.db.select({ count: count(logErrorTable.id) })
+                .from(logErrorTable).leftJoin(userTable, eq(userTable.id, logErrorTable.userId))
+                .where(conditions).execute(),
+            this.dbClient.db.select({ id: logErrorTable.id, datetime: logErrorTable.datetime, detail: logErrorTable.detail, userId: logErrorTable.userId, userName: userTable.userName })
+                .from(logErrorTable).leftJoin(userTable, eq(userTable.id, logErrorTable.userId))
+                .where(conditions).orderBy(desc(logErrorTable.datetime), desc(logErrorTable.id))
+                .offset((pageIndex - 1) * pageSize).limit(pageSize).execute()
+        ]);
+
+        pager.records = Number(countResult?.[0]?.count ?? 0);
+        pager.pages = Math.max(1, Math.ceil(pager.records / pageSize));
+        pager.pageIndex = pageIndex;
+        pager.pageSize = pageSize;
+        return { logs, pager };
     }
 
     async reservationLogGetList(searchData: SearchFormFields, pager: PagerParams, location: string): Promise<{ logs: any[]; pager: PagerParams }> {

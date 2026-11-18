@@ -105,6 +105,8 @@ export const TYPES = {
   IInvoiceService: Symbol.for('IInvoiceService'),
   ILogRepository: Symbol.for('ILogRepository'),
   ILogService: Symbol.for('ILogService'),
+  ITaskService: Symbol.for('ITaskService'),
+  ITaskRepository: Symbol.for('ITaskRepository'),
   IMapper: Symbol.for('IMapper'),
   IMediaService: Symbol.for('IMediaService'),
   IMediaRepository: Symbol.for('IMediaRepository'),

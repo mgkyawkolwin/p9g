@@ -145,6 +145,13 @@ export default function MainMenuClient({ role }) {
         Room Change
       </Link>
 
+      <Link
+        href={`/${location}/console/tasks`}
+        className="text-sm font-medium text-white hover:text-blue-600"
+      >
+        Tasks
+      </Link>
+
       {role === "ADMIN" && (
         <Link
           href={`/${location}/console/roomschedule`}
@@ -392,6 +399,15 @@ export default function MainMenuClient({ role }) {
                   className={`absolute left-0 mt-1 w-56 text-white bg-[#333] shadow-lg py-1 transition-all duration-200 z-50 ${logsOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
                     }`}
                 >
+                  <li>
+                    <Link
+                      href={`/${location}/console/logs/errors`}
+                      className="block px-4 py-2 hover:bg-[#666] text-sm font-medium whitespace-nowrap"
+                      onClick={() => setLogsOpen(false)}
+                    >
+                      Error Logs
+                    </Link>
+                  </li>
                   <li>
                     <Link
                       href={`/${location}/console/logs/reservations`}

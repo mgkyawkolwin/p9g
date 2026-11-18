@@ -57,6 +57,41 @@ export default class MediaService implements IMediaService {
     }
 
 
+    async createCustomerMedia(media: Media, sessionUser: SessionUser): Promise<void> {
+        c.fs('MediaService > createCustomerMedia');
+        if(!media) throw new CustomError('Invalid media object');
+        if(!media.customerId) throw new CustomError('Invalid customerId');
+        if(!media.url) throw new CustomError('Invalid media url');
+
+        const mediaGroup = await this.configRepository.findOne(and(
+            eq("group", ConfigGroup.MEDIA_GROUP),
+            eq("value", 'GENERAL')
+        ));
+        if (!mediaGroup) throw new CustomError('Media service cannot find media group config');
+
+        const newMedia = new Media();
+        newMedia.id = media.id;
+        newMedia.reservationId = null;
+        newMedia.customerId = media.customerId;
+        newMedia.url = media.url;
+        newMedia.mediaGroupId = mediaGroup.id;
+        newMedia.createdAtUTC = new Date();
+        newMedia.createdBy = sessionUser.id;
+        newMedia.updatedAtUTC = new Date();
+        newMedia.updatedBy = sessionUser.id;
+
+        await this.mediaRepository.create(newMedia);
+        c.fe('MediaService > createCustomerMedia');
+    }
+
+
+    async findMediasByCustomerId(customerId: string): Promise<Media[]> {
+        if(!customerId) throw new CustomError('Invalid customerId');
+        const [medias] = await this.mediaRepository.findMany(eq("customerId", customerId), asc("createdAtUTC"));
+        return medias;
+    }
+
+
     async deleteMedia(mediaId: string, sessionUser: SessionUser): Promise<void> {
         c.fs('MediaService > deleteMedia');
         if(!mediaId) throw new CustomError('Invalid mediaId');

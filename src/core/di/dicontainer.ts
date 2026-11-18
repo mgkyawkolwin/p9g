@@ -23,7 +23,7 @@ import IReportService from '@/core/services/contracts/IReportService';
 import ReportService from '@/core/services/ReportService';
 import ILogService from '@/core/services/contracts/ILogService';
 import LogService from '@/core/services/LogService';
-import { billTable, configTable, customerTable, feedbackTable, invoiceTable, simpleInvoiceItemTable, bookingInvoiceItemTable, logErrorTable, mediaTable, paymentTable, pookieConfigTable, pookieDeviceTable, pookieTable, prepaidPackageTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, userTable } from '@/core/orms/drizzle/mysql/schema';
+import { billTable, configTable, customerTable, feedbackTable, invoiceTable, simpleInvoiceItemTable, bookingInvoiceItemTable, logErrorTable, mediaTable, paymentTable, pookieConfigTable, pookieDeviceTable, pookieTable, prepaidPackageTable, prepaidTable, promotionTable, reservationCustomerTable, reservationTable, roomChargeTable, roomRateTable, roomReservationTable, roomTable, roomTypeTable, taskTable, userTable } from '@/core/orms/drizzle/mysql/schema';
 import { Repository } from '@/lib/repositories/drizzle/Repository';
 import IRepository from '@/lib/repositories/IRepository';
 import CustomMapper from '@/lib/mappers/custommapper/CustomMapper';
@@ -78,6 +78,10 @@ import IFeedbackService from '../services/contracts/IFeedbackService';
 import FeedbackService from '../services/FeedbackService';
 import Feedback from '../models/domain/Feedback';
 import FeedbackEntity from '../models/entity/FeedbackEntity';
+import ITaskService from '../services/contracts/ITaskService';
+import TaskService from '../services/TaskService';
+import Task from '../models/domain/Task';
+import TaskEntity from '../models/entity/TaskEntity';
 import MediaService from '../services/MediaService';
 import IMediaService from '../services/contracts/IMediaService';
 import Media from '../models/domain/Media';
@@ -104,6 +108,7 @@ container.bind<IQueryTranformer>(TYPES.IQueryTransformer).to(DrizzleQueryTransfo
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService).inRequestScope();
 container.bind<ICustomerService>(TYPES.ICustomerService).to(CustomerService).inRequestScope();
 container.bind<IFeedbackService>(TYPES.IFeedbackService).to(FeedbackService).inRequestScope();
+container.bind<ITaskService>(TYPES.ITaskService).to(TaskService).inRequestScope();
 container.bind<IInvoiceService>(TYPES.IInvoiceService).to(InvoiceService).inRequestScope();
 container.bind<ILogService>(TYPES.ILogService).to(LogService).inRequestScope();
 container.bind<IMediaService>(TYPES.IMediaService).to(MediaService).inRequestScope();
@@ -178,6 +183,22 @@ container.bind<IRepository<Feedback>>(TYPES.IFeedbackRepository).toDynamicValue(
             context.get<IQueryTranformer>(TYPES.IQueryTransformer)
         ),
         "feedback",
+        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
+    )
+}).inRequestScope();
+
+container.bind<IRepository<Task>>(TYPES.ITaskRepository).toDynamicValue(context => {
+    return new CacheRepositoryDecorator(
+        new Repository(context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+            taskTable,
+            { ...taskTable },
+            (q) => q,
+            context.get<IMapper>(TYPES.IMapper),
+            Task,
+            TaskEntity,
+            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+        ),
+        "task",
         context.get<ICacheAdapter>(TYPES.ICacheAdapter)
     )
 }).inRequestScope();

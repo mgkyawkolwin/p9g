@@ -11,7 +11,9 @@ import Customer from "@/core/models/domain/Customer"
 import CustomerEditForm from "../forms/customereditform";
 import CustomerViewDialog from "../dialogs/customerviewdialog";
 import CustomerHistoryDialog from "../dialogs/customerhistorydialog";
-import { CopyIcon, Eye, History as HistoryIcon } from "lucide-react";
+import CustomerFilesDialog from "../dialogs/customerfilesdialog";
+import CustomerFeedbacksDialog from "../dialogs/customerfeedbacksdialog";
+import { CopyIcon, Eye, FolderOpen, History as HistoryIcon, MessageSquare, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { toast } from "sonner";
 import { customerUpdate } from "@/app/(private)/[location]/console/customers/[id]/edit/actions";
@@ -37,7 +39,8 @@ export default function CustomerTable({
   const [viewCustomer, setViewCustomer] = React.useState<Customer | null>(null);
   const [isViewOpen, setIsViewOpen] = React.useState(false);
   const [historyCustomer, setHistoryCustomer] = React.useState<Customer | null>(null);
-
+  const [filesCustomer, setFilesCustomer] = React.useState<Customer | null>(null);
+  const [feedbacksCustomer, setFeedbacksCustomer] = React.useState<Customer | null>(null);
   const [clientState, setClientState] = React.useState(formState);
   const nameRefs = React.useRef<Record<string, HTMLInputElement>>({});
   const dobRefs = React.useRef<Record<string, HTMLInputElement>>({});
@@ -56,6 +59,7 @@ export default function CustomerTable({
     {
       accessorKey: "id",
       header: "Id",
+      size: 70,
       cell: ({ row }) => {
         return <div>
           {String(row.getValue("id")).substring(0, 8)} <CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.getValue("id"))} />
@@ -63,26 +67,18 @@ export default function CustomerTable({
       }
     },
     {
-      accessorKey: "name",
+      accessorKey: "combinedName",
       header: "Name",
       cell: ({ row }) => {
-        return <div>
-          {row.getValue('name')}
-        </div>
-      }
-    },
-    {
-      accessorKey: "englishName",
-      header: "English Name",
-      cell: ({ row }) => {
-        return <div>
-          {row.getValue('englishName')}
+        return <div className="">
+          {row.original.name ?? ''} / {row.original.englishName ?? ''}
         </div>
       }
     },
     {
       accessorKey: "gender",
-      header: "Gender"
+      header: "Gender",
+      size: 50,
     },
     {
       accessorKey: "dob",
@@ -121,35 +117,9 @@ export default function CustomerTable({
       }
     },
     {
-      accessorKey: "email",
-      header: "Email",
-      cell: ({ row }) => {
-        return <div>
-          {row.getValue('email')}
-        </div>
-      }
-    },
-    // {
-    //   accessorKey: "address",
-    //   header: "Address",
-    //   cell: ({ row }) => {
-    //     return <div>
-    //       {row.getValue('address')}
-    //     </div>
-    //   }
-    // },
-    // {
-    //   accessorKey: "country",
-    //   header: "Country",
-    //   cell: ({ row }) => {
-    //     return <div>
-    //       {row.getValue('country')}
-    //     </div>
-    //   }
-    // },
-    {
       accessorKey: "isBlackListed",
       header: "Blacklist",
+      size: 80,
       cell: ({ row }) => {
         const val = row.getValue('isBlackListed');
         return <div>{val ? <div style={{color: "red"}}>Blacklist</div> : ''}</div>
@@ -166,26 +136,46 @@ export default function CustomerTable({
       accessorKey: "action",
       header: "Action",
       cell: ({ row }) => {
-        return <div className="flex gap-2">
-          <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={(e) => {
-            openCallbackFunc.current?.setEditCustomer(row.original);
-            openCallbackFunc.current?.openDialog(true);
-          }}>Edit</ButtonCustom>
-          <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={() => {
-            setViewCustomer(row.original);
-            setIsViewOpen(true);
-          }}>
-            <Eye aria-hidden="true" className="mr-1 size-4" />
-            View
-          </ButtonCustom>
-          <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={() => setHistoryCustomer(row.original)}>
-            <HistoryIcon aria-hidden="true" className="mr-1 size-4" />
-            History
-          </ButtonCustom>
-          {!row.original.isDeleted && <ButtonCustom variant={"red"} size={"sm"} type="button" onClick={() => {
-            setSelectedCustomer(row.original);
-            setOpenDeleteDialog(true);
-          }}>Delete</ButtonCustom>}
+        return <div className="flex flex-col gap-1" style={{ minWidth: "max-content" }}>
+          <div className="flex gap-1">
+            <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={(e) => {
+              openCallbackFunc.current?.setEditCustomer(row.original);
+              openCallbackFunc.current?.openDialog(true);
+            }}>
+              <Pencil aria-hidden="true" className="mr-1 size-4" />
+              Edit
+            </ButtonCustom>
+            <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={() => {
+              setViewCustomer(row.original);
+              setIsViewOpen(true);
+            }}>
+              <Eye aria-hidden="true" className="mr-1 size-4" />
+              View
+            </ButtonCustom>
+          </div>
+          <div className="flex gap-1">
+            <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={() => setHistoryCustomer(row.original)}>
+              <HistoryIcon aria-hidden="true" className="mr-1 size-4" />
+              History
+            </ButtonCustom>
+            <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={() => setFilesCustomer(row.original)}>
+              <FolderOpen aria-hidden="true" className="mr-1 size-4" />
+              Files
+            </ButtonCustom>
+          </div>
+          <div className="flex gap-1">
+            <ButtonCustom variant={"black"} size={"sm"} type="button" onClick={() => setFeedbacksCustomer(row.original)}>
+              <MessageSquare aria-hidden="true" className="mr-1 size-4" />
+              Feedbacks
+            </ButtonCustom>
+            {!row.original.isDeleted && <ButtonCustom variant={"red"} size={"sm"} type="button" onClick={() => {
+              setSelectedCustomer(row.original);
+              setOpenDeleteDialog(true);
+            }}>
+              <Trash2 aria-hidden="true" className="mr-1 size-4" />
+              Delete
+            </ButtonCustom>}
+          </div>
         </div>
       }
     },
@@ -197,13 +187,15 @@ export default function CustomerTable({
 
 
   return (
-    <div>
+    <>
       <DataTable columns={columns} formState={clientState} formAction={formAction} formRef={formRef} />
       <section className="flex">
         <CustomerEditForm openCallback={(func) => openCallbackFunc.current = func} onSaved={handleSave} />
       </section>
       <CustomerViewDialog customer={viewCustomer} open={isViewOpen} onOpenChange={setIsViewOpen} location={location} />
       <CustomerHistoryDialog customer={historyCustomer} open={historyCustomer !== null} onOpenChange={(open) => { if (!open) setHistoryCustomer(null); }} location={location} />
+      <CustomerFeedbacksDialog customer={feedbacksCustomer} open={feedbacksCustomer !== null} onOpenChange={(open) => { if (!open) setFeedbacksCustomer(null); }} location={location} />
+      <CustomerFilesDialog customer={filesCustomer} open={filesCustomer !== null} onOpenChange={(open) => { if (!open) setFilesCustomer(null); }} location={location} />
       <section className="flex">
         <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
           <DialogContent className="">
@@ -231,6 +223,6 @@ export default function CustomerTable({
           </DialogContent>
         </Dialog>
       </section>
-    </div>
+    </>
   )
 }

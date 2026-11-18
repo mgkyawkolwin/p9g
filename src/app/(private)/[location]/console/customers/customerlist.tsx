@@ -31,7 +31,7 @@ export default function CustomerList() {
   return (
     <div className="flex flex-1 w-auto">
       <Loader isLoading={isPending} />
-      <Group className="flex flex-1 w-auto">
+      <Group className="flex w-full">
         <GroupTitle>
           Customer List
         </GroupTitle>

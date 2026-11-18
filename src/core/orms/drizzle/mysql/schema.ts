@@ -94,6 +94,22 @@ export const feedbackTable = mysqlTable("feedback", {
   reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'restrict' } ),
   customerId: char("customerId", { length: 36 }).references(() => customerTable.id, { onDelete: 'restrict' } ),
   feedback: text("feedback"),
+  isTaskCreated: boolean("isTaskCreated").notNull().default(false),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
+export const taskTable = mysqlTable("task", {
+  id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
+  reservationId: char("reservationId", { length: 36 }).references(() => reservationTable.id, { onDelete: 'restrict' } ),
+  customerId: char("customerId", { length: 36 }).references(() => customerTable.id, { onDelete: 'restrict' } ),
+  description: text("description").notNull(),
+  department: varchar("department", { length: 50 }),
+  status: varchar("status", { length: 50 }).notNull(),
+  remark: varchar("remark", { length: 255 }),
+  targetCompletionDateTime: datetime("targetCompletionDateTime", { mode: 'date', fsp: 3 }),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", { length: 36 }).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
@@ -104,7 +120,7 @@ export const logErrorTable = mysqlTable("logError", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
   userId: char("userId", { length: 36 }),
   datetime: datetime("datetime").notNull(),
-  detail: decimal("detail").notNull()
+  detail: varchar("detail", { length: 500 }).notNull()
 });
 
 export const invoiceTable = mysqlTable("invoice", {
@@ -177,7 +193,7 @@ export const bookingInvoiceItemTable = mysqlTable("bookingInvoiceItem", {
 
 export const mediaTable = mysqlTable("media", {
   id: char("id", { length: 36 }).$defaultFn(uuidv4).primaryKey(),
-  reservationId: char("reservationId", { length: 36 }).notNull().references(() => reservationTable.id, { onDelete: 'restrict' } ),
+  reservationId: char("reservationId", { length: 36 }).references(() => reservationTable.id, { onDelete: 'restrict' } ),
   mediaGroupId: char("mediaGroupId", { length: 36 }).notNull().references(() => configTable.id, { onDelete: 'restrict' } ),
   customerId: char("customerId", { length: 36 }).references(() => customerTable.id, { onDelete: 'set null' } ),
   url: varchar("url", { length: 500 }).notNull(),

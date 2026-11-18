@@ -4,4 +4,5 @@ export default class Feedback extends DomainBase{
     public reservationId: string = '';
     public customerId: string = "";
     public feedback: string = "";
+    public isTaskCreated: boolean = false;
 }

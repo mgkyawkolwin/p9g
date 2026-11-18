@@ -12,6 +12,13 @@ export const ConfigGroup = {
     TDAC_STATUS: "TDAC_STATUS"
 }
 
+export const TaskDepartments = ['Reception', 'Restaurant', 'House Keeping', 'Green', 'Booking', 'Finance', 'Purchase', 'Management', 'Maintenance', 'Golf Cart'] as const;
+
+export const TaskStatuses = ['OPEN', 'IN PROGRESS', 'DONE', 'INVALID'] as const;
+
+// Finished tasks are never considered overdue.
+export const TaskClosedStatuses = ['DONE', 'INVALID'] as const;
+
 export const PrepaidPackageType = {
     NINETY_DAYS: "NINETY_DAYS",
     THIRTY_THREE: "THIRTY_THREE",

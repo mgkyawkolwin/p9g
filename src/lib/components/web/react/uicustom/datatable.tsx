@@ -173,7 +173,8 @@ export default function DataTable<TData, TValue>({
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id} className={`${Theme.Style.tableHeadText}`}>
+                      <TableHead key={header.id} className={`${Theme.Style.tableHeadText}`}
+                        style={header.column.columnDef.size ? { width: header.column.columnDef.size, minWidth: header.column.columnDef.size, maxWidth: header.column.columnDef.size } : undefined}>
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -194,7 +195,8 @@ export default function DataTable<TData, TValue>({
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className={`align-top border ${Theme.Style.tableCellBorder}  ${Theme.Style.tableCellText}`}>
+                      <TableCell key={cell.id} className={`align-top border ${Theme.Style.tableCellBorder}  ${Theme.Style.tableCellText}`}
+                        style={cell.column.columnDef.size ? { width: cell.column.columnDef.size, minWidth: cell.column.columnDef.size, maxWidth: cell.column.columnDef.size } : undefined}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -250,6 +252,7 @@ export default function DataTable<TData, TValue>({
           </div>
           <div className="flex gap-x-2">
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => setPageIndex(1)}
@@ -258,6 +261,7 @@ export default function DataTable<TData, TValue>({
               First
             </Button>
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => setPageIndex(pageIndex - 1)}
@@ -266,6 +270,7 @@ export default function DataTable<TData, TValue>({
               Previous
             </Button>
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => setPageIndex(pageIndex + 1)}
@@ -274,6 +279,7 @@ export default function DataTable<TData, TValue>({
               Next
             </Button>
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => setPageIndex(pages)}

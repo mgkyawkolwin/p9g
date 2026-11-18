@@ -13,6 +13,37 @@ import IFeedbackService from "@/core/services/contracts/IFeedbackService";
 import Feedback from "@/core/models/domain/Feedback";
 
 
+export async function GET(request: NextRequest) {
+  try {
+    c.fs("GET api/feedbacks");
+
+    const session = await auth();
+    if (!session?.user)
+      throw new CustomError('Invalid session', HttpStatusCode.Unauthorized);
+    if (!request.headers.get('X-Resort-Location'))
+      throw new CustomError('Location header is required', HttpStatusCode.BadRequest);
+
+    const params = request.nextUrl.searchParams;
+    const reservationId = params.get('reservationId') ?? '';
+    const customerId = params.get('customerId') ?? '';
+    const pageIndex = Math.max(Number(params.get('pageIndex')) || 1, 1);
+    const pageSize = Math.min(Math.max(Number(params.get('pageSize')) || 10, 1), 100);
+
+    const feedbackService = container.get<IFeedbackService>(TYPES.IFeedbackService);
+    const [data, records] = await feedbackService.findFeedbacksByReservationCustomer(reservationId, customerId, pageIndex, pageSize);
+    const pager = { pageIndex, pageSize, records, pages: Math.ceil(records / pageSize) };
+    return NextResponse.json({ data, pager }, { status: HttpStatusCode.Ok });
+  } catch (error) {
+    c.e(error instanceof Error ? error.message : String(error));
+    const logService = container.get<ILogService>(TYPES.ILogService);
+    await logService.logError(error);
+    if (error instanceof CustomError)
+      return NextResponse.json({ message: error.message }, { status: error.statusCode });
+    return NextResponse.json({ message: "Unknow error occured." }, { status: HttpStatusCode.ServerError });
+  }
+}
+
+
 export async function POST(request: NextRequest) {
   try {
     c.fs("POST api/feedbacks");
@@ -41,7 +72,7 @@ export async function POST(request: NextRequest) {
     // update user
     c.i("Calling service.");
     const feedbackService = container.get<IFeedbackService>(TYPES.IFeedbackService);
-    await feedbackService.createOrUpdateFeedback(validatedFeedback.data as unknown as Feedback, session.user);
+    await feedbackService.createFeedback(validatedFeedback.data as unknown as Feedback, session.user);
 
     c.fe("POST api/feedbacks");
     return NextResponse.json({ message: "Updated" }, { status: HttpStatusCode.Ok });

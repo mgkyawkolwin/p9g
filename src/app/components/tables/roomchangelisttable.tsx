@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { ButtonCustom } from "../../../lib/components/web/react/uicustom/buttoncustom";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { InputCustom } from "../../../lib/components/web/react/uicustom/inputcustom";
-import { moveRoom, updateFeedback, updateGolfCart } from "@/app/(private)/[location]/console/roomchange/actions";
+import { moveRoom, updateGolfCart } from "@/app/(private)/[location]/console/roomchange/actions";
 import { toast } from "sonner";
 import SimpleDataTable from "../../../lib/components/web/react/uicustom/simpledatatable";
 import { CopyIcon, NotepadText, Image } from "lucide-react";
@@ -69,7 +69,7 @@ export default function RoomChangeListTable({
         return row.row.original.customers.map(c => {
           return <div className="flex flex-row gap-2" key={c.id}>
             {c.englishName}
-            <NotepadText className={`pointer ${c.feedback?.feedback ? "text-red-800" : ""}`} onClick={() => { setReservationId(row.row.original.reservationId); setCustomerId(c.id); setFeedback(c.feedback?.feedback); setFeedbackDialogOpen(true); }} />
+            <NotepadText className={`pointer ${c.feedback?.feedback ? "text-red-800" : ""}`} onClick={() => { setReservationId(row.row.original.reservationId); setCustomerId(c.id); setFeedbackDialogOpen(true); }} />
             <Image className={`pointer ${c.medias?.length > 0 ? "text-red-800" : ""}`} onClick={() => { setReservationId(row.row.original.reservationId); setCustomerId(c.id); setInitialMedia(c.medias); setOpenMediaDialog(true); }} />
           </div>
         })
@@ -124,7 +124,6 @@ export default function RoomChangeListTable({
   const [openMediaDialog, setOpenMediaDialog] = React.useState<boolean>(false);
   const [openMoveRoomDiallog, setOpenMoveRoomDialog] = React.useState(false);
   const [reservationId, setReservationId] = React.useState<string>('');
-  const [feedback, setFeedback] = React.useState<string>('');
   const [feedbackDialogOpen, setFeedbackDialogOpen] = React.useState<boolean>(false);
   const [roomNo, setRoomNo] = React.useState('');
   const [data, setData] = React.useState<RoomReservationDto[]>(formState.data || []);
@@ -205,31 +204,24 @@ export default function RoomChangeListTable({
           </DialogContent>
         </Dialog>
       </section>
-      <FeedbackDialog isOpen={feedbackDialogOpen} reservationId={reservationId} initialFeedback={feedback}
+      <FeedbackDialog isOpen={feedbackDialogOpen} reservationId={reservationId} customerId={customerId}
         onOpenChanged={() => setFeedbackDialogOpen(false)}
-        onFeedbackSaved={async (reservationId: string, feedback: string) => {
-          const response = await updateFeedback(reservationId, customerId, feedback, location);
-          if (response.message)
-            toast(response.message);
-          if (response.error) return;
-
-          const updatedData = data.map(item => {
-            if (item.reservationId === reservationId) {
-              item.customers = item.customers.map(c => {
-                if (c.id === customerId) {
-                  const fb = new Feedback();
-                  fb.feedback = feedback;
-                  fb.customerId = customerId;
-                  fb.reservationId = reservationId;
-                  return { ...c, feedback: fb };
-                }
-                return c;
-              });
-            }
-            return item;
-          });
-          setData(updatedData);
-          setFeedbackDialogOpen(false);
+        onFeedbackChanged={(reservationId: string, customerId: string, total: number) => {
+          setData(prev => prev.map(item => {
+            if (item.reservationId !== reservationId) return item;
+            return {
+              ...item,
+              customers: item.customers.map(c => {
+                if (c.id !== customerId) return c;
+                if (total === 0) return { ...c, feedback: undefined as any };
+                const fb = new Feedback();
+                fb.feedback = c.feedback?.feedback || String(total);
+                fb.customerId = customerId;
+                fb.reservationId = reservationId;
+                return { ...c, feedback: fb };
+              })
+            };
+          }));
         }} title="Feedback" description="Customer feedback form, complaints & complements" />
 
       <MediaDialog isOpen={openMediaDialog}

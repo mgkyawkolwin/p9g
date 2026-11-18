@@ -5,6 +5,19 @@ import SessionUser from "@/core/models/dto/SessionUser";
 
 export default interface IFeedbackService {
 
-    createOrUpdateFeedback(feedback: Feedback, sessionUser: SessionUser): Promise<void>;
+    createFeedback(feedback: Feedback, sessionUser: SessionUser): Promise<void>;
+    findFeedbacksByReservationCustomer(reservationId: string, customerId: string, pageIndex: number, pageSize: number): Promise<[Feedback[], number]>;
+    deleteFeedback(id: string, sessionUser: SessionUser): Promise<void>;
+    findFeedbacksByCustomerId(customerId: string, pageIndex: number, pageSize: number): Promise<[CustomerFeedbackItem[], number]>;
 
+}
+
+export interface CustomerFeedbackItem {
+    id: string;
+    reservationId: string;
+    reservationType: string | null;
+    checkInDate: Date | null;
+    checkOutDate: Date | null;
+    location: string;
+    feedback: string | null;
 }

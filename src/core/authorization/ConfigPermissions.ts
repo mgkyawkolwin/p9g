@@ -8,6 +8,7 @@ export const ConfigPermissions = {
         '/console/dropoff', 
         '/console/invoices', 
         '/console/roomchange', 
+        '/console/tasks',
         '/console/roomschedule',
         '/console/customers',
         '/console/reports',
@@ -21,6 +22,7 @@ export const ConfigPermissions = {
         '/console/pickup', 
         '/console/dropoff', 
         '/console/roomchange', 
+        '/console/tasks',
         '/console/pookie/draw',
         '/console/pookie/timetable',
     ]
