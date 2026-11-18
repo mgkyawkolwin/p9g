@@ -21,7 +21,7 @@ export const TaskClosedStatuses = ['DONE', 'INVALID'] as const;
 
 export const PrepaidPackageType = {
     NINETY_DAYS: "NINETY_DAYS",
-    THIRTY_THREE: "THIRTY_THREE",
+    FOUNDER_PASS: "FOUNDER_PASS",
 } as const;
 
 export const CurrencyList = ['KWR', 'MMK', 'THB', 'USD'] as const;

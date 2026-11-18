@@ -283,7 +283,7 @@ export default function CustomerEditForm({ onSaved, openCallback }: CustomerEdit
                             </CardHeader>
                             <CardContent className="flex w-full flex-col gap-3">
                                 <div className="flex flex-col gap-2">
-                                    <Label className="text-[10pt]">Status</Label>
+                                    <Label className="text-[10pt]">Type</Label>
                                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                                         {membershipStatusOptions.map((option) => (
                                             <div key={option} className="flex items-center gap-1">

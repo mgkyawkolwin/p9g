@@ -59,7 +59,7 @@ export default class RoomRateEngine {
                     roomCharge.roomRate = 0;
                     roomCharge.roomSurcharge = Number(rate.roomSurcharge);
                     roomCharge.seasonSurcharge = Number(rate.seasonSurcharge);
-                } else if (prepaidPackageType == PrepaidPackageType.THIRTY_THREE) {
+                } else if (prepaidPackageType == PrepaidPackageType.FOUNDER_PASS) {
                     roomCharge.roomRate = 0;
                     roomCharge.roomSurcharge = Number(rate.roomSurcharge);
                 } else {

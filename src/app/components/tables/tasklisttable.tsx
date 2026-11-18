@@ -48,10 +48,10 @@ export default function TaskListTable({ formState, formAction, formRef }: Props)
   const [editTask, setEditTask] = React.useState<TaskRow | null>(null);
 
   const columns: ColumnDef<TaskRow>[] = [
-    { accessorKey: "description", header: "Description", cell: ({ row }) => <div className="max-w-[150px] whitespace-normal">{row.original.description}</div> },
+    { accessorKey: "description", header: "Description", size: 300, cell: ({ row }) => <div className="max-w-[300px] whitespace-normal">{row.original.description}</div> },
     { accessorKey: "department", header: "Department" },
     { accessorKey: "status", header: "Status" },
-    { accessorKey: "remark", header: "Remark" },
+    { accessorKey: "remark", header: "Remark", size: 200 },
     { accessorKey: "targetCompletionDateTime", header: "Target Completion", cell: ({ row }) => formatDateTime(row.original.targetCompletionDateTime ?? "") },
     {
       id: "overdue",

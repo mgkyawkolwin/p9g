@@ -114,7 +114,7 @@ export default function CustomerViewDialog({ customer, open, onOpenChange, locat
         {
             title: "Membership",
             fields: [
-                ["Status", displayCustomer.membershipStatus],
+                ["Type", displayCustomer.membershipStatus],
                 ["Introduced By", displayCustomer.introducedBy],
                 ["Interested in Membership", displayCustomer.interestedInMembership],
             ],
