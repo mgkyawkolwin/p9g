@@ -25,6 +25,7 @@ export const customerSearchValidator = z.object({
   searchEmail: z.string().optional(),
   searchIsBlackListed: z.string().nullish().transform(val => val === 'true'),
   searchIsDeleted: z.string().nullish().transform(val => val === 'true'),
+  searchShowZeroReservation: z.string().nullish().transform(val => val === 'true'),
   searchName: z.string().optional(),
   searchNationalId: z.string().optional(),
   searchPassport: z.string().optional(),

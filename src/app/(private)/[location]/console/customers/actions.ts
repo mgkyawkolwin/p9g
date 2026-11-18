@@ -42,9 +42,10 @@ export async function customerGetList(formState : FormState, formData: FormData)
     const searchFilters = searchFields.success
       ? {
           searchIsBlackListed: searchFields.data.searchIsBlackListed,
-          searchIsDeleted: searchFields.data.searchIsDeleted
+          searchIsDeleted: searchFields.data.searchIsDeleted,
+          searchShowZeroReservation: searchFields.data.searchShowZeroReservation
         }
-      : { searchIsBlackListed: false, searchIsDeleted: false };
+      : { searchIsBlackListed: false, searchIsDeleted: false, searchShowZeroReservation: false };
 
     //table pager field validatd, build query string
     if(searchFields.success){

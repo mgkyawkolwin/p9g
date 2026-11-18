@@ -7,11 +7,11 @@ import Customer from '../models/domain/Customer';
 import SessionUser from '../models/dto/SessionUser';
 import { CustomError } from '@/lib/errors';
 import type IRepository from '@/lib/repositories/IRepository';
-import { buildAnyCondition } from '@/core/helpers';
-import { and, asc, eq } from '@/lib/transformers/types';
+import { and, eq } from '@/lib/transformers/types';
 import ReservationCustomer from '../models/domain/ReservationCustomer';
 import { sql } from 'drizzle-orm/sql';
 import Config from '../models/domain/Config';
+import type ICustomerRepository from '../repositories/contracts/ICustomerRepository';
 
 
 @injectable()
@@ -19,7 +19,7 @@ export default class CustomerService implements ICustomerService {
 
   constructor(
     @inject(TYPES.IConfigRepository) private configRepository: IRepository<Config>,
-    @inject(TYPES.ICustomerRepository) private customerRepository: IRepository<Customer>,
+    @inject(TYPES.ICustomerRepository) private customerRepository: ICustomerRepository,
     @inject(TYPES.IReservationCustomerRepository) private reservationCustomerRepository: IRepository<ReservationCustomer>
   ) {
 
@@ -58,9 +58,11 @@ export default class CustomerService implements ICustomerService {
   async customerFindMany(searchFormFields: SearchFormFields, pagerParams: PagerParams, sessionUser: SessionUser): Promise<[Customer[], number]> {
     c.fs('CustomerService > customerFindMany');
     c.d(searchFormFields);
-    const anyCondition = buildAnyCondition(searchFormFields);
-    c.d(anyCondition);
-    return await this.customerRepository.findMany(anyCondition, (asc("englishName"), asc("name")), (pagerParams.pageIndex - 1) * pagerParams.pageSize, pagerParams.pageSize);
+    return await this.customerRepository.customerFindManyWithReservationCounts(
+      searchFormFields,
+      pagerParams,
+      sessionUser
+    );
   }
 
 

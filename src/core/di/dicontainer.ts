@@ -14,6 +14,8 @@ import CustomerService from '../../core/services/CustomerService';
 import IPrepaidPackageService from '../services/contracts/IPrepaidPackageService';
 import PrepaidPackageService from '../services/PrepaidPackageService';
 import IReservationRepository from '@/core/repositories/contracts/IReservationRepository';
+import ICustomerRepository from '@/core/repositories/contracts/ICustomerRepository';
+import CustomerRepository from '@/core/repositories/drizzle/CustomerRepository';
 import ReservationRepository from '@/core/repositories/drizzle/ReservationRepository';
 import ReservationService from '@/core/services/ReservationService';
 import IReservationService from '@/core/services/contracts/IReservationService';
@@ -154,21 +156,12 @@ container.bind<IRepository<Config>>(TYPES.IConfigRepository).toDynamicValue(cont
     )
 }).inRequestScope();
 
-container.bind<IRepository<Customer>>(TYPES.ICustomerRepository).toDynamicValue(context => {
-    return new CacheRepositoryDecorator(
-        new Repository(
-            context.get<IDatabaseClient<any>>(TYPES.IDatabase),
-            customerTable,
-            { ...customerTable },
-            (q) => q,
-            context.get<IMapper>(TYPES.IMapper),
-            Customer,
-            CustomerEntity,
-            context.get<IQueryTranformer>(TYPES.IQueryTransformer)
-        ),
-        "customer",
-        context.get<ICacheAdapter>(TYPES.ICacheAdapter)
-    )
+container.bind<ICustomerRepository>(TYPES.ICustomerRepository).toDynamicValue(context => {
+    return new CustomerRepository(
+        context.get<IDatabaseClient<any>>(TYPES.IDatabase),
+        context.get<IMapper>(TYPES.IMapper),
+        context.get<IQueryTranformer>(TYPES.IQueryTransformer)
+    );
 }).inRequestScope();
 
 container.bind<IRepository<Feedback>>(TYPES.IFeedbackRepository).toDynamicValue(context => {

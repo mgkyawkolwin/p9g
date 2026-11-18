@@ -93,6 +93,7 @@ export default function PrepaidPackageTable({
     {
       accessorKey: "id",
       header: "Id",
+      size: 100,
       cell: ({ row }) => (
         <div>
           {String(row.getValue("id")).substring(0, 8)} <CopyIcon className="inline w-[20px] cursor-pointer" onClick={() => navigator.clipboard.writeText(String(row.getValue("id")))} />
@@ -102,6 +103,7 @@ export default function PrepaidPackageTable({
     {
       accessorKey: "customerName",
       header: "Customer",
+      size: 250,
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span>{row.original.customerEnglishName}</span>

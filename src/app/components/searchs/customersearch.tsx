@@ -15,7 +15,8 @@ const initialData = {
     searchPassport: "",
     searchPhone: "",
     showBlackListOnly: false,
-    showDeleted: false
+    showDeleted: false,
+    showZeroReservation: false
 };
 
 interface DataTableProps {
@@ -41,11 +42,13 @@ export default function CustomerSearch({
     const [searchPhone, setSearchPhone] = React.useState(initialData.searchPhone);
     const [isShowBlackListOnly, setIsShowBlackListOnly] = React.useState(initialData.showBlackListOnly);
     const [isShowDeleted, setIsShowDeleted] = React.useState(initialData.showDeleted);
+    const [isShowZeroReservation, setIsShowZeroReservation] = React.useState(initialData.showZeroReservation);
 
     React.useEffect(() => {
       if (formState?.searchFilters) {
         setIsShowBlackListOnly(formState.searchFilters.searchIsBlackListed);
         setIsShowDeleted(formState.searchFilters.searchIsDeleted);
+        setIsShowZeroReservation(formState.searchFilters.searchShowZeroReservation);
       }
     }, [formState?.searchFilters]);
 
@@ -73,8 +76,13 @@ export default function CustomerSearch({
                 <div className="flex items-center gap-2">
                   <Checkbox id="showDeleted" name="xx" checked={isShowDeleted} onCheckedChange={(checked:boolean) => setIsShowDeleted(checked)} />
                   <label htmlFor="showDeleted">Show Deleted Customers</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="showZeroReservation" checked={isShowZeroReservation} onCheckedChange={(checked: boolean) => setIsShowZeroReservation(checked)} />
+                  <label htmlFor="showZeroReservation">Show Zero Reservation Customer</label>
                   <input type="hidden" name="searchIsBlackListed" value={String(isShowBlackListOnly)} />
                   <input type="hidden" name="searchIsDeleted" value={String(isShowDeleted)} />
+                  <input type="hidden" name="searchShowZeroReservation" value={String(isShowZeroReservation)} />
                 </div>
             </div>
           </section>

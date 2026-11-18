@@ -15,7 +15,8 @@ export type FormState = {
   pager?: PagerParams,
   searchFilters?: {
     searchIsBlackListed: boolean,
-    searchIsDeleted: boolean
+    searchIsDeleted: boolean,
+    searchShowZeroReservation: boolean
   },
   reload?: boolean
   location?: string
@@ -64,6 +65,7 @@ export type SearchFormFields = {
   searchInvoiceNumber?: string | undefined,
   searchIsBlackListed?: boolean | string | undefined,
   searchIsDeleted?: boolean | string | undefined,
+  searchShowZeroReservation?: boolean | string | undefined,
   searchLocation?: string | undefined,
   searchName?: string | undefined,
   searchNationalId?: string | undefined,

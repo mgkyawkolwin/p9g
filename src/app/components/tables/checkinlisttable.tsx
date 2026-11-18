@@ -43,6 +43,7 @@ export default function CheckInListTable({
     {
       accessorKey: "customReservationInfo",
       header: "ID",
+      size: 100,
       accessorFn: (row) => {
         return <span>
           <div className="whitespace-nowrap"><a href={`/${location}/console/reservations/${row.id}/edit`}>{row.id.substring(0, 8)}</a>&nbsp;&nbsp;&nbsp;<CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.id)} /></div>
@@ -61,6 +62,7 @@ export default function CheckInListTable({
           "Customer Info"
         )
       },
+      size: 250,
       cell: ({ row }) => (
         <div>
           {row.original.customers?.map((customer, i) => (
@@ -104,8 +106,9 @@ export default function CheckInListTable({
     {
       accessorKey: "remark",
       header: 'Remark',
+      size: 200,
       cell: (row) => {
-        return <div className="flex max-w-[150px] whitespace-normal" >{String(row.getValue())}</div>
+        return <div className="flex max-w-[200px] whitespace-normal" >{String(row.getValue())}</div>
       }
     },
     {

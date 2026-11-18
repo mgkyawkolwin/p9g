@@ -21,6 +21,8 @@ export default class Customer extends DomainBase {
     public visitPurpose: string = '';
     public isBlackListed: boolean = false;
     public isDeleted: boolean = false;
+    public cancelledReservations: number = 0;
+    public totalReservations: number = 0;
     public medias: Media[] = [];
     public name: string = '';
     public nationalId: string = '';

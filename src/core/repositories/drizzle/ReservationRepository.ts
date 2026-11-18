@@ -187,8 +187,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .from(reservationTable)
             .innerJoin(reservationCustomerTable, eq(reservationTable.id, reservationCustomerTable.reservationId))
             .where(and(
-                eq(reservationCustomerTable.customerId, customerId),
-                eq(reservationTable.location, sessionUser.location)
+                eq(reservationCustomerTable.customerId, customerId)
             ));
 
         const reservationIds = distinctReservationRows.map(row => row.id);
@@ -217,10 +216,7 @@ export default class ReservationRepository extends Repository<Reservation, Reser
             .innerJoin(reservationTypeAlias, eq(reservationTable.reservationTypeId, reservationTypeAlias.id))
             .innerJoin(reservationStatusAlias, eq(reservationTable.reservationStatusId, reservationStatusAlias.id))
             .leftJoin(historyPrepaidAlias, eq(historyPrepaidAlias.id, reservationTable.prepaidPackageId))
-            .where(and(
-                inArray(reservationTable.id, reservationIds),
-                eq(reservationTable.location, sessionUser.location)
-            ))
+            .where(inArray(reservationTable.id, reservationIds))
             .orderBy(desc(reservationTable.checkInDate));
 
         const reservations = new Map<string, Reservation>();

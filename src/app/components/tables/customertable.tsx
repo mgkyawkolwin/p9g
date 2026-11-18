@@ -13,7 +13,8 @@ import CustomerViewDialog from "../dialogs/customerviewdialog";
 import CustomerHistoryDialog from "../dialogs/customerhistorydialog";
 import CustomerFilesDialog from "../dialogs/customerfilesdialog";
 import CustomerFeedbacksDialog from "../dialogs/customerfeedbacksdialog";
-import { CopyIcon, Eye, FolderOpen, History as HistoryIcon, MessageSquare, Pencil, Trash2 } from "lucide-react";
+import { CopyIcon, Eye, FolderOpen, History as HistoryIcon, Info, MessageSquare, Pencil, Trash2 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../../lib/components/web/react/ui/tooltip";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../../../lib/components/web/react/ui/dialog";
 import { toast } from "sonner";
 import { customerUpdate } from "@/app/(private)/[location]/console/customers/[id]/edit/actions";
@@ -59,7 +60,7 @@ export default function CustomerTable({
     {
       accessorKey: "id",
       header: "Id",
-      size: 70,
+      size: 90,
       cell: ({ row }) => {
         return <div>
           {String(row.getValue("id")).substring(0, 8)} <CopyIcon className="inline w-[20px] cursor-pointer" onClick={e => navigator.clipboard.writeText(row.getValue("id"))} />
@@ -69,8 +70,9 @@ export default function CustomerTable({
     {
       accessorKey: "combinedName",
       header: "Name",
+      size: 200,
       cell: ({ row }) => {
-        return <div className="">
+        return <div className="whitespace-normal">
           {row.original.name ?? ''} / {row.original.englishName ?? ''}
         </div>
       }
@@ -117,6 +119,28 @@ export default function CustomerTable({
       }
     },
     {
+      accessorKey: "cancelledReservations",
+      header: () => (
+        <div className="flex items-center gap-1 whitespace-nowrap">
+          CCL/TTL
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button type="button" aria-label="Reservation cancellation information" className="flex size-4 items-center justify-center rounded-full border border-current text-[10px] leading-none">
+                <Info aria-hidden="true" className="size-3" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Reservations - Cancelled / Total</TooltipContent>
+          </Tooltip>
+        </div>
+      ),
+      size: 90,
+      cell: ({ row }) => {
+        const cancelled = Number(row.original.cancelledReservations ?? 0);
+        const total = Number(row.original.totalReservations ?? 0);
+        return <div className="text-center">{cancelled}/{total}</div>
+      }
+    },
+    {
       accessorKey: "isBlackListed",
       header: "Blacklist",
       size: 80,
@@ -128,13 +152,15 @@ export default function CustomerTable({
     {
       accessorKey: "remarks",
       header: "Remark",
+      size: 200,
       cell: ({ row }) => {
-        return <div className="flex max-w-[150px] whitespace-normal" >{String(row.getValue('remarks'))}</div>
+        return <div className="flex max-w-[200px] whitespace-normal" >{String(row.getValue('remarks'))}</div>
       }
     },
     {
       accessorKey: "action",
       header: "Action",
+      size: 180,
       cell: ({ row }) => {
         return <div className="flex flex-col gap-1" style={{ minWidth: "max-content" }}>
           <div className="flex gap-1">
@@ -182,7 +208,8 @@ export default function CustomerTable({
   ];
 
   const handleSave = (customer: Customer) => {
-    window.location.reload();
+    // window.location.reload();
+    formRef.current?.requestSubmit();
   };
 
 
@@ -211,7 +238,8 @@ export default function CustomerTable({
                   const response = await customerUpdate(updated, location);
                   if (response.message) toast(response.message);
                   if (!response.error) {
-                    window.location.reload();
+                    // window.location.reload();
+                    formRef.current?.requestSubmit();
                   }
                   setSelectedCustomer(null);
                 }
