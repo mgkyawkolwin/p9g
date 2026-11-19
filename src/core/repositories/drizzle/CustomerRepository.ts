@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import { alias } from "drizzle-orm/mysql-core";
-import { and, asc, count, eq, sql } from "drizzle-orm";
+import { and, asc, count, eq, like, or, sql } from "drizzle-orm";
 
 import Customer from "@/core/models/domain/Customer";
 import CustomerEntity from "@/core/models/entity/CustomerEntity";
@@ -42,7 +42,8 @@ export default class CustomerRepository
     sessionUser: SessionUser
   ): Promise<[Customer[], number]> {
     const statusAlias = alias(configTable, "customer_reservation_status");
-    const searchCondition = buildAnyCondition(searchFormFields);
+    const { searchId, ...otherSearchFields } = searchFormFields;
+    const searchCondition = buildAnyCondition(otherSearchFields);
 
     let dataQuery = this.dbClient.db
       .select({
@@ -63,6 +64,10 @@ export default class CustomerRepository
     if (searchCondition) {
       const transformedSearch = await this.transformer.transformAsync<any>(searchCondition);
       if (transformedSearch) conditions.push(transformedSearch);
+    }
+
+    if (searchId && searchId !== 'DEFAULT') {
+      conditions.push(or(eq(customerTable.id, searchId), like(customerTable.id, `%${searchId}%`)));
     }
 
     if (searchFormFields.searchShowZeroReservation === true || searchFormFields.searchShowZeroReservation === 'true') {

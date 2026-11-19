@@ -60,11 +60,11 @@ export default function CustomerSearch({
         <div>
           <section aria-label="CheckIn Search" className="flex w-full flex-col gap-4">
             <div className="flex gap-4">
-                <InputWithLabel size="md" label="Id" name="searchId" defaultValue={searchId} onBlur={(e) => setSearchId(e.target.value)} />
-                <InputWithLabel size="md" label="Guest Name" name="searchName" defaultValue={searchName} onBlur={(e) => setSearchName(e.target.value)} />
-                <InputWithLabel size="md" label="National ID" name="searchNationalId" defaultValue={searchNationalId} onBlur={(e) => setSearchNationalId(e.target.value)} />
-                <InputWithLabel size="sm" label="Passport"  name="searchPassport" defaultValue={searchPassport} onBlur={(e) => setSearchPassport(e.target.value)} />
-                <InputWithLabel size="sm" label="Phone"  name="searchPhone" defaultValue={searchPhone} onBlur={(e) => setSearchPhone(e.target.value)} />
+                <InputWithLabel size="md" label="Id" name="searchId" value={searchId} onChange={(e) => setSearchId(e.target.value)} />
+                <InputWithLabel size="md" label="Guest Name" name="searchName" value={searchName} onChange={(e) => setSearchName(e.target.value)} />
+                <InputWithLabel size="md" label="National ID" name="searchNationalId" value={searchNationalId} onChange={(e) => setSearchNationalId(e.target.value)} />
+                <InputWithLabel size="sm" label="Passport"  name="searchPassport" value={searchPassport} onChange={(e) => setSearchPassport(e.target.value)} />
+                <InputWithLabel size="sm" label="Phone"  name="searchPhone" value={searchPhone} onChange={(e) => setSearchPhone(e.target.value)} />
                 <ButtonCustom variant={"black"} onClick={() => formRef?.current?.requestSubmit()}>Search</ButtonCustom>
                 <ButtonCustom type="button" variant="green" onClick={() => { openCallbackFunc.current?.openDialog(true); }}>New Customer</ButtonCustom>
             </div>

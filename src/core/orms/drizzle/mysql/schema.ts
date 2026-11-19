@@ -296,6 +296,7 @@ export const packagePaymentTable = mysqlTable("packagePayment", {
   currency: char("currency", { length: 3 }).notNull(),
   paymentMode: varchar("paymentMode", { length: 10 }).notNull().default("CASH"),
   remark: varchar("remark", { length: 500 }),
+  description: varchar("description", { length: 200 }),
   createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
   createdBy: char("createdBy", { length: 36 }).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
@@ -583,6 +584,485 @@ export const versionTable = mysqlTable("version", {
   createdBy: char("createdBy", { length: 36 }).notNull(),
   updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
   updatedBy: char("updatedBy", { length: 36 }).notNull()
+});
+
+export const billLogTable = mysqlTable("bill_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  dateUTC: datetime("dateUTC"),
+  paymentMode: varchar("paymentMode", { length: 10 }).notNull(),
+  paymentType: varchar("paymentType", { length: 10 }).notNull(),
+  reservationId: char("reservationId").notNull(),
+  itemName: varchar("itemName", { length: 100 }).notNull(),
+  unitPrice: decimal("unitPrice").notNull(),
+  quantity: tinyint("quantity").notNull(),
+  amount: decimal("amount").notNull(),
+  isPaid: boolean("isPaid").notNull(),
+  paidOnUTC: datetime("paidOnUTC"),
+  currency: char("currency", { length: 3 }),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const configLogTable = mysqlTable("config_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  group: varchar("group", { length: 50 }).notNull(),
+  value: varchar("value", { length: 50 }).notNull(),
+  text: varchar("text", { length: 50 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const customerLogTable = mysqlTable("customer_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  name: varchar("name", { length: 255 }),
+  englishName: varchar("englishName", { length: 255 }).notNull(),
+  dob: varchar("dob", { length: 50 }),
+  passport: varchar("passport", { length: 50 }),
+  nationalId: varchar("nationalId", { length: 50 }),
+  gender: varchar("gender", { length: 10 }),
+  address: varchar("address", { length: 255 }),
+  remarks: varchar("remarks", { length: 1024 }),
+  country: varchar("country", { length: 50 }),
+  phone: varchar("phone", { length: 50 }),
+  email: varchar("email", { length: 50 }),
+  emergencyContactName: varchar("emergencyContactName", { length: 255 }),
+  emergencyContactPhone: varchar("emergencyContactPhone", { length: 50 }),
+  emergencyContactRelation: varchar("emergencyContactRelation", { length: 100 }),
+  companyName: varchar("companyName", { length: 255 }),
+  position: varchar("position", { length: 255 }),
+  handicap: varchar("handicap", { length: 255 }),
+  homeClub: varchar("homeClub", { length: 255 }),
+  yearsPlaying: varchar("yearsPlaying", { length: 255 }),
+  playingHand: varchar("playingHand", { length: 255 }),
+  caddiePreference: varchar("caddiePreference", { length: 255 }),
+  numberOfPlayers: varchar("numberOfPlayers", { length: 255 }),
+  bookingChannel: varchar("bookingChannel", { length: 255 }),
+  visitPurpose: varchar("visitPurpose", { length: 255 }),
+  membershipStatus: varchar("membershipStatus", { length: 255 }),
+  membershipNo: varchar("membershipNo", { length: 255 }),
+  introducedBy: varchar("introducedBy", { length: 255 }),
+  interestedInMembership: varchar("interestedInMembership", { length: 255 }),
+  foodAllergy: varchar("foodAllergy", { length: 255 }),
+  drink: varchar("drink", { length: 255 }),
+  preferredTeeTime: varchar("preferredTeeTime", { length: 100 }),
+  language: varchar("language", { length: 100 }),
+  specialNote: varchar("specialNote", { length: 1024 }),
+  medicalConditions: varchar("medicalConditions", { length: 1024 }),
+  pacemakerStent: varchar("pacemakerStent", { length: 255 }),
+  regularMedication: varchar("regularMedication", { length: 1024 }),
+  drugAllergy: varchar("drugAllergy", { length: 1024 }),
+  walkingTheCourse: varchar("walkingTheCourse", { length: 255 }),
+  dizzyShortOfBreathWhenWalking: varchar("dizzyShortOfBreathWhenWalking", { length: 255 }),
+  doctorNamePhone: varchar("doctorNamePhone", { length: 255 }),
+  visitedMyanmarBefore: varchar("visitedMyanmarBefore", { length: 255 }),
+  myanmarVisitNo: varchar("myanmarVisitNo", { length: 255 }),
+  previousMyanmarVisit: varchar("previousMyanmarVisit", { length: 1024 }),
+  myanmarInterest: varchar("myanmarInterest", { length: 1024 }),
+  myanmarPlacesToVisit: varchar("myanmarPlacesToVisit", { length: 1024 }),
+  isBlackListed: boolean("isBlackListed").default(false).notNull(),
+  isDeleted: boolean("isDeleted").default(false).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const feedbackLogTable = mysqlTable("feedback_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  reservationId: char("reservationId", { length: 36 }).notNull(),
+  customerId: char("customerId", { length: 36 }),
+  feedback: text("feedback"),
+  isTaskCreated: boolean("isTaskCreated").notNull().default(false),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const taskLogTable = mysqlTable("task_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  reservationId: char("reservationId", { length: 36 }),
+  customerId: char("customerId", { length: 36 }),
+  description: text("description").notNull(),
+  department: varchar("department", { length: 50 }),
+  status: varchar("status", { length: 50 }).notNull(),
+  remark: varchar("remark", { length: 255 }),
+  targetCompletionDateTime: datetime("targetCompletionDateTime", { mode: 'date', fsp: 3 }),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const invoiceLogTable = mysqlTable("invoice_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  invoiceNumber: varchar("invoiceNumber", { length: 50 }).notNull(),
+  invoiceDate: datetime("invoiceDate", { mode: 'date', fsp: 3 }).notNull(),
+  agentName: varchar("agentName", { length: 255 }),
+  customerName: varchar("customerName", { length: 255 }).notNull(),
+  pax: varchar("pax", { length: 50 }),
+  depositKWR: decimal("depositKWR").notNull().default("0"),
+  depositTHB: decimal("depositTHB").notNull().default("0"),
+  depositUSD: decimal("depositUSD").notNull().default("0"),
+  totalAmountKWR: decimal("totalAmountKWR").notNull().default("0"),
+  totalAmountTHB: decimal("totalAmountTHB").notNull().default("0"),
+  totalAmountUSD: decimal("totalAmountUSD").notNull().default("0"),
+  dueAmountKWR: decimal("dueAmountKWR").notNull().default("0"),
+  dueAmountTHB: decimal("dueAmountTHB").notNull().default("0"),
+  dueAmountUSD: decimal("dueAmountUSD").notNull().default("0"),
+  status: varchar("status", { length: 20 }).notNull(),
+  included: varchar("included", { length: 1000 }),
+  notIncluded: text("notIncluded"),
+  note: varchar("note", { length: 1000 }),
+  bookingSource: varchar("bookingSource", { length: 50 }),
+  bookingPerson: varchar("bookingPerson", { length: 50 }),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const simpleInvoiceItemLogTable = mysqlTable("simpleInvoiceItem_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  invoiceId: char("invoiceId", { length: 36 }).notNull(),
+  description: varchar("description", { length: 500 }).notNull(),
+  amountKWR: decimal("amountKWR").notNull().default("0"),
+  amountTHB: decimal("amountTHB").notNull().default("0"),
+  amountUSD: decimal("amountUSD").notNull().default("0"),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const bookingInvoiceItemLogTable = mysqlTable("bookingInvoiceItem_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  invoiceId: char("invoiceId", { length: 36 }).notNull(),
+  description: varchar("description", { length: 500 }).notNull(),
+  location: varchar("location", { length: 255 }),
+  startDate: datetime("startDate", { mode: 'date', fsp: 3 }),
+  endDate: datetime("endDate", { mode: 'date', fsp: 3 }),
+  pax: smallint("pax").notNull().default(0),
+  rateKWR: decimal("rateKWR").notNull().default("0"),
+  rateTHB: decimal("rateTHB").notNull().default("0"),
+  rateUSD: decimal("rateUSD").notNull().default("0"),
+  amountKWR: decimal("amountKWR").notNull().default("0"),
+  amountTHB: decimal("amountTHB").notNull().default("0"),
+  amountUSD: decimal("amountUSD").notNull().default("0"),
+  noOfRooms: smallint("noOfRooms").notNull().default(0),
+  noOfDays: smallint("noOfDays").notNull().default(0),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const mediaLogTable = mysqlTable("media_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  reservationId: char("reservationId", { length: 36 }),
+  mediaGroupId: char("mediaGroupId", { length: 36 }).notNull(),
+  customerId: char("customerId", { length: 36 }),
+  url: varchar("url", { length: 500 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const paymentLogTable = mysqlTable("payment_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  reservationId: char("reservationId", { length: 36 }).notNull(),
+  paymentDateUTC: datetime("paymentDateUTC").notNull(),
+  paymentType: varchar("paymentType", { length: 10 }).notNull(),
+  amount: decimal("amount").notNull(),
+  amountInCurrency: decimal("amountInCurrency").notNull(),
+  currency: char("currency", { length: 3 }).notNull(),
+  paymentMode: varchar("paymentMode", { length: 10 }).notNull(),
+  remark: varchar("remark", { length: 200 }),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const pookieLogTable = mysqlTable("pookie_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  date: datetime("date", { mode: 'date', fsp: 3 }).notNull(),
+  hole: varchar("hole", { length: 10 }).notNull(),
+  isBusy: boolean("isBusy").notNull(),
+  location: varchar("location", { length: 10 }).notNull(),
+  noOfPeople: tinyint("noOfPeople").notNull(),
+  rooms: varchar("rooms", { length: 50 }).notNull(),
+  time: datetime("time", { mode: 'date', fsp: 3 }).notNull(),
+  rowVersion: char("rowVersion", { length: 36 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const pookieConfigLogTable = mysqlTable("pookieConfig_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  contactUrl: varchar("contactUrl", {length: 500}).notNull(),
+  key: char("key", {length: 36}).notNull(),
+  version: varchar("version", {length: 10}).notNull(),
+  seeResultUntil: int("seeResultUntil").notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const pookieDeviceLogTable = mysqlTable("pookieDevice_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  deviceId: varchar("deviceId", {length: 50}).notNull(),
+  isBlocked: boolean("isBlocked").notNull(),
+  lastRequestAtUTC: datetime("lastRequestAtUTC", { mode: 'date', fsp: 3 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const prepaidLogTable = mysqlTable("prepaid_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  value: varchar("value", { length: 50 }).notNull(),
+  text: varchar("text", { length: 50 }).notNull(),
+  days: int("days").notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const prepaidPackageLogTable = mysqlTable("prepaidPackage_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  customerId: char("customerId", { length: 36 }).notNull(),
+  effectiveStartDate: datetime("effectiveStartDate", { mode: 'date', fsp: 3 }).notNull(),
+  effectiveEndDate: datetime("effectiveEndDate", { mode: 'date', fsp: 3 }).notNull(),
+  noOfDays: smallint("noOfDays").notNull(),
+  daysUsed: smallint("daysUsed").notNull().default(0),
+  packageStatus: varchar("packageStatus", { length: 10 }).notNull().default("New"),
+  price: decimal("price").notNull().default("0"),
+  paidAmount: decimal("paidAmount").notNull().default("0"),
+  paymentStatus: varchar("paymentStatus", { length: 10 }).notNull().default("Unpaid"),
+  remark: varchar("remark", { length: 500 }),
+  prepaidPackageTypeId: char("prepaidPackageTypeId", { length: 36 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const packagePaymentLogTable = mysqlTable("packagePayment_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  prepaidPackageId: char("prepaidPackageId", { length: 36 }).notNull(),
+  amount: decimal("amount").notNull(),
+  paymentDateTimeUTC: datetime("paymentDateTimeUTC", { mode: 'date', fsp: 3 }).notNull(),
+  currency: char("currency", { length: 3 }).notNull(),
+  paymentMode: varchar("paymentMode", { length: 10 }).notNull().default("CASH"),
+  remark: varchar("remark", { length: 500 }),
+  description: varchar("description", { length: 200 }),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const packageUsageLogTable = mysqlTable("packageUsage_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  reservationId: char("reservationId", { length: 36 }).notNull(),
+  customerId: char("customerId", { length: 36 }).notNull(),
+  prepaidPackageId: char("prepaidPackageId", { length: 36 }).notNull(),
+  startDate: datetime("startDate", { mode: 'date', fsp: 3 }).notNull(),
+  endDate: datetime("endDate", { mode: 'date', fsp: 3 }).notNull(),
+  days: smallint("days").notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const promotionLogTable = mysqlTable("promotion_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  value: varchar("value", { length: 50 }).notNull(),
+  text: varchar("text", { length: 50 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const reservationCustomerLogTable = mysqlTable("reservationCustomer_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  reservationId: char("reservationId", { length: 36 }).notNull(),
+  customerId: char("customerId", { length: 36 }).notNull(),
+  tdacStatusId: char("tdacStatusId", { length: 36 }).notNull(),
+  baggageTransfer: varchar("baggageTransfer", { length: 10 }),
+  visaRequired: boolean("visaRequired").default(false).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const roomLogTable = mysqlTable("room_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  roomNo: varchar("roomNo", { length: 50 }).notNull(),
+  roomTypeId: char("roomTypeId", { length: 36 }).notNull(),
+  isAvailable: boolean("isAvailable").default(true).notNull(),
+  location: varchar("location", { length: 10 }),
+  zone: varchar("zone", { length: 10 }).notNull(),
+  bedType: varchar("bedType", { length: 10 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const roomReservationLogTable = mysqlTable("roomReservation_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  roomId: char("roomId", { length: 36 }).notNull(),
+  reservationId: char("reservationId", { length: 36 }).notNull(),
+  noOfExtraBed: tinyint().default(0),
+  checkInDate: datetime("checkInDate", { mode: 'date', fsp: 3 }).notNull(),
+  checkOutDate: datetime("checkOutDate", { mode: 'date', fsp: 3 }).notNull(),
+  isSingleOccupancy: boolean("isSingleOccupancy"),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const roomRateLogTable = mysqlTable("roomRate_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  roomTypeId: char("roomTypeId", { length: 36 }).notNull(),
+  roomRate: decimal("roomRate").notNull(),
+  singleRate: decimal("singleRate").notNull(),
+  roomSurcharge: decimal("roomSurcharge").notNull(),
+  seasonSurcharge: decimal("seasonSurcharge").notNull(),
+  extraBedRate: decimal("extraBedRate").notNull(),
+  month: tinyint("month").notNull(),
+  location: varchar("location", { length: 10 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const roomTypeLogTable = mysqlTable("roomType_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  roomType: varchar("roomType", { length: 50 }).notNull(),
+  roomTypeText: varchar("roomTypeText", { length: 50 }).notNull(),
+  maxOccupancy: tinyint("maxOccupancy"),
+  isDoubleBed: binary("isDoubleBed"),
+  location: varchar("location", { length: 10 }),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const userLogTable = mysqlTable("user_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  userName: varchar("userName", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  password: varchar('password', { length: 100 }).notNull(),
+  role: varchar("role", { length: 50 }).notNull(),
+  location: varchar("location", { length: 10 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
+});
+
+export const versionLogTable = mysqlTable("version_log", {
+  log_Id: bigint("log_Id", {mode: "number"}).default(1).autoincrement().primaryKey(),
+  id: char("id", { length: 36 }).notNull(),
+  version: varchar("version", { length: 10 }).notNull(),
+  createdAtUTC: datetime("createdAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull(),
+  createdBy: char("createdBy", { length: 36 }).notNull(),
+  updatedAtUTC: datetime("updatedAtUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+  updatedBy: char("updatedBy", { length: 36 }).notNull(),
+  trigger: mysqlEnum("trigger", ["INSERT", "UPDATE", "DELETE"]).notNull(),
+  triggerDateTimeUTC: datetime("triggerDateTimeUTC", { mode: 'date', fsp: 3 }).$defaultFn(() => new Date()).notNull()
 });
 
 export const reservationRelations = relations(reservationTable, ({ one, many }) => ({

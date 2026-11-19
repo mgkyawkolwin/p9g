@@ -50,7 +50,7 @@ export default function PrepaidPackageTable({
     setEditPrepaidPackage: (prepaidPackage: PrepaidPackage) => void;
   } | undefined>(undefined);
   const paymentDialogRef = React.useRef<{
-    openDialog: (open: boolean, prepaidPackageId?: string) => void;
+    openDialog: (open: boolean, prepaidPackageId?: string, customerName?: string) => void;
   } | undefined>(undefined);
   const [historyOpen, setHistoryOpen] = React.useState(false);
   const [historyPackage, setHistoryPackage] = React.useState<PrepaidPackage | null>(null);
@@ -214,7 +214,7 @@ export default function PrepaidPackageTable({
             variant="black"
             size="sm"
             type="button"
-            onClick={() => paymentDialogRef.current?.openDialog(true, row.original.id)}
+            onClick={() => paymentDialogRef.current?.openDialog(true, row.original.id, row.original.customerEnglishName?.trim() || row.original.customerName)}
           >
             Payment
           </ButtonCustom>

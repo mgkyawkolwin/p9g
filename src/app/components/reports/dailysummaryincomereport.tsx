@@ -22,6 +22,8 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
     let totalDropOffCashKWR = 0, totalDropOffCashMMK = 0, totalDropOffCashTHB = 0, totalDropOffCashUSD = 0;
     let totalBillBankKWR = 0, totalBillBankMMK = 0, totalBillBankTHB = 0, totalBillBankUSD = 0;
     let totalBillCashKWR = 0, totalBillCashMMK = 0, totalBillCashTHB = 0, totalBillCashUSD = 0;
+    let totalNinetyDaysBankKWR = 0, totalNinetyDaysBankMMK = 0, totalNinetyDaysBankTHB = 0, totalNinetyDaysBankUSD = 0;
+    let totalNinetyDaysCashKWR = 0, totalNinetyDaysCashMMK = 0, totalNinetyDaysCashTHB = 0, totalNinetyDaysCashUSD = 0;
     let totalFounderPassBankKWR = 0, totalFounderPassBankMMK = 0, totalFounderPassBankTHB = 0, totalFounderPassBankUSD = 0;
     let totalFounderPassCashKWR = 0, totalFounderPassCashMMK = 0, totalFounderPassCashTHB = 0, totalFounderPassCashUSD = 0;
     let totalBankKWR = 0, totalBankMMK = 0, totalBankTHB = 0, totalBankUSD = 0;
@@ -220,12 +222,15 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                             <th key={`headcell-${Math.random()}`} className={`border-r-1 ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`} colSpan={8}>Pick Up</th>
                             <th key={`headcell-${Math.random()}`} className={`border-r-1 ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`} colSpan={8}>Drop Off</th>
                             <th key={`headcell-${Math.random()}`} className={`border-r-1 ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`} colSpan={8}>Bill</th>
+                            <th key={`headcell-${Math.random()}`} className={`border-r-1 ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`} colSpan={8}>90 Days</th>
                             <th key={`headcell-${Math.random()}`} className={`border-r-1 ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`} colSpan={8}>Founder Pass</th>
                             <th key={`headcell-${Math.random()}`} className={`border-r-1 ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`} colSpan={8}>Total</th>
                             <th key={`headcell-${Math.random()}`} className={`border-r-1 ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`} colSpan={4}>Total</th>
                         </tr>
                         <tr key={`headrow-${Math.random()}`} className={`border ${Theme.Style.tableHeadBg} ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`}>
                             <th colSpan={9} className={`border ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`}></th>
+                            <th colSpan={4} className={`border ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`}>Bank</th>
+                            <th colSpan={4} className={`border ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`}>Cash</th>
                             <th colSpan={4} className={`border ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`}>Bank</th>
                             <th colSpan={4} className={`border ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`}>Cash</th>
                             <th colSpan={4} className={`border ${Theme.Style.tableHeadBorder} ${Theme.Style.tableHeadText}`}>Bank</th>
@@ -252,6 +257,16 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                             <th key={`headcell-${Math.random()}`} className="p-1">Discount</th>
                             <th key={`headcell-${Math.random()}`} className="p-1">Paid</th>
                             <th key={`headcell-${Math.random()}`} className={`p-1 border-0 border-r-1 ${Theme.Style.tableHeadBorder}`}>Due</th>
+
+                            <th key={`headcell-${Math.random()}`} className="p-1">KWR</th>
+                            <th key={`headcell-${Math.random()}`} className="p-1">MMK</th>
+                            <th key={`headcell-${Math.random()}`} className="p-1">THB</th>
+                            <th key={`headcell-${Math.random()}`} className={`p-1 border-0 border-r-1 ${Theme.Style.tableHeadBorder}`}>USD</th>
+
+                            <th key={`headcell-${Math.random()}`} className="p-1">KWR</th>
+                            <th key={`headcell-${Math.random()}`} className="p-1">MMK</th>
+                            <th key={`headcell-${Math.random()}`} className="p-1">THB</th>
+                            <th key={`headcell-${Math.random()}`} className={`p-1 border-0 border-r-1 ${Theme.Style.tableHeadBorder}`}>USD</th>
 
                             <th key={`headcell-${Math.random()}`} className="p-1">KWR</th>
                             <th key={`headcell-${Math.random()}`} className="p-1">MMK</th>
@@ -391,6 +406,16 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                             totalBillCashTHB += Number(rp.totalBillCashTHB);
                             totalBillCashUSD += Number(rp.totalBillCashUSD);
 
+                            totalNinetyDaysBankKWR += Number(rp.totalNinetyDaysBankKWR);
+                            totalNinetyDaysBankMMK += Number(rp.totalNinetyDaysBankMMK);
+                            totalNinetyDaysBankTHB += Number(rp.totalNinetyDaysBankTHB);
+                            totalNinetyDaysBankUSD += Number(rp.totalNinetyDaysBankUSD);
+
+                            totalNinetyDaysCashKWR += Number(rp.totalNinetyDaysCashKWR);
+                            totalNinetyDaysCashMMK += Number(rp.totalNinetyDaysCashMMK);
+                            totalNinetyDaysCashTHB += Number(rp.totalNinetyDaysCashTHB);
+                            totalNinetyDaysCashUSD += Number(rp.totalNinetyDaysCashUSD);
+
                             totalFounderPassBankKWR += Number(rp.totalFounderPassBankKWR);
                             totalFounderPassBankMMK += Number(rp.totalFounderPassBankMMK);
                             totalFounderPassBankTHB += Number(rp.totalFounderPassBankTHB);
@@ -483,6 +508,16 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                                 <td className="p-2 text-right">{formatter.format(rp.totalBillCashTHB)}</td>
                                 <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(rp.totalBillCashUSD)}</td>
 
+                                <td className="p-2 text-right">{formatter.format(rp.totalNinetyDaysBankKWR)}</td>
+                                <td className="p-2 text-right">{formatter.format(rp.totalNinetyDaysBankMMK)}</td>
+                                <td className="p-2 text-right">{formatter.format(rp.totalNinetyDaysBankTHB)}</td>
+                                <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(rp.totalNinetyDaysBankUSD)}</td>
+
+                                <td className="p-2 text-right">{formatter.format(rp.totalNinetyDaysCashKWR)}</td>
+                                <td className="p-2 text-right">{formatter.format(rp.totalNinetyDaysCashMMK)}</td>
+                                <td className="p-2 text-right">{formatter.format(rp.totalNinetyDaysCashTHB)}</td>
+                                <td className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(rp.totalNinetyDaysCashUSD)}</td>
+
                                 <td className="p-2 text-right">{formatter.format(rp.totalFounderPassBankKWR)}</td>
                                 <td className="p-2 text-right">{formatter.format(rp.totalFounderPassBankMMK)}</td>
                                 <td className="p-2 text-right">{formatter.format(rp.totalFounderPassBankTHB)}</td>
@@ -571,6 +606,16 @@ export default function DailySummaryIncomeReport({ reportRows }: { reportRows: D
                             <th className="p-2 text-right">{formatter.format(totalBillCashMMK)}</th>
                             <th className="p-2 text-right">{formatter.format(totalBillCashTHB)}</th>
                             <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalBillCashUSD)}</th>
+
+                            <th className="p-2 text-right">{formatter.format(totalNinetyDaysBankKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalNinetyDaysBankMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalNinetyDaysBankTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalNinetyDaysBankUSD)}</th>
+
+                            <th className="p-2 text-right">{formatter.format(totalNinetyDaysCashKWR)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalNinetyDaysCashMMK)}</th>
+                            <th className="p-2 text-right">{formatter.format(totalNinetyDaysCashTHB)}</th>
+                            <th className={`p-2 border-0 border-r-1 ${Theme.Style.tableCellBorder} text-right`}>{formatter.format(totalNinetyDaysCashUSD)}</th>
 
                             <th className="p-2 text-right">{formatter.format(totalFounderPassBankKWR)}</th>
                             <th className="p-2 text-right">{formatter.format(totalFounderPassBankMMK)}</th>

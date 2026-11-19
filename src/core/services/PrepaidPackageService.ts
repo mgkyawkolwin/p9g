@@ -315,6 +315,7 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
                 currency: paymentRecord.currency,
                 paymentMode: paymentRecord.paymentMode,
                 remark: paymentRecord.remark,
+                description: paymentRecord.description,
                 createdAtUTC: paymentRecord.createdAtUTC,
                 createdBy: paymentRecord.createdBy,
                 updatedAtUTC: paymentRecord.updatedAtUTC,
@@ -380,6 +381,7 @@ export default class PrepaidPackageService implements IPrepaidPackageService {
                     currency: paymentRecord.currency,
                     paymentMode: paymentRecord.paymentMode,
                     remark: paymentRecord.remark,
+                    description: paymentRecord.description,
                     updatedAtUTC: paymentRecord.updatedAtUTC,
                     updatedBy: paymentRecord.updatedBy
                 })

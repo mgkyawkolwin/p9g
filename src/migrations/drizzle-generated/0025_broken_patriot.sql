@@ -1,0 +1,1 @@
+ALTER TABLE `packagePayment` ADD `description` varchar(200);

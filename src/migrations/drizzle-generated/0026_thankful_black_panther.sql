@@ -1,0 +1,503 @@
+CREATE TABLE `bill_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`dateUTC` datetime,
+	`paymentMode` varchar(10) NOT NULL,
+	`paymentType` varchar(10) NOT NULL,
+	`reservationId` char NOT NULL,
+	`itemName` varchar(100) NOT NULL,
+	`unitPrice` decimal NOT NULL,
+	`quantity` tinyint NOT NULL,
+	`amount` decimal NOT NULL,
+	`isPaid` boolean NOT NULL,
+	`paidOnUTC` datetime,
+	`currency` char(3),
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `bill_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `bookingInvoiceItem_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`invoiceId` char(36) NOT NULL,
+	`description` varchar(500) NOT NULL,
+	`location` varchar(255),
+	`startDate` datetime(3),
+	`endDate` datetime(3),
+	`pax` smallint NOT NULL DEFAULT 0,
+	`rateKWR` decimal NOT NULL DEFAULT '0',
+	`rateTHB` decimal NOT NULL DEFAULT '0',
+	`rateUSD` decimal NOT NULL DEFAULT '0',
+	`amountKWR` decimal NOT NULL DEFAULT '0',
+	`amountTHB` decimal NOT NULL DEFAULT '0',
+	`amountUSD` decimal NOT NULL DEFAULT '0',
+	`noOfRooms` smallint NOT NULL DEFAULT 0,
+	`noOfDays` smallint NOT NULL DEFAULT 0,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `bookingInvoiceItem_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `config_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`group` varchar(50) NOT NULL,
+	`value` varchar(50) NOT NULL,
+	`text` varchar(50) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `config_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `customer_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`name` varchar(255),
+	`englishName` varchar(255) NOT NULL,
+	`dob` varchar(50),
+	`passport` varchar(50),
+	`nationalId` varchar(50),
+	`gender` varchar(10),
+	`address` varchar(255),
+	`remarks` varchar(1024),
+	`country` varchar(50),
+	`phone` varchar(50),
+	`email` varchar(50),
+	`emergencyContactName` varchar(255),
+	`emergencyContactPhone` varchar(50),
+	`emergencyContactRelation` varchar(100),
+	`companyName` varchar(255),
+	`position` varchar(255),
+	`handicap` varchar(255),
+	`homeClub` varchar(255),
+	`yearsPlaying` varchar(255),
+	`playingHand` varchar(255),
+	`caddiePreference` varchar(255),
+	`numberOfPlayers` varchar(255),
+	`bookingChannel` varchar(255),
+	`visitPurpose` varchar(255),
+	`membershipStatus` varchar(255),
+	`membershipNo` varchar(255),
+	`introducedBy` varchar(255),
+	`interestedInMembership` varchar(255),
+	`foodAllergy` varchar(255),
+	`drink` varchar(255),
+	`preferredTeeTime` varchar(100),
+	`language` varchar(100),
+	`specialNote` varchar(1024),
+	`medicalConditions` varchar(1024),
+	`pacemakerStent` varchar(255),
+	`regularMedication` varchar(1024),
+	`drugAllergy` varchar(1024),
+	`walkingTheCourse` varchar(255),
+	`dizzyShortOfBreathWhenWalking` varchar(255),
+	`doctorNamePhone` varchar(255),
+	`visitedMyanmarBefore` varchar(255),
+	`myanmarVisitNo` varchar(255),
+	`previousMyanmarVisit` varchar(1024),
+	`myanmarInterest` varchar(1024),
+	`myanmarPlacesToVisit` varchar(1024),
+	`isBlackListed` boolean NOT NULL DEFAULT false,
+	`isDeleted` boolean NOT NULL DEFAULT false,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `customer_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `feedback_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`reservationId` char(36) NOT NULL,
+	`customerId` char(36),
+	`feedback` text,
+	`isTaskCreated` boolean NOT NULL DEFAULT false,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `feedback_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `invoice_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`invoiceNumber` varchar(50) NOT NULL,
+	`invoiceDate` datetime(3) NOT NULL,
+	`agentName` varchar(255),
+	`customerName` varchar(255) NOT NULL,
+	`pax` varchar(50),
+	`depositKWR` decimal NOT NULL DEFAULT '0',
+	`depositTHB` decimal NOT NULL DEFAULT '0',
+	`depositUSD` decimal NOT NULL DEFAULT '0',
+	`totalAmountKWR` decimal NOT NULL DEFAULT '0',
+	`totalAmountTHB` decimal NOT NULL DEFAULT '0',
+	`totalAmountUSD` decimal NOT NULL DEFAULT '0',
+	`dueAmountKWR` decimal NOT NULL DEFAULT '0',
+	`dueAmountTHB` decimal NOT NULL DEFAULT '0',
+	`dueAmountUSD` decimal NOT NULL DEFAULT '0',
+	`status` varchar(20) NOT NULL,
+	`included` varchar(1000),
+	`notIncluded` text,
+	`note` varchar(1000),
+	`bookingSource` varchar(50),
+	`bookingPerson` varchar(50),
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `invoice_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `media_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`reservationId` char(36),
+	`mediaGroupId` char(36) NOT NULL,
+	`customerId` char(36),
+	`url` varchar(500) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `media_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `packagePayment_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`prepaidPackageId` char(36) NOT NULL,
+	`amount` decimal NOT NULL,
+	`paymentDateTimeUTC` datetime(3) NOT NULL,
+	`currency` char(3) NOT NULL,
+	`paymentMode` varchar(10) NOT NULL DEFAULT 'CASH',
+	`remark` varchar(500),
+	`description` varchar(200),
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `packagePayment_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `packageUsage_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`reservationId` char(36) NOT NULL,
+	`customerId` char(36) NOT NULL,
+	`prepaidPackageId` char(36) NOT NULL,
+	`startDate` datetime(3) NOT NULL,
+	`endDate` datetime(3) NOT NULL,
+	`days` smallint NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `packageUsage_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `payment_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`reservationId` char(36) NOT NULL,
+	`paymentDateUTC` datetime NOT NULL,
+	`paymentType` varchar(10) NOT NULL,
+	`amount` decimal NOT NULL,
+	`amountInCurrency` decimal NOT NULL,
+	`currency` char(3) NOT NULL,
+	`paymentMode` varchar(10) NOT NULL,
+	`remark` varchar(200),
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `payment_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `pookieConfig_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`contactUrl` varchar(500) NOT NULL,
+	`key` char(36) NOT NULL,
+	`version` varchar(10) NOT NULL,
+	`seeResultUntil` int NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `pookieConfig_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `pookieDevice_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`deviceId` varchar(50) NOT NULL,
+	`isBlocked` boolean NOT NULL,
+	`lastRequestAtUTC` datetime(3) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `pookieDevice_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `pookie_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`date` datetime(3) NOT NULL,
+	`hole` varchar(10) NOT NULL,
+	`isBusy` boolean NOT NULL,
+	`location` varchar(10) NOT NULL,
+	`noOfPeople` tinyint NOT NULL,
+	`rooms` varchar(50) NOT NULL,
+	`time` datetime(3) NOT NULL,
+	`rowVersion` char(36) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `pookie_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `prepaid_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`value` varchar(50) NOT NULL,
+	`text` varchar(50) NOT NULL,
+	`days` int NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `prepaid_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `prepaidPackage_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`customerId` char(36) NOT NULL,
+	`effectiveStartDate` datetime(3) NOT NULL,
+	`effectiveEndDate` datetime(3) NOT NULL,
+	`noOfDays` smallint NOT NULL,
+	`daysUsed` smallint NOT NULL DEFAULT 0,
+	`packageStatus` varchar(10) NOT NULL DEFAULT 'New',
+	`price` decimal NOT NULL DEFAULT '0',
+	`paidAmount` decimal NOT NULL DEFAULT '0',
+	`paymentStatus` varchar(10) NOT NULL DEFAULT 'Unpaid',
+	`remark` varchar(500),
+	`prepaidPackageTypeId` char(36) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `prepaidPackage_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `promotion_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`value` varchar(50) NOT NULL,
+	`text` varchar(50) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `promotion_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `reservationCustomer_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`reservationId` char(36) NOT NULL,
+	`customerId` char(36) NOT NULL,
+	`tdacStatusId` char(36) NOT NULL,
+	`baggageTransfer` varchar(10),
+	`visaRequired` boolean NOT NULL DEFAULT false,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `reservationCustomer_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `room_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`roomNo` varchar(50) NOT NULL,
+	`roomTypeId` char(36) NOT NULL,
+	`isAvailable` boolean NOT NULL DEFAULT true,
+	`location` varchar(10),
+	`zone` varchar(10) NOT NULL,
+	`bedType` varchar(10) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `room_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `roomRate_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`roomTypeId` char(36) NOT NULL,
+	`roomRate` decimal NOT NULL,
+	`singleRate` decimal NOT NULL,
+	`roomSurcharge` decimal NOT NULL,
+	`seasonSurcharge` decimal NOT NULL,
+	`extraBedRate` decimal NOT NULL,
+	`month` tinyint NOT NULL,
+	`location` varchar(10) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `roomRate_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `roomReservation_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`roomId` char(36) NOT NULL,
+	`reservationId` char(36) NOT NULL,
+	`noOfExtraBed` tinyint DEFAULT 0,
+	`checkInDate` datetime(3) NOT NULL,
+	`checkOutDate` datetime(3) NOT NULL,
+	`isSingleOccupancy` boolean,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `roomReservation_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `roomType_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`roomType` varchar(50) NOT NULL,
+	`roomTypeText` varchar(50) NOT NULL,
+	`maxOccupancy` tinyint,
+	`isDoubleBed` binary,
+	`location` varchar(10),
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `roomType_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `simpleInvoiceItem_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`invoiceId` char(36) NOT NULL,
+	`description` varchar(500) NOT NULL,
+	`amountKWR` decimal NOT NULL DEFAULT '0',
+	`amountTHB` decimal NOT NULL DEFAULT '0',
+	`amountUSD` decimal NOT NULL DEFAULT '0',
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `simpleInvoiceItem_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `task_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`reservationId` char(36),
+	`customerId` char(36),
+	`description` text NOT NULL,
+	`department` varchar(50),
+	`status` varchar(50) NOT NULL,
+	`remark` varchar(255),
+	`targetCompletionDateTime` datetime(3),
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `task_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `user_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`name` varchar(255) NOT NULL,
+	`userName` varchar(255) NOT NULL,
+	`email` varchar(255),
+	`password` varchar(100) NOT NULL,
+	`role` varchar(50) NOT NULL,
+	`location` varchar(10) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `user_log_log_Id` PRIMARY KEY(`log_Id`)
+);
+--> statement-breakpoint
+CREATE TABLE `version_log` (
+	`log_Id` bigint AUTO_INCREMENT NOT NULL DEFAULT 1,
+	`id` char(36) NOT NULL,
+	`version` varchar(10) NOT NULL,
+	`createdAtUTC` datetime(3) NOT NULL,
+	`createdBy` char(36) NOT NULL,
+	`updatedAtUTC` datetime(3) NOT NULL,
+	`updatedBy` char(36) NOT NULL,
+	`trigger` enum('INSERT','UPDATE','DELETE') NOT NULL,
+	`triggerDateTimeUTC` datetime(3) NOT NULL,
+	CONSTRAINT `version_log_log_Id` PRIMARY KEY(`log_Id`)
+);

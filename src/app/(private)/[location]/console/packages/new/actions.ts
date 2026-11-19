@@ -166,7 +166,7 @@ export async function prepaidPackagePaymentGetList(id: string, location: string)
 
 export async function prepaidPackagePaymentCreate(
   id: string,
-  payment: { amount: number; paymentDateTimeUTC: Date | string; currency: string; paymentMode: string; remark?: string | null },
+  payment: { amount: number; paymentDateTimeUTC: Date | string; currency: string; paymentMode: string; remark?: string | null; description?: string | null },
   location: string
 ): Promise<FormState> {
   try {
@@ -179,7 +179,8 @@ export async function prepaidPackagePaymentCreate(
         : payment.paymentDateTimeUTC,
       currency: String(payment.currency ?? ''),
       paymentMode: String(payment.paymentMode ?? 'CASH'),
-      remark: String(payment.remark ?? '')
+      remark: String(payment.remark ?? ''),
+      description: String(payment.description ?? '')
     };
 
     const response = await fetch(process.env.API_URL + `packages/${encodeURIComponent(id)}/payments`, {
@@ -209,7 +210,7 @@ export async function prepaidPackagePaymentCreate(
 export async function prepaidPackagePaymentUpdate(
   id: string,
   paymentId: string,
-  payment: { amount: number; paymentDateTimeUTC: Date | string; currency: string; paymentMode: string; remark?: string | null },
+  payment: { amount: number; paymentDateTimeUTC: Date | string; currency: string; paymentMode: string; remark?: string | null; description?: string | null },
   location: string
 ): Promise<FormState> {
   try {
@@ -222,7 +223,8 @@ export async function prepaidPackagePaymentUpdate(
         : payment.paymentDateTimeUTC,
       currency: String(payment.currency ?? ''),
       paymentMode: String(payment.paymentMode ?? 'CASH'),
-      remark: String(payment.remark ?? '')
+      remark: String(payment.remark ?? ''),
+      description: String(payment.description ?? '')
     };
 
     const response = await fetch(process.env.API_URL + `packages/${encodeURIComponent(id)}/payments/${encodeURIComponent(paymentId)}`, {

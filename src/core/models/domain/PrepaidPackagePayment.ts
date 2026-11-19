@@ -7,4 +7,5 @@ export default class PrepaidPackagePayment extends DomainBase {
     public currency: string = 'KWR';
     public paymentMode: string = 'CASH';
     public remark: string = '';
+    public description: string = '';
 }

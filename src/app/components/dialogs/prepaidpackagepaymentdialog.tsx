@@ -11,14 +11,17 @@ import { InputCustom } from "@/lib/components/web/react/uicustom/inputcustom";
 import { SelectCustom } from "@/lib/components/web/react/uicustom/selectcustom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/lib/components/web/react/ui/dialog";
 import { Textarea } from "@/lib/components/web/react/ui/textarea";
+import { CheckboxCustom } from "@/lib/components/web/react/uicustom/CheckboxCustom";
 import { prepaidPackagePaymentCreate, prepaidPackagePaymentDelete, prepaidPackagePaymentGetList, prepaidPackagePaymentUpdate } from "@/app/(private)/[location]/console/packages/new/actions";
 
 import "react-datepicker/dist/react-datepicker.css";
 
+const htmlEscapes: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const escapeHtml = (value: string) => value.replace(/[&<>"']/g, ch => htmlEscapes[ch]);
 
 interface PrepaidPackagePaymentDialogProps {
   openCallback?: (callbacks: {
-    openDialog: (open: boolean, prepaidPackageId?: string) => void;
+    openDialog: (open: boolean, prepaidPackageId?: string, customerName?: string) => void;
   }) => void;
   onSaved?: () => void;
 }
@@ -37,12 +40,18 @@ export default function PrepaidPackagePaymentDialog({ openCallback, onSaved }: P
   const [prepaidPackageId, setPrepaidPackageId] = React.useState('');
   const [payments, setPayments] = React.useState<PrepaidPackagePaymentRow[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [customerName, setCustomerName] = React.useState('');
+  const [checkedRowKeys, setCheckedRowKeys] = React.useState<Set<string>>(new Set());
   const draftCounter = React.useRef(0);
 
-  const openDialog = React.useCallback((isOpen: boolean, id?: string) => {
+  const openDialog = React.useCallback((isOpen: boolean, id?: string, name?: string) => {
     if (id) setPrepaidPackageId(id);
+    if (name !== undefined) setCustomerName(name);
     setOpen(isOpen);
-    if (isOpen) setPayments([]);
+    if (isOpen) {
+      setPayments([]);
+      setCheckedRowKeys(new Set());
+    }
   }, []);
 
   React.useEffect(() => {
@@ -109,7 +118,8 @@ export default function PrepaidPackagePaymentDialog({ openCallback, onSaved }: P
           paymentDateTimeUTC: payment.paymentDateTimeUTC,
           currency: payment.currency,
           paymentMode: payment.paymentMode,
-          remark: payment.remark
+          remark: payment.remark,
+          description: payment.description
         };
         const result = payment.isNew
           ? await prepaidPackagePaymentCreate(prepaidPackageId, paymentData, location)
@@ -152,6 +162,65 @@ export default function PrepaidPackagePaymentDialog({ openCallback, onSaved }: P
     }
   };
 
+  const handlePrintReceipt = () => {
+    const checkedPayments = payments.filter(payment => checkedRowKeys.has(payment.rowKey));
+    if (checkedPayments.length === 0) {
+      toast('Select at least one payment row to print.');
+      return;
+    }
+
+    const total = checkedPayments.reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0);
+    const headerCell = (align: string, label: string) => `<th style="border: 1px solid #666; padding: 8px; text-align: ${align}; background-color: #eee;">${label}</th>`;
+    const bodyCell = (align: string, value: string) => `<td style="border: 1px solid #666; padding: 8px; text-align: ${align};">${value}</td>`;
+
+    let content = `<table style="width:100%;border-collapse: collapse;font-size:10pt;">`;
+    content += `<thead><tr>` +
+      headerCell('right', '#') +
+      headerCell('left', 'Payment Date') +
+      headerCell('left', 'Description') +
+      headerCell('left', 'Payment Mode') +
+      headerCell('right', 'Cur') +
+      headerCell('right', 'Amount') +
+      `</tr></thead><tbody>`;
+
+    checkedPayments.forEach((payment, index) => {
+      content += `<tr>` +
+        bodyCell('right', String(index + 1)) +
+        bodyCell('left', payment.paymentDateTimeUTC ? new Date(payment.paymentDateTimeUTC).toLocaleDateString('sv-SE') : '') +
+        bodyCell('left', escapeHtml(payment.description ?? '')) +
+        bodyCell('left', escapeHtml(payment.paymentMode ?? '')) +
+        bodyCell('right', escapeHtml(payment.currency ?? '')) +
+        bodyCell('right', String(payment.amount ?? '')) +
+        `</tr>`;
+    });
+    content += `</tbody>`;
+    content += `<tfoot><tr>` +
+      `<td colspan="5" style="padding: 8px; text-align: right; font-weight:bold;">Total</td>` +
+      `<td style="border: 1px solid #666; padding: 8px; text-align: right; font-weight:bold;">${total.toFixed(2)}</td>` +
+      `</tr></tfoot>`;
+    content += `</table>`;
+
+    const win = window.open('', 'Print', `width=${screen.availWidth},height=${screen.availHeight},left=0,top=0`);
+    if (win) {
+      win.document.open();
+      win.document.writeln(
+        `<html><style>@media print{ @page {margin:0;}}</style>` +
+        `<body style="padding:0.5in;font-size:10pt;"><div><img src="/p9glogowithtext.png" style="width:200px;" /></div>` +
+        `<div style="display:block;width:100%;text-align:center;font-size:18pt;">Receipt</div><br/><br/>` +
+        `<table style="width:100%;font-size:10pt;"><tr><td>Customer: ${escapeHtml(customerName)}</td><td style="text-align:right;">Date: ____/____/________</td></tr></table>` +
+        `<div><br/>${content}</div><br/><br/><br/><div style="width:100%;text-align:right;">Cashier Signature : ____________________</div><br/>` +
+        `<div style="display:block;width:100%;align:middle;"><img src="/p9gqr.png" style="width:350px;" /></div></body></html>`
+      );
+      win.document.close();
+      win.focus();
+      win.onload = function () {
+        win.print();
+        win.close();
+      }
+    }
+  };
+
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
   <DialogContent
@@ -169,7 +238,9 @@ export default function PrepaidPackagePaymentDialog({ openCallback, onSaved }: P
         <table className="w-full text-sm">
           <thead className="sticky top-0 z-10 bg-background">
             <tr className="border-b text-left">
+              <th className="px-3 py-2">Print</th>
               <th className="px-3 py-2">Date / Time</th>
+              <th className="px-3 py-2">Description</th>
               <th className="px-3 py-2 text-right">Amount</th>
               <th className="px-3 py-2">Currency</th>
               <th className="px-3 py-2">Payment Mode</th>
@@ -181,6 +252,17 @@ export default function PrepaidPackagePaymentDialog({ openCallback, onSaved }: P
             {payments.map(payment => (
               <tr key={payment.rowKey} className="border-b">
                 <td className="px-3 py-2">
+                  <CheckboxCustom
+                    checked={checkedRowKeys.has(payment.rowKey)}
+                    onCheckedChange={checked => setCheckedRowKeys(previous => {
+                      const next = new Set(previous);
+                      if (checked) next.add(payment.rowKey);
+                      else next.delete(payment.rowKey);
+                      return next;
+                    })}
+                  />
+                </td>
+                <td className="px-3 py-2">
                   <DatePicker
                     selected={payment.paymentDateTimeUTC}
                     onChange={(date: Date | null) => date && handleInputChange(payment.rowKey, 'paymentDateTimeUTC', date)}
@@ -189,6 +271,14 @@ export default function PrepaidPackagePaymentDialog({ openCallback, onSaved }: P
                     showTimeSelect
                     timeIntervals={5}
                     timeFormat="HH:mm"
+                  />
+                </td>
+                <td className="px-3 py-2">
+                  <InputCustom
+                    type="text"
+                    maxLength={200}
+                    value={payment.description ?? ''}
+                    onChange={event => handleInputChange(payment.rowKey, 'description', event.target.value)}
                   />
                 </td>
                 <td className="px-3 py-2 text-right">
@@ -222,7 +312,7 @@ export default function PrepaidPackagePaymentDialog({ openCallback, onSaved }: P
               </tr>
             ))}
             {payments.length === 0 && (
-              <tr><td className="px-3 py-4 text-center" colSpan={6}>No payments recorded.</td></tr>
+              <tr><td className="px-3 py-4 text-center" colSpan={8}>No payments recorded.</td></tr>
             )}
           </tbody>
         </table>
@@ -232,6 +322,7 @@ export default function PrepaidPackagePaymentDialog({ openCallback, onSaved }: P
       <div className="flex justify-end gap-2">
         <ButtonCustom type="button" variant="green" disabled={isSaving || !payments.some(payment => payment.isNew || payment.isModified)} onClick={savePayments}>Save Payment</ButtonCustom>
         <ButtonCustom type="button" onClick={addPaymentRow}>Add Row</ButtonCustom>
+        <ButtonCustom type="button" variant="black" onClick={handlePrintReceipt}>Print Receipt</ButtonCustom>
         <ButtonCustom type="button" variant="black" onClick={() => setOpen(false)}>Close</ButtonCustom>
       </div>
     </div>

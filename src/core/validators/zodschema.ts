@@ -115,7 +115,8 @@ export const prepaidPackagePaymentValidator = z.object({
   paymentDateTimeUTC: z.coerce.date(),
   currency: z.string().length(3),
   paymentMode: z.enum(['CASH', 'BANK']).default('CASH'),
-  remark: z.string().max(500).nullish().optional()
+  remark: z.string().max(500).nullish().optional(),
+  description: z.string().max(200).nullish().optional()
 });
 
 
